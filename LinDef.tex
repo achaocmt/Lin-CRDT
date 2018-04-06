@@ -30,9 +30,16 @@ $v$ is a function that maps each specification alphabet $a$ of $s$ into $\{ a \}
 \begin{enumerate}[(i)]
 \item For each specification alphabet $a$ of $s$, $s \uparrow_{v(a)} \in \mathit{spec}_s$. 
 \end{enumerate} 
-\end{definition}
+\end{definition} 
 
+The examples of sequential specifications of typical CRDT are given below. To give sequential specification, we use the style of pre-condition and post-condition for each specification alphabet.
 
+\noindent {\bf Example 1. Set}: The sequential specification $\mathit{Set}_s$ are given as follows: 
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ state = i  \}$ $inc$ $\{ state = i+1 \}$. 
+\item[-] $\{ state = i  \}$ $read() \Rightarrow i$ $\{ state = i+1 \}$. 
+\end{itemize} 
 
 
