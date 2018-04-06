@@ -3,10 +3,127 @@
 
 
 \section{Definition of Linearizability}
-\label{sec:definition of linearizability}
+\label{sec:definition of linearizability} 
+
+Let us start our formation of executions, specifications and linearizations of CRDT.  
+
+We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of $\mathbb{Q}$ query methods, and $\mathbb{U}$ update methods. We consider replicated data types which are distributed across a set of replicas; the set of replica identifiers is denoted by $\mathbb{R}$. We assume that each replica contains a copy of the data type state. Finally we have a infinite set $\mathbb{O}$ of operation identifiers, corresponding to each individual operation performed on the CRDT throughout an execution.
+
+Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$, indicate that the operation is a call to method $m$ with argument $a$ and the result of the operation is the value $b$. When $m$ does not use the argument (resp., return value), we write $m()\Rightarrow b$ (resp., $m(a)$) instead. We define an operation $o$ to be a tuple $(\ell,i)$, where $\ell$ is an operation label and $i \in \mathbb{O}$ is a unique operation identifier. 
+
+\noindent {\bf Sequential Specification:} A sequential specification is used to state the sequential intuition of operations. Let specification alphabet $\mathbb{A}$ be a set of a tuples $(o,s)$, where $o$ is an operation and $s$ is a set of operation identifiers. The reason of introducing such set of operation identifiers is that, in sequential specifications some operations should only influence a subset of previous operations. Such operation identifier set is just the operations influenced by this operation. With specification alphabet, a sequential specification of CRDT is given as a set of sequences over specification alphabets as follows. From now on, we implicitly assume that in a sequence of specification alphabets, each item has a unique operation identifier. 
+
+\begin{definition}[Sequential Specification]
+\label{definition:sequential specification} 
+A sequential specification $\mathit{spec}_s \subseteq \mathbb{A}^*$ is a set of strings over specification alphabet $\mathbb{A}$. 
+\end{definition} 
+
+\noindent {\bf Distributed Specification:} Each element of distributed specification is a tuple $(s,v)$, where $s \subseteq \mathbb{A}^*$ is a sequence of specification alphabet, and $v$ is a function that maps each item $a$ of $s$ into a subset of items before $a$ in $s$. Here $s$ essentially is the linearization of an execution, while $v$ is used to ensure each specification alphabet is correct in this sequence. %Given a sequence $s \subseteq \mathbb{A}^*$ of specification alphabets and a specification alphabets $a$, let $\mathit{itm}(s)$ be the set of specification alphabets of $s$, and $\mathit{itmBef}(s,a)$ be the set of specification alphabets of $s$ that appears before $a$, or $\emptyset$ otherwise. 
+Given a sequence $s$ and a set of operations $S$, let $s \uparrow_{S}$ be the projection of $s$ over $S$. Given a sequence $s$ and an item $a$ of $s$, let $\mathit{bef}(s,a)$ contains the set of items of $s$ that appear before $a$ in $s$, as well as all the subsets of this set. 
+
+\begin{definition}[Distributed Specification]
+\label{definition:distributed specification}
+A distributed specification $\mathit{spec}_d$ w.r.t a sequential specification $\mathit{spec}_d$ is a set of tuples $(s,v)$, where $s \subseteq \mathbb{A}^*$, and %$v: \mathit{itm}(s) \rightarrow 2^{\mathit{items}(s)}$ is a function that maps each item $a$ into $\mathit{itmBef}(s,a)$.
+%$v$ is a function that maps each specification alphabet $a$ of $s$ into a subset of specification alphabet of $s$ that appears before $a$ in $s$. 
+$v$ is a function that maps each specification alphabet $a$ of $s$ into either $\{ a \} \cup x$ with $ x \in \mathit{bef}(s,a)$ or $\emptyset$. Moreover, the following condition need to be satisfied:
+
+\begin{enumerate}[(i)]
+\item For each specification alphabet $a$ of $s$, $s \uparrow_{v(a)} \in \mathit{spec}_s$. 
+\end{enumerate} 
+\end{definition} 
+
+The examples of sequential specifications of typical CRDT are given below. To give sequential specification, we use the style of pre-condition and post-condition for each specification alphabet.
 
 
-In this section we will introduce the definition of distributed history, sequential specification, distributed specification and distributed linearization. 
+\begin{example}[Counter]
+\label{definition:sequential specification of counter}
+The sequential specification $\mathit{Counter}_s$ of counter are given as follows: Let $state$ be a natural number. 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ state = i \}$ $inc$ $\{ state = i+1 \}$.
+\item[-] $\{ state = i \}$ $read() \Rightarrow i$ $\{ state = i+1 \}$.
+\end{itemize} 
+\end{example} 
+
+
+\begin{example}[Set]
+\label{definition:sequential specification of set}
+The sequential specification $\mathit{Set}_s$ of set are given as follows: Here we assume that each item is put into the set only once. Let $state$ be a set and each its element $(a,flag)$ is a tuple of a data $a$ and a flag $flag \in \{ \mathit{true},\mathit{false} \}$. 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ state = S \wedge a \notin S \}$ $add(a)$ $\{ state = S \cup \{ (a,\mathit{true}) \} \}$.
+\item[-] $\{ state = S \wedge S' = \{a \vert (a,\mathit{true}) \in S \} \}$ $read() \Rightarrow S'$ $\{ state = S \}$.
+\item[-] $\{ state = S \wedge (a,\_) \in S \}$ $rem(a)$ $\{ state = S \setminus \{ (a,\_) \} \cup \{ (a,\mathit{false}) \} \}$.
+\end{itemize} 
+\end{example} 
+
+
+
+\begin{example}[OR-Set]
+\label{definition:sequential specification of or-set}
+The sequential specification $\mathit{OR-Set}_s$ of OR-set are given as follows: Let $state$ be a set and each its element $(a,id,flag)$ is a tuple of a data $a$, a operation identifier $id$, and a flag $flag \in \{ \mathit{true},\mathit{false} \}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ state = S  \}$ $((add(a),\mathit{id}),\emptyset)$ $\{ state = S \cup \{ (a,\mathit{id},\mathit{true}) \} \}$.
+\item[-] $\{ state = S \wedge S' = \{ a \vert (a,\_,\mathit{true}) \in S \} \}$ $read() \Rightarrow S'$ $\{ state = S \}$. 
+\item[-] $\{ state = S  \wedge S_1 \subseteq \{a \vert (a,\_,\_) \in S\} \}$ $((rem(a),\_),S_1)$ $\{ state = S_2  \}$. Here $S_2$ is obtained from $S$ by marking each $S$ item with $\mathit{false}$ flag. 
+\end{itemize}
+\end{example} 
+
+
+\begin{example}[Register]
+\label{definition:sequential specification of register}
+The sequential specification $\mathit{Reg}_s$ of register are given as follows: Let $state \in \mathbb{D}$ be a value.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ state = a  \}$ $write(b)$ $\{ state = b \}$.
+\item[-] $\{ state = a \}$ $read() \Rightarrow a$ $\{ state = a \}$. 
+\end{itemize}
+\end{example}
+
+
+\begin{example}[Multi-value Register]
+\label{definition:sequential specification of multi-value register}
+The sequential specification $\mathit{MVReg}_s$ of multi-value register are given as follows: Let $state$ be a set and each its element $(a,id,flag)$ is a tuple of a data $a$, a operation identifier $id$, and a flag $flag \in \{ \mathit{true},\mathit{false} \}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ state = S \wedge \forall x \in S_1, (b,x,\mathit{true}) \in S_1 \vee (b,x,\mathit{false}) \in S_1 \}$ $((write(b),id),S_1)$ $\{ state = S_2 \}$. Here $S_2$ is obtained from $S$ by mark each $(b,x)$ with $\mathit{false}$, and then insert $(b,id,\mathit{true})$. 
+\item[-] $\{ state = S \wedge S' = \{ a \vert (a,\_,\mathit{true}) \in S \} \}$ $read() \Rightarrow S'$ $\{ state = S \}$. 
+\end{itemize}
+\end{example} 
+
+
+\begin{example}[List with add-after interface]
+\label{definition:sequential specification of list with add-after interface} 
+The sequential specification $\mathit{List}_s$ of list are given as follows: Let $state$ be a sequence, where each item is a tuple $(a,flag)$ with data $a$ and flag $flag \in \{ \mathit{true},\mathit{false} \}$. 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ state = (a_1,\_) \cdot \ldots \cdot (a_n,\_) \wedge l \leq n \wedge a_k \notin \{ a_1, \ldots, a_n \} \}$ $add(a_k,a_l)$ $\{ state = (a_1,\_) \cdot \ldots \cdot (a_l,\_) \cdot (a_k,\mathit{true}) \cdot (a_{l+1},\_) \cdot \ldots \cdot (a_n,\_) \}$.
+\item[-] $\{ state = (a_1,\_) \cdot \ldots \cdot (a_n,\_) \wedge S = \{ a \vert (a,\mathit{true}) \in state \} \wedge l = a_1 \cdot \ldots \cdot a_n \uparrow_{S} \}$ $read() \Rightarrow l$ $\{ state = (a_1,\_) \cdot \ldots \cdot (a_n,\_) \}$. 
+\end{itemize}
+\end{example} 
+
+
+
+As customary, to capture the notion of client-observable effects of an execution over a CRDT, we will define the notion of \emph{history}. A history contains a set of operations, and the order in which they were effected in each replica. Formally, a history $h$ is a tuple of the form $h = (O,\mathit{lab},\mathit{ro})$ where $O$ is a set of operation identifiers, $\mathit{lab}$ is a function that maps each operation identifiers of $O$ into a operation label, and $\mathit{ro}$ is a union of transitive, irreflexive and total orders of $O$.
+
+A history is distributed linearizable w.r.t a distributed specification, if we can find a visibility relation $\mathit{vis}$ of the history and a total sequence $s$ in distributed specification, such that $\mathit{vis}$ is consistent with $s$. Formally,
+
+\begin{definition}[Distributed Linearizability] 
+\label{definition:distributed linearizability} 
+A history $h = (O,\mathit{ro})$ is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if $\exists (s,v) \in \mathit{spec}_d$, $\exists \mathit{vis} \subseteq O \times O$ be a acyclic visibility relation, such that
+
+\begin{enumerate}[(i)]
+\item $\mathit{ro} \subseteq \mathit{vis}$, 
+\item $\mathit{vis} \subseteq s$, 
+\item For each operation identifiers $i$ of $h$, if $v(i) \neq \emptyset$, then $v(i) = \{ i \} \cup \{ a \vert (a,i) \in \mathit{vis} \}$.  
+\end{enumerate}
+
+A set $H$ of histories is is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if each of its history is. 
+\end{definition}
+
 
 
 %%% Local Variables:
