@@ -1,16 +1,5 @@
-% \documentclass[a4paper,UKenglish]{lipics-v2016}
 \documentclass{llncs}
 \usepackage[english]{babel}
-
-%\newtheorem{theorem}{Theorem}[section]
-%\newtheorem{conjecture}[theorem]{Conjecture}
-%\newtheorem{corollary}[theorem]{Corollary}
-%\newtheorem{proposition}[theorem]{Proposition}
-%\newtheorem{lemma}[theorem]{Lemma}
-%\newdef{definition}[theorem]{Definition}
-%\newdef{remark}[theorem]{Remark}
-%\newdef{example}[theorem]{Example}
-
 
 \usepackage{hyperref}
 
@@ -18,24 +7,12 @@
 \usepackage{amsmath}
 \usepackage{color}
 \usepackage{amsfonts,amssymb}
-%\usepackage{txfonts}
-%\usepackage{pxfonts}
 \usepackage{mathabx}
-%\usepackage{makeidx}  % allows for indexgeneration
 \usepackage{verbatim}
-%\usepackage{url}
-%\usepackage{hyperref}
 \usepackage{times}
-\usepackage{ulem}    %(\emph{....} in the texfile) is underlined instead of italic
-\normalem
-\usepackage{enumerate}
-%\usepackage[square, comma, sort&compress, numbers]{natbib}
-
-%added by Yi Lv%
-%\usepackage[linesnumbered,ruled,procnumbered,noend]{algorithm2e}
-%\usepackage[linesnumbered,ruled,procnumbered,vlined]{algorithm2e}
 \usepackage[linesnumbered,ruled,procnumbered,noend]{algorithm2e}
 \usepackage{stmaryrd}
+
 %added by Wang Chao%
 %\usepackage{mathrsfs}
 %\usepackage{extarrows}
@@ -46,140 +23,19 @@
 \usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
-%\usepackage[latin1]{inputenc}
-%\usepackage{placeins}
-%\usepackage[bookmarks=false]{hyperref}
-
-%\declaretheorem[name=Claim]{clm}
-%\declaretheorem[name=Lemma]{lem}
-%\declaretheorem[name=Theorem]{thm}
-
 \usepackage{xcolor}
-\usepackage[margin,final]{fixme}
-\fxsetup{theme=color,envface=\scriptsize\tt}
 \usepackage{paralist}
 
-
+\usepackage[margin,draft]{fixme}
+\fxsetup{theme=color,mode=multiuser}
+\FXRegisterAuthor{gp}{agp}{GP}
+\newcommand{\gpn}[2][]{\gpnote*{#1}{#2}}
+\newcommand{\gp}[1]{\gpnote{#1}}
 
 \DeclareSymbolFont{largesymbolsA}{U}{txexa}{m}{n}
 \SetSymbolFont{largesymbolsA}{bold}{U}{txexa}{bx}{n}
 \DeclareFontSubstitution{U}{txexa}{m}{n}
 \DeclareMathSymbol{\bigsqcupplus}{\mathop}{largesymbolsA}{"02}
-
-% "Import" \bigsqcupplus from txfonts without loading txfonts (since
-% it changes the default font and replaces many symbols)
-
-% Commands by Catuscia
-
-%\DeclareMathOperator*{\minarg}{{\rm minarg}}
-
-%Previous notation for the probabilistic choice
-%\newcommand{\probsum}{\bigoplus}
-%\newcommand{\smallprobsum}[1]{\mkern4mu{\textstyle\circ\mkern-15.5mu\sum_{#1}\:}}
-%\newcommand{\bigprobsum}[1]{{\;\displaystyle\odot\mkern-21mu\sum_{#1}}}
-%\newcommand{\probsum}[1]{\mathchoice{\bigprobsum{#1}}{\smallprobsum{#1}}{\smallprobsum{#1}}{\smallprobsum{#1}}}
-%For the uniform distribution
-%\newcommand{\usmallprobsum}[1]{\mkern4mu{\textstyle\circ\mkern-15.5mu\sum^\mathcal{U}_{#1}\:}}
-%\newcommand{\ubigprobsum}[1]{{\;\displaystyle\odot\mkern-21mu\sum^\mathcal{U}_{#1}}}
-%\newcommand{\uprobsum}[1]{\mathchoice{\ubigprobsum{#1}}{\usmallprobsum{#1}}{\usmallprobsum{#1}}{\usmallprobsum{#1}}}
-
-%\newcommand{\nondsum}{\bigbox}
-\newcommand{\nondsum}{\bigsqcupplus}
-\newcommand{\probplus}[1]{\oplus_{#1}}
-%\newcommand{\nondplus}{\square}
-\newcommand{\bang}{!\,}
-\newcommand{\nondplus}{{\textstyle\bigsqcupplus}}
-\newcommand{\partmap}{\rightharpoonup}
-\newcommand{\map}{\rightarrow}
-%\newcommand{\exc}{\phi}
-\newcommand{\exc}{\alpha}
-\newcommand{\exec}{\mathit{exec}}
-\newcommand{\execp}{\mathit{execp}}
-\newcommand{\Act}{\mathit{Act}}
-\newcommand{\Sec}{\mathit{Sec}}
-\newcommand{\Obs}{\mathit{Obs}}
-\newcommand{\etree}{\mathit{etree}}
-\newcommand{\lstate}{\mathit{lst}}
-\newcommand{\fstate}{\mathit{fst}}
-%\newcommand{\STATE}{\mathcal{P}r}  $ original marked
-%\newcommand{\STATE}{\mathcal{P}}   $ marked by me
-%\newcommand{\st}{P}
-\newcommand{\trans}{\mathcal{T}}
-\newcommand{\Aut}{\mathcal{M}}
-\newcommand{\init}{\mathit{init}}
-\newcommand{\perr}{\mathcal{P}}
-
-\newcommand{\calo}{\mathcal{O}}
-\newcommand{\cals}{\mathcal{S}}
-\newcommand{\sseq}{\vec s}
-\newcommand{\oseq}{\vec o}
-\newcommand{\ccsp}{CCS$_p$}
-
-\newcommand{\bigfrac}[2]{\frac{\raisebox{1ex}{$#1$}}{\raisebox{-1.5ex}{$#2$}}}
-\newcommand{\nondarr}[1]{\overset{#1}{\longrightarrow}}
-\newcommand{\Nondarr}[1]{\overset{#1}{\Longrightarrow}}
-\newcommand{\vectorArrow}[1]{\stackrel{\longrightarrow}{\mbox{#1}}}
-\newcommand{\probarr}[1]{\overset{#1}{\dashrightarrow}}
-\newcommand{\paral}{\,|\,}
-\newcommand{\outp}[1]{\overline{#1}}
-\renewcommand{\Pr}{{\rm Pr}}
-
-%Commands by Chao Wang
-
-%memory models%
-\newcommand{\TSO}{\textrm{TSO}}
-\newcommand{\PSO}{\textrm{PSO}}
-
-%correctness conditions%
-\newcommand{\lin}{\textrm{linearizability}}
-\newcommand{\slin}{\textrm{static linearizability}}
-\newcommand{\qlin}{\textrm{quasi linearizability}}
-\newcommand{\TTlin}{\textrm{TSO-to-TSO linearizability}}
-
-\newcommand{\pair}[2]{\langle #1 , #2 \rangle}% pairs
-\newcommand{\setof}[2]{\{ \, #1 \mid #2 \, \}}% Sets
-\newcommand{\set}[1]{\{ {#1}  \}  }
-%\newcommand{\map}[3]{{#1} \colon {#2} \longmapsto {#3}} %functions
-\newcommand{\den}[1]{[\![#1]\!]}% Denotation of
-\newcommand{\mean}[1]{|\!|#1|\!|}
-\newcommand{\forget}[1]{}
-
-%%%%%%%%%%%%%GENERAL%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\newcommand{\itbox}[1]{{\it #1\/}}
-\newcommand{\un}[1]{\uline{#1}}%\underline{#1}}
-\newcommand{\ov}[1]{\overline{#1}}
-\newcommand{\smallspace}{\vspace{10mm}}
-\newcommand{\is}{\mbox{$\Longleftarrow\ $}}
-\newcommand{\pright}[1]{\hfill{#1}}
-\newcommand{\bnfor}{\;\;\mid\;\;}
-
-\newcommand{\ar}[1]{\stackrel{\scriptstyle #1}{\longrightarrow}}
-
-%%%%%%%%%italics in math mode
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%\newcommand{\true}{{\it true}}
-%\newcommand{\false}{{\it false}}
-\newcommand{\calB}{{\cal B}}
-\newcommand{\calF}{{\cal F}}
-\newcommand{\calP}{{\cal P}}
-\newcommand{\order}{{\cal O}}
-\newcommand{\size}[1]{|#1|}
-
-%other notations%
-\newcommand{\LTS}{\textit{LTS}}
-\newcommand{\bedt}[1]{{\color{blue}#1}}
-\newcommand{\redt}[1]{{\color{red}#1}}
-
-\newcommand{\todo}[1]{{\bf \color{red}{#1}}}
-
-%\pagestyle{empty}
-%\pagestyle{plain}
-
-
-%\def\lastname{Xu,Palamidessi}
 
 \title{Linearizability for CRDT Algorithm}
 
@@ -189,12 +45,7 @@
 \author {Constantin Enea \and Gustavo Petri \and Chao Wang}
 \institute{Institut de Recherche en Informatique Fondamentale, \\Univ. Paris Diderot (Paris 7)} 
 
-%\author[1]{Ahmed Bouajjani}
-%\author[2]{Michael Emmi}
-%\author[1]{Constantin Enea}
-%\author[1]{Chao Wang}
-%\affil[1]{Institut de Recherche en Informatique Fondamentale, \\ \texttt{\{abou,cenea,wangch\}@irif.fr}}
-%\affil[2]{Nokia Bell Labs, \\ \texttt{michael.emmi@nokia.com}}
+\input{macros}
 
 \begin{document}
 
@@ -206,99 +57,49 @@
 
 \input{LinDef}
 
+\section{CRDT-Linearizable Implementations}
+\label{sec:crdt-lin-imp}
 
+\gpn{Proofs of CRDT-Linearizable implementations}
 
-%\input{abstract}
+\begin{itemize}
+\item Counters
+  \begin{itemize}
+  \item Grow-Only Counter
+  \item PN-Counter
+  \end{itemize}
+\item Registers:
+  \begin{itemize}
+  \item LWW
+  \item MVR
+  \end{itemize}
+\item Sets:
+  \begin{itemize}
+  \item LAW (OR-Set)
+  \item ??
+  \end{itemize}
+\item Text-Editing (Graphs/Lists)
+  \begin{itemize}
+  \item RGA (addRight)
+  \item WOOT
+  \end{itemize}
+\end{itemize}
 
-%\input{introduction}
+\section{Meta-properties of CRDT-Linearizability}
+\label{sec:meta-prop-lincrdt}
 
-%\input{Preliminary}
+\subsection{Compositionality}
+\label{sec:compositionality}
 
-%\input{Reference-implementation}
+\gpn{Here we explain the compositionality result a la Herlihy Wing}
 
-%\input{Succint-Reference-Implementation}
+\subsection{Abstraction}
+\label{sec:abstraction}
 
-%\input{Implmentation}
-
-%\input{Simulation-relation}
-
-%\input{RelWork}
-
-%\input{simulation-CRDT}
-
-
-
-%\FloatBarrier
-%  \bibliography{violin}
-%\bibliographystyle{plainurl}
-%\bibliography{biblio_cat.bib}
-
+\gpn{Here we explain refinement}
 
 \bibliographystyle{plainurl}
 \bibliography{draft}
-
-% \begin{thebibliography}{50}
-% % \bibitem{Bouajjani:2014}
-% % Bouajjani, A., Enea, C., Hamza, J.:
-% % \newblock Verifying eventual consistency of optimistic replication systems.
-% % \newblock In: POPL 2014, pp. 285--296. ACM (2014)
-% %\end{thebibliography}
-
-
-% % \bibitem{Abadi:1991}
-% % Abadi, M., Lamport, L.:
-% % \newblock The Existence of Refinement Mappings.
-% % \newblock In: Theor. Comput. Sci 1991, pp. 253--284.  (1991)
-
-
-% % \bibitem{Lynch:1995}
-% % Lynch, N. A., Vaandrager, F. W.:
-% % \newblock Forward and Backward Simulations: I. Untimed Systems.
-% % \newblock In: Inf. Comput 1995, pp. 214--233.  (1995)
-
-
-% % \bibitem{Attiya:2016}
-% % Attiya, H., Burckhardt, S., Gotsman A., Morrison, A., Yang, H., Zawirski, M.:
-% % \newblock Specification and Complexity of Collaborative Text Editing.
-% % \newblock In: PODC 2016, pp. 259--268. ACM (2016)
-
-
-% % \bibitem{Lamport:1978}
-% % Lamport, L.:
-% % \newblock Time, Clocks, and the Ordering of Events in a Distributed System.
-% % \newblock In: Commun. ACM 1978, pp. 558--565. (1978)
-
-% % \bibitem{Shapiro:2011}
-% % Shapiro M, Preguica N, Baquero C.:
-% % \newblock A comprehensive study of Convergent and Commutative Replicated Data Types.
-% % \newblock In: HAL - INRIA 2011, pp. 67--88. (2011)
-
-% % \bibitem{Bieniusa:2012}
-% % Bieniusa A, Zawirski M, Preguica N.:
-% % \newblock An optimized conflict-free replicated set.
-% % \newblock In: HAL - INRIA 2012. (2011)
-
-
-% % \bibitem{Attiya:2016}
-% % Attiya H, Burckhardt S, Gotsman A, Morrison A, Yang H, Zawirski M.:
-% % \newblock Specification and Complexity of Collaborative Text Editing.
-% % \newblock In: PODC 2016, pp 259-268. ACM (2011)
-
-% % \bibitem{Oster:2006}
-% % Oster, G., Urso, P., Molli, P., Imine, A.:
-% % \newblock Data consistency for P2P collaborative editing.
-% % \newblock In: CSCW 2006, pp. 259--268. ACM (2006)
-
-% % \bibitem{Burckhardt:2014}
-% % Burckhardt, S., Gotsman, A., Yang, H., Zawirski, M.:
-% % \newblock Replicated data types: specification, verification, optimality.
-% % \newblock In: POPL 2014, pp. 271--284. ACM (2014)
-% \end{thebibliography}
-\newpage
-
-\appendix
-
-%\input{appendix}
 
 \end{document}
 

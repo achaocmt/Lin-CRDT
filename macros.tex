@@ -1,0 +1,97 @@
+% GP: Why do we have all these macros?
+
+%\newcommand{\nondsum}{\bigbox}
+\newcommand{\nondsum}{\bigsqcupplus}
+\newcommand{\probplus}[1]{\oplus_{#1}}
+%\newcommand{\nondplus}{\square}
+\newcommand{\bang}{!\,}
+\newcommand{\nondplus}{{\textstyle\bigsqcupplus}}
+\newcommand{\partmap}{\rightharpoonup}
+\newcommand{\map}{\rightarrow}
+%\newcommand{\exc}{\phi}
+\newcommand{\exc}{\alpha}
+\newcommand{\exec}{\mathit{exec}}
+\newcommand{\execp}{\mathit{execp}}
+\newcommand{\Act}{\mathit{Act}}
+\newcommand{\Sec}{\mathit{Sec}}
+\newcommand{\Obs}{\mathit{Obs}}
+\newcommand{\etree}{\mathit{etree}}
+\newcommand{\lstate}{\mathit{lst}}
+\newcommand{\fstate}{\mathit{fst}}
+%\newcommand{\STATE}{\mathcal{P}r}  $ original marked
+%\newcommand{\STATE}{\mathcal{P}}   $ marked by me
+%\newcommand{\st}{P}
+\newcommand{\trans}{\mathcal{T}}
+\newcommand{\Aut}{\mathcal{M}}
+\newcommand{\init}{\mathit{init}}
+\newcommand{\perr}{\mathcal{P}}
+
+\newcommand{\calo}{\mathcal{O}}
+\newcommand{\cals}{\mathcal{S}}
+\newcommand{\sseq}{\vec s}
+\newcommand{\oseq}{\vec o}
+\newcommand{\ccsp}{CCS$_p$}
+
+\newcommand{\bigfrac}[2]{\frac{\raisebox{1ex}{$#1$}}{\raisebox{-1.5ex}{$#2$}}}
+\newcommand{\nondarr}[1]{\overset{#1}{\longrightarrow}}
+\newcommand{\Nondarr}[1]{\overset{#1}{\Longrightarrow}}
+\newcommand{\vectorArrow}[1]{\stackrel{\longrightarrow}{\mbox{#1}}}
+\newcommand{\probarr}[1]{\overset{#1}{\dashrightarrow}}
+\newcommand{\paral}{\,|\,}
+\newcommand{\outp}[1]{\overline{#1}}
+\renewcommand{\Pr}{{\rm Pr}}
+
+%Commands by Chao Wang
+
+%memory models%
+\newcommand{\TSO}{\textrm{TSO}}
+\newcommand{\PSO}{\textrm{PSO}}
+
+%correctness conditions%
+\newcommand{\lin}{\textrm{linearizability}}
+\newcommand{\slin}{\textrm{static linearizability}}
+\newcommand{\qlin}{\textrm{quasi linearizability}}
+\newcommand{\TTlin}{\textrm{TSO-to-TSO linearizability}}
+
+\newcommand{\pair}[2]{\langle #1 , #2 \rangle}% pairs
+\newcommand{\setof}[2]{\{ \, #1 \mid #2 \, \}}% Sets
+\newcommand{\set}[1]{\{ {#1}  \}  }
+%\newcommand{\map}[3]{{#1} \colon {#2} \longmapsto {#3}} %functions
+\newcommand{\den}[1]{[\![#1]\!]}% Denotation of
+\newcommand{\mean}[1]{|\!|#1|\!|}
+\newcommand{\forget}[1]{}
+
+%%%%%%%%%%%%%GENERAL%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itbox}[1]{{\it #1\/}}
+\newcommand{\un}[1]{\uline{#1}}%\underline{#1}}
+\newcommand{\ov}[1]{\overline{#1}}
+\newcommand{\smallspace}{\vspace{10mm}}
+\newcommand{\is}{\mbox{$\Longleftarrow\ $}}
+\newcommand{\pright}[1]{\hfill{#1}}
+\newcommand{\bnfor}{\;\;\mid\;\;}
+
+\newcommand{\ar}[1]{\stackrel{\scriptstyle #1}{\longrightarrow}}
+
+%%%%%%%%%italics in math mode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\newcommand{\true}{{\it true}}
+%\newcommand{\false}{{\it false}}
+\newcommand{\calB}{{\cal B}}
+\newcommand{\calF}{{\cal F}}
+\newcommand{\calP}{{\cal P}}
+\newcommand{\order}{{\cal O}}
+\newcommand{\size}[1]{|#1|}
+
+%other notations%
+\newcommand{\LTS}{\textit{LTS}}
+\newcommand{\bedt}[1]{{\color{blue}#1}}
+\newcommand{\redt}[1]{{\color{red}#1}}
+
+\newcommand{\todo}[1]{{\bf \color{red}{#1}}}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
