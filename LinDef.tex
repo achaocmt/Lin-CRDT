@@ -12,6 +12,7 @@ Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in
 
 \noindent {\bf Sequential Specification:} A sequential specification is used to state the sequential intuition of operations. Let specification alphabet $\mathbb{A}$ be a set of a tuples $(o,s)$, where $o$ is an operation and s is a set of operation identifiers. The reason of introducing such set of operation identifiers is that, in sequential specifications some operations should only influence a subset of previous operations. Such operation identifier set is just the operations influenced by this operation. With specification alphabet, a sequential specification of CRDT is given as a set of sequences over specification alphabets as follows. From now on, we implicitly assume that in a sequence of specification alphabets, each item has a unique operation identifier.
 
+\gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
 \label{definition:sequential specification}
 A sequential specification $\mathit{spec}_s \subseteq \mathbb{A}^*$ is a set of strings over specification alphabet $\mathbb{A}$.
@@ -20,6 +21,7 @@ A sequential specification $\mathit{spec}_s \subseteq \mathbb{A}^*$ is a set of 
 \noindent {\bf Distributed Specification:} Each element of distributed specification is a tuple $(s,v)$, where $s \subseteq \mathbb{A}^*$ is a sequence of specification alphabet, and $v$ is a function that maps each item $a$ of $s$ into a subset of items before $a$ in $s$. Here $s$ essentially is the linearization of an execution, while $v$ is used to ensure each specification alphabet is correct in this sequence. %Given a sequence $s \subseteq \mathbb{A}^*$ of specification alphabets and a specification alphabets $a$, let $\mathit{itm}(s)$ be the set of specification alphabets of $s$, and $\mathit{itmBef}(s,a)$ be the set of specification alphabets of $s$ that appears before $a$, or $\emptyset$ otherwise.
 Given a sequence $s$ and a set of operations $S$, let $s \uparrow_{S}$ be the projection of $s$ over $S$. Given a sequence $s$ and an item $a$ of $s$, let $\mathit{bef}(s,a)$ contains the set of items of $s$ that appear before $a$ in $s$, as well as all the subsets of this set.
 
+\gp{I don't really know what a Dist. Spec. is.}
 \begin{definition}[Distributed Specification]
 \label{definition:distributed specification}
 A distributed specification $\mathit{spec}_d$ w.r.t a sequential specification $\mathit{spec}_d$ is a set of tuples $(s,v)$, where $s \subseteq \mathbb{A}^*$, and %$v: \mathit{itm}(s) \rightarrow 2^{\mathit{items}(s)}$ is a function that maps each item $a$ into $\mathit{itmBef}(s,a)$.
@@ -123,6 +125,8 @@ A history $h = (O,\mathit{ro})$ is distributed linearizable w.r.t distributed sp
 A set $H$ of histories is is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if each of its history is.
 \end{definition}
 
+
+\gpn{Definition of CRDT-Linearizablity correctness.}
 
 
 %%% Local Variables:
