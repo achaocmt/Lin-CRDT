@@ -1,17 +1,17 @@
 %!TEX root = draft.tex
 %\newcommand{\seqPQ}{\mathsf{SeqPQ}}
 
-\section{CRDT Linearizability}
-\label{sec:crdt-lin}
+\section{Distributed Linearizability}
+\label{sec:distributed-lin}
 
 Let us start our formation of executions, specifications and linearizations of CRDT.
 
-We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of $\mathbb{Q}$ query methods, and $\mathbb{U}$ update methods. 
-We consider replicated data types which are distributed across a set of replicas; the set of replica identifiers is denoted by $\mathbb{R}$. We assume that each replica contains a copy of the data type state. Finally we have a infinite set $\mathbb{O}$ of operation identifiers, corresponding to each individual operation performed on the CRDT throughout an execution.
+We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of $\mathbb{Q}$ query methods, and $\mathbb{U}$ update methods. Some update operation also implicitly do query to some extent. For example, a $add(a,b)$ operation of distributed list intends to put $a$ immediately after $b$, which also ensures that $b$ is in list. When we say query operation, we mean purely query operation.
+We consider replicated data types which are distributed across a set of replicas; the set of replica identifiers is denoted by $\mathbb{R}$. We assume that each replica contains a copy of the data type state. Finally we have a infinite set $\mathbb{O}$ of operation identifiers, corresponding to each individual operation performed on the CRDT throughout an execution. Let $\mathbb{T}$ be the set of data types, while each data type $t = (M,D)$ has a set $M \subseteq \mathbb{M}$ of methods and a data domain $D \subseteq \mathbb{D}$. 
 
-Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$, indicate that the operation is a call to method $m$ with argument $a$ and the result of the operation is the value $b$. When $m$ does not use the argument (resp., return value), we write $m()\Rightarrow b$ (resp., $m(a)$) instead. We define an operation $o$ to be a tuple $(\ell,i)$, where $\ell$ is an operation label and $i \in \mathbb{O}$ is a unique operation identifier.
+Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$, indicate that the operation is a call to method $m$ with argument $a$ and the result of the operation is the value $b$. When $m$ does not use the argument (resp., return value), we write $m()\Rightarrow b$ (resp., $m(a)$) instead. We define an operation $o$ to be a tuple $(\ell,i)$, where $\ell$ is an operation label and $i \in \mathbb{O}$ is a unique operation identifier. Let $\mathbb{OP}$ be the set of operations. 
 
-\noindent {\bf Sequential Specification:} A sequential specification is used to give a sequential view of the data types, and is given as a set of sequential behaviors. In distributed systems each operation only access the local copy of its replica, instead of access some global shared memory. Therefore, it is reasonable that given sequence behavior $l$ and an operation $o$ of $l$, the return value of $o$ may not be determined by its prefix in $l$, but by a subsequence of its prefix in $l$ instead. To deal with this, in our specification, an operation $o$ may have an additional arguments $s$, which is the set of operation that are used to determine return value of $o$. To simplify understanding, when the return value of $o$ is determined by its prefix in $l$, we ignore $s$. Formally, let specification alphabet $\mathbb{A}= \{ (o,s) \vert o$ is an operation and $s \subseteq \mathbb{O} \}$. Then, a sequential specification of CRDT is given as a set of sequences over specification alphabets $\mathbb{A}$. From now on, we implicitly assume that for each sequences of sequential specification, each operation has a unique operation identifier.
+\noindent {\bf Sequential Specification:} A sequential specification intends to give a sequential view of the data type, and is given as a set of sequential behaviors. However, some particular methods seem inherently non-sequential. For example, in OR-set data type, a $rem(a)$ operation only cancels the added items $a$ of the local replica, and it seems hard to give a completely sequential explanation for this. To deal with such operations, we introduce an additional tuple, which are the set of operations needed for this operation. Formally, let specification alphabet $\mathbb{A} = \mathbb{OP} \cup \{ (o,s) \vert o \in \mathbb{OP}, s \subseteq \mathbb{O} \}$. Then, a sequential specification of CRDT is given as a set of sequences over specification alphabets $\mathbb{A}$. From now on, we implicitly assume that for each sequences of sequential specification, each operation has a unique operation identifier. Given a data type $t$, let $\mathit{specMth}(t) \subseteq M$ be the set of methods, such that in its sequential specification, only operations of $\mathit{specMth}(t)$ uses specification alphabet of the form $(o,s)$. Or we can say, $\mathit{specMth}(t)$ is the set of methods that needs specially treated, like $rem$ of OR-set. 
 
 \gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
@@ -19,24 +19,31 @@ Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in
 A sequential specification $\mathit{spec}_s \subseteq \mathbb{A}^*$ is a set of strings over specification alphabet $\mathbb{A}$.
 \end{definition} 
 
-Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, for $inc$ operation of counter, it is defined as $\{ state = i \}$ $inc$ $\{ state = i+1 \}$, while $state$ represents the global counter value and is a integer. Usually in sequential specification, update operations $(o,s)$ changes the state of pre-condition and ignores $s$, while query operations does not change the state of pre-condition and uses $s$. The detailed examples of sequential specifications are shown latter of this section.
+Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, for $inc$ operation of counter, it is defined as $\{ state = i \}$ $inc$ $\{ state = i+1 \}$, while $state$ is a value of integer. Usually in sequential specification, update operations $(o,s)$ changes the state of pre-condition and ignores $s$, while query operations does not change the state of pre-condition and uses $s$. The detailed examples of sequential specifications are shown latter of this section.
 
-\noindent {\bf Distributed Specification:} Each element of distributed specification is a tuple $(s,v)$, where $s \subseteq \mathbb{A}^*$ is a sequence of specification alphabet, and $v$ is a function that maps each item $a$ of $s$ into a subset of items before $a$ in $s$. Here $s$ essentially is the linearization of an execution, while $v$ is used to ensure each specification alphabet is correct in this sequence. %Given a sequence $s \subseteq \mathbb{A}^*$ of specification alphabets and a specification alphabets $a$, let $\mathit{itm}(s)$ be the set of specification alphabets of $s$, and $\mathit{itmBef}(s,a)$ be the set of specification alphabets of $s$ that appears before $a$, or $\emptyset$ otherwise.
-Given a sequence $s$ and a set of operations $S$, let $s \uparrow_{S}$ be the projection of $s$ over $S$. Given a sequence $s$ and an item $a$ of $s$, let $\mathit{bef}(s,a)$ contains the set of items of $s$ that appear before $a$ in $s$, as well as all the subsets of this set.
+\noindent {\bf Distributed Specification:} Given a sequence $s$ and a set $S$ of operations $S$, let $s \uparrow_{S}$ be the projection of $s$ over $S$. To give distributed specification, we need to give the linearization, as well as the visibility relation, and check that, for each query operation, its projection w.r.t the visibility relation is in the sequential specification. The notion of distributed specification is defined as follows:
+
+
+%where $s \subseteq \mathbb{A}^*$ is a sequence of specification alphabet, and $v$ is a function that maps each item $a$ of $s$ into a subset of items before $a$ in $s$. Here $s$ essentially is the linearization of an execution, while $v$ is used to ensure each specification alphabet is correct in this sequence. %Given a sequence $s \subseteq \mathbb{A}^*$ of specification alphabets and a specification alphabets $a$, let $\mathit{itm}(s)$ be the set of specification alphabets of $s$, and $\mathit{itmBef}(s,a)$ be the set of specification alphabets of $s$ that appears before $a$, or $\emptyset$ otherwise.
+%Given a sequence $s$ and a set of operations $S$, let $s \uparrow_{S}$ be the projection of $s$ over $S$. Given a sequence $s$ and an item $a$ of $s$, let $\mathit{bef}(s,a)$ contains the set of items of $s$ that appear before $a$ in $s$, as well as all the subsets of this set.
 
 \gp{I don't really know what a Dist. Spec. is.}
 \begin{definition}[Distributed Specification]
-\label{definition:distributed specification}
-A distributed specification $\mathit{spec}_d$ w.r.t a sequential specification $\mathit{spec}_d$ is a set of tuples $(s,v)$, where $s \subseteq \mathbb{A}^*$, and %$v: \mathit{itm}(s) \rightarrow 2^{\mathit{items}(s)}$ is a function that maps each item $a$ into $\mathit{itmBef}(s,a)$.
-%$v$ is a function that maps each specification alphabet $a$ of $s$ into a subset of specification alphabet of $s$ that appears before $a$ in $s$.
-$v$ is a function that maps each specification alphabet $a$ of $s$ into either $\{ a \} \cup x$ with $ x \in \mathit{bef}(s,a)$ or $\emptyset$. Moreover, the following condition need to be satisfied:
+\label{definition:distributed specification} 
+A distributed specification $\mathit{spec}_d$ w.r.t a sequential specification $\mathit{spec}_d$ is a set of tuples $(s,f)$, such that 
 
 \begin{enumerate}[(i)]
-\item For each specification alphabet $a$ of $s$, $s \uparrow_{v(a)} \in \mathit{spec}_s$.
+\item $s \in \mathbb{OP}^*$ is a sequence of operations, 
+\item $f$ is a function that maps each operation $o$ of $s$ into a subset of operations in prefix of $o$, and 
+\item for each query operation $o$, $f(s) \uparrow_{f^{-1}(o)} \in \mathit{spec}_s$. 
 \end{enumerate}
-\end{definition}
 
-The examples of sequential specifications of typical CRDT are given below. To give sequential specification, we use the style of pre-condition and post-condition for each specification alphabet.
+where $f(s)$ is the sequence obtained from $s$ by replacing each $\mathit{specMth}(t)$ $o$ with $f(o)$. 
+\end{definition} 
+
+Essentially, $s$ is the ilnearization of an execution, and $f$ is the visibility relation of the execution. This definition assumes that $\mathit{specMth}(t)$ operation choose operations visible to it as arguments, which fits the practice. It is easy to see that, as long as the sequential specification is given, its distributed specification is done. 
+
+The examples of sequential specifications of typical CRDT are given below. 
 
 
 \begin{example}[Counter]
