@@ -139,18 +139,29 @@ A set $H$ of histories is is distributed linearizable w.r.t distributed specific
 
 \gpn{Definition of CRDT-Linearizablity correctness.} 
 
-The following are examples of linearizable histories. Since the function $f$ of $(s,f)$ in distributed specification can be obtained from the visibility relation, here we draw the visibility relation and readers could easily obtain the function $f$ then. 
+In the following we show an example of distributed linearizable history and an example of non-distributed linearizable history. Since the function $f$ of $(s,f)$ in distributed specification can be obtained from the visibility relation, here we draw the visibility relation and readers could easily obtain the function $f$. 
 
-\figurename~\ref{fig:history, annotated history and
-  operation context}, which is an example that is used to show a linearizable history and a non-linearizable history. 
+\figurename~\ref{fig:a distributed linearizable history} is an example of a distributed linearizable history of OR-set. Its linearization is $\mathit{add}(0)_1 \cdot \mathit{add}(1)_2 \cdot \mathit{rem}(0) \cdot \mathit{add}(1)_1 \cdot \mathit{add}(0)_2 \cdot \mathit{rem}(1) \cdot \mathit{read}()_1 \Rightarrow \{0,1\} \cdot \mathit{read}()_2 \Rightarrow \{0,1\}$. The special arguments of $\mathit{read}()_1 \Rightarrow \{0,1\}$ is the identifiers of $\{ \mathit{add}(0)_1, \mathit{add}(1)_2, \mathit{rem}(0), \mathit{add}(0)_2 \}$, and the special arguments of $\mathit{read}()_2 \Rightarrow \{0,1\}$ is the identifiers of $\{ \mathit{add}(1)_1, \mathit{add}(0)_2, \mathit{rem}(1), \mathit{add}(1)_2 \}$.
+
+\figurename~\ref{fig:a non-distributed linearizable history} is an example of a non-distributed linearizable history of OR-set. Since we can not find special argument that validate $\mathit{read}() \Rightarrow \{ 1 \}$.  
   
-%\begin{figure}[t]
-%  \centering
-%  \includegraphics[width=1 \textwidth]{figures/PIC-his-anhis-context-2.pdf}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7 \textwidth]{figures/PIC-Example-LinHis.pdf}
 %\vspace{-10pt}
-%  \caption{Generating operation context from annotated history for OR-set.}
-%  \label{fig:generating operation context from annotated history for OR-set}
-%\end{figure}
+  \caption{A distributed linearizable history. Here subscript of $\mathit{add}(0)_1$ is used to distinguish different $\mathit{add}(0)$ operations.}
+  \label{fig:a distributed linearizable history}
+\end{figure}
+
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6 \textwidth]{figures/PIC-Example-NonLinHis.pdf}
+%\vspace{-10pt}
+  \caption{A non-distributed linearizable history.}
+  \label{fig:a non-distributed linearizable history}
+\end{figure}
 
 
 %%% Local Variables:
