@@ -35,7 +35,7 @@ A distributed specification $\mathit{spec}_d$ w.r.t a sequential specification $
 \begin{enumerate}[(i)]
 \item $s \in \mathbb{OP}^*$ is a sequence of operations,
 \item $f$ is a function that maps each operation $o$ of $s$ into a subset of operations in prefix of $o$, and
-\item for each query operation $o$, $f(s) \uparrow_{f^{-1}(o)} \in \mathit{spec}_s$.
+\item for each query operation $o$, $f(s) \uparrow_{ ( \{ o \} \cup f^{-1}(o))} \in \mathit{spec}_s$.
 \end{enumerate}
 
 where $f(s)$ is the sequence obtained from $s$ by replacing each $\mathit{specMth}(t)$ operation $o$ with $(o,f(o))$, while keeping other operations unchanged. 
@@ -44,7 +44,6 @@ where $f(s)$ is the sequence obtained from $s$ by replacing each $\mathit{specMt
 Essentially, $s$ is the ilnearization of an execution, and $f$ maps each operation $o$ into the operations that are visible to $o$. It is easy to see that, as long as the sequential specification is given, its distributed specification is done. Definition \ref{definition:distributed specification} assumes that a operation $o$ of special method will use operations visible to it as its special arguments. This fits the practice CRDT-algorithms. 
 
 The examples of sequential specifications of typical CRDT are given below.
-
 
 \begin{example}[Counter]
 \label{definition:sequential specification of counter}
@@ -118,26 +117,40 @@ The sequential specification $\mathit{list}_s$ of list is given as follows: Let 
 \end{example}
 
 
+\noindent {\bf Distributed Linearizability:} As customary, to capture the notion of client-observable effects of an execution over a CRDT, we will define the notion of \emph{history}. A history contains a set of operations, and the order in which they were effected in each replica. Formally, a history $h$ is a tuple of the form $h = (Op,\mathit{ro})$ where $Op$ is a set of operations, and $\mathit{ro}$ is a union of transitive, irreflexive and total orders of identifiers of $O$. 
 
-As customary, to capture the notion of client-observable effects of an execution over a CRDT, we will define the notion of \emph{history}. A history contains a set of operations, and the order in which they were effected in each replica. Formally, a history $h$ is a tuple of the form $h = (O,\mathit{lab},\mathit{ro})$ where $O$ is a set of operation identifiers, $\mathit{lab}$ is a function that maps each operation identifiers of $O$ into a operation label, and $\mathit{ro}$ is a union of transitive, irreflexive and total orders of $O$.
+%Formally, a history $h$ is a tuple of the form $h = (O,\mathit{lab},\mathit{ro})$ where $O$ is a set of operation identifiers, $\mathit{lab}$ is a function that maps each operation identifiers of $O$ into a operation label, and $\mathit{ro}$ is a union of transitive, irreflexive and total orders of $O$.
 
-A history is distributed linearizable w.r.t a distributed specification, if we can find a visibility relation $\mathit{vis}$ of the history and a total sequence $s$ in distributed specification, such that $\mathit{vis}$ is consistent with $s$. Formally,
+A history $h$ is distributed linearizable w.r.t a distributed specification $\mathit{spec}$, if we can find $(s,f) \in \mathit{spec}_d$ and a visibility relation $\mathit{vis}$ of $h$, such that $\mathit{vis}$ and $f$ are consistent. Formally, 
 
 \begin{definition}[Distributed Linearizability]
 \label{definition:distributed linearizability}
-A history $h = (O,\mathit{ro})$ is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if $\exists (s,v) \in \mathit{spec}_d$, $\exists \mathit{vis} \subseteq O \times O$ be a acyclic visibility relation, such that
+A history $h = (O,\mathit{ro})$ is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if there exists $(s,f) \in \mathit{spec}_d$ and a acyclic visibility relation $\mathit{vis} \subseteq O \times O$, such that 
 
 \begin{enumerate}[(i)]
 \item $\mathit{ro} \subseteq \mathit{vis}$,
-\item $\mathit{vis} \subseteq s$,
-\item For each operation identifiers $i$ of $h$, if $v(i) \neq \emptyset$, then $v(i) = \{ i \} \cup \{ a \vert (a,i) \in \mathit{vis} \}$.
+\item $\mathit{vis}$ is consistent with $s$, 
+\item For each operation $o_1$ of $h$, $f(o_1) = \{ o_2 \vert (o_2,o_1) \in \mathit{vis} \}$. 
 \end{enumerate}
 
 A set $H$ of histories is is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if each of its history is.
 \end{definition}
 
 
-\gpn{Definition of CRDT-Linearizablity correctness.}
+\gpn{Definition of CRDT-Linearizablity correctness.} 
+
+The following are examples of linearizable histories. Since the function $f$ of $(s,f)$ in distributed specification can be obtained from the visibility relation, here we draw the visibility relation and readers could easily obtain the function $f$ then. 
+
+\figurename~\ref{fig:history, annotated history and
+  operation context}, which is an example that is used to show a linearizable history and a non-linearizable history. 
+  
+%\begin{figure}[t]
+%  \centering
+%  \includegraphics[width=1 \textwidth]{figures/PIC-his-anhis-context-2.pdf}
+%\vspace{-10pt}
+%  \caption{Generating operation context from annotated history for OR-set.}
+%  \label{fig:generating operation context from annotated history for OR-set}
+%\end{figure}
 
 
 %%% Local Variables:
