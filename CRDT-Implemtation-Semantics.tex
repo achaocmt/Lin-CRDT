@@ -1,12 +1,40 @@
 %!TEX root = draft.tex
 %\newcommand{\seqPQ}{\mathsf{SeqPQ}}
 
-\section{CRDT Implementation and Its Semantics}
-\label{sec:CRDT implementation and its semantics} 
+\section{CRDT Implementations and Its Semantics}
+\label{sec:CRDT implementations and its semantics}
 
-Algorithms of CRDT. 
+A replicated store is a set of objects. An object has a type and is replicated on each replica. Here we do not bound the number of replica identifiers and objects. A client works on one replica and interacts with the store by calling the method and then obtaining the return value.
 
-Single type, single object operational semantics. 
+A replicated data type implementation shows how a algorithm works at one replica, including how to perform an operation and send message, as well as when receiving message, how to update the local data. Let $\mathbb{MSG}$ be the set of message contents.  
+
+\begin{definition}[Replicated Type Implementation]
+\label{definition:replicated type implementation} 
+A replicated type implementation for a type $t = (M,D)$ is a tuple $I_t = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$. Here $\sigma_0 \in \Sigma$, $\mathit{do}:\Sigma \times \mathbb{M} \times D \rightarrow \Sigma \times D \times (\mathbb{MSG} \cup \{ \emptyset \} )$, and $\mathit{receive}: \Sigma \times \mathbb{MSG} \rightarrow \Sigma$. 
+\end{definition}
+
+Here $\Sigma$ is a set of states of object of one replica. $\sigma_0$ is the initial state. When the current local state is $\sigma$ and the client intends to perform a operation of method $m$ with argument $a$, a $\mathit{do}(\sigma,m,a)$ action is launched, which update the local states, returns a value, and possibly generate messages. If $m \in \mathbb{U}$, a $\mathit{do}$ action of method $m$ will generate message; else, if $m \in \mathbb{Q}$, a $\mathit{do}$ action of method $m$ will not generate message. When this replica receives a message from other replica, a $\mathit{receive}$ action will be launched, which updates the current local states according to the message. 
+
+In practice, there are two kinds of CRDT implementations: operation-based CRDT and state-based CRDT. In operation-based CRDT, each message carries a description of the latest operation of the sending replica. In state-based CRDT, each message carries a description of the local state of the sending replica. 
+
+In the following we give the example of two algorithms: operation-based counter, and replicated growable array (RGA), which is also operation-based. More algorithms are given in Appendix \ref{sec:appendix definitions of section CRDT implementations and its semantics}. 
+
+\begin{example}[operation-based counter]
+\label{definition:operation-based counter}
+The sequential specification $\mathit{counter}_s$ of counter is given as follows: Let $\mathit{state}$ be a natural number.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$.
+\item[-] $\{ \mathit{state} = i \}$ $\mathit{read}() \Rightarrow i$ $\{ \mathit{state} = i \}$.
+\end{itemize}
+\end{example}
+
+
+
+Algorithms of CRDT.
+
+Single type, single object operational semantics.
 
 
 
