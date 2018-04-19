@@ -11,7 +11,7 @@ We consider replicated data types which are distributed across a set of replicas
 
 Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$, indicate that the operation is a call to method $m$ with argument $a$ and the result of the operation is the value $b$. When $m$ does not use the argument (resp., return value), we write $m()\Rightarrow b$ (resp., $m(a)$) instead. We define an operation $o$ to be a tuple $(\ell,i)$, where $\ell$ is an operation label and $i \in \mathbb{O}$ is a unique operation identifier. Let $\mathbb{OP}$ be the set of operations.
 
-\noindent {\bf Sequential Specification:} A sequential specification intends to give a sequential view of the data type, and is given as a set of sequential behaviors. However, some particular methods seem inherently non-sequential. For example, in OR-set data type, a $rem(a)$ operation only cancels the added items $a$ of the local replica, and it seems hard to give a completely sequential explanation for this. To deal with such operations, we introduce an additional tuple, which are the set of operations needed for this operation. Formally, let specification alphabet $\mathbb{A} = \mathbb{OP} \cup \{ (o,s) \vert o \in \mathbb{OP}, s \subseteq \mathbb{O} \}$. Then, a sequential specification of CRDT is given as a set of sequences over specification alphabets $\mathbb{A}$. From now on, we implicitly assume that for each sequences of sequential specification, each operation has a unique operation identifier. Given a data type $t$, let $\mathit{specMth}(t) \subseteq M$ be the set of methods, such that in its sequential specification, only operations of $\mathit{specMth}(t)$ uses specification alphabet of the form $(o,s)$. Or we can say, $\mathit{specMth}(t)$ is the set of methods that needs specially treated, like $rem$ of OR-set. We call methods in $\mathit{specMth}(t)$ special methods, and call the arguments $s$ of $(o,s)$ special arguments. 
+\noindent {\bf Sequential Specification:} A sequential specification intends to give a sequential view of the data type, and is given as a set of sequential behaviors. However, some particular methods seem inherently non-sequential. For example, in OR-set data type, a $rem(a)$ operation only cancels the added items $a$ of the local replica, and it seems hard to give a completely sequential explanation for this. To deal with such operations, we introduce an additional tuple, which are the set of operations needed for this operation. Formally, let specification alphabet $\mathbb{A} = \mathbb{OP} \cup \{ (o,s) \vert o \in \mathbb{OP}, s \subseteq \mathbb{O} \}$. Then, a sequential specification of CRDT is given as a set of sequences over specification alphabets $\mathbb{A}$. From now on, we implicitly assume that for each sequences of sequential specification, each operation has a unique operation identifier. Given a data type $t$, let $\mathit{specMth}(t) \subseteq M$ be the set of methods, such that in its sequential specification, only operations of $\mathit{specMth}(t)$ uses specification alphabet of the form $(o,s)$. Or we can say, $\mathit{specMth}(t)$ is the set of methods that needs specially treated, like $rem$ of OR-set. We call methods in $\mathit{specMth}(t)$ special methods, and call the arguments $s$ of $(o,s)$ special arguments.
 
 \gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
@@ -38,20 +38,21 @@ A distributed specification $\mathit{spec}_d$ w.r.t a sequential specification $
 \item for each query operation $o$, $f(s) \uparrow_{ ( \{ o \} \cup f^{-1}(o))} \in \mathit{spec}_s$.
 \end{enumerate}
 
-where $f(s)$ is the sequence obtained from $s$ by replacing each $\mathit{specMth}(t)$ operation $o$ with $(o,f(o))$, while keeping other operations unchanged. 
+where $f(s)$ is the sequence obtained from $s$ by replacing each $\mathit{specMth}(t)$ operation $o$ with $(o,f(o))$, while keeping other operations unchanged.
 \end{definition}
 
-Essentially, $s$ is the ilnearization of an execution, and $f$ maps each operation $o$ into the operations that are visible to $o$. It is easy to see that, as long as the sequential specification is given, its distributed specification is done. Definition \ref{definition:distributed specification} assumes that a operation $o$ of special method will use operations visible to it as its special arguments. This fits the practice CRDT-algorithms. 
+Essentially, $s$ is the ilnearization of an execution, and $f$ maps each operation $o$ into the operations that are visible to $o$. It is easy to see that, as long as the sequential specification is given, its distributed specification is done. Definition \ref{definition:distributed specification} assumes that a operation $o$ of special method will use operations visible to it as its special arguments. This fits the practice CRDT-algorithms.
 
 The examples of sequential specifications of typical CRDT are given below.
 
 \begin{example}[Counter]
 \label{definition:sequential specification of counter}
-The sequential specification $\mathit{counter}_s$ of counter is given as follows: Let $\mathit{state}$ be a natural number.
+The sequential specification $\mathit{counter}_s$ of counter is given as follows: Let $\mathit{state}$ be a integer.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$.
+\item[-] $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$. 
+\item[-] $\{ \mathit{state} = i \}$ $\mathit{dec}$ $\{ \mathit{state} = i-1 \}$.
 \item[-] $\{ \mathit{state} = i \}$ $\mathit{read}() \Rightarrow i$ $\{ \mathit{state} = i \}$.
 \end{itemize}
 \end{example}
@@ -78,7 +79,7 @@ The sequential specification $\mathit{OR}$-$\mathit{Set}_s$ of OR-set is given a
 \setlength{\itemsep}{0.5pt}
 \item[-] $\{ \mathit{state} = S  \wedge (\_,\mathit{id},\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\mathit{id},\mathit{true}) \} \}$.
 \item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert (a,\_,\mathit{true}) \in S \} \}$ $\mathit{read}() \Rightarrow S_1$ $\{ \mathit{state} = S \}$.
-\item[-] $\{ \mathit{state} = S  \wedge S_1 \subseteq \{\mathit{id} \vert (a,\mathit{id},\_) \in S\} \}$ $((rem(a),\mathit{id}),S_1)$ $\{ \mathit{state} = S_2  \}$. Here $S_2$ is obtained from $S$ by marking the flag of each $S_1$ item into $\mathit{false}$. 
+\item[-] $\{ \mathit{state} = S  \wedge S_1 \subseteq \{\mathit{id} \vert (a,\mathit{id},\_) \in S\} \}$ $((rem(a),\mathit{id}),S_1)$ $\{ \mathit{state} = S_2  \}$. Here $S_2$ is obtained from $S$ by marking the flag of each $S_1$ item into $\mathit{false}$.
 \end{itemize}
 \end{example}
 
@@ -108,7 +109,7 @@ The sequential specification $\mathit{MVReg}_s$ of multi-value register is given
 
 \begin{example}[List with add-after interface]
 \label{definition:sequential specification of list with add-after interface}
-The sequential specification $\mathit{list}_s$ of list is given as follows: Let $\mathit{state}$ be a sequence, where each item is a tuple $(a,f)$ with data $a$ and flag $f \in \{ \mathit{true},\mathit{false} \}$. 
+The sequential specification $\mathit{list}_s$ of list is given as follows: Let $\mathit{state}$ be a sequence, where each item is a tuple $(a,f)$ with data $a$ and flag $f \in \{ \mathit{true},\mathit{false} \}$.
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge l \leq n \wedge a_k \notin \{ a_1, \ldots, a_n \} \}$ $add(b,a_l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_l,f_l) \cdot (b,\mathit{true}) \cdot (a_{l+1},f_{l+1}) \cdot \ldots \cdot (a_n,f_n) \}$.
@@ -117,34 +118,34 @@ The sequential specification $\mathit{list}_s$ of list is given as follows: Let 
 \end{example}
 
 
-\noindent {\bf Distributed Linearizability:} As customary, to capture the notion of client-observable effects of an execution over a CRDT, we will define the notion of \emph{history}. A history contains a set of operations, and the order in which they were effected in each replica. Formally, a history $h$ is a tuple of the form $h = (Op,\mathit{ro})$ where $Op$ is a set of operations, and $\mathit{ro}$ is a union of transitive, irreflexive and total orders of identifiers of $O$. 
+\noindent {\bf Distributed Linearizability:} As customary, to capture the notion of client-observable effects of an execution over a CRDT, we will define the notion of \emph{history}. A history contains a set of operations, and the order in which they were effected in each replica. Formally, a history $h$ is a tuple of the form $h = (Op,\mathit{ro})$ where $Op$ is a set of operations, and $\mathit{ro}$ is a union of transitive, irreflexive and total orders of identifiers of $O$.
 
 %Formally, a history $h$ is a tuple of the form $h = (O,\mathit{lab},\mathit{ro})$ where $O$ is a set of operation identifiers, $\mathit{lab}$ is a function that maps each operation identifiers of $O$ into a operation label, and $\mathit{ro}$ is a union of transitive, irreflexive and total orders of $O$.
 
-A history $h$ is distributed linearizable w.r.t a distributed specification $\mathit{spec}$, if we can find $(s,f) \in \mathit{spec}_d$ and a visibility relation $\mathit{vis}$ of $h$, such that $\mathit{vis}$ and $f$ are consistent. Formally, 
+A history $h$ is distributed linearizable w.r.t a distributed specification $\mathit{spec}$, if we can find $(s,f) \in \mathit{spec}_d$ and a visibility relation $\mathit{vis}$ of $h$, such that $\mathit{vis}$ and $f$ are consistent. Formally,
 
 \begin{definition}[Distributed Linearizability]
 \label{definition:distributed linearizability}
-A history $h = (O,\mathit{ro})$ is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if there exists $(s,f) \in \mathit{spec}_d$ and a acyclic visibility relation $\mathit{vis} \subseteq O \times O$, such that 
+A history $h = (O,\mathit{ro})$ is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if there exists $(s,f) \in \mathit{spec}_d$ and a acyclic visibility relation $\mathit{vis} \subseteq O \times O$, such that
 
 \begin{enumerate}[(i)]
 \item $\mathit{ro} \subseteq \mathit{vis}$,
-\item $\mathit{vis}$ is consistent with $s$, 
-\item For each operation $o_1$ of $h$, $f(o_1) = \{ o_2 \vert (o_2,o_1) \in \mathit{vis} \}$. 
+\item $\mathit{vis}$ is consistent with $s$,
+\item For each operation $o_1$ of $h$, $f(o_1) = \{ o_2 \vert (o_2,o_1) \in \mathit{vis} \}$.
 \end{enumerate}
 
 A set $H$ of histories is is distributed linearizable w.r.t distributed specification $\mathit{spec}_d$, if each of its history is.
 \end{definition}
 
 
-\gpn{Definition of CRDT-Linearizablity correctness.} 
+\gpn{Definition of CRDT-Linearizablity correctness.}
 
-In the following we show an example of distributed linearizable history and an example of non-distributed linearizable history. Since the function $f$ of $(s,f)$ in distributed specification can be obtained from the visibility relation, here we draw the visibility relation and readers could easily obtain the function $f$. 
+In the following we show an example of distributed linearizable history and an example of non-distributed linearizable history. Since the function $f$ of $(s,f)$ in distributed specification can be obtained from the visibility relation, here we draw the visibility relation and readers could easily obtain the function $f$.
 
 \figurename~\ref{fig:a distributed linearizable history} is an example of a distributed linearizable history of OR-set. Its linearization is $\mathit{add}(0)_1 \cdot \mathit{add}(1)_2 \cdot \mathit{rem}(0) \cdot \mathit{add}(1)_1 \cdot \mathit{add}(0)_2 \cdot \mathit{rem}(1) \cdot \mathit{read}()_1 \Rightarrow \{0,1\} \cdot \mathit{read}()_2 \Rightarrow \{0,1\}$. The special arguments of $\mathit{read}()_1 \Rightarrow \{0,1\}$ is the identifiers of $\{ \mathit{add}(0)_1, \mathit{add}(1)_2, \mathit{rem}(0), \mathit{add}(0)_2 \}$, and the special arguments of $\mathit{read}()_2 \Rightarrow \{0,1\}$ is the identifiers of $\{ \mathit{add}(1)_1, \mathit{add}(0)_2, \mathit{rem}(1), \mathit{add}(1)_2 \}$.
 
-\figurename~\ref{fig:a non-distributed linearizable history} is an example of a non-distributed linearizable history of OR-set. Since we can not find special argument that validate $\mathit{read}() \Rightarrow \{ 1 \}$.  
-  
+\figurename~\ref{fig:a non-distributed linearizable history} is an example of a non-distributed linearizable history of OR-set. Since we can not find special argument that validate $\mathit{read}() \Rightarrow \{ 1 \}$.
+
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.7 \textwidth]{figures/PIC-Example-LinHis.pdf}
