@@ -10,10 +10,10 @@ A replicated data type implementation shows how a algorithm works at one replica
 
 \begin{definition}[Replicated Type Implementation]
 \label{definition:replicated type implementation}
-A replicated type implementation for a type $t = (M,D)$ is a tuple $I_t = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive},r)$. Here $\sigma_0 \in \Sigma$, $\mathit{do}:\Sigma \times \mathbb{M} \times D \rightarrow \Sigma \times D \times (\mathbb{MSG} \cup \{ \emptyset \} )$, $\mathit{receive}: \Sigma \times \mathbb{MSG} \rightarrow \Sigma$, and $r \in \mathbb{R}$.
+A replicated type implementation for a type $t = (M,D)$ is a tuple $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$. Here $r \in \mathbb{R}$, $\sigma_0 \in \Sigma$, $\mathit{do}:\Sigma \times \mathbb{M} \times D \rightarrow \Sigma \times D \times (\mathbb{MSG} \cup \{ \emptyset \} )$, and $\mathit{receive}: \Sigma \times \mathbb{MSG} \rightarrow \Sigma$.
 \end{definition}
 
-Here $\Sigma$ is a set of states of object of one replica. $\sigma_0$ is the initial state. When the current local state is $\sigma$ and the client intends to perform a operation of method $m$ with argument $a$, a $\mathit{do}(\sigma,m,a)$ action is launched, which update the local states, returns a value, and possibly generate messages. If $m \in \mathbb{U}$, a $\mathit{do}$ action of method $m$ will generate message; else, if $m \in \mathbb{Q}$, a $\mathit{do}$ action of method $m$ will not generate message. When this replica receives a message from other replica, a $\mathit{receive}$ action will be launched, which updates the current local states according to the message. If a operation has no arguments or return value, or does not generate message, then we can safely skip the corresponding ones in $\mathit{do}$ actions of $I_t$. $r$ is the replica identifier of current replica, since some algorithms need the current replica identifier to generate time-stamp. 
+Here $\Sigma$ is a set of states of object of one replica. $\sigma_0$ is the initial state. When the current local state is $\sigma$ and the client intends to perform a operation of method $m$ with argument $a$, a $\mathit{do}(\sigma,m,a)$ action is launched, which update the local states, returns a value, and possibly generate messages. If $m \in \mathbb{U}$, a $\mathit{do}$ action of method $m$ will generate message; else, if $m \in \mathbb{Q}$, a $\mathit{do}$ action of method $m$ will not generate message. When this replica receives a message from other replica, a $\mathit{receive}$ action will be launched, which updates the current local states according to the message. If a operation has no arguments or return value, or does not generate message, then we can safely skip the corresponding ones in $\mathit{do}$ actions of $I_t$. $r$ is the replica identifier of current replica, since some algorithms need the current replica identifier to generate time-stamp.
 
 In practice, there are two kinds of CRDT implementations: operation-based CRDT and state-based CRDT. In operation-based CRDT, each message carries a description of the latest operation of the sending replica. In state-based CRDT, each message carries a description of the local state of the sending replica.
 
@@ -21,7 +21,7 @@ In the following we give the example of two algorithms: operation-based counter,
 
 \begin{example}[operation-based counter]
 \label{definition:operation-based counter}
-$I_t = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive},r)$, where
+$I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -42,29 +42,57 @@ $I_t = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive},r)$, where
 \label{definition:rga implementation}
 In RGA algorithm, a replica store the list as a tree, where the list is obtained by traversing the tree in prefix order, and each node of the tree stores a item of list, a pointer to parent node of the tree, and a time-stamp for possible conflict resolution. The already-deleted items of the tree are stored in tombstone. Here we assume that each item of the list is globally unique.
 
-Formally, each replica stores a (1) `set $N$ of tuples $(a,t,p)$, where $a \in D$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'', and (2) a set $T$ of tombstones, which are set of items removed from the list. Each time-stamp is a tuple $(x,r)$ with $x \in \mathbb{N}$ and $r \in \mathbb{R}$. We define a order $<_{\mathit{ts}}$ between time-stamps, such that $(x_1,r_1) <_{\mathit{ts}} (x_2,r_2)$, if $x_1 < x_2 \vee (x_1 = x_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. The elements of $N$ are required to form a tree by following the parent field (a special time-stamp value $\circ$ represents the root). Let $\mathit{list}(N,T)$ be the list seen by the local replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $T$. In the interface of RGA, we assume that the first item of list is fixed to be $\circ$. 
+Formally, each replica stores a (1) `set $N$ of tuples $(a,t,p)$, where $a \in D$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'', and (2) a set $T$ of tombstones, which are set of items removed from the list. Each time-stamp is a tuple $(x,r)$ with $x \in \mathbb{N}$ and $r \in \mathbb{R}$. We define a order $<_{\mathit{ts}}$ between time-stamps, such that $(x_1,r_1) <_{\mathit{ts}} (x_2,r_2)$, if $x_1 < x_2 \vee (x_1 = x_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. The elements of $N$ are required to form a tree by following the parent field (a special time-stamp value $\circ$ represents the root). Let $\mathit{list}(N,T)$ be the list seen by the local replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $T$. In the interface of RGA, we assume that the first item of list is fixed to be $\circ$.
 
-To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,t,p_b)$ into $N$, where $p_b$ is the time-stamp of $b$, and t is a time-stamp that is bigger than all time-stamp of $N$. We remove an item $a$ of $N$ by putting $a$ into $T$. To read the list, we return $\mathit{list}(N,T)$. The tuples of RGA is defined as follows: $I_t = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive},r)$, where
+To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,t,p_b)$ into $N$, where $p_b$ is the time-stamp of $b$, and t is a time-stamp that is bigger than all time-stamp of $N$. We remove an item $a$ of $N$ by putting $a$ into $T$. To read the list, we return $\mathit{list}(N,T)$. The tuples of RGA is defined as follows: $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Each item of $\Sigma$ is a tuple $(N,T)$ as above, $\sigma_0 = (\emptyset, \emptyset)$. The message of $\mathit{add}$ operation is of the form $(a,t,p)$, while the message of $\mathit{rem}$ operation is of the form $a \in D$,  
-    
-\item[-] If $(a,\_,\_) \notin N \wedge (b,\_,\_) \in N \wedge b \notin T$, then $\mathit{do}((N,T),\mathit{add},a,b) = ((E \cup \{ (a,t,p_b) \},T),(a,t,p))$. Here $p_b$ is the time-stamp of $b$, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$. 
+\item[-] Each item of $\Sigma$ is a tuple $(N,T)$ as above, $\sigma_0 = (\emptyset, \emptyset)$. The message of $\mathit{add}$ operation is of the form $(a,t,p)$, while the message of $\mathit{rem}$ operation is of the form $a \in D$,
 
-\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,T),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},T),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$. 
+\item[-] If $(a,\_,\_) \notin N \wedge (b,\_,\_) \in N \wedge b \notin T$, then $\mathit{do}((N,T),\mathit{add},a,b) = ((E \cup \{ (a,t,p_b) \},T),(a,t,p))$. Here $p_b$ is the time-stamp of $b$, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
 
-\item[-] If $(a,\_,\_) \in N \wedge a \notin T$, then $\mathit{do}((N,T),\mathit{rem},a) = ((N,T \cup \{ a \} ),a)$. 
+\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,T),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},T),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
 
-\item[-] $\mathit{do}((N,T),\mathit{read}) = ((N,T),\mathit{list}(N,T))$, and no message is generated. 
+\item[-] If $(a,\_,\_) \in N \wedge a \notin T$, then $\mathit{do}((N,T),\mathit{rem},a) = ((N,T \cup \{ a \} ),a)$.
 
-\item[-] $\mathit{receive}((N,T),(a,t,p)) = (N \cup \{ (a,t,p) \},T)$. 
+\item[-] $\mathit{do}((N,T),\mathit{read}) = ((N,T),\mathit{list}(N,T))$, and no message is generated.
 
-\item[-] $\mathit{receive}((N,T),a) = (N,T \cup \{ a \})$. 
-\end{itemize} 
-\end{example}
+\item[-] $\mathit{receive}((N,T),(a,t,p)) = (N \cup \{ (a,t,p) \},T)$.
 
+\item[-] $\mathit{receive}((N,T),a) = (N,T \cup \{ a \})$.
+\end{itemize}
+\end{example} 
 
+\noindent {\bf Semantics of a set of objects} Given a set $\mathit{Obj}$ of objects, the semantics of $\mathit{Obj}$ is given as a tuple $\llbracket \mathit{Obj} \rrbracket = (\mathit{Config},\mathit{config}_0,\rightarrow_{\mathit{Obj}})$ as in \figurename~\ref{fig:a distributed linearizable history}. 
+ 
+\begin{figure}[ht]
+$\mathit{RState} = \cup_{x \in \mathit{Obj}} (\mathbb{R} \rightarrow x.\Sigma)$ 
+
+$\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$ 
+
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$ 
+
+$I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$. Here $r \in \mathbb{R}$, $\sigma_0 \in \Sigma$, $\mathit{do}:\Sigma \times \mathbb{M} \times D \rightarrow \Sigma \times D \times (\mathbb{MSG} \cup \{ \emptyset \} )$, and $\mathit{receive}: \Sigma \times \mathbb{MSG} \rightarrow \Sigma$.
+
+\[
+\begin{array}{l c}
+\bigfrac{ x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId}) }
+{ (R,T) {\xrightarrow{\mathit{do}(x,m,a,b,r)}} (R[(x,r):\sigma'],T \cup \{ (\mathit{msgID},\mathit{msg},r,r') \vert r' \in \mathbb{R} \setminus \{ r \} \}) } 
+\end{array}
+\]
+
+\[
+\begin{array}{l c}
+\bigfrac{ x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma'}
+{ (R,T) {\xrightarrow{\mathit{receive}(x,\mathit{msg},r)}} (R[(x,r):\sigma'],T) } 
+\end{array}
+\] 
+\caption{The semantics of multiple objects} 
+\label{fig:the semantics of multiple objects}
+\end{figure}
+
+A configuration $(R,T)$ contains two parts: 
 
 Algorithms of CRDT.
 
