@@ -42,25 +42,25 @@ $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
 \label{definition:rga implementation}
 In RGA algorithm, a replica store the list as a tree, where the list is obtained by traversing the tree in prefix order, and each node of the tree stores a item of list, a pointer to parent node of the tree, and a time-stamp for possible conflict resolution. The already-deleted items of the tree are stored in tombstone. Here we assume that each item of the list is globally unique.
 
-Formally, each replica stores a (1) `set $N$ of tuples $(a,t,p)$, where $a \in D$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'', and (2) a set $T$ of tombstones, which are set of items removed from the list. Each time-stamp is a tuple $(x,r)$ with $x \in \mathbb{N}$ and $r \in \mathbb{R}$. We define a order $<_{\mathit{ts}}$ between time-stamps, such that $(x_1,r_1) <_{\mathit{ts}} (x_2,r_2)$, if $x_1 < x_2 \vee (x_1 = x_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. The elements of $N$ are required to form a tree by following the parent field (a special time-stamp value $\circ$ represents the root). Let $\mathit{list}(N,T)$ be the list seen by the local replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $T$. In the interface of RGA, we assume that the first item of list is fixed to be $\circ$.
+Formally, each replica stores a (1) `set $N$ of tuples $(a,t,p)$, where $a \in D$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'', and (2) a set $\mathit{Tomb}$ of tombstones, which are set of items removed from the list. Each time-stamp is a tuple $(x,r)$ with $x \in \mathbb{N}$ and $r \in \mathbb{R}$. We define a order $<_{\mathit{ts}}$ between time-stamps, such that $(x_1,r_1) <_{\mathit{ts}} (x_2,r_2)$, if $x_1 < x_2 \vee (x_1 = x_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. The elements of $N$ are required to form a tree by following the parent field (a special time-stamp value $\circ$ represents the root). Let $\mathit{list}(N,\mathit{Tomb})$ be the list seen by the local replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$. In the interface of RGA, we assume that the first item of list is fixed to be $\circ$.
 
-To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,t,p_b)$ into $N$, where $p_b$ is the time-stamp of $b$, and t is a time-stamp that is bigger than all time-stamp of $N$. We remove an item $a$ of $N$ by putting $a$ into $T$. To read the list, we return $\mathit{list}(N,T)$. The tuples of RGA is defined as follows: $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
+To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,t,p_b)$ into $N$, where $p_b$ is the time-stamp of $b$, and t is a time-stamp that is bigger than all time-stamp of $N$. We remove an item $a$ of $N$ by putting $a$ into $\mathit{Tomb}$. To read the list, we return $\mathit{list}(N,\mathit{Tomb})$. The tuples of RGA is defined as follows: $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Each item of $\Sigma$ is a tuple $(N,T)$ as above, $\sigma_0 = (\emptyset, \emptyset)$. The message of $\mathit{add}$ operation is of the form $(a,t,p)$, while the message of $\mathit{rem}$ operation is of the form $a \in D$,
+\item[-] Each item of $\Sigma$ is a tuple $(N,\mathit{Tomb})$ as above, $\sigma_0 = (\emptyset, \emptyset)$. The message of $\mathit{add}$ operation is of the form $(a,t,p)$, while the message of $\mathit{rem}$ operation is of the form $a \in D$,
 
-\item[-] If $(a,\_,\_) \notin N \wedge (b,\_,\_) \in N \wedge b \notin T$, then $\mathit{do}((N,T),\mathit{add},a,b) = ((E \cup \{ (a,t,p_b) \},T),(a,t,p))$. Here $p_b$ is the time-stamp of $b$, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
+\item[-] If $(a,\_,\_) \notin N \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb}$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,b) = ((E \cup \{ (a,t,p_b) \},\mathit{Tomb}),(a,t,p))$. Here $p_b$ is the time-stamp of $b$, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
 
-\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,T),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},T),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
+\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},\mathit{Tomb}),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
 
-\item[-] If $(a,\_,\_) \in N \wedge a \notin T$, then $\mathit{do}((N,T),\mathit{rem},a) = ((N,T \cup \{ a \} ),a)$.
+\item[-] If $(a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{rem},a) = ((N,\mathit{Tomb} \cup \{ a \} ),a)$.
 
-\item[-] $\mathit{do}((N,T),\mathit{read}) = ((N,T),\mathit{list}(N,T))$, and no message is generated.
+\item[-] $\mathit{do}((N,\mathit{Tomb}),\mathit{read}) = ((N,\mathit{Tomb}),\mathit{list}(N,\mathit{Tomb}))$, and no message is generated.
 
-\item[-] $\mathit{receive}((N,T),(a,t,p)) = (N \cup \{ (a,t,p) \},T)$.
+\item[-] $\mathit{receive}((N,\mathit{Tomb}),(a,t,p)) = (N \cup \{ (a,t,p) \},\mathit{Tomb})$.
 
-\item[-] $\mathit{receive}((N,T),a) = (N,T \cup \{ a \})$.
+\item[-] $\mathit{receive}((N,\mathit{Tomb}),a) = (N,\mathit{Tomb} \cup \{ a \})$.
 \end{itemize}
 \end{example}
 
@@ -77,14 +77,14 @@ $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$. Here $r \in \mat
 
 \[
 \begin{array}{l c}
-\bigfrac{ x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId}) }
+\bigfrac{ R(x,r) = \sigma, x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId}) }
 { (R,T) {\xrightarrow{\mathit{do}(x,m,a,b,r)}} (R[(x,r):\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r') \vert r' \in \mathbb{R} \setminus \{ r \} \}) }
 \end{array}
 \]
 
 \[
 \begin{array}{l c}
-\bigfrac{ x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',(\_,\mathit{msg},\_,r) \in T} 
+\bigfrac{ R(x,r) = \sigma, x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',(\_,\mathit{msg},\_,r) \in T}
 { (R,T) {\xrightarrow{\mathit{receive}(x,\mathit{msg},r)}} (R[(x,r):\sigma'],T) }
 \end{array}
 \]
@@ -101,38 +101,38 @@ Note that here we do not make any assumption about message delivery: messages ca
 
 In the next section, we will prove the correctness of individual objects. Let us propose the semantics for individual objects for different kinds of CRDT as follows.
 
-The semantics of state-based object $x$ is given as follows: $\llbracket x \rrbracket_{s} = (\mathit{Config},\mathit{config}_0,\rightarrow)$, where 
+The semantics of state-based object $x$ is given as follows: $\llbracket x \rrbracket_{s} = (\mathit{Config},\mathit{config}_0,\rightarrow)$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\mathit{RState} = x.\Sigma$, 
+\item[-] $\mathit{RState} = \mathbb{R} \rightarrow x.\Sigma$,
 
-\item[-] $\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R} \times \{ \mathit{true},\mathit{false} \}$. Here $\mathit{true}$ represents that the message is generated and is not delivered yet, while $\mathit{false}$ represents that this message has already been delivered. 
+\item[-] $\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R} \times \{ \mathit{true},\mathit{false} \}$. Here $\mathit{true}$ represents that the message is generated and is not delivered yet, while $\mathit{false}$ represents that this message has already been delivered.
 
-\item[-] $\mathit{MsgHB} = \mathit{MessageID} \times \mathit{MessageID}$, which records the happen-before relation between message identifiers. 
+\item[-] $\mathit{MsgHB} = \mathit{MessageID} \times \mathit{MessageID}$, which records the happen-before relation between message identifiers.
 
-\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$. 
+\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$.
 
-\item[-] Let $\mathit{sorRep}$ is the replica identifier of the launching replica. 
-
-$\begin{array}{l c}
-   \bigfrac{
-   \begin{array}{c}
-     x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})\\
-     \mathit{MsgHB}' = \mathit{MsgHB} \cup \{ (i,\mathit{msgId}) \vert \mathit{sorRep}(i) = r \vee \exists j, ( (i,j) \in \mathit{MsgHB}^* \wedge \mathit{sorRep}(j) = r) \}  
-   \end{array}}
-     {(\sigma,T,\mathit{MsgHB}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (\sigma',T \cup \{ (\mathit{msgId},\mathit{msg},r,r',\mathit{true}) \vert r' \in \mathbb{R} \setminus \{ r \} \},\mathit{MsgHB}')}
-\end{array}$ 
-
-\item[-] 
+\item[-] Let $\mathit{sorRep}$ is the replica identifier of the launching replica.
 
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-      x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId},(\mathit{msgId},\mathit{msg},r',r,\mathit{true}) \in T 
+     R(x,r) = \sigma, x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})\\
+     \mathit{MsgHB}' = \mathit{MsgHB} \cup \{ (i,\mathit{msgId}) \vert \mathit{sorRep}(i) = r \vee \exists j, ( (i,j) \in \mathit{MsgHB}^* \wedge \mathit{sorRep}(j) = r) \}
    \end{array}}
-     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R,T[(\mathit{msgId},\mathit{msg},r',r):\mathit{false}],\mathit{MsgHB})}
-\end{array}$ 
+     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[(x,r):\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r',\mathit{true}) \vert r' \in \mathbb{R} \setminus \{ r \} \},\mathit{MsgHB}')}
+\end{array}$
+
+\item[-]
+
+$\begin{array}{l c}
+   \bigfrac{
+   \begin{array}{c}
+      R(x,r) = \sigma, x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId},(\mathit{msgId},\mathit{msg},r',r,\mathit{true}) \in T
+   \end{array}}
+     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R[(x,r):\sigma'],T[(\mathit{msgId},\mathit{msg},r',r):\mathit{false}],\mathit{MsgHB})}
+\end{array}$
 \end{itemize}
 
 
@@ -140,15 +140,15 @@ The semantics of operation-based object $x$ is given as follows: $\llbracket x \
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\mathit{RState} = x.\Sigma$,
+\item[-] $\mathit{RState} = \mathbb{R} \rightarrow x.\Sigma$,
 
-\item[-] $\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$. 
+\item[-] $\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$.
 
 \item[-] $\mathit{MsgHB} = \mathit{MessageID} \times \mathit{MessageID}$.
 
-\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$. 
+\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$.
 
-\item[-] 
+\item[-]
 
 $\begin{array}{l c}
    \bigfrac{
@@ -159,7 +159,7 @@ $\begin{array}{l c}
      {(\sigma,T,\mathit{MsgHB}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (\sigma',T \cup \{ (\mathit{msgId},\mathit{msg},r,r') \vert r' \in \mathbb{R} \setminus \{ r \} \},\mathit{MsgHB}')}
 \end{array}$
 
-\item[-] When a message is delivered, we directly remove it from $T$. This makes a message be delivered at most once. 
+\item[-] When a message is delivered, we directly remove it from $T$. This makes a message be delivered at most once.
 
 $\begin{array}{l c}
    \bigfrac{
@@ -176,7 +176,7 @@ The semantics $\llbracket x \rrbracket_{\mathit{cd}}$ of operation-based object 
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-      x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId}, m = (\mathit{msgId},\mathit{msg},r',r) \in T, m \ is \ minimal \ w.r.t \ \mathit{MsgHB} 
+      x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId}, m = (\mathit{msgId},\mathit{msg},r',r) \in T, m \ is \ minimal \ w.r.t \ \mathit{MsgHB}
    \end{array}}
      {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R,T \setminus \{ (\mathit{msgId},\mathit{msg},r',r) \},\mathit{MsgHB} - (\mathit{msgId},\mathit{msg},r',r) )}
 \end{array}$
