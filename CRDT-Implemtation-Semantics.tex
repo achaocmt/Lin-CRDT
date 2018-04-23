@@ -4,55 +4,53 @@
 \section{CRDT Implementations and Its Semantics}
 \label{sec:CRDT implementations and its semantics}
 
-A replicated store is a set of objects. An object has a type and is replicated on each replica. Here we do not bound the number of replica identifiers and objects. A client works on one replica and interacts with the store by calling the method and then obtaining the return value.
-
-A replicated data type implementation shows how a algorithm works at one replica, including how to perform an operation and send message, as well as when receiving message, how to update the local data. Let $\mathbb{MSG}$ be the set of message contents.
+A replicated data type implementation shows how a algorithm works at one replica, including how to perform an operation and send message, as well as how to update the local data when receiving message. Let $\mathbb{MSG}$ be the set of message contents.
 
 \begin{definition}[Replicated Type Implementation]
 \label{definition:replicated type implementation}
 A replicated type implementation for a type $t = (M,D)$ is a tuple $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$. Here $r \in \mathbb{R}$, $\sigma_0 \in \Sigma$, $\mathit{do}:\Sigma \times \mathbb{M} \times D \rightarrow \Sigma \times D \times (\mathbb{MSG} \cup \{ \emptyset \} )$, and $\mathit{receive}: \Sigma \times \mathbb{MSG} \rightarrow \Sigma$.
 \end{definition}
 
-Here $\Sigma$ is a set of states of object of one replica. $\sigma_0$ is the initial state. When the current local state is $\sigma$ and the client intends to perform a operation of method $m$ with argument $a$, a $\mathit{do}(\sigma,m,a)$ action is launched, which update the local states, returns a value, and possibly generate messages. If $m \in \mathbb{U}$, a $\mathit{do}$ action of method $m$ will generate message; else, if $m \in \mathbb{Q}$, a $\mathit{do}$ action of method $m$ will not generate message. When this replica receives a message from other replica, a $\mathit{receive}$ action will be launched, which updates the current local states according to the message. If a operation has no arguments or return value, or does not generate message, then we can safely skip the corresponding ones in $\mathit{do}$ actions of $I_t$. $r$ is the replica identifier of current replica, since some algorithms need the current replica identifier to generate time-stamp.
+Here $\Sigma$ is the local state of one replica. $\sigma_0$ is the initial state. $r$ is the replica identifier of current replica, since some algorithms need the current replica identifier to generate time-stamp. When the current local state is $\sigma$ and the client intends to perform a operation of method $m$ with argument $a$, a $\mathit{do}$ action is launched, which update the local states, returns a value, and possibly generate messages. If $m \in \mathbb{U}$, a $\mathit{do}$ action of method $m$ will generate messages; else, if $m \in \mathbb{Q}$, a $\mathit{do}$ action of method $m$ will not generate message. When this replica receives a message of other replica, a $\mathit{receive}$ action will be launched, which updates the current local states according to the message. If a operation has no arguments or return value, or does not generate message, then we can safely omit the corresponding ones in $\mathit{do}$ actions of $I_t$.
 
 In practice, there are two kinds of CRDT implementations: operation-based CRDT and state-based CRDT. In operation-based CRDT, each message carries a description of the latest operation of the sending replica. In state-based CRDT, each message carries a description of the local state of the sending replica.
 
-In the following we give the example of two algorithms: operation-based counter, and replicated growable array (RGA), which is also operation-based. More algorithms are given in Appendix \ref{sec:appendix definitions of section CRDT implementations and its semantics}.
+In the following we give the example of two algorithms: operation-based last-write-win register (LWW-register), and replicated growable array (RGA), which is also operation-based. More algorithms are given in Appendix \ref{sec:appendix definitions of section CRDT implementations and its semantics}.
 
-\begin{example}[operation-based counter]
-\label{definition:operation-based counter}
+\begin{example}[LWW-register]
+\label{definition:LWW-register}
 $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\Sigma = \mathbb{N}$, $\sigma_0 = 0$, each message is chosen from $\{ \mathit{inc}, \mathit{dec} \}$,
+\item[-] Each item of $\Sigma$ is a tuple $(\mathit{data},\mathit{ts})$, where $\mathit{data} \in D$ is the data and $\mathit{ts} \in \mathbb{N} \times \mathbb{R}$ is the time-stamp. $\sigma_0 = (\epsilon, 0)$.
 
-\item[-] $\mathit{do}(i,\mathit{inc}) = (i+1,\mathit{inc})$,
+\item[-] Each message is of the form $(\mathit{data},\mathit{ts})$. 
 
-\item[-] $\mathit{do}(i,\mathit{dec}) = (i-1,\mathit{dec})$,
+\item[-] $\mathit{do}((a,(u,r')),\mathit{write},b) = ((b,(u+1,r)),(b,(u+1,r)))$, 
 
-\item[-] $\mathit{do}(i,\mathit{read}) = (i,i)$,
+\item[-] $\mathit{do}((a,(u,r')),\mathit{read}) = ((a,(u,r')),a)$, 
 
-\item[-] $\mathit{receive}(i,\mathit{inc}) = (i+1)$, $\mathit{receive}(i,\mathit{dec}) = (i-1)$.
+\item[-] If $u<v \vee (u=v \wedge r' < r'')$, then $\mathit{receive}((a,(u,r')), ((b,(v,r'')))) = (b,(v,r''))$. Else, $\mathit{receive}((a,(u,r')), ((b,(v,r'')))) = (a,(u,r'))$.  
 \end{itemize}
 \end{example}
 
 
 \begin{example}[RGA]
 \label{definition:rga implementation}
-In RGA algorithm, a replica store the list as a tree, where the list is obtained by traversing the tree in prefix order, and each node of the tree stores a item of list, a pointer to parent node of the tree, and a time-stamp for possible conflict resolution. The already-deleted items of the tree are stored in tombstone. Here we assume that each item of the list is globally unique.
+In RGA algorithm, a replica store the list as a tree, where the list is obtained by traversing the tree in prefix order. Each node of the tree stores a tuple containing a item of list, a pointer to parent node of the tree, and a time-stamp of the item. The already-deleted items of the tree are stored in tombstone. Here we assume that each item of the list is globally unique.
 
-Formally, each replica stores a (1) `set $N$ of tuples $(a,t,p)$, where $a \in D$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'', and (2) a set $\mathit{Tomb}$ of tombstones, which are set of items removed from the list. Each time-stamp is a tuple $(x,r)$ with $x \in \mathbb{N}$ and $r \in \mathbb{R}$. We define a order $<_{\mathit{ts}}$ between time-stamps, such that $(x_1,r_1) <_{\mathit{ts}} (x_2,r_2)$, if $x_1 < x_2 \vee (x_1 = x_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. The elements of $N$ are required to form a tree by following the parent field (a special time-stamp value $\circ$ represents the root). Let $\mathit{list}(N,\mathit{Tomb})$ be the list seen by the local replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$. In the interface of RGA, we assume that the first item of list is fixed to be $\circ$.
+Formally, each replica stores two parts. The first part is a set $N$ of tuples $(a,t,p)$, where $a \in D$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'' node. The second part is a set $\mathit{Tomb}$ of tombstones, which are set of items removed from the list. Each time-stamp is a tuple $(u,r)$ with $u \in \mathbb{N}$ and $r \in \mathbb{R}$. We define a order $<_{\mathit{ts}}$ between time-stamps, such that $(u_1,r_1) <_{\mathit{ts}} (u_2,r_2)$, if $u_1 < u_2 \vee (u_1 = u_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. The elements of $N$ are required to form a tree by following the parent field (a special time-stamp value $\circ$ represents the root). Let $\mathit{list}(N,\mathit{Tomb})$ be the list seen by the local replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$. In the interface of RGA, we assume that the first item of list is fixed to be $\circ$.
 
-To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,t,p_b)$ into $N$, where $p_b$ is the time-stamp of $b$, and t is a time-stamp that is bigger than all time-stamp of $N$. We remove an item $a$ of $N$ by putting $a$ into $\mathit{Tomb}$. To read the list, we return $\mathit{list}(N,\mathit{Tomb})$. The tuples of RGA is defined as follows: $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
+To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,t,p_b)$ into $N$, where $p_b$ is the time-stamp of $b$, and t is a time-stamp that is bigger than all time-stamps of $N$. We remove an item $a$ of $N$ by putting $a$ into $\mathit{Tomb}$. To read the list, we return $\mathit{list}(N,\mathit{Tomb})$. The tuples of RGA is defined as follows: $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Each item of $\Sigma$ is a tuple $(N,\mathit{Tomb})$ as above, $\sigma_0 = (\emptyset, \emptyset)$. The message of $\mathit{add}$ operation is of the form $(a,t,p)$, while the message of $\mathit{rem}$ operation is of the form $a \in D$,
 
-\item[-] If $(a,\_,\_) \notin N \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb}$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,b) = ((E \cup \{ (a,t,p_b) \},\mathit{Tomb}),(a,t,p))$. Here $p_b$ is the time-stamp of $b$, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
+\item[-] If $(a,\_,\_) \notin N \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb}$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,b) = ((E \cup \{ (a,t,p_b) \},\mathit{Tomb}),(a,t,p))$. Here $p_b$ is the time-stamp of $b$, $t = (\mathit{max}\{ u \vert (\_,(u,\_),\_) \in N \}+1,r)$.
 
-\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},\mathit{Tomb}),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (x+1,r)$, where $x = \mathit{max}\{ y \vert (\_,(y,\_),\_) \in N \}$.
+\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},\mathit{Tomb}),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (\mathit{max}\{ u \vert (\_,(u,\_),\_) \in N \}+1,r)$. 
 
 \item[-] If $(a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{rem},a) = ((N,\mathit{Tomb} \cup \{ a \} ),a)$.
 
@@ -69,15 +67,14 @@ To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,
 \begin{figure}[ht]
 $\mathit{RState} = \cup_{x \in \mathit{Obj}} (\mathbb{R} \rightarrow x.\Sigma)$
 
-$\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$
+$\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$
 
-$\mathit{Config} = \mathit{RState} \times \mathit{TState}$
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$. 
 
-$I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$. Here $r \in \mathbb{R}$, $\sigma_0 \in \Sigma$, $\mathit{do}:\Sigma \times \mathbb{M} \times D \rightarrow \Sigma \times D \times (\mathbb{MSG} \cup \{ \emptyset \} )$, and $\mathit{receive}: \Sigma \times \mathbb{MSG} \rightarrow \Sigma$.
 
 \[
 \begin{array}{l c}
-\bigfrac{ R(x,r) = \sigma, x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId}) }
+\bigfrac{ R(x,r) = \sigma, x(r).\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId}) }
 { (R,T) {\xrightarrow{\mathit{do}(x,m,a,b,r)}} (R[(x,r):\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r') \vert r' \in \mathbb{R} \setminus \{ r \} \}) }
 \end{array}
 \]
@@ -92,12 +89,9 @@ $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$. Here $r \in \mat
 \label{fig:the semantics of multiple objects}
 \end{figure}
 
-A configuration $(R,T)$ contains two parts: $R$ stores the local state of each replica, and $T$ stores the set of messages that has been generated. Let $\mathit{MessageID}$ be the set of message identifiers of message content. A message identifier is used to distinguish multiple messages with same message content. A message is a tuple $(\mathit{msgId},\mathit{msg},r,r')$, where $\mathit{msgId}$ is the identifier of the message content, $\mathit{msg} \in \mathbb{MSG}$ is the message content, $r$ is the sending replica of the message and $r'$ is the destination replica of the message. The first rule in \figurename~\ref{fig:a distributed linearizable history} describes the case when object $x$ at replica $r$ do an operation and (possibly) generate messages. Here $\mathit{unique}$ is a function that ensure $\mathit{msgId}$ is a fresh message identifier. The second rule describes when a replica $r$ receive a message of object $x$.
+A configuration $(R,T)$ contains two parts: $R$ stores the local state of each replica, and $T$ stores the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message identifier is used to distinguish multiple messages with same message content that are generated during execution. A message is a tuple $(\mathit{msgId},\mathit{msg},r,r')$, where $\mathit{msgId} \in \mathbb{MID}$ is the identifier of the message content, $\mathit{msg} \in \mathbb{MSG}$ is the message content, $r$ is the sending replica of the message and $r'$ is the destination replica of the message. The first rule in \figurename~\ref{fig:a distributed linearizable history} describes the case when object $x$ at replica $r$ do an operation and (possibly) generate messages. Here $\mathit{unique}$ is a function that ensure $\mathit{msgId}$ is a fresh message identifier. The second rule describes the case when a replica $r$ receive a message of object $x$.
 
-
-Let $\mathbb{ACT}$ be the set of actions. An execution of $\llbracket \mathit{Obj} \rrbracket$ is a tuple $e = (E,\mathit{eo},\mathit{ro},\mathit{del})$. Here $E \subseteq \mathbb{ACT}$ is a set of actions, $\mathit{eo} \subseteq E \times E$ is a well-founded, transitive, irreflexive and total order on $E$, $\mathit{ro} \subseteq \mathit{ro}$ is a union of transitive, irreflexive and total orders of actions of same replica, $\mathit{del} \subseteq \mathit{ro}$ is the delivery relation and is defined as follows: $(e_1,e_2) \in \mathit{del}$, if $e_2$ receives the message generated by $e_1$.
-
-Note that here we do not make any assumption about message delivery: messages can be delivered in any order, a message can be delivery to a replica multiple times, and a message can be never delivered to a replica. This fits the assumption of state-based CRDT. However, the operation-based CRDT indeed have assumption about message delivery: each message is delivered to a replica at most once. Many operation-based CRDT has an additional assumption called causal-delivery: if operation $o_1$ happens before operation $o_2$, then it can not be the case that some replica receives the message of $o_2$ while it does not receive the message of $o_1$ yet.
+$\llbracket \mathit{Obj} \rrbracket$ may be not precise enough, since it does not make any assumption about message delivery: Messages can be delivered in any order, a message can be delivery to a replica multiple times, and a message can be never delivered to a replica. This fits the assumption of state-based CRDT. However, the operation-based CRDT indeed have assumption about message delivery: each message is delivered to a replica at most once. Many operation-based CRDT has an additional assumption called causal-delivery: if operation $o_1$ happens before operation $o_2$, then it can not be the case that some replica receives the message of $o_2$ while it does not receive the message of $o_1$ yet. In latter section we will discuss how to combine objects with different requirements of message delivery. 
 
 In the next section, we will prove the correctness of individual objects. Let us propose the semantics for individual objects for different kinds of CRDT as follows.
 
@@ -105,20 +99,20 @@ The semantics of state-based object $x$ is given as follows: $\llbracket x \rrbr
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\mathit{RState} = \mathbb{R} \rightarrow x.\Sigma$,
+\item[-] $\mathit{RState} = \mathbb{R} \rightarrow \Sigma$,
 
-\item[-] $\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R} \times \{ \mathit{true},\mathit{false} \}$. Here $\mathit{true}$ represents that the message is generated and is not delivered yet, while $\mathit{false}$ represents that this message has already been delivered.
+\item[-] $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R} \times \{ \mathit{true},\mathit{false} \}$. Here $\mathit{true}$ represents that the message is generated and is not delivered yet, while $\mathit{false}$ represents that this message has already been delivered at least once.
 
-\item[-] $\mathit{MsgHB} = \mathit{MessageID} \times \mathit{MessageID}$, which records the happen-before relation between message identifiers.
+\item[-] $\mathit{MsgHB} = (\mathbb{MID} \times \mathbb{MID}) \cup (\mathbb{MID} \times \mathbb{R})$. $(m_1,m_2) \in \mathit{MsgHB}$ represents that the operation of message $o_1$ happens before the operation of message $o_2$; $(m_1,r') \in \mathit{MsgHB}$ means that $m_1$ is delivered to replica $r'$ but after that replica $r'$ does not launch any operation. 
 
-\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$.
+\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$. $\mathit{config}_0 \in \mathit{Config}_0$ and its $\mathit{MsgHB}$ is $\emptyset$. 
 
-\item[-] Let $\mathit{sorRep}$ is the replica identifier of the launching replica.
+\item[-] Given $i \in \mathbb{MID}$, let $\mathit{frep}$ be the replica identifier of the launching replica of $i$. 
 
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-     R(x,r) = \sigma, x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})\\
+     R(r) = \sigma, \mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})\\
      \mathit{MsgHB}' = \mathit{MsgHB} \cup \{ (i,\mathit{msgId}) \vert \mathit{sorRep}(i) = r \vee \exists j, ( (i,j) \in \mathit{MsgHB}^* \wedge \mathit{sorRep}(j) = r) \}
    \end{array}}
      {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[(x,r):\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r',\mathit{true}) \vert r' \in \mathbb{R} \setminus \{ r \} \},\mathit{MsgHB}')}
@@ -133,7 +127,12 @@ $\begin{array}{l c}
    \end{array}}
      {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R[(x,r):\sigma'],T[(\mathit{msgId},\mathit{msg},r',r):\mathit{false}],\mathit{MsgHB})}
 \end{array}$
-\end{itemize}
+\end{itemize} 
+
+
+
+
+Here $\mathit{update}(\mathit{MsgHB},\mathit{msgID}) = $
 
 
 The semantics of operation-based object $x$ is given as follows: $\llbracket x \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\rightarrow)$, where
@@ -142,9 +141,9 @@ The semantics of operation-based object $x$ is given as follows: $\llbracket x \
 \setlength{\itemsep}{0.5pt}
 \item[-] $\mathit{RState} = \mathbb{R} \rightarrow x.\Sigma$,
 
-\item[-] $\mathit{TState} = \mathit{MessageID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$.
+\item[-] $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$.
 
-\item[-] $\mathit{MsgHB} = \mathit{MessageID} \times \mathit{MessageID}$.
+\item[-] $\mathit{MsgHB} = \mathbb{MID} \times \mathbb{MID}$.
 
 \item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$.
 
@@ -179,7 +178,32 @@ $\begin{array}{l c}
       x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId}, m = (\mathit{msgId},\mathit{msg},r',r) \in T, m \ is \ minimal \ w.r.t \ \mathit{MsgHB}
    \end{array}}
      {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R,T \setminus \{ (\mathit{msgId},\mathit{msg},r',r) \},\mathit{MsgHB} - (\mathit{msgId},\mathit{msg},r',r) )}
-\end{array}$
+\end{array}$ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+A action label is in the form of either $\mathit{do}(x,m,a,b,r)$ or $\mathit{receive}(x,\mathit{msg},r)$.
+
+Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$, indicate that the operation calls method $m$ with argument $a$ and its return value is $b$. When $m$ does not use the argument (resp., return value), we write $m()\Rightarrow b$ (resp., $m(a)$) instead. We define an operation $o$ to be a tuple $(\ell,i,x)$, where $\ell$ is an operation label, $i \in \mathbb{O}$ is a unique operation identifier, and $x \in \mathbb{OBJ}$ is the objects of this operation. Let $\mathbb{OP}$ be the set of operations.
+
+Let $\mathbb{AID}$ be the set of
+
+
+actions. An execution of $\llbracket \mathit{Obj} \rrbracket$ is a tuple $e = (E,\mathit{eo},\mathit{ro},\mathit{del})$. Here $E \subseteq \mathbb{ACT}$ is a multi-set of actions, $\mathit{eo} \subseteq E \times E$ is a well-founded, transitive, irreflexive and total order on $E$, $\mathit{ro} \subseteq \mathit{eo}$ is a union of transitive, irreflexive and total orders of actions of same replica, $\mathit{del} \subseteq \mathit{ro}$ is the delivery relation and is defined as follows: $(e_1,e_2) \in \mathit{del}$, if $e_2$ receives the message generated by $e_1$. Given transitions $\mathit{config}_0  {\xrightarrow{\alpha_1}} \mathit{config}_1 \ldots$ of $\llbracket \mathit{Obj} \rrbracket$, its execution $(E,\mathit{eo},\mathit{ro},\mathit{del})$ is generated as follows: $\{ \alpha_1,\ldots \} = E$, $\mathit{eo}$ is the total order of $\alpha_1,\ldots$, and $\mathit{ro} = \cup_{r \in \mathbb{R}} $
+
+
 
 %%% Local Variables:
 %%% mode: latex
