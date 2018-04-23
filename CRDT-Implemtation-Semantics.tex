@@ -25,13 +25,13 @@ $I_t(r) = (\Sigma, \sigma_0, M, \mathit{do},\mathit{receive})$, where
 \setlength{\itemsep}{0.5pt}
 \item[-] Each item of $\Sigma$ is a tuple $(\mathit{data},\mathit{ts})$, where $\mathit{data} \in D$ is the data and $\mathit{ts} \in \mathbb{N} \times \mathbb{R}$ is the time-stamp. $\sigma_0 = (\epsilon, 0)$.
 
-\item[-] Each message is of the form $(\mathit{data},\mathit{ts})$. 
+\item[-] Each message is of the form $(\mathit{data},\mathit{ts})$.
 
-\item[-] $\mathit{do}((a,(u,r')),\mathit{write},b) = ((b,(u+1,r)),(b,(u+1,r)))$, 
+\item[-] $\mathit{do}((a,(u,r')),\mathit{write},b) = ((b,(u+1,r)),(b,(u+1,r)))$,
 
-\item[-] $\mathit{do}((a,(u,r')),\mathit{read}) = ((a,(u,r')),a)$, 
+\item[-] $\mathit{do}((a,(u,r')),\mathit{read}) = ((a,(u,r')),a)$,
 
-\item[-] If $u<v \vee (u=v \wedge r' < r'')$, then $\mathit{receive}((a,(u,r')), ((b,(v,r'')))) = (b,(v,r''))$. Else, $\mathit{receive}((a,(u,r')), ((b,(v,r'')))) = (a,(u,r'))$.  
+\item[-] If $u<v \vee (u=v \wedge r' < r'')$, then $\mathit{receive}((a,(u,r')), ((b,(v,r'')))) = (b,(v,r''))$. Else, $\mathit{receive}((a,(u,r')), ((b,(v,r'')))) = (a,(u,r'))$.
 \end{itemize}
 \end{example}
 
@@ -50,7 +50,7 @@ To insert a new item $a$ into list after a existing item $b$ of $N$, we put $(a,
 
 \item[-] If $(a,\_,\_) \notin N \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb}$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,b) = ((E \cup \{ (a,t,p_b) \},\mathit{Tomb}),(a,t,p))$. Here $p_b$ is the time-stamp of $b$, $t = (\mathit{max}\{ u \vert (\_,(u,\_),\_) \in N \}+1,r)$.
 
-\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},\mathit{Tomb}),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (\mathit{max}\{ u \vert (\_,(u,\_),\_) \in N \}+1,r)$. 
+\item[-] If $(a,\_,\_) \notin N$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{add},a,\circ) = ((N \cup \{ (a,t,\circ) \},\mathit{Tomb}),(a,t,\circ))$. If $N = \epsilon$, then $t = (1,r)$; else, $t = (\mathit{max}\{ u \vert (\_,(u,\_),\_) \in N \}+1,r)$.
 
 \item[-] If $(a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$, then $\mathit{do}((N,\mathit{Tomb}),\mathit{rem},a) = ((N,\mathit{Tomb} \cup \{ a \} ),a)$.
 
@@ -69,7 +69,7 @@ $\mathit{RState} = \cup_{x \in \mathit{Obj}} (\mathbb{R} \rightarrow x.\Sigma)$
 
 $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$
 
-$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$. 
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$.
 
 
 \[
@@ -91,7 +91,7 @@ $\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \
 
 A configuration $(R,T)$ contains two parts: $R$ stores the local state of each replica, and $T$ stores the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message identifier is used to distinguish multiple messages with same message content that are generated during execution. A message is a tuple $(\mathit{msgId},\mathit{msg},r,r')$, where $\mathit{msgId} \in \mathbb{MID}$ is the identifier of the message content, $\mathit{msg} \in \mathbb{MSG}$ is the message content, $r$ is the sending replica of the message and $r'$ is the destination replica of the message. The first rule in \figurename~\ref{fig:a distributed linearizable history} describes the case when object $x$ at replica $r$ do an operation and (possibly) generate messages. Here $\mathit{unique}$ is a function that ensure $\mathit{msgId}$ is a fresh message identifier. The second rule describes the case when a replica $r$ receive a message of object $x$.
 
-$\llbracket \mathit{Obj} \rrbracket$ may be not precise enough, since it does not make any assumption about message delivery: Messages can be delivered in any order, a message can be delivery to a replica multiple times, and a message can be never delivered to a replica. This fits the assumption of state-based CRDT. However, the operation-based CRDT indeed have assumption about message delivery: each message is delivered to a replica at most once. Many operation-based CRDT has an additional assumption called causal-delivery: if operation $o_1$ happens before operation $o_2$, then it can not be the case that some replica receives the message of $o_2$ while it does not receive the message of $o_1$ yet. In latter section we will discuss how to combine objects with different requirements of message delivery. 
+$\llbracket \mathit{Obj} \rrbracket$ may be not precise enough, since it does not make any assumption about message delivery: Messages can be delivered in any order, a message can be delivery to a replica multiple times, and a message can be never delivered to a replica. This fits the assumption of state-based CRDT. However, the operation-based CRDT indeed have assumption about message delivery: each message is delivered to a replica at most once. Many operation-based CRDT has an additional assumption called causal-delivery: if operation $o_1$ happens before operation $o_2$, then it can not be the case that some replica receives the message of $o_2$ while it does not receive the message of $o_1$ yet. In latter section we will discuss how to combine objects with different requirements of message delivery.
 
 In the next section, we will prove the correctness of individual objects. Let us propose the semantics for individual objects for different kinds of CRDT as follows.
 
@@ -103,19 +103,18 @@ The semantics of state-based object $x$ is given as follows: $\llbracket x \rrbr
 
 \item[-] $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R} \times \{ \mathit{true},\mathit{false} \}$. Here $\mathit{true}$ represents that the message is generated and is not delivered yet, while $\mathit{false}$ represents that this message has already been delivered at least once.
 
-\item[-] $\mathit{MsgHB} = (\mathbb{MID} \times \mathbb{MID}) \cup (\mathbb{MID} \times \mathbb{R})$. $(m_1,m_2) \in \mathit{MsgHB}$ represents that the operation of message $o_1$ happens before the operation of message $o_2$; $(m_1,r') \in \mathit{MsgHB}$ means that $m_1$ is delivered to replica $r'$ but after that replica $r'$ does not launch any operation. 
+%\item[-] $\mathit{MsgHB} = (\mathbb{MID} \times \mathbb{MID}) \cup (\mathbb{MID} \times \mathbb{R})$. $(m_1,m_2) \in \mathit{MsgHB}$ represents that the operation of message $o_1$ happens before the operation of message $o_2$; $(m_1,r') \in \mathit{MsgHB}$ means that $m_1$ is delivered to replica $r'$ but after that replica $r'$ does not launch any operation.
 
-\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$. $\mathit{config}_0 \in \mathit{Config}_0$ and its $\mathit{MsgHB}$ is $\emptyset$. 
+\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState}$.  
 
-\item[-] Given $i \in \mathbb{MID}$, let $\mathit{frep}$ be the replica identifier of the launching replica of $i$. 
+\item[-] 
 
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-     R(r) = \sigma, \mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})\\
-     \mathit{MsgHB}' = \mathit{MsgHB} \cup \{ (i,\mathit{msgId}) \vert \mathit{sorRep}(i) = r \vee \exists j, ( (i,j) \in \mathit{MsgHB}^* \wedge \mathit{sorRep}(j) = r) \}
+     R(r) = \sigma, \mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})
    \end{array}}
-     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[(x,r):\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r',\mathit{true}) \vert r' \in \mathbb{R} \setminus \{ r \} \},\mathit{MsgHB}')}
+     {(R,T) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r',\mathit{true}) \vert r' \in \mathbb{R} \setminus \{ r \} \})}
 \end{array}$
 
 \item[-]
@@ -123,39 +122,32 @@ $\begin{array}{l c}
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-      R(x,r) = \sigma, x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId},(\mathit{msgId},\mathit{msg},r',r,\mathit{true}) \in T
+      R(r) = \sigma, \mathit{receive}(\sigma,\mathit{msg}) = \sigma', \exists \mathit{msgId},(\mathit{msgId},\mathit{msg},r',r,\mathit{true}) \in T
    \end{array}}
-     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R[(x,r):\sigma'],T[(\mathit{msgId},\mathit{msg},r',r):\mathit{false}],\mathit{MsgHB})}
+     {(R,T) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R[r:\sigma'],T[(\mathit{msgId},\mathit{msg},r',r):\mathit{false}])}
 \end{array}$
-\end{itemize} 
+\end{itemize}
 
-
-
-
-Here $\mathit{update}(\mathit{MsgHB},\mathit{msgID}) = $
 
 
 The semantics of operation-based object $x$ is given as follows: $\llbracket x \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\rightarrow)$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\mathit{RState} = \mathbb{R} \rightarrow x.\Sigma$,
+\item[-] $\mathit{RState} = \mathbb{R} \rightarrow \Sigma$,
 
 \item[-] $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$.
 
-\item[-] $\mathit{MsgHB} = \mathbb{MID} \times \mathbb{MID}$.
-
-\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$.
+\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState}$.
 
 \item[-]
 
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-     x.\mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})\\
-     \mathit{MsgHB}' = \mathit{MsgHB} \cup \{ (i,\mathit{msgId}) \vert \mathit{sorRep}(i) = r \vee \exists j, ( (i,j) \in \mathit{MsgHB}^* \wedge \mathit{sorRep}(j) = r) \}
+     R(r) = \sigma, \mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId})
    \end{array}}
-     {(\sigma,T,\mathit{MsgHB}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (\sigma',T \cup \{ (\mathit{msgId},\mathit{msg},r,r') \vert r' \in \mathbb{R} \setminus \{ r \} \},\mathit{MsgHB}')}
+     {(R,T) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r') \vert r' \in \mathbb{R} \setminus \{ r \} \})}
 \end{array}$
 
 \item[-] When a message is delivered, we directly remove it from $T$. This makes a message be delivered at most once.
@@ -163,45 +155,58 @@ $\begin{array}{l c}
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-      x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId},(\mathit{msgId},\mathit{msg},r',r) \in T
+      R(r) = \sigma, \mathit{receive}(\sigma,\mathit{msg}) = \sigma', \exists \mathit{msgId},(\mathit{msgId},\mathit{msg},r',r) \in T
    \end{array}}
-     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R,T \setminus \{ (\mathit{msgId},\mathit{msg},r',r) \},\mathit{MsgHB} - (\mathit{msgId},\mathit{msg},r',r) )}
+     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R,T \setminus \{ (\mathit{msgId},\mathit{msg},r',r) \} )} 
 \end{array}$
 \end{itemize}
 
+To deal with operation-based object with causal-delivery, we record the happen-before relation $\mathit{MsgHB}$ and the message deliver relation $\mathit{MsgDel}$ in each configuration. $(m_1,m_2) \in \mathit{MsgHB}$ represents that $m_1$ happens before $m_2$; $(m_1,r') \in \mathit{MsgDel}$ means that $m_1$ is already delivered to replica $r'$, but after that replica $r'$ does not launch any operation. With $\mathit{MsgHB}$, only minimal messages w.r.t $\mathit{MsgHB}$ can be delivered. The semantics $\llbracket x \rrbracket_{\mathit{cd}}$ of operation-based object $x$ with causal-delivery is given as $\llbracket x \rrbracket_{\mathit{cd}} = (\mathit{Config},\mathit{config}_0,\rightarrow)$, where
 
-The semantics $\llbracket x \rrbracket_{\mathit{cd}}$ of operation-based object $x$ with causal-delivery is similar as that of $\llbracket x \rrbracket_{\mathit{op}}$. The only difference is the rule of delivering message: A message can be delivered, if it is minimal w.r.t $\mathit{MsgHB}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\mathit{RState} = \mathbb{R} \rightarrow \Sigma$,
+
+\item[-] $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R} \times \mathbb{R}$. 
+
+\item[-] $\mathit{MsgHB} \subseteq \mathbb{MID} \times \mathbb{MID}$. 
+
+\item[-] $\mathit{MsgDel}\subseteq \mathbb{MID} \times \mathbb{R}$. 
+
+\item[-] $\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB} \times \mathit{MsgDel}$. 
+
+\item[-]
 
 $\begin{array}{l c}
    \bigfrac{
    \begin{array}{c}
-      x.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',\exists \mathit{msgId}, m = (\mathit{msgId},\mathit{msg},r',r) \in T, m \ is \ minimal \ w.r.t \ \mathit{MsgHB}
+     R(r) = \sigma, \mathit{do}(\sigma,m,a,r) = (\sigma',b,\mathit{msg}), \mathit{unique}(\mathit{msgId}), \\ 
+     \mathit{msgHB}' = \mathit{upd}(\mathit{msgHB},\mathit{msgID},r) ,\mathit{msgDel}' = \mathit{upd}(\mathit{msgDel},\mathit{msgID},r) 
    \end{array}}
-     {(R,T,\mathit{MsgHB}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R,T \setminus \{ (\mathit{msgId},\mathit{msg},r',r) \},\mathit{MsgHB} - (\mathit{msgId},\mathit{msg},r',r) )}
-\end{array}$ 
+     {(R,T,\mathit{msgHB},\mathit{msgDel}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T \cup \{ (\mathit{msgId},\mathit{msg},r,r') \vert r' \in \mathbb{R} \setminus \{ r \} \}, \mathit{msgHB}',\mathit{msgDel}')}
+\end{array}$
+
+\item[-] 
+
+$\begin{array}{l c}
+   \bigfrac{
+   \begin{array}{c}
+      R(r) = \sigma, \mathit{receive}(\sigma,\mathit{msg}) = \sigma', \exists \mathit{msgId},(\mathit{msgId},\mathit{msg},r',r) \in T, \\ 
+      \mathit{msgDel}' = \mathit{msgDel} \cup \{ (\mathit{msgId},r) \}. 
+   \end{array}}
+     {(R,T,\mathit{msgHB},\mathit{msgDel}) {\xrightarrow{\mathit{receive}(\mathit{msg},r)}} (R,T \setminus \{ (\mathit{msgId},\mathit{msg},r',r),\mathit{msgHB},\mathit{msgDel}' \} )}
+\end{array}$
+\end{itemize} 
+
+Let $\mathit{upd}(\mathit{msgHB},\mathit{msgID},r)$ be the transitive closure of $\mathit{msgHB} \cup \{ (i,\mathit{msgID}) \vert i$ is launched in replica $r \vee (i,r) \in \mathit{msgDel}  \}$. Let $\mathit{upd}(\mathit{msgDel},\mathit{msgID},r) = \mathit{msgDel} \setminus \{ (i,r) \in \mathit{msgDel} \}$. 
 
 
 
+A action label is in the form of $\mathit{do}(x,m,a,b,r)$ or $\mathit{receive}(x,\mathit{msg},r)$, where $x \in \mathbb{OBJ}$, $m \in \mathbb{M}$, $a,b \in \mathbb{D}$, $r \in \mathbb{R}$, $\mathit{msg} \in \mathbb{MSG}$. Let $\mathbb{AID}$ be the set of action identifier. An action $a$ is a tuple $(l,i)$ with action label $l$ and action identifier $i$. Let $\mathit{ACT}$ be the set of actions. 
 
+An execution of $\llbracket \mathit{Obj} \rrbracket$ is a tuple $e = (E,\mathit{eo},\mathit{ro},\mathit{del})$. Here $E \subseteq \mathbb{ACT}$ is a set of actions, $\mathit{eo} \subseteq E \times E$ is a well-founded, transitive, irreflexive and total order on $E$, $\mathit{ro} \subseteq \mathit{eo}$ is a union of transitive, irreflexive and total orders of actions of same replica, $\mathit{del} \subseteq E \times E$ is the delivery relation. Given a execution, it is obvious to construct its history. 
 
-
-
-
-
-
-
-
-
-
-
-A action label is in the form of either $\mathit{do}(x,m,a,b,r)$ or $\mathit{receive}(x,\mathit{msg},r)$.
-
-Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$, indicate that the operation calls method $m$ with argument $a$ and its return value is $b$. When $m$ does not use the argument (resp., return value), we write $m()\Rightarrow b$ (resp., $m(a)$) instead. We define an operation $o$ to be a tuple $(\ell,i,x)$, where $\ell$ is an operation label, $i \in \mathbb{O}$ is a unique operation identifier, and $x \in \mathbb{OBJ}$ is the objects of this operation. Let $\mathbb{OP}$ be the set of operations.
-
-Let $\mathbb{AID}$ be the set of
-
-
-actions. An execution of $\llbracket \mathit{Obj} \rrbracket$ is a tuple $e = (E,\mathit{eo},\mathit{ro},\mathit{del})$. Here $E \subseteq \mathbb{ACT}$ is a multi-set of actions, $\mathit{eo} \subseteq E \times E$ is a well-founded, transitive, irreflexive and total order on $E$, $\mathit{ro} \subseteq \mathit{eo}$ is a union of transitive, irreflexive and total orders of actions of same replica, $\mathit{del} \subseteq \mathit{ro}$ is the delivery relation and is defined as follows: $(e_1,e_2) \in \mathit{del}$, if $e_2$ receives the message generated by $e_1$. Given transitions $\mathit{config}_0  {\xrightarrow{\alpha_1}} \mathit{config}_1 \ldots$ of $\llbracket \mathit{Obj} \rrbracket$, its execution $(E,\mathit{eo},\mathit{ro},\mathit{del})$ is generated as follows: $\{ \alpha_1,\ldots \} = E$, $\mathit{eo}$ is the total order of $\alpha_1,\ldots$, and $\mathit{ro} = \cup_{r \in \mathbb{R}} $
+Given a sequence of transitions $\mathit{config}_0  {\xrightarrow{\alpha_1}} \mathit{config}_1 \ldots$ of $\llbracket \mathit{Obj} \rrbracket$, its execution $(E,\mathit{eo}$, $\mathit{ro},\mathit{del})$ is generated as follows: $E$ is the set $\{ \alpha_1,\ldots \}$; $\mathit{eo}$ is the total order of $\alpha_1,\ldots$; $\mathit{ro}$ is the projection of $\mathit{eo}$ over each replica; $(a_1,a_2) \in \mathit{del}$, if $a_2$ is a receive action and its receives the message generated by $e_1$. 
 
 
 
