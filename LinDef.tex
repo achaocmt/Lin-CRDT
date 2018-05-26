@@ -1,16 +1,19 @@
 %!TEX root = draft.tex
 %\newcommand{\seqPQ}{\mathsf{SeqPQ}}
 
+
+
+\forget{
 \section{Distributed Linearizability}
 \label{sec:distributed-lin}
 
-Let us start our formation of specifications, histories, and linearization of CRDT. 
+Let us start our formation of specifications, histories, and linearization of CRDT.
 
-A distributed system contains multiple objects, and each objects is replicated on each replica. Each object has a type, which contains its method and data type. A client of a replica interact with the objects by calling the method and then obtaining the return value. Here we do not bound the number of replica identifiers and objects. 
+A distributed system contains multiple objects, and each objects is replicated on each replica. Each object has a type, which contains its method and data type. A client of a replica interact with the objects by calling the method and then obtaining the return value. Here we do not bound the number of replica identifiers and objects.
 
 Let $\mathbb{OBJ}$ be the set of objects and $\mathbb{R}$ be the set of replica identifiers. We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Let $\mathbb{TYPE}$ be the set of data types, while each data type $t = (M,D)$ has a set $M \subseteq \mathbb{M}$ of methods and a data domain $D \subseteq \mathbb{D}$. Finally we have a infinite set $\mathbb{O}$ of operation identifiers, corresponding to each individual operation performed on the CRDT throughout an execution.
 
-Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that ``has no influence on the internal state'', and $\mathbb{U}$ update methods that ``influence the internal state''. Note that some update operation can also detect some internal state. For example, a $add(a,b)$ operation of distributed list intends to put $a$ immediately after $b$, which also ensures that $b$ is in list. 
+Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that ``has no influence on the internal state'', and $\mathbb{U}$ update methods that ``influence the internal state''. Note that some update operation can also detect some internal state. For example, a $add(a,b)$ operation of distributed list intends to put $a$ immediately after $b$, which also ensures that $b$ is in list.
 
 Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$, indicate that the operation calls method $m$ with argument $a$ and its return value is $b$. When $m$ does not use the argument (resp., return value), we write $m()\Rightarrow b$ (resp., $m(a)$) instead. We define an operation $o$ to be a tuple $(\ell,i,x)$, where $\ell$ is an operation label, $i \in \mathbb{O}$ is a unique operation identifier, and $x \in \mathbb{OBJ}$ is the objects of this operation. Let $\mathbb{OP}$ be the set of operations.
 
@@ -22,8 +25,8 @@ Operation labels \mbox{$m(a)\Rightarrow b$} with $m \in \mathbb{M}$ and $a,b \in
 A sequential specification $\mathit{spec}_s \subseteq \mathbb{A}^*$ is a set of strings over specification alphabet $\mathbb{A}$.
 \end{definition}
 
-Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, for $inc$ operation of counter, it is defined as $\{ state = i \}$ $inc$ $\{ state = i+1 \}$, while $state$ is a value of integer. %Usually in sequential specification, update operations $(o,s)$ changes the state of pre-condition and ignores $s$, while query operations does not change the state of pre-condition and uses $s$. 
-The detailed examples of sequential specifications are shown latter of this section. 
+Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, for $inc$ operation of counter, it is defined as $\{ state = i \}$ $inc$ $\{ state = i+1 \}$, while $state$ is a value of integer. %Usually in sequential specification, update operations $(o,s)$ changes the state of pre-condition and ignores $s$, while query operations does not change the state of pre-condition and uses $s$.
+The detailed examples of sequential specifications are shown latter of this section.
 
 \noindent {\bf Distributed Specification:} Given a sequence $s$ and a set $S$ of operations, let $s \uparrow_{S}$ be the projection of $s$ over $S$. To give distributed specification, we need to give the linearization, as well as the visibility relation, and check that, for each query operation $o$, the projection of $s$ into $o$ and operations visible to $o$ is in the sequential specification. The notion of distributed specification is defined as follows:
 
@@ -47,7 +50,7 @@ here $f(s)$ is the sequence obtained from $s$ by replacing each $\mathit{specMth
 
 Essentially, $s$ is the ilnearization of an execution, and $f$ maps each operation $o$ into the operations that are visible to $o$. It is easy to see that, as long as the sequential specification is given, its distributed specification is done. Definition \ref{definition:distributed specification} assumes that a operation $o$ of special method will use operations visible to it as its special arguments. This fits the practice of CRDT-algorithms.
 
-The examples of sequential specifications of typical CRDT types are given below. For each object we need to consider whether it is consistent with its specification. Or we can say, in each specification we need to concern only one object. 
+The examples of sequential specifications of typical CRDT types are given below. For each object we need to consider whether it is consistent with its specification. Or we can say, in each specification we need to concern only one object.
 
 \begin{example}[Counter]
 \label{definition:sequential specification of counter}
@@ -131,17 +134,17 @@ A history is single-object, if it contains operations of a single object. A hist
 %A history $h$ is distributed linearizable w.r.t a distributed specification $\mathit{spec}$, if we can find $(s,f) \in \mathit{spec}_d$ and a visibility relation $\mathit{vis}$ of $h$, such that $\mathit{vis}$ and $f$ are consistent. Formally,
 
 \begin{definition}[Distributed Linearizability]
-\label{definition:distributed linearizability} 
+\label{definition:distributed linearizability}
 
 Let $h = (O,\mathit{ro})$ be a multi-object history and $\mathit{Obj}$ be the set of objects of $h$. $h$ is distributed linearizable w.r.t specifications of $\mathit{Obj}$, if there exists a acyclic visibility relation $\mathit{vis} \subseteq O \times O$ with $\mathit{ro} \subseteq \mathit{vis}$, and for each object $x \in \mathit{Obj}$: there exists $(s,f)$ in distributed specification of $x$ and , such that
 
 \begin{enumerate}[(i)]
-\item The set of operations of $s$ is the set of operations of $h \uparrow_{x}$,   
+\item The set of operations of $s$ is the set of operations of $h \uparrow_{x}$,
 \item The order obtained by projection $\mathit{vis}$ over operations of $x$ is consistent with $s$,
-\item For each operation $o_1$ of $h \uparrow_{x}$, $f(o_1) = \{ o_2 \vert o_2 \in h \uparrow_{x} \wedge (o_2,o_1) \in \mathit{vis} \}$. 
-\end{enumerate} 
+\item For each operation $o_1$ of $h \uparrow_{x}$, $f(o_1) = \{ o_2 \vert o_2 \in h \uparrow_{x} \wedge (o_2,o_1) \in \mathit{vis} \}$.
+\end{enumerate}
 
-We say that $h$ is distributed linearizable if $h$ is distributed linearizable w.r.t specifications of its objects. A set $H$ of histories of multi-objects is distributed linearizable, if each of its history is. 
+We say that $h$ is distributed linearizable if $h$ is distributed linearizable w.r.t specifications of its objects. A set $H$ of histories of multi-objects is distributed linearizable, if each of its history is.
 \end{definition}
 
 
@@ -151,7 +154,7 @@ In the following we show an example of distributed linearizable history and an e
 
 \figurename~\ref{fig:a distributed linearizable history} is an example of a distributed linearizable history of OR-set. Its linearization is $\mathit{add}(0)_1 \cdot \mathit{add}(1)_2 \cdot \mathit{rem}(0) \cdot \mathit{add}(1)_1 \cdot \mathit{add}(0)_2 \cdot \mathit{rem}(1) \cdot \mathit{read}()_1 \Rightarrow \{0,1\} \cdot \mathit{read}()_2 \Rightarrow \{0,1\}$. The special arguments of $\mathit{rem}(0)$ is the identifiers of $\{ \mathit{add}(0)_1, \mathit{add}(1)_2 \}$, and the special arguments of $\mathit{rem}(1)$ is the identifiers of $\{ \mathit{add}(1)_1, \mathit{add}(0)_2 \}$.
 
-\figurename~\ref{fig:a non-distributed linearizable history} is an example of a non-distributed linearizable history of OR-set. Here we can not validate $\mathit{read}() \Rightarrow \{ 1 \}$. 
+\figurename~\ref{fig:a non-distributed linearizable history} is an example of a non-distributed linearizable history of OR-set. Here we can not validate $\mathit{read}() \Rightarrow \{ 1 \}$.
 
 \begin{figure}[t]
   \centering
@@ -170,7 +173,7 @@ In the following we show an example of distributed linearizable history and an e
   \caption{A non-distributed linearizable history.}
   \label{fig:a non-distributed linearizable history}
 \end{figure}
-
+}
 
 %%% Local Variables:
 %%% mode: latex
