@@ -4,10 +4,159 @@
 \section{CRDT Implementation Semantics and Correctness}
 \label{sec:CRDT implementation semantics and correctness}
 
-In this section, we propose the semantics of a distributed system of multiple objects as set of executions. Then we shows how to extract histories from execution, and the correctness of histories of multiple objects.
+In this section, we propose the semantics of a state-based CRDT or a operation-based CRDT. Then we shows how to extract histories from execution, and the correctness of histories of multiple objects. 
 
 
 
+\subsection{Semantics of a Single Object}
+\label{subsec:semantics of a single object}
+
+Given a object $\mathit{obj}$ of a state-based CRDT, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a state-based CRDT object}.
+
+\begin{figure}[ht]
+$\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
+
+$\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R}$
+
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$. 
+
+$\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \mathbb{R} \times (\mathbb{MID} \cup \emptyset)) \cup \mathit{receive}(\mathbb{MID} \times \mathbb{R})$ 
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b,\mathit{msg}), \mathit{msg} \neq \emptyset, \mathit{unique}(\mathit{mid}) }
+{ (R,T) {\xrightarrow{\mathit{do}(m,a,b,r,\mathit{mid})}} (R[r:\sigma'],T \cup \{ (\mathit{mid},\mathit{msg},r) \}) }
+\end{array}
+\]
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b,\emptyset) }
+{ (R,T) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T ) }
+\end{array}
+\]
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{receive}(\sigma,\mathit{msg}) = \sigma',(\mathit{mid},\mathit{msg},r') \in T, r \neq r'}
+{ (R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R[r:\sigma'],T) }
+\end{array}
+\]
+\caption{The definition of semantics of $\llbracket \mathit{obj} \rrbracket_s$}
+\label{fig:the semantics of a state-based CRDT object}
+\end{figure}
+
+A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{msgId} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, and has no message inside.
+
+Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a update operation $m(a) \Rightarrow b$ and generates a message with message content $\mathit{msg}$. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ is a fresh message identifier. The second rule describes replica $r$ performs a query operation $m(a) \Rightarrow b$ and thus does not generate message. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$. 
+
+A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_s$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is either $\mathit{do}(i,x,m,a,b,r,\mathit{mid})$ or $\mathit{receive}(i,x,\mathit{mid},r)$, where $i \in \mathbb{OID}$ is a unique operation identifier.
+
+Note that the transition relation of $\llbracket \mathit{obj} \rrbracket_s$ does not make any assumption about message delivery: Messages can be delivered in any order; a message can be delivery to a replica multiple times; and a message can be never delivered to a replica. Although this is true for state-based CRDT, the operation-based CRDT assume the following two guarantees of message delivery:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each message is delivered to a replica at most once.
+\item[-] Causal delivery: Given two update operations $o_1$ and $o_2$, and assume $o_1$ is visible to $o_2$. Or we can say, $o_1$ is related to $o_2$ by several times of replica order and message delivery. Then, for each replica, once it receives $o_2$, it must be the case that $o_1$ has been previously received. 
+\end{itemize} 
+
+To deal with operation-based CRDT, we additionally record a happen-before relation in each configuration. Our semantics of a operation-based CRDT object $\mathit{obj}$ is defined as $\llbracket \mathit{obj} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a operation-based CRDT object}. 
+
+
+\begin{figure}[ht]
+$\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
+
+$\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R}$ 
+
+$\mathit{MsgHB} \subseteq (\mathbb{MID} \times \mathbb{MID}) \cup (\mathbb{MID} \times \mathbb{R})$ 
+
+$\mathit{Config} = \mathit{RState} \times \mathit{TState} \times \mathit{MsgHB}$, $\mathit{config}_0 \in \mathit{Config}$. 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[] $\begin{array}{l c}
+   \bigfrac{
+   \begin{array}{c}
+     R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b,\mathit{msg}), \mathit{msg} \neq \emptyset, \mathit{unique}(\mathit{mid}), \\
+     S_1 = \{ (\mathit{mid}',r) \in \mathit{MsgHB} \}, S_2 = \{ (\mathit{mid}',\mathit{mid}) \vert (\mathit{mid'},r) \in S_1 \}, S_3 = (\mathit{max}(\mathit{MsgHB}^*,r), \mathit{mid})
+   \end{array}}
+     {(R,T,\mathit{msgHB}) {\xrightarrow{\mathit{do}(m,a,b,r,\mathit{mid})}} (R[r:\sigma'], T \cup \{ (\mathit{mid},\mathit{msg},r) \}, \mathit{msgHB}',\mathit{MsgHB} \cup S_2 \cup S_3 \setminus S_1)}
+\end{array}$ 
+
+\item[] $\begin{array}{l c}
+   \bigfrac{
+   \begin{array}{c}
+     R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b,\emptyset) 
+   \end{array}}
+     {(R,T,\mathit{msgHB}) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'], T \cup \{ (\mathit{mid},\mathit{msg},r) \}, \mathit{msgHB}',\mathit{MsgHB})}
+\end{array}$ 
+
+\item[-] $\begin{array}{l c}
+   \bigfrac{
+   \begin{array}{c}
+      R(r) = \sigma, r.\mathit{receive}(\sigma,\mathit{msg}) = \sigma', (\mathit{mid},\mathit{msg},r') \in T, r \neq r', \\
+      (\mathit{mid},r) \notin \mathit{MsgHB}, \forall \ \mathit{mid}' \ of \ replica \ r, (\mathit{mid},\mathit{mid}') \notin \mathit{MsgHB}^*, \mathit{mid} \in \mathit{min}(\mathit{MsgHB}^*)
+   \end{array}}
+     {(R,T,\mathit{msgHB}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R,T,\mathit{MsgHB} )}
+\end{array}$
+\end{itemize}
+\caption{The definition of semantics of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$}
+\label{fig:the semantics of a operation-based CRDT object}
+\end{figure}
+
+A configuration $(R,T,\mathit{MsgHB})$ is a snapshot of distributed system. $\mathit{MsgHB}$ is used to record the happen-before relation between messages: two messages $(\mathit{mid}_1,\mathit{mid}_2) \in \mathit{MsgHB}$ represents that the operation of $\mathit{mid}_1$ happens before the operation of $\mathit{mid}_2$, while $(\mathit{mid}_1,r) \in \mathit{MsgHB}$ represents that message $\mathit{mid}_1$ has already been delivered to replica $r$ while there does not exist message $\mathit{mid}_2$ of replica $r$, such that the operation of $\mathit{mid}_1$ happens-before the operation of $\mathit{mid}_2$.
+
+$\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a operation-based CRDT object} describes replica $r$ performs a update operation $m(a) \Rightarrow b$ and generates a message with message content $\mathit{msg}$. This action also updates $\mathit{MsgHB}$ tuple. Here $\mathit{max}(\mathit{MsgHB}^*,r)$ returns a message identifier that is the maximal w.r.t $\mathit{MsgHB}^*$ and is generated by replica $r$. The update of $\mathit{MsgHB}$ keeps our intuition of $\mathit{MsgHB}$. The second rule describes replica $r$ performs a query operation $m(a) \Rightarrow b$ and thus does not generate message. Since no message is generated, the $\mathit{MsgHB}$ tuple remains the same. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$. By $(\mathit{mid},r) \notin \mathit{MsgHB}$ and $(\mathit{mid},\mathit{mid}') \notin \mathit{MsgHB}^*$, we ensure that $\mathit{mid}$ being delivered to replica $r$ at most once. By $\mathit{mid} \in \mathit{min}(\mathit{MsgHB}^*)$, we always choose a minimal element w.r.t $\mathit{MsgHB}^*$ and ensures causal-delivery. 
+
+The notion of executions of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$ is similarly defined as that of $\llbracket \mathit{obj} \rrbracket_s$. 
+
+
+
+\subsection{Correctness of a Single Object}
+\label{subsec:correctness of a single object} 
+
+Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_s$ of state-based CRDT $\mathit{obj}$, we can obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each operation in $\mathit{Op}$ is a tuple $(\ell,i,\mathit{obj})$, such that $i$ is the operation identifier of a $\mathit{do}(m,a,b,r,\mathit{mid})$ action or a $\mathit{do}(m,a,b,r)$ action of $l$. 
+
+\item[-] $(o_1,o_2) \in \mathit{ro}$, if they are of same replica, and the index of $o_1$ in $h$ is before that of $o_2$. 
+
+\item[-] Let us defines a delivery relation $\mathit{del}$ as follows: $(o_1,o_2) \in \mathit{del}$, if there exists action $\alpha_k$, such that $\alpha_k$ receives the message generated by $o_1$, $\alpha_k$ and $o_2$ happens on the same replica, and $\alpha_k$ is before the action of $o_2$. 
+
+\item[-] $\mathit{vis} = (\mathit{ro}+\mathit{del})^*$. 
+\end{itemize} 
+
+Intuitively, each local state can be considered as the consequence of all updates it receives. Since state-based CRDT sends the modified local state as message, the visibility relation is then the transitive closure of replica order and delivery relation. Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_s$. Similarly, given an execution $l$ of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$ of operation-based CRDT $\mathit{obj}$, we can obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$. The only different is that, $\mathit{vis} = \mathit{del} \cup (\mathit{del} \cdot \mathit{ro})$. Since operation-based CRDT sends the operation as message, the visibility relation just contains delivery relation and (possibly) replica order. Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$. Then, a object is distributed linearizable, if each of its history is, as stated by the following: 
+
+\begin{definition}[Correctness of a CRDT Object]
+\label{definition:correctness of a CRDT object} 
+A state-based (resp., operation-based) CRDT object $\mathit{obj}$ is linearizable w.r.t a sequential specification $\mathit{spec}$, if each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ (resp., $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$) is linearizable w.r.t $\mathit{spec}$. 
+\end{definition}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\forget
+{
 \subsection{Semantics}
 \label{subsec:semantics}
 
@@ -18,9 +167,9 @@ $\mathit{RState} = \cup_{x \in \mathit{Obj}} (\mathbb{R} \rightarrow x.\Sigma)$
 
 $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathit{Obj} \times \mathbb{R}$
 
-$\Sigma' = \mathit{do}(\mathit{Obj} \times \mathbb{M} \times \mathbb{D} \times \mathbb{D} \mathbb{MID}) \cup \mathit{receive}(\mathit{Obj} \times \mathbb{MID} \times \mathbb{R})$
-
 $\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$.
+
+$\Sigma' = \mathit{do}(\mathit{Obj} \times \mathbb{M} \times \mathbb{D} \times \mathbb{D} \mathbb{MID}) \cup \mathit{receive}(\mathit{Obj} \times \mathbb{MID} \times \mathbb{R})$
 
 \[
 \begin{array}{l c}
@@ -56,31 +205,23 @@ A sequence $l$ of actions is an execution of $\llbracket \mathit{Obj} \rrbracket
 
 
 
-\subsection{Message Delivery Condition}
-\label{subsec:message delivery condition}
+\subsection{Correctness of a CRDT Implementation}
+\label{subsec:correctness of a CRDT implementation}
 
-Note that the transition relation of $\llbracket \mathit{Obj} \rrbracket$ does not make any assumption about message delivery: Messages can be delivered in any order; a message can be delivery to a replica multiple times; and a message can be never delivered to a replica. However, 
-
-\cite{Burckhardt:2014POPL} 
+To state the correctness of a single CRDT implementation, we consider the semantics of a single CRDT object.
 
 
 
+Note that the transition relation of $\llbracket \mathit{Obj} \rrbracket$ does not make any assumption about message delivery: Messages can be delivered in any order; a message can be delivery to a replica multiple times; and a message can be never delivered to a replica. However, although the state-based CRDT do not assume any guarantee about message delivery, the operation-based CRDT assume the following two guarantees about message delivery:
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each message is delivered to a replica at most once.
+\item[-] Causal delivery: Given two update operations $o_1$ and $o_2$ of a same object, and assume $o_1$ is visible to $o_2$. Or we can say, $o_1$ is related to $o_2$ by several times of replica order and message delivery (all intermediate action is of the same object of $o_1$ and $o_2$). Then, for each replica, once it receives $o_2$, it must be the case that $o_1$ has been previously received.
+\end{itemize}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{Obj} \rrbracket$,
+}
 
 %%% Local Variables:
 %%% mode: latex
