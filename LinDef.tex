@@ -8,7 +8,7 @@
 
 A sequential specification intends to propose a linearizable explanation for distributed objects.
 
-For objects of simple types, a sequential specification is a set of operation sequences. Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, the following is the sequential specification for distributed counter, and is given as a set of transition rules between states. Each state contains a integer value. Transition rule $\{ \mathit{state} = i \}$ $(\mathit{inc},\_,\_)$ $\{ \mathit{state} = i+1 \}$ indicates that $\mathit{inc}$ will increase the state by $1$. Since this rule does not use operation identifier and object, it is safe to shorten this rule into $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$. Similarly for $\mathit{dec}$ and $\mathit{read}$ operations. We write $s {\xrightarrow{o}} s'$ to indicate one step of $o$ transition between states $s$ and $s'$ that satisfies some transition rule.
+For objects of simple types, a sequential specification is a set of operation sequences. Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, the following is the sequential specification for distributed counter, and is given as a set of transition rules between states. Each state contains a integer value. Transition rule $\{ \mathit{state} = i \}$ $(\mathit{inc},\_,\_)$ $\{ \mathit{state} = i+1 \}$ indicates that $\mathit{inc}$ will increase the state by $1$. Here we use $\_$ to indicate an element whose value has no influence. Since this rule does not use operation identifier and object, it is safe to write $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$ instead. Similarly for $\mathit{dec}$ and $\mathit{read}$ operations. We write $s {\xrightarrow{o}} s'$ to indicate one step of $o$ transition between states $s$ and $s'$ that satisfies some transition rule.
 
 A sequence $(\ell_1,i_1,x) \cdot \ldots \cdot (\ell_k,i_k,x)$ is in sequential specification $\mathit{counter}_s$, if there exists state $s_k$, such that $s_0 {\xrightarrow{(\ell_1,i_1,x)}} \ldots {\xrightarrow{(\ell_k,i_k,x)}} s_k$, and $s_0$ is the initial state. For example, it is easy to see that $(\mathit{inc},\mathit{id}_1,x) \cdot (\mathit{inc},\mathit{id}_2,x) \cdot (\mathit{dec},\mathit{id}_3,x) \cdot (\mathit{read} \Rightarrow 1,\mathit{id}_4,x) \in \mathit{counter}_s$. Note that operations of one sequence of $\mathit{counter}_s$ must be of a same object. We also implicitly assume that each operation has a unique operation identifier.
 
@@ -128,7 +128,7 @@ Such kind of list is similar as list with add-after interface. One difference is
 \subsection{Definition of Distributed Linearizability}
 \label{subsec:definition of distributed linearizability}
 
-A history is single-object, if it contains operations of a single object. A history is multi-object, if it contains operations of multiple object. In the following we propose distributed linearizability for histories.
+A history is single-object, if it contains operations of a single object. A history is multi-object, if it contains operations of multiple objects. In the following we propose distributed linearizability for histories.
 
 
 \begin{definition}[Distributed Linearizability]
@@ -146,11 +146,11 @@ A single-object history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ is distribu
 A multi-object history $h$ is distributed linearizable w.r.t deterministic sequential specifications, if for each object $x$, $h \uparrow_{x}$ is distributed linearizable w.r.t its sequential specification. A set $H$ of histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
 \end{definition}
 
-Here the linearization gives a global and linearizable explanation of all operations. With sequential specification and linearization of the history, the understanding of distributed behaviors should be simplified. The linearization can be also considered as a guide to the conflict resolution.
+$h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations into operations of object $x$. Here the linearization gives a global and linearizable explanation of all operations. With sequential specification and linearization of the history, the understanding of distributed behaviors should be simplified. The linearization can be also considered as a guide to the conflict resolution.
 
-\figurename~\ref{fig:a distributed linearizable history} is a history of OR-set. Here subscript of $\mathit{add}_1(a)$ is used to distinguish different $\mathit{add}(a)$ operations, and similarly for $\mathit{read}_1() \Rightarrow \{ a,b \}$. This history is distributed linearizable. To explain this, let the operation identifiers of operations of the first replica (resp., of the second replica) being $\mathit{id}_1,\mathit{id}_2,\mathit{id}_3,\mathit{id}_4$ (resp., $\mathit{id}_5,\mathit{id}_6,\mathit{id}_7,\mathit{id}_8$), in the replica order, respectively. The linearization of this history is $\mathit{add}_1(a) \cdot \mathit{add}_1(b) \cdot \mathit{add}_2(b) \cdot \mathit{add}_2(a) \cdot \mathit{rem}(b) \cdot \mathit{rem}(a) \cdot ((\mathit{read}_1 \Rightarrow \{ a,b \},\_,\_), S ) \cdot ((\mathit{read}_2 \Rightarrow \{ a,b \},\_,\_), S )$, where $S = \{ \mathit{id}_1, \mathit{id}_2, \mathit{id}_3, \mathit{id}_5, \mathit{id}_6, \mathit{id}_7 \}$.
+\figurename~\ref{fig:a distributed linearizable history} is a history of OR-set. Here subscript of $\mathit{add}_1(a)$ is used to distinguish different $\mathit{add}(a)$ operations, and similarly for $\mathit{read}_1() \Rightarrow \{ a,b \}$. This history is distributed linearizable. To explain this, let the operation identifiers of operations of the first replica (resp., of the second replica) be $\mathit{id}_1,\mathit{id}_2,\mathit{id}_3,\mathit{id}_4$ (resp., $\mathit{id}_5,\mathit{id}_6,\mathit{id}_7,\mathit{id}_8$), in the replica order, respectively. The linearization of this history is $\mathit{add}_1(a) \cdot \mathit{add}_1(b) \cdot \mathit{add}_2(b) \cdot \mathit{add}_2(a) \cdot ((\mathit{rem}(b),\_,\_),\{ \mathit{id}_1, \mathit{id}_2 \}) \cdot ((\mathit{rem}(a),\_,\_),\{ \mathit{id}_5, \mathit{id}_6 \}) \cdot ((\mathit{read}_1 \Rightarrow \{ a,b \},\_,\_), S ) \cdot ((\mathit{read}_2 \Rightarrow \{ a,b \},\_,\_), S )$, where $S = \{ \mathit{id}_1, \mathit{id}_2, \mathit{id}_3, \mathit{id}_5, \mathit{id}_6, \mathit{id}_7 \}$.
 
-The history of \figurename~\ref{fig:a distributed linearizable history} is distributed linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, but not $\mathit{set}_s$. Assume that by contradiction, this history is linearizable w.r.t $\mathit{set}_s$ and $\mathit{lin}$ is its linearization. Then it is obvious that in $\mathit{lin}$, and both $\mathit{rem}(b)$ and $\mathit{rem}(a)$ are before $\mathit{read}_1 \Rightarrow \{ a,b \}$ and $\mathit{read}_2 \Rightarrow \{ a,b \}$. However, this is not permitted by $\mathit{set}_s$. Therefore, it seems quite difficult to have a sequential specification of OR-set without using special methods.
+The history of \figurename~\ref{fig:a distributed linearizable history} is distributed linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, but not $\mathit{set}_s$. Assume that by contradiction, this history is linearizable w.r.t $\mathit{set}_s$ and $\mathit{lin}$ is its linearization. Then it is obvious that in $\mathit{lin}$, either $\mathit{rem}(b)$ is before $\mathit{read}_1 \Rightarrow \{ a,b \}$, or  and $\mathit{rem}(a)$ are before $\mathit{read}_1 \Rightarrow \{ a,b \}$ and $\mathit{read}_2 \Rightarrow \{ a,b \}$. However, this is not permitted by $\mathit{set}_s$. Therefore, it seems quite difficult to have a sequential specification of OR-set without using special methods.
 
 \begin{figure}[t]
   \centering
@@ -196,7 +196,7 @@ For $\mathit{list}_s^{\mathit{ab}}$ we interpret this condition as: If $s = (a_1
 \begin{lemma}
 \label{lemma:distributed linarizability implies convergence}
 If a history $h$ is distributed linearizability w.r.t deterministic sequential specification or $\mathit{list}_s^{\mathit{ab}}$, then $h$ satisfies convergence.
-\end{lemma} 
+\end{lemma}
 
 
 
