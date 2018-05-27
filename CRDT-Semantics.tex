@@ -2,64 +2,66 @@
 %\newcommand{\seqPQ}{\mathsf{SeqPQ}}
 
 \section{CRDT Implementation Semantics and Correctness}
-\label{sec:CRDT implementation semantics and correctness} 
+\label{sec:CRDT implementation semantics and correctness}
 
-In this section, we propose the semantics of a distributed system of multiple objects as set of executions. Then we shows how to extract histories from execution, and the correctness of histories of multiple objects. 
+In this section, we propose the semantics of a distributed system of multiple objects as set of executions. Then we shows how to extract histories from execution, and the correctness of histories of multiple objects.
 
 
 
 \subsection{Semantics}
-\label{subsec:semantics} 
+\label{subsec:semantics}
 
-Given a set $\mathit{Obj}$ of objects, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{Obj} \rrbracket = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of multiple objects}. 
+Given a set $\mathit{Obj}$ of objects, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{Obj} \rrbracket = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of multiple objects}.
 
 \begin{figure}[ht]
 $\mathit{RState} = \cup_{x \in \mathit{Obj}} (\mathbb{R} \rightarrow x.\Sigma)$
 
 $\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathit{Obj} \times \mathbb{R}$
 
-$\Sigma' = \mathit{do}(\mathit{Obj} \times \mathbb{M} \times \mathbb{D} \times \mathbb{D} \mathbb{MID}) \cup \mathit{receive}(\mathit{Obj} \times \mathbb{MID} \times \mathbb{R})$  
+$\Sigma' = \mathit{do}(\mathit{Obj} \times \mathbb{M} \times \mathbb{D} \times \mathbb{D} \mathbb{MID}) \cup \mathit{receive}(\mathit{Obj} \times \mathbb{MID} \times \mathbb{R})$
 
-$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$. 
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$.
 
 \[
 \begin{array}{l c}
 \bigfrac{ R(x,r) = \sigma, x(r).\mathit{do}(\sigma,m,a) = (\sigma',b,\mathit{msg}), \mathit{msg} \neq \emptyset, \mathit{unique}(\mathit{mid}) }
 { (R,T) {\xrightarrow{\mathit{do}(x,m,a,b,r,\mathit{mid})}} (R[(x,r):\sigma'],T \cup \{ (\mathit{mid},\mathit{msg},x,r) \}) }
 \end{array}
-\] 
+\]
 
 \[
 \begin{array}{l c}
 \bigfrac{ R(x,r) = \sigma, x(r).\mathit{do}(\sigma,m,a) = (\sigma',b,\mathit{msg}), \mathit{msg} = \emptyset }
 { (R,T) {\xrightarrow{\mathit{do}(x,m,a,b,r)}} (R[(x,r):\sigma'],T ) }
-\end{array} 
-\] 
+\end{array}
+\]
 
 \[
 \begin{array}{l c}
-\bigfrac{ R(x,r) = \sigma, x(r).\mathit{receive}(\sigma,\mathit{msg}) = \sigma',(\mathit{mid},\mathit{msg},x,r') \in T, r \neq r'} 
+\bigfrac{ R(x,r) = \sigma, x(r).\mathit{receive}(\sigma,\mathit{msg}) = \sigma',(\mathit{mid},\mathit{msg},x,r') \in T, r \neq r'}
 { (R,T) {\xrightarrow{\mathit{receive}(x,\mathit{mid},r)}} (R[(x,r):\sigma'],T) }
 \end{array}
 \]
 \caption{The definition of semantics of $\llbracket \mathit{Obj} \rrbracket$}
 \label{fig:the semantics of multiple objects}
-\end{figure} 
+\end{figure}
 
-A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each object at each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},x,r)$, where $\mathit{msgId} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, $x$ is the object this message pertains to, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each object at each replica into its initial local state, and has no message inside. 
+A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each object at each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},x,r)$, where $\mathit{msgId} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, $x$ is the object this message pertains to, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each object at each replica into its initial local state, and has no message inside.
 
 Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of multiple objects} describes replica $r$ performs a update operation $m(a) \Rightarrow b$ of object $x$ and generate a message with message content $\mathit{msg}$. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ is a fresh message identifier. The first rule  describes replica $r$ performs a query operation $m(a) \Rightarrow b$ of object $x$ and thus does not generate message. The third rule describes delivery of a message of object $x$ to a replica $r$ other than its origin replica $r'$.
 
-A sequence $l$ of actions is an execution of $\llbracket \mathit{Obj} \rrbracket = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{Obj}$ is defined as the set of executions of $\llbracket \mathit{Obj} \rrbracket$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is either $\mathit{do}(i,x,m,a,b,r,\mathit{mid})$ or $\mathit{receive}(i,x,\mathit{mid},r)$, where $i \mathbb{OID}$ is a unique operation identifier. 
+A sequence $l$ of actions is an execution of $\llbracket \mathit{Obj} \rrbracket = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{Obj}$ is defined as the set of executions of $\llbracket \mathit{Obj} \rrbracket$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is either $\mathit{do}(i,x,m,a,b,r,\mathit{mid})$ or $\mathit{receive}(i,x,\mathit{mid},r)$, where $i \mathbb{OID}$ is a unique operation identifier.
 
 
 
 
 
 \subsection{Message Delivery Condition}
-\label{subsec:message delivery condition} 
+\label{subsec:message delivery condition}
 
-Note that the transition relation of $\llbracket \mathit{Obj} \rrbracket$ does not make any assumption about message delivery: Messages can be delivered in any order; a message can be delivery to a replica multiple times; and a message can be never delivered to a replica. 
+Note that the transition relation of $\llbracket \mathit{Obj} \rrbracket$ does not make any assumption about message delivery: Messages can be delivered in any order; a message can be delivery to a replica multiple times; and a message can be never delivered to a replica. However, 
+
+\cite{Burckhardt:2014POPL} 
 
 
 
