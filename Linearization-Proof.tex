@@ -2,77 +2,83 @@
 %\newcommand{\seqPQ}{\mathsf{SeqPQ}}
 
 \section{Proving Distributed Linearizability}
-\label{sec:proving distributed linearizability} 
+\label{sec:proving distributed linearizability}
 
-In this section, we propose our approach for proving distributed linearizability for CRDT implementations. Our proof is done by proving a invariant. 
+In this section, we propose our approach for proving distributed linearizability for CRDT implementations. Our proof is done by proving an invariant.
 
 
 \subsection{Proof Strategy of State-based CRDT}
-\label{subsec:proof strategy of operation-based CRDT} 
+\label{subsec:proof strategy of operation-based CRDT}
 
-Given a state-based CRDT object $\mathit{obj}$ and a sequential specification $\mathit{spec}$, we need to construct a invariant $\mathit{inv}((R, T), h, \mathit{lin})$ that satisfies the following properties of $\mathit{inv}$:
+Given a state-based CRDT object $\mathit{obj}$ and a sequential specification $\mathit{spec}$, we need to construct a invariant $\mathit{inv}(\mathit{config},h,\mathit{lin})$ that satisfies the following properties:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $(R, T)$ is a configuration of $\llbracket \mathit{obj} \rrbracket_s$.
+\item[-] $\mathit{config}$ is a configuration of $\llbracket \mathit{obj} \rrbracket_s$.
 
-\item[-] $h$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}$ is a linearization. 
+\item[-] $h$ is a history. $h$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}$ is a linearization.
 
-\item[-] $\mathit{inv}$ holds initially: $\mathit{inv}((R_0,T_0),\epsilon,\emptyset)$ holds, where $(R_0, T_0)$ is the initial configuration of $\llbracket \mathit{obj} \rrbracket_s$.
+%\item[-] $\mathit{del} \subseteq \mathbb{MID} \times \mathbb{R}$ is the message delivery relation.
+
+\item[-] $\mathit{inv}$ holds initially: $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset)$ holds, where $\mathit{config}_0$ is the initial configuration of $\llbracket \mathit{obj} \rrbracket_s$. 
 
 \item[-] $\mathit{inv}$ is a transition invariant:
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] If $\mathit{inv}((R, T), h, \mathit{lin})$ and $(R, T) {\xrightarrow{\mathit{do}(m, a, b, r, \mathit{mid})}} (R', T')$ or $(R, T) {\xrightarrow{\mathit{do}(m, a, b, r)}} (R', T')$, then there exists $\mathit{lin}'$, such that $\mathit{inv}((R', T'), h \otimes (m(a) \Rightarrow b, i, \mathit{obj}), \mathit{lin}')$ holds.
-
-        Here $i$ is the operation identifier of the newly generated $\mathit{do}$ action. $h \otimes (m(a) \Rightarrow b,i,\mathit{obj})$ extends $h$ with operation $i$ as follows: make $i$ the maximum w.r.t $\mathit{ro}$ among operations of replica $r$; for any operation $o$ that is either delivered to replica $r$ or visible to some operation of replica $r$ in $h$, make $o$ visible to $i$. 
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then there exists $\mathit{lin}'$, such that $\mathit{inv}(\mathit{config}', h \otimes i, \mathit{lin}')$ holds.
+        
+        Here $i$ is the identifier of the newly-generated $\mathit{do}$ action. Given $h = (\mathit{Op},\mathit{ro},\mathit{vis})$, then, $h \otimes i = (\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ (m(a) \Rightarrow b,i,\mathit{obj}) \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (j,i) \vert j$ is of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (j,i) \vert j \in \mathit{Op},(j,r) \in \mathit{del} \} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \})^*$.
+    
+    \item[-] If $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del})$ holds and $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$, then $\mathit{inv}((R',T'),h,\mathit{lin},\mathit{del}')$ holds, where 
+        
+        
 
     \item[-] If $(R, T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R', T')$, then $\mathit{inv}((R', T'),h \cup (\mathit{mid},r),\mathit{lin})$ holds.
     \end{itemize}
-\end{itemize} 
+\end{itemize}
 
-Here we slightly change the notion of history and make history also record tuples $(j,r)$ that represents that a message $j$ is delivered to replica $r$. This does not influence the definition of distributed linearizablity of a history w.r.t a sequential specification. $\mathit{inv}((R, T),h,\mathit{lin})$ represents that $h$ is a history corresponds to $(R,T)$ and $\mathit{lin}$ is a linearization of $h$. A invariant $\mathit{inv}$ satisfies above properties is called invariant of state-based CRDT. The following lemma states that the existence of such invariant implies distributed linearizability. 
+Here we slightly change the notion of history and make history also record tuples $(j,r)$ that represents that a message $j$ is delivered to replica $r$. This does not influence the definition of distributed linearizablity of a history w.r.t a sequential specification. $\mathit{inv}((R, T),h,\mathit{lin})$ represents that $h$ is a history corresponds to $(R,T)$ and $\mathit{lin}$ is a linearization of $h$. A invariant $\mathit{inv}$ satisfies above properties is called invariant of state-based CRDT. The following lemma states that the existence of such invariant implies distributed linearizability.
 
 %and we prove it in Appendix \ref{subsec:appendix proof of Lemma invariant of state-based CRDT implies distributed linearizability}.
 
 \begin{lemma}
-\label{lemma:invariant of state-based CRDT implies distributed linearizability} 
-If there exists a invariant $\mathit{inv}$ of state-based CRDT for object $\mathit{obj}$ and sequential specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ is distributed linearizable w.r.t $\mathit{spec}$. 
-\end{lemma} 
+\label{lemma:invariant of state-based CRDT implies distributed linearizability}
+If there exists a invariant $\mathit{inv}$ of state-based CRDT for object $\mathit{obj}$ and sequential specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ is distributed linearizable w.r.t $\mathit{spec}$.
+\end{lemma}
 
-\begin {proof}  
-This lemma can be obviously checked by induction: given an execution $l=\alpha_1 \cdot \ldots \cdot \alpha_n$, for each $1 \leq k \leq n$, we have $\mathit{inv}((R_k,T_k),h_k,\mathit{lin}_k)$ holds, $(R_k,T_k)$ be the current configuration after executing $\alpha_1 \cdot \ldots \cdot \alpha_k$, $h$ is the history of $\alpha_1 \cdot \ldots \cdot \alpha_k$ and also stores the delivery relation, and $\mathit{lin}_k$ is the linearization of $h_k$. This completes the proof of this lemma. $\qed$ 
+\begin {proof}
+This lemma can be obviously checked by induction: given an execution $l=\alpha_1 \cdot \ldots \cdot \alpha_n$, for each $1 \leq k \leq n$, we have $\mathit{inv}((R_k,T_k),h_k,\mathit{lin}_k)$ holds, $(R_k,T_k)$ be the current configuration after executing $\alpha_1 \cdot \ldots \cdot \alpha_k$, $h$ is the history of $\alpha_1 \cdot \ldots \cdot \alpha_k$ and also stores the delivery relation, and $\mathit{lin}_k$ is the linearization of $h_k$. This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
 
 
-For many state-based CRDT implementations, $\mathit{inv}((R, T), h, \mathit{lin})$ is the conjunction of the following conditions: 
+For many state-based CRDT implementations, $\mathit{inv}((R, T), h, \mathit{lin})$ is the conjunction of the following conditions:
 
 \begin{itemize}
-\setlength{\itemsep}{0.5pt} 
-\item[-] The message content in $T$ for each update operations of $h$. 
- 
-\item[-] $\forall r$, $C(r) = \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r),T)$.  
-\end{itemize} 
+\setlength{\itemsep}{0.5pt}
+\item[-] The message content in $T$ for each update operations of $h$.
 
-The function $\mathit{apply}$ is defined as follows: Let the sequence $\alpha_1 \cdot \ldots \cdot \alpha_k$ be the projection of $\mathit{lin}$ into update operations that is either of replica $r$, or visible to some operation of replica $r$, or delivered to replica $r$. Then, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r),T)$ is a local state obtained from the initial local state as follows: for each $1 \leq i \leq k$, if $\alpha_i$ is a update operation, then apply the message generated by $\alpha_i$ in $T$; otherwise, do nothing. 
+\item[-] $\forall r$, $C(r) = \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r),T)$.
+\end{itemize}
 
-Let us give the invariants of state-based PN-counter and state-based multi-value register as follows:  
+The function $\mathit{apply}$ is defined as follows: Let the sequence $\alpha_1 \cdot \ldots \cdot \alpha_k$ be the projection of $\mathit{lin}$ into update operations that is either of replica $r$, or visible to some operation of replica $r$, or delivered to replica $r$. Then, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r),T)$ is a local state obtained from the initial local state as follows: for each $1 \leq i \leq k$, if $\alpha_i$ is a update operation, then apply the message generated by $\alpha_i$ in $T$; otherwise, do nothing.
+
+Let us give the invariants of state-based PN-counter and state-based multi-value register as follows:
 
 \begin{example}[correctness of state-based PN-counter]
-\label{example:correctness of state-based PN-counter} 
+\label{example:correctness of state-based PN-counter}
 
-For state-based PN-counter, $\mathit{inv}((R, T), h, \mathit{lin})$ is defined as follows: 
+For state-based PN-counter, $\mathit{inv}((R, T), h, \mathit{lin})$ is defined as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] The message content of a update operation $o$ is $(P,N)$: for each replica $r$, $P[r]$ is the number of $\mathit{inc}$ operation visible to operations of replica $r$ or delivered to replica $r$ in $h$, and $N[r]$ is the number of $\mathit{dec}$ operation visible to operations of replica $r$ or delivered to replica $r$ in $h$.
 
-\item[-] $\forall r$, $C(r) = \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r),T)$. 
-\end{itemize} 
-\end{example} 
+\item[-] $\forall r$, $C(r) = \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r),T)$.
+\end{itemize}
+\end{example}
 
 \begin{example}[correctness of state-based Multi-value Register]
 \label{example:correctness of state-based multi-value register}
@@ -81,26 +87,26 @@ For state-based multi-value register, $\mathit{inv}((R, T), h, \mathit{lin})$ is
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Given a update operation $o$, the message content of $o$ is a set $S$, such that 
+\item[-] Given a update operation $o$, the message content of $o$ is a set $S$, such that
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] Let $S_1$ be the set of maximal operations operations visible to $o$.  
+    \item[-] Let $S_1$ be the set of maximal operations operations visible to $o$.
     \end{itemize}
 
 \item[-] $\forall r$, $C(r) = \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r),T)$.
 \end{itemize}
-\end{example} 
+\end{example}
 
 
 
 
-The detailed proof of the state-based PN-set can be found in Appendix \ref{subsec:appendix proof of state-based PN-set}. 
+The detailed proof of the state-based PN-set can be found in Appendix \ref{subsec:appendix proof of state-based PN-set}.
 
 The detailed proof of the state-based multi-value register can be found in Appendix \ref{subsec:appendix proof of state-based multi-value register}.
 
 
- 
+
 
 
 
