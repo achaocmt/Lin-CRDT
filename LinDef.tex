@@ -183,7 +183,7 @@ We say a history satisfy convergence, if given query operations $o_1$ and $o_2$ 
 
 
 
-Intuitively, we intends to use linearization to do conflict resolution. This works well for deterministic sequential specification. However, when the sequential specification becomes nondeterministic, linearization is not enough to do conflict resolution. This is the reason for this anomaly.
+Intuitively, we intends to use linearization to do conflict resolution. This works well for deterministic sequential specification. However, when the sequential specification becomes nondeterministic, linearization is not enough to do conflict resolution. This is the reason for this anomaly. Note that a nondeterministic sequential specification, such as $\mathit{list}_s^{\mathit{ab}}$, does not mean that in algorithm they choose random position for an item or they do conflict resolution in a random style. For example, in latter section we will see that a list algorithm called WOOT is distributed linearizable w.r.t $\mathit{list}_s^{\mathit{ab}}$, while WOOT ensures convergence. The reason for using $\mathit{list}_s^{\mathit{ab}}$ for WOOT is that: in $\mathit{add}(b,a,c)$ method of WOOT, the position of item $b$ is determined by some associated detailed information of item $b$ which is too detail for specification; and the position of $b$ is neither the immediate position after that of $a$, or the position immediate before that of $c$.
 
 To deal with nondeterministic sequential specification, we added an additionally condition in distributed linearization definition: Let $s_0$ be the initial state of sequential specification,
 
