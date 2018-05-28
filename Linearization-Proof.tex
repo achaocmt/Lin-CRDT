@@ -30,11 +30,11 @@ Given a state-based CRDT object $\mathit{obj}$ and a sequential specification $\
         
         Here $i$ is the identifier of the newly-generated $\mathit{do}$ action. Given $h = (\mathit{Op},\mathit{ro},\mathit{vis})$, then, $h \otimes i = (\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ (m(a) \Rightarrow b,i,\mathit{obj}) \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (j,i) \vert j$ is of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (j,i) \vert j \in \mathit{Op},(j,r) \in \mathit{del} \} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \})^*$.
     
-    \item[-] If $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del})$ holds and $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$, then $\mathit{inv}((R',T'),h,\mathit{lin},\mathit{del}')$ holds, where 
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin})$ holds and $\mathit{config} {\xrightarrow{\mathit{send}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h,\mathit{lin})$ holds, where 
         
         
 
-    \item[-] If $(R, T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R', T')$, then $\mathit{inv}((R', T'),h \cup (\mathit{mid},r),\mathit{lin})$ holds.
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h \cup (\mathit{mid},r),\mathit{lin})$ holds. 
     \end{itemize}
 \end{itemize}
 
