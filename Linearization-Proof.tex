@@ -16,11 +16,17 @@ Given a state-based CRDT object $\mathit{obj}$ and a sequential specification $\
 \setlength{\itemsep}{0.5pt}
 \item[-] $\mathit{config}$ is a configuration of $\llbracket \mathit{obj} \rrbracket_s$.
 
-\item[-] $h$ is a history. $h$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}$ is a linearization.
+\item[-] $h$ is a history. We also require that the visibility relation be transitive. 
+
+\item[-] $h$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}$ is a linearization.
 
 \item[-] $\mathit{del} \subseteq \mathbb{MID} \times \mathbb{R}$ is the message delivery relation.
 
-\item[-] $\mathit{map} \subseteq \mathbb{MID} \times 2^{\mathbb{OID}}$ maps each message $\mathit{mid}$ to a set $S_1$ of operations. $S_1$ represents the operations visible to the replica of $\mathit{mid}$ when $\mathit{mid}$ is generated.  
+\item[-] $\mathit{map} \subseteq \mathbb{MID} \times 2^{\mathbb{OID}}$ maps each message $\mathit{mid}$ to a set $S_1$ of operations. $S_1$ represents the set of operations whose information are contained in $\mathit{mid}$. 
+
+\item[-] $\mathit{del}$ preserves causal delivery: If $(o_1,o_2) \in \mathit{vis}$ and $(o_2,r) \in \mathit{del}$, then $(o_1,r) \in \mathit{del}$. 
+
+\item[-] $\mathit{map}$ preserves causal delivery: Given $o_1,o_3 \in \mathit{map}(\mathit{mid})$, if $\exists o_2$, such that $(o_1,o_2),(o_2,o_3) \in \mathit{vis}$, then $o_2 \in \mathit{map}(\mathit{mid})$. 
 \end{itemize} 
 
 $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ needs to satisfy the following properties:
@@ -66,10 +72,10 @@ For many state-based CRDT implementations, $\mathit{inv}((R,T),h,\mathit{lin},\m
 
 \item[-] $C_1: \forall (\mathit{mid},\mathit{msg},\_) \in T$, $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. 
 
-\item[-] $C_2: \forall r$, $C(r) = \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(r))$. 
+\item[-] $C_2: \forall r$, $C(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(r))$. 
 \end{itemize} 
 
-The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying ``virtual messages'' of operations in $S$ according to total order $\mathit{lin}$. Let $\mathit{vis}^{-1}(r) = \{ i \vert (i,j) \in h.\mathit{vis}, j$ is of replica $r \} \cup \{ i \vert (i,r) \in \mathit{del} \}$. Here for each update operation $o$ of $h$, we need to define a local state $\mathit{ds}(o)$, which is the ``virtual messages'' of $o$. Note that state-based CRDT send message randomly, instead of each message for a update operation. 
+The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying ``virtual messages'' of operations in $S$ according to total order $\mathit{lin}$. Let $\mathit{vd}(r) = \{ i \vert (i,j) \in h.\mathit{vis}, j$ is of replica $r \} \cup \{ i \vert (i,r) \in \mathit{del} \}$. Here for each update operation $o$ of $h$, we need to define a local state $\mathit{ds}(o)$, which is the ``virtual messages'' of $o$. Note that state-based CRDT send message randomly, instead of each message for a update operation.
 
 To give $\mathit{inv}$, it only needs to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-counter} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively. 
 
