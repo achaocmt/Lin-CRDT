@@ -20,35 +20,69 @@
 
 
 \subsection{Proof of State-based PN-counter}
-\label{subsec:appendix proof of state-based PN-counter} 
+\label{subsec:appendix proof of state-based PN-counter}
 
-Let $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
+Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
 
 \item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize} 
+\end{itemize}
 
-The following lemma states that $\mathit{inv}$ is an invariant of state-based PN-counter. 
+The following lemma states that $\mathit{inv}$ is an invariant of state-based PN-counter.
 
 \begin{lemma}
-\label{lemma:inv is an invariant of state-based CRDT for state-based PN-counter} 
-$\mathit{inv}$ is an invariant of state-based PN-counter. 
+\label{lemma:inv is an invariant of state-based CRDT for state-based PN-counter}
+$\mathit{inv}$ is an invariant of state-based PN-counter.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
-It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds. 
+It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
 
-Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,  
+Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] 
-\end{itemize} 
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$: Then, 
 
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is easy to see that $R' = R[ r: ( R(r).P[r: R(r).P(r)+1 ], R(r).N ) ]$ and $T' = T$. 
+    
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action. 
+    
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.  
+    
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$. 
+    \end{itemize} 
+    
+    It is obvious that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. It is easy to see that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+    
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Assume $R(r)=(P',N')$. Since visibility is transitive and delivery relation preserves causal delivery, according to definition of $\mathit{ds}$, we can see that for each replica $r'$, $P'[r']$ is the number of $\mathit{inc}$ operations that happens on replica $r'$ and is either visible to some operation of replica $r$ or already been delivered to replica $r$, and $N'[r']$ is the number of $\mathit{dec}$ operations that happens on replica $r'$ and is either visible to some operation of replica $r$ or already been delivered to replica $r$. 
+
+    From the construction of $\mathit{ds}$, it is easy to see that $\mathit{ds}(i) = R(r)[r:R(r)+1]$. Then, it is easy to see that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$. 
+    
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},k,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot ((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$. 
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize} 
+    
+    It is obvious that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. 
+    
+    Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. 
+\end{itemize}
+a
 $\qed$
 \end {proof}
 
