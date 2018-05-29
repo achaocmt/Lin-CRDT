@@ -9,7 +9,7 @@
 
 
 \section{Proofs of Section \ref{sec:proving distributed linearizability}}
-\label{sec:appendix proofs of section proving distributed linearizability} 
+\label{sec:appendix proofs of section proving distributed linearizability}
 
 
 
@@ -19,9 +19,32 @@
 
 
 
-\subsection{Proof of State-based PN-set}
-\label{subsec:appendix proof of state-based PN-set} 
+\subsection{Proof of State-based PN-counter}
+\label{subsec:appendix proof of state-based PN-counter} 
 
- 
+Let $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+
+\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize} 
+
+The following lemma states that $\mathit{inv}$ is an invariant of state-based PN-counter. 
+
+\begin{lemma}
+\label{lemma:inv is an invariant of state-based CRDT for state-based PN-counter} 
+$\mathit{inv}$ is an invariant of state-based PN-counter. 
+\end{lemma}
+
+\begin {proof}
+
+$\qed$
+\end {proof}
+
+
+
+
 \subsection{Proof of State-based Multi-value Register}
-\label{subsec:appendix proof of state-based multi-value register} 
+\label{subsec:appendix proof of state-based multi-value register}

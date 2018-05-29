@@ -71,7 +71,7 @@ For many state-based CRDT implementations, $\mathit{inv}((R,T),h,\mathit{lin},\m
 
 The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying ``virtual messages'' of operations in $S$ according to total order $\mathit{lin}$. Let $\mathit{vis}^{-1}(r) = \{ i \vert (i,j) \in h.\mathit{vis}, j$ is of replica $r \} \cup \{ i \vert (i,r) \in \mathit{del} \}$. Here for each update operation $o$ of $h$, we need to define a local state $\mathit{ds}(o)$, which is the ``virtual messages'' of $o$. Note that state-based CRDT send message randomly, instead of each message for a update operation. 
 
-To give $\mathit{inv}$, it only needs to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-set} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively. 
+To give $\mathit{inv}$, it only needs to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-counter} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively. 
 
 \begin{example}[virtual messages of state-based PN-counter]
 \label{example:virtual messagess of state-based PN-counter} 
@@ -80,9 +80,9 @@ For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\forall r$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$. 
+\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$. 
 
-\item[-] $\forall r$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$. 
+\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$. 
 \end{itemize} 
 \end{example}
 
@@ -93,7 +93,7 @@ For each update operation $o = (\mathit{write}(a),\_,\_)$ of replica $r$, $\math
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\forall $, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$. 
+\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$. 
 \end{itemize} 
 \end{example}
 
