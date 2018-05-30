@@ -22,6 +22,9 @@
 \subsection{Proof of State-based PN-counter}
 \label{subsec:appendix proof of state-based PN-counter}
 
+The following are two lemmas used for latter proof. 
+
+
 Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
 
 \begin{itemize}
@@ -120,8 +123,6 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
     We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. Assume $R(r) = (P_1,N_1)$ and $\mathit{msg} = (P_2,N_2)$. It is easy to see that $P_1[r']$ is the number of elements of $S_{\mathit{p1}}^{r'} = \{ \mathit{inc}$ of replica $r'$ in $\mathit{vd}(h,\mathit{del},r) \}$, $N_1[r']$ is the number of elements of $S_{\mathit{n1}}^{r'} = \{ \mathit{dec}$ of replica $r'$ in $\mathit{vd}(h,\mathit{del},r) \}$. It is also easy to see that $P_2[r']$ is the number of elements of $S_{\mathit{p2}}^{r'} = \{ \mathit{inc}$ of replica $r'$ in $S \}$, and $N_2[r']$ is the number of elements of $S_{\mathit{n2}}^{r'} = \{ \mathit{dec}$ of replica $r'$ in $S \}$, where $S$ is a $h.\mathit{vis}^{-1}$ closed set of operations. It is obvious that $\mathit{vd}(h,\mathit{del},r)$ is also $h.\mathit{vis}^{-1}$ closed. Therefore, it is not hard to prove that, for each replica $r'$, $S_{\mathit{p1}}^{r'} \subseteq S_{\mathit{p2}}^{r'} \vee S_{\mathit{p2}}^{r'} \subseteq S_{\mathit{p1}}^{r'}$ holds and $S_{\mathit{n1}}^{r'} \subseteq S_{\mathit{n2}}^{r'} \vee S_{\mathit{n2}}^{r'} \subseteq S_{\mathit{n1}}^{r'}$ holds. 
     
     Since $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup S$, we can see that $R'(r) = \mathit{merge}(R(r),\mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
-
-  
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$ 
@@ -132,3 +133,54 @@ This completes the proof of this lemma. $\qed$
 
 \subsection{Proof of State-based Multi-value Register}
 \label{subsec:appendix proof of state-based multi-value register}
+
+Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (a,V)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+
+The following lemma states that $\mathit{inv}$ is an invariant of state-based multi-value register.
+
+\begin{lemma}
+\label{lemma:inv is an invariant of state-based CRDT for state-based multi-value register}
+$\mathit{inv}$ is an invariant of state-based multi-value register.
+\end{lemma}
+
+\begin {proof}
+
+It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
+
+Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is easy to see that $R' = R[ r: ( a,V' ) ]$ and $T' = T$. Here $V'$ satisfies that: $\forall r' \neq r$, $V'[r'] = \mathit{max}\{ V(r') \vert (\_,V) \in R(r) \}$; and $V'[r] = \mathit{max}\{ V(r) \vert (\_,V) \in R(r) \} +1$. 
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{write}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+The sequential specification $\mathit{MVReg}_s$ of multi-value register is given as follows: Let $\mathit{state}$ be a set and each its element $(a,\mathit{id},f)$ is a tuple of a data $a$, a operation identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = S \}$ $((write(a),\mathit{id},x),S_1)$ $\{ \mathit{state} = S[(b,\mathit{id}_1) \in S_2 : \mathit{false}]
+\cup
+\{ (a,id,\mathit{true}) \}
+\}$. Here $S_2 = \{ (b,\mathit{id}_1) \vert (b,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert (a,\_,\mathit{true}) \in S \} \}$ $read() \Rightarrow S_1$ $\{ \mathit{state} = S \}$.
+\end{itemize}
