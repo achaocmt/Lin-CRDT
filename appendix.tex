@@ -46,25 +46,25 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$: Then, 
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$: Then,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] It is easy to see that $R' = R[ r: ( R(r).P[r: R(r).P(r)+1 ], R(r).N ) ]$ and $T' = T$. 
-    
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action. 
-    
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.  
-    
-    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$. 
-    \end{itemize} 
-    
-    It is obvious that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. It is easy to see that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$.
-    
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Assume $R(r)=(P',N')$. Since visibility is transitive and delivery relation preserves causal delivery, according to definition of $\mathit{ds}$, we can see that for each replica $r'$, $P'[r']$ is the number of $\mathit{inc}$ operations that happens on replica $r'$ and is either visible to some operation of replica $r$ or already been delivered to replica $r$, and $N'[r']$ is the number of $\mathit{dec}$ operations that happens on replica $r'$ and is either visible to some operation of replica $r$ or already been delivered to replica $r$. 
+    \item[-] It is easy to see that $R' = R[ r: ( R(r).P[r: R(r).P(r)+1 ], R(r).N ) ]$ and $T' = T$.
 
-    From the construction of $\mathit{ds}$, it is easy to see that $\mathit{ds}(i) = R(r)[r:R(r)+1]$. Then, it is easy to see that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$. 
-    
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. It is easy to see that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Assume $R(r)=(P',N')$. Since visibility is transitive and delivery relation preserves causal delivery, according to definition of $\mathit{ds}$, we can see that for each replica $r'$, $P'[r']$ is the number of $\mathit{inc}$ operations that happens on replica $r'$ and is either visible to some operation of replica $r$ or already been delivered to replica $r$, and $N'[r']$ is the number of $\mathit{dec}$ operations that happens on replica $r'$ and is either visible to some operation of replica $r$ or already been delivered to replica $r$.
+
+    From the construction of $\mathit{ds}$, it is easy to see that $\mathit{ds}(i) = R(r)[r:R(r)+1]$. Then, it is easy to see that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
 \item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},k,r)}} (R',T')$: Then,
 
     \begin{itemize}
@@ -73,17 +73,58 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
 
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot ((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$. 
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot ((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$.
 
     \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization.
+
+    Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. Only operation $i$ need to be checked. 
+    
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = R'(r)$. It is obvious that $\mathit{vd}(h,\mathit{del},r) = \{ j \vert (j,i) \in h'.\mathit{vis} \}$. Assume $R(r)=(P',N') = R'(r)$. Since visibility is transitive and delivery relation preserves causal delivery, according to definition of $\mathit{ds}$, we can see that for each replica $r'$, $P'[r'] = \vert j \vert j$ is a $\mathit{inc}$ operation, $(j,i) \in h'.\mathit{vis} \vert$ and $N'[r'] = \vert j \vert j$ is a $\mathit{dec}$ operation, $(j,i) \in h'.\mathit{vis} \vert$. Since $k = \Sigma_{i}^{n} P[i] - \Sigma_{i}^{n} N[i]$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is right. 
+\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then, 
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
+
+    \item[-] Let $h' = h$. 
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$. 
+    
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$. 
     \end{itemize} 
     
-    It is obvious that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. 
+    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. 
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$. 
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$. 
+
+    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$. 
     
-    Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. 
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize} 
+    
+    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+    
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. Assume $R(r) = (P_1,N_1)$ and $\mathit{msg} = (P_2,N_2)$. It is easy to see that $P_1[r']$ is the number of elements of $S_{\mathit{p1}}^{r'} = \{ \mathit{inc}$ of replica $r'$ in $\mathit{vd}(h,\mathit{del},r) \}$, $N_1[r']$ is the number of elements of $S_{\mathit{n1}}^{r'} = \{ \mathit{dec}$ of replica $r'$ in $\mathit{vd}(h,\mathit{del},r) \}$. It is also easy to see that $P_2[r']$ is the number of elements of $S_{\mathit{p2}}^{r'} = \{ \mathit{inc}$ of replica $r'$ in $S \}$, and $N_2[r']$ is the number of elements of $S_{\mathit{n2}}^{r'} = \{ \mathit{dec}$ of replica $r'$ in $S \}$, where $S$ is a $h.\mathit{vis}^{-1}$ closed set of operations. It is obvious that $\mathit{vd}(h,\mathit{del},r)$ is also $h.\mathit{vis}^{-1}$ closed. Therefore, it is not hard to prove that, for each replica $r'$, $S_{\mathit{p1}}^{r'} \subseteq S_{\mathit{p2}}^{r'} \vee S_{\mathit{p2}}^{r'} \subseteq S_{\mathit{p1}}^{r'}$ holds and $S_{\mathit{n1}}^{r'} \subseteq S_{\mathit{n2}}^{r'} \vee S_{\mathit{n2}}^{r'} \subseteq S_{\mathit{n1}}^{r'}$ holds. 
+    
+    Since $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup S$, we can see that $R'(r) = \mathit{merge}(R(r),\mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+
+  
 \end{itemize}
-a
-$\qed$
+
+This completes the proof of this lemma. $\qed$ 
 \end {proof}
 
 
