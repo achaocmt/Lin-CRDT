@@ -22,19 +22,19 @@
 \subsection{Proof of State-based PN-counter}
 \label{subsec:appendix proof of state-based PN-counter}
 
-The following lemma states that each visibility-closed set is a union of operations visible to a set of operations. Its proof is obvious and omitted here. 
+The following lemma states that each visibility-closed set is a union of operations visible to a set of operations. Its proof is obvious and omitted here.
 
 \begin{lemma}
-\label{lemma:a transitive-closed set is a union of visibility of several sets} 
-Given a set $\mathit{Op}$ of operations and a transitive and acyclic visibility relation $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$, if given a set $S \subseteq \mathit{Op}$, if $S$ satisfies that $\forall o_1,o_2 \in S, o_2 \in S \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in S$, then there exists a set $O \subseteq \mathit{Op}$, such that $S = \cup_{o \in O} \mathit{vis}^{-1}(o)$. 
-\end{lemma} 
+\label{lemma:a transitive-closed set is a union of visibility of several sets}
+Given a set $\mathit{Op}$ of operations and a transitive and acyclic visibility relation $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$, if given a set $S \subseteq \mathit{Op}$, if $S$ satisfies that $\forall o_1,o_2 \in S, o_2 \in S \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in S$, then there exists a set $O \subseteq \mathit{Op}$, such that $S = \cup_{o \in O} \mathit{vis}^{-1}(o)$.
+\end{lemma}
 
-The following lemma states that given two operations $o_1,o_2$, for each replica $r$, either the set of operations of replica $r$ visible to $o_1$ is a subset of that of $o_2$, or the set of operations of replica $r$ visible to $o_2$ is a subset of that of $o_1$. Its proof is obvious and omitted here. 
+The following lemma states that given two operations $o_1,o_2$, for each replica $r$, either the set of operations of replica $r$ visible to $o_1$ is a subset of that of $o_2$, or the set of operations of replica $r$ visible to $o_2$ is a subset of that of $o_1$. Its proof is obvious and omitted here.
 
 \begin{lemma}
 \label{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}
-Assume that $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds. Let $S_o^r = \{ o' \vert (o',o) \in \mathit{vis}, o'$ is of replica $r \}$. Then for each operations $o_1$ and $o_2$, and for each replica $r$, $S_{\mathit{o1}}^r \subseteq S_{\mathit{o2}}^r \vee S_{\mathit{o2}}^r \subseteq S_{\mathit{o1}}^r$. 
-\end{lemma}  
+Assume that $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds. Let $S_o^r = \{ o' \vert (o',o) \in \mathit{vis}, o'$ is of replica $r \}$. Then for each operations $o_1$ and $o_2$, and for each replica $r$, $S_{\mathit{o1}}^r \subseteq S_{\mathit{o2}}^r \vee S_{\mathit{o2}}^r \subseteq S_{\mathit{o1}}^r$.
+\end{lemma}
 
 
 Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
@@ -74,15 +74,15 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
     \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
     \end{itemize}
 
-    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
-    
-    Since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$, we know that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$. Therefore, we need to prove that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$. 
-    
-    Since $\mathit{vd}(h,\mathit{del},r)$ satisfies that, $\forall o_1,o_2 \in \mathit{vd}(h,\mathit{del},r), o_2 \in \mathit{vd}(h,\mathit{del},r) \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in \mathit{vd}(h,\mathit{del},r)$, by Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists a set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa} and the construction of $\mathit{ds}$, we can see that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. 
-    
-    We already know that $\mathit{ds}(i) = (P'',N'')$, where for each replica $r'$, $P''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Then, it is obvious that $\mathit{merge}(R(r),\mathit{ds}(i)) = \mathit{ds}(i)$. It is also easy to see that $\mathit{ds}(i) = (R(r).P[r: R(r).P(r)+1], R(r).N) = R'(r)$. Therefore, $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$. 
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
-\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{dec},r)}} (R',T')$: Similarly as that of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$. 
+    Since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$, we know that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$. Therefore, we need to prove that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
+    Since $\mathit{vd}(h,\mathit{del},r)$ satisfies that, $\forall o_1,o_2 \in \mathit{vd}(h,\mathit{del},r), o_2 \in \mathit{vd}(h,\mathit{del},r) \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in \mathit{vd}(h,\mathit{del},r)$, by Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists a set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa} and the construction of $\mathit{ds}$, we can see that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$.
+
+    We already know that $\mathit{ds}(i) = (P'',N'')$, where for each replica $r'$, $P''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Then, it is obvious that $\mathit{merge}(R(r),\mathit{ds}(i)) = \mathit{ds}(i)$. It is also easy to see that $\mathit{ds}(i) = (R(r).P[r: R(r).P(r)+1], R(r).N) = R'(r)$. Therefore, $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{dec},r)}} (R',T')$: Similarly as that of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$.
 
 \item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},k,r)}} (R',T')$: Then,
 
@@ -97,10 +97,10 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
     \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
     \end{itemize}
 
-    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked. 
-    
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. 
-    
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
+
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+
 \item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
 
     \begin{itemize}
@@ -133,7 +133,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
     \item[-] Let $\mathit{map}' = \mathit{map}$.
     \end{itemize}
 
-    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
     We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 \end{itemize}
@@ -173,27 +173,81 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] It is easy to see that $R' = R[ r: ( a,V' ) ]$ and $T' = T$. Here $V'$ satisfies that: $\forall r' \neq r$, $V'[r'] = \mathit{max}\{ V(r') \vert (\_,V) \in R(r) \}$; and $V'[r] = \mathit{max}\{ V(r) \vert (\_,V) \in R(r) \} +1$.
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$. 
 
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{write}$ action.
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
 
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{vis}^{-1}(i))$. 
 
-    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$. 
     \end{itemize}
 
-    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+    
+    It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = h'.\mathit{vis}^{-1}(i)$. And then, we need to prove that $(a,V') = \mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i))$. 
+    
+    Recall that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$, from Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. We can prove that, for each $o = \mathit{write}(b)$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) = (b,V_b)$, where $\forall r' \neq r, V_b[r'] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert$, and $V_b[r] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert + 1$.
+    
+    It is not hard to prove that the order of merging virtual message is not important, and a virtual message can be applied multiple times. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, we can see that $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. Therefore, we can see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \} \cup \{ \mathit{ds}(i) \}$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, it is not hard to see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{ds}(i)$. 
+    
+    Then, we need to prove that $(a,V') = \mathit{ds}(i)$. This holds since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$, Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, and the value of $V'$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},S,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read}() \Rightarrow S,i,\mathit{vd}(h,\mathit{del},r) )$. 
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize} 
+
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked. 
+    
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = h'.\mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$, we can prove that there exists a set $O$, such that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. 
+    
+    By the definition of merging, it is same to assume that $O = \mathit{max}_{\mathit{vis}} \mathit{vd}(h,\mathit{del},r)$. Assume that for each operation $o = \mathit{write}(a) \in O$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o))) = (a,V_o)$. Then it is not hard to see that $R(r) = \{ (a,V_o) \vert o = \mathit{write}(a) \in O \}$. Therefore, $S = \{ a \vert o = \mathit{write}(a) \in \mathit{vis}^{-1}(i), \forall o' = \mathit{write}(\_) \in \mathit{vis}^{-1}(i), (o,o') \notin \mathit{vis} \}$. According to sequential specification $\mathit{spec}$, $(\mathit{read} \Rightarrow S,i,\mathit{obj})$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. 
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since the message content of message $\mathit{mid}$ is $R(r)$, and we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
 \end {proof}
 
-The sequential specification $\mathit{MVReg}_s$ of multi-value register is given as follows: Let $\mathit{state}$ be a set and each its element $(a,\mathit{id},f)$ is a tuple of a data $a$, a operation identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = S \}$ $((write(a),\mathit{id},x),S_1)$ $\{ \mathit{state} = S[(b,\mathit{id}_1) \in S_2 : \mathit{false}]
-\cup
-\{ (a,id,\mathit{true}) \}
-\}$. Here $S_2 = \{ (b,\mathit{id}_1) \vert (b,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
-\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert (a,\_,\mathit{true}) \in S \} \}$ $read() \Rightarrow S_1$ $\{ \mathit{state} = S \}$.
-\end{itemize}
