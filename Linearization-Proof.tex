@@ -29,7 +29,7 @@ $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ needs t
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] The visibility of $h$ is transitive.  
+\item[-] The visibility of $h$ is transitive.
 
 \item[-] $\mathit{del}$ preserves causal delivery: If $(o_1,o_2) \in \mathit{vis}$ and $(o_2,r) \in \mathit{del}$, then $(o_1,r) \in \mathit{del}$.
 
@@ -41,7 +41,7 @@ $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ needs t
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then there exists $\mathit{lin}'$, such that $\mathit{inv}(\mathit{config}', h \otimes i, \mathit{lin}',\mathit{del},\mathit{map})$ holds.
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}', h \otimes i, \mathit{lin} \cdot i,\mathit{del},\mathit{map})$ holds. Note that here we always put a new operation in the last of linearization. 
 
         Here $i$ is the identifier of the newly-generated $\mathit{do}$ action. Given $h = (\mathit{Op},\mathit{ro},\mathit{vis})$, then, $h \otimes i = (\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ (m(a) \Rightarrow b,i,\mathit{obj}) \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (j,i) \vert j \in \mathit{Op},(j,r) \in \mathit{del} \} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \})^*$.
 
