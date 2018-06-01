@@ -9,12 +9,12 @@ In this section, we propose a framework to specify the expected outcome in a lin
 
 
 \subsection{Histories}
-\label{subsec:histories} 
- 
+\label{subsec:histories}
+
 
 %We define our specification on histories, which are abstract version of detailed executions and does not contain implementation details such as message delivery. Histories are used to capture the notion of client-observable effects (operations), as well as their order in each replica, and their visibility relation.
 
-%Let us introduce the notion of operations. 
+%Let us introduce the notion of operations.
 A operation label $m(a) \Rightarrow b$ with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$ is the user-observable behavior of an operation, which indicates that this operation calls method $m$ with argument $a$ and its return value is $b$. $\mathbb{OID}$ is a infinite set of operation identifiers. An operation is defined to be a tuple $(\ell,i,x)$, where $\ell$ is a operation label, $i \in \mathbb{OID}$ is a unique operation identifier, and $x \in \mathbb{OBJ}$ is the objects of this operation. Let $\mathbb{OP}$ be the set of operations. For operation label $m(a) \Rightarrow b$, when the argument (resp., return value) is not used, we write $m()\Rightarrow b$ (resp., $m(a)$) instead for short.
 
 With the notion of operations, we can now define histories.
@@ -24,7 +24,7 @@ With the notion of operations, we can now define histories.
 A history is a tuple of the form $(\mathit{Op},\mathit{ro},\mathit{vis})$ .Here $\mathit{Op} \subseteq \mathbb{OP}$ is a set of operations; $\mathit{ro} \subseteq \mathit{Op} \times \mathit{Op}$ is the replica order, which is a union of transitive, irreflexive and total orders over $\mathit{Op}$; $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$ is the visibility order, which is acyclic and relates operations of same object. We require that $\mathit{ro} \subseteq \mathit{vis}$.
 \end{definition}
 
-$(o_1,o_2) \in \mathit{ro}$ represents that $o_1$ and $o_2$ are of same replica and the time point of $o_1$ is before that of $o_2$. $(o_1,o_2) \in \mathit{vis}$ means that $o_2$ is aware of $o_1$. %In detailed execution, this means that some message carrying the effect of $o_1$ has already been delivered into replica of $o_2$. In state-based CRDT implementation, this message contains some state aware of $o_1$, while in operation-based CRDT implementation, this message is the message of $o_1$. Based on this intuition, when 
+$(o_1,o_2) \in \mathit{ro}$ represents that $o_1$ and $o_2$ are of same replica and the time point of $o_1$ is before that of $o_2$. $(o_1,o_2) \in \mathit{vis}$ means that $o_2$ is aware of $o_1$. %In detailed execution, this means that some message carrying the effect of $o_1$ has already been delivered into replica of $o_2$. In state-based CRDT implementation, this message contains some state aware of $o_1$, while in operation-based CRDT implementation, this message is the message of $o_1$. Based on this intuition, when
 We quire that for $(o_1,o_2) \in \mathit{vis}$, $o_1$ is of a update method, since only update methods have side-effect.
 
 \subsection{Sequential Specification}
@@ -32,7 +32,7 @@ We quire that for $(o_1,o_2) \in \mathit{vis}$, $o_1$ is of a update method, sin
 
 %A sequential specification intends to propose a linearizable explanation for distributed objects.
 
-A specification alphabet is a tuple $(\ell,\mathit{id},S)$, where $\ell$ is a operation label, $\mathit{id}$ is an identifier of this specification alphabet, and $S$ is a set of identifiers. Let $\mathbb{A}$ be the set of specification alphabets. A sequential specification of CRDT is defined as a set of sequences over specification alphabets $\mathbb{A}$. 
+A specification alphabet is a tuple $(\ell,\mathit{id},S)$, where $\ell$ is a operation label, $\mathit{id}$ is an identifier of this specification alphabet, and $S$ is a set of identifiers. Let $\mathbb{A}$ be the set of specification alphabets. A sequential specification of CRDT is defined as a set of sequences over specification alphabets $\mathbb{A}$.
 
 %\gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
@@ -68,7 +68,7 @@ The sequential specification $\mathit{counter}_s$ of counter is given as follows
 
 \begin{example}[sequential specification of multi-value register]
 \label{definition:sequential specification of multi-value register}
-The sequential specification $\mathit{MVReg}_s$ of multi-value register is given as follows: Let $\mathit{state}$ be a set and each its element $(a,\mathit{id},f)$ is a tuple of a data $a$, a operation identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
+The sequential specification $\mathit{MVReg}_s$ of multi-value register is given as follows: Let $\mathit{state}$ be a set and each its element $(a,\mathit{id},f)$ is a tuple of a data $a$, an identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $\{ \mathit{state} = S \}$ $(write(a),\mathit{id},S_1)$ $\{ \mathit{state} = S[(b,\mathit{id}_1) \in S_2 : \mathit{false}]
@@ -101,7 +101,7 @@ A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set; $\mathit{r
 \label{definition:sequential specification of or-set}
 OR-set is essential a multi-set: $\mathit{add}(a)$ inserts an item $a$ into multi-set; $\mathit{rem}(a)$ cancels only items $a$ that are inserted by $\mathit{add}(a)$ operations visible to this remove operation; $\mathit{read}$ returns the set of items in multi-set. A value can be inserted multiple times.
 
-The sequential specification $\mathit{OR}$-$\mathit{set}_s$ of OR-set is given as follows: Let $\mathit{state}$ be a set and each its element $(a,\mathit{id},f)$ is a tuple of a data $a$, a operation identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$. %In $((rem(a),\mathit{id}'),S_1)$, $S_1$ represents the operations visible to this remove operation.
+The sequential specification $\mathit{OR}$-$\mathit{set}_s$ of OR-set is given as follows: Let $\mathit{state}$ be a set and each its element $(a,\mathit{id},f)$ is a tuple of a data $a$, an identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$. %In $((rem(a),\mathit{id}'),S_1)$, $S_1$ represents the operations visible to this remove operation.
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $\{ \mathit{state} = S  \wedge (\_,\mathit{id},\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\mathit{id},\mathit{true}) \} \}$.
@@ -158,7 +158,7 @@ A history is single-object, if it contains operations of a single object. A hist
 A single-object history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ is distributed linearizable w.r.t a deterministic sequential specification $\mathit{spec}$, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
 
 \begin{enumerate}[(i)]
-\item The elements of $\mathit{lin}$ is generated from the operations of $h$ and transition rules of  $\mathit{spec}$: each operation $o = (m(a) \Rightarrow b,i,\_)$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations visible to $o$. 
+\item The elements of $\mathit{lin}$ is generated from the operations of $h$ and transition rules of  $\mathit{spec}$: each operation $o = (m(a) \Rightarrow b,i,\_)$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations visible to $o$.
 
 %For each operation $o = (m(a) \Rightarrow b,i,\_)$ in $h$, assume the transition rule of $m$ in $\mathit{spec}$ is $\mathit{cond}_1 (\ell,\mathit{id}£¬S) \mathit{cond}_2$: If $S = \emptyset$, then we use $(m(a) \Rightarrow b,i)$; otherwise, $S \neq \emptyset$ and we use $(m(a) \Rightarrow b,i,\{ j \vert (\_,j,\_) \in \mathit{vis}^{-1}(o)),$ operations $i$ and $j$ is of a same object $\}$.
 \item $\mathit{lin}$ is consistent with $\mathit{vis}$,
@@ -193,8 +193,8 @@ $h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations
 %  \label{fig:a non-distributed linearizable history}
 %\end{figure}
 
-We say a history satisfy convergence, if given query operations $o_1$ and $o_2$ of this history, if $o_1$ and $o_2$ see the same set of update operations, then they observe from ``a same abstract state''. Or we can say, when such $o_1$ and $o_2$ are of same method, they should return same value. A sequential specification is deterministic, if from one state and one transition label, there is at most one destination state. It is obvious that all sequential specification examples are deterministic. By definition \ref{definition:distributed linearizability}, our distributed linearizability for deterministic sequential specification obviously implies convergence, %However, this does not holds when we consider nondeterministic sequential specification. One example is shown in \figurename~\ref{fig:a non-convergent history}. It is easy to see that this history is distributed linearizable w.r.t $\mathit{list}_s^{\mathit{ab}}$. Two $\mathit{read}$ operations both see $\mathit{add}(a,\circ_1,\circ_2)$ and $\mathit{add}(b,\circ_1,\circ_2)$. However, one of them decide to put $a$ before $b$, and the other decide to put $b$ before $a$, and this implies non-convergence. 
-as stated by the following lemma. 
+We say a history satisfy convergence, if given query operations $o_1$ and $o_2$ of this history, if $o_1$ and $o_2$ see the same set of update operations, then they observe from ``a same abstract state''. Or we can say, when such $o_1$ and $o_2$ are of same method, they should return same value. A sequential specification is deterministic, if from one state and one transition label, there is at most one destination state. It is obvious that all sequential specification examples are deterministic. By definition \ref{definition:distributed linearizability}, our distributed linearizability for deterministic sequential specification obviously implies convergence, %However, this does not holds when we consider nondeterministic sequential specification. One example is shown in \figurename~\ref{fig:a non-convergent history}. It is easy to see that this history is distributed linearizable w.r.t $\mathit{list}_s^{\mathit{ab}}$. Two $\mathit{read}$ operations both see $\mathit{add}(a,\circ_1,\circ_2)$ and $\mathit{add}(b,\circ_1,\circ_2)$. However, one of them decide to put $a$ before $b$, and the other decide to put $b$ before $a$, and this implies non-convergence.
+as stated by the following lemma.
 
 
 %\begin{figure}[t]
@@ -219,7 +219,7 @@ as stated by the following lemma.
 
 \begin{lemma}
 \label{lemma:distributed linarizability implies convergence}
-If a history $h$ is distributed linearizability w.r.t deterministic sequential specification, then $h$ satisfies convergence. 
+If a history $h$ is distributed linearizability w.r.t deterministic sequential specification, then $h$ satisfies convergence.
 \end{lemma}
 
 

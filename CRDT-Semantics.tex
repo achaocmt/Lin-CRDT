@@ -4,7 +4,7 @@
 \section{CRDT Implementation Semantics and Correctness}
 \label{sec:CRDT implementation semantics and correctness}
 
-In this section, we propose the semantics of %a state-based CRDT or a operation-based CRDT. 
+In this section, we propose the semantics of %a state-based CRDT or a operation-based CRDT.
 CRDT implementations. Then we shows how to extract histories from execution, and the correctness of CRDT implementations.
 
 
@@ -68,14 +68,14 @@ $\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \ma
 \label{fig:the semantics of a operation-based CRDT object}
 \end{figure}
 
-A configuration $(R,T,\mathit{MsgHB},\mathit{MsgDel})$ is a snapshot of distributed system. $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{MsgHB}$ is used to record the happen-before relation between messages: two messages $(\mathit{mid}_1,\mathit{mid}_2) \in \mathit{MsgHB}$ represents that the operation of $\mathit{mid}_1$ happens before the operation of $\mathit{mid}_2$. $\mathit{MsgDel}$ is used to record the message delivery relation between messages: $(\mathit{mid},r) \in \mathit{MsgDel}$ represents that message $\mathit{mid}_1$ has already been delivered to replica $r$. $\mathit{MsgHB}$ and $\mathit{MsgDel}$ are used to ensure message delivery requirements. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, has no message, and with a empty happen-before relation and a empty message delivery relation. 
+A configuration $(R,T,\mathit{MsgHB},\mathit{MsgDel})$ is a snapshot of distributed system. $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{MsgHB}$ is used to record the happen-before relation between messages: two messages $(\mathit{mid}_1,\mathit{mid}_2) \in \mathit{MsgHB}$ represents that the operation of $\mathit{mid}_1$ happens before the operation of $\mathit{mid}_2$. $\mathit{MsgDel}$ is used to record the message delivery relation between messages: $(\mathit{mid},r) \in \mathit{MsgDel}$ represents that message $\mathit{mid}_1$ has already been delivered to replica $r$. $\mathit{MsgHB}$ and $\mathit{MsgDel}$ are used to ensure message delivery requirements. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, has no message, and with a empty happen-before relation and a empty message delivery relation.
 
 
 Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describes a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a operation-based CRDT object} describes replica $r$ performs a update operation $m(a) \Rightarrow b$ and generates a message with message content $\mathit{msg}$. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. We insert message identifier $\mathit{mid}$ into the happen-before relation and keeps the happen-before relation be transitive. The second rule describes replica $r$ performs a query operation $m(a) \Rightarrow b$ and thus does not generate message. Since no message is generated, the $\mathit{MsgHB}$ and $\mathit{MsgDel}$ tuples remain the same. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$. By $(\mathit{mid},r) \notin \mathit{MsgDel}$, we ensure that $\mathit{mid}$ has not been previously delivered to replica $r$, and thus, each message be delivered to each replica at most once. By $\mathit{mid}$ being minimal w.r.t $\mathit{MsgHB}$ among $\{ \mathit{mid}' \vert (\mathit{mid}',r) \notin \mathit{MsgDel} \}$, we always choose a minimal element w.r.t $\mathit{MsgHB}$ among operations not been delivered to a replica, and thus, ensures causal-delivery.
 
 
 
-A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T,\mathit{MsgHB},\mathit{MsgDel}) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T,\mathit{MsgHB},\mathit{MsgDel})$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$. 
+A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T,\mathit{MsgHB},\mathit{MsgDel}) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T,\mathit{MsgHB},\mathit{MsgDel})$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$.
 
 
 
@@ -87,7 +87,7 @@ A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket
 \subsection{Correctness of a Single Object}
 \label{subsec:correctness of a single object}
 
-Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$ of state-based CRDT $\mathit{obj}$, we can associate unique operation identifiers with each action of $l$, and then obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
+Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$ of CRDT object $\mathit{obj}$, we can associate unique operation identifiers with each action of $l$, and then obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -95,14 +95,14 @@ Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \ma
 
 \item[-] $(o_1,o_2) \in \mathit{ro}$, if they are of same replica, and the index of $o_1$ in $h$ is before that of $o_2$.
 
-\item[-] $(o_1,o_2) \in \mathit{vis}$, if the action of $o_1$ is $\mathit{send}(\mathit{mid},\_)$, and either the action of $o_2$ is $\mathit{receive}(\mathit{mid},\_)$, or there exists $o_3$, such that the action of $o_3$ is $\mathit{receive}(\mathit{mid},\_)$, and $(o_3,o_2) \in \mathit{ro}$. 
-\end{itemize} 
+\item[-] $(o_1,o_2) \in \mathit{vis}$, if the action of $o_1$ is $\mathit{send}(\mathit{mid},\_)$, and either the action of $o_2$ is $\mathit{receive}(\mathit{mid},\_)$, or there exists $o_3$, such that the action of $o_3$ is $\mathit{receive}(\mathit{mid},\_)$, and $(o_3,o_2) \in \mathit{ro}$.
+\end{itemize}
 
-Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$. Then, a object is distributed linearizable, if each of its history is, as stated by the following: 
+Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$. Then, a object is distributed linearizable, if each of its history is, as stated by the following:
 
 \begin{definition}[Correctness of a CRDT Object]
 \label{definition:correctness of a CRDT object}
-A CRDT object $\mathit{obj}$ is distributed linearizable w.r.t a sequential specification $\mathit{spec}$, if each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$. 
+A CRDT object $\mathit{obj}$ is distributed linearizable w.r.t a sequential specification $\mathit{spec}$, if each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$.
 \end{definition}
 
 
