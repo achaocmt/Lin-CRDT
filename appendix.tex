@@ -18,6 +18,79 @@ Such kind of list is similar as list with add-after interface. One difference is
 
 
 
+
+
+
+Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a state-based CRDT object}.
+
+\begin{figure}[ht]
+$\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
+
+$\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R}$.
+
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$.
+
+$\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \mathbb{R}) \cup \mathit{send}(\mathbb{MID} \times \mathbb{R}) \cup \mathit{receive}(\mathbb{MID} \times \mathbb{R})$
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b) }
+{ (R,T) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T) }
+\end{array}
+\]
+
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, \mathit{unique}(\mathit{mid}) }
+{ (R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R,T \cup \{ (\mathit{mid},\sigma,r) \}) }
+\end{array}
+\]
+
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{receive}(\sigma,\sigma') = \sigma'',(\mathit{mid},\sigma',r') \in T, r \neq r'}
+{ (R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R[r:\sigma''],T) }
+\end{array}
+\]
+\caption{The definition of semantics of $\llbracket \mathit{obj} \rrbracket_s$}
+\label{fig:the semantics of a state-based CRDT object}
+\end{figure}
+
+A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, and has no message inside. Since $\mathit{obj}$ is a state-based CRDT, each message content is chosen from $\Sigma$.
+
+Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
+
+A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_s$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is in the form of either $\mathit{do}(i,m,a,b,r)$, or $\mathit{send}(i,\mathit{mid},r)$, or $\mathit{receive}(i,\mathit{mid},r)$, where $i \in \mathbb{OID}$ is a unique operation identifier.
+
+
+
+
+
+
+
+
+Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_s$ of state-based CRDT $\mathit{obj}$, we can obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each operation in $\mathit{Op}$ is a tuple $(\ell,i,\mathit{obj})$, such that $i$ is the operation identifier of a $\mathit{do}(m,a,b,r)$ action of $l$.
+
+\item[-] $(o_1,o_2) \in \mathit{ro}$, if they are of same replica, and the index of $o_1$ in $h$ is before that of $o_2$.
+
+\item[-] Let us defines a delivery relation $\mathit{del} \subseteq \mathbb{OP} \times \mathbb{OP}$ as follows: $(o_1,o_2) \in \mathit{del}$, if: $o_1$ and $o_2$ are of different replicas, there exists a $\mathit{send}(\mathit{mid},r)$ action and a $\mathit{receive}(\mathit{mid},r')$ action, $o_1$ and $\mathit{send}(\mathit{mid},r)$ happen on a same replica and $o_1$ happens earlier, $\mathit{receive}(\mathit{mid},r)$ and $o_2$ happen on a same replica and $\mathit{receive}(\mathit{mid},r)$ happens earlier.
+
+\item[-] $\mathit{vis} = (\mathit{ro}+\mathit{del})^*$.
+\end{itemize}
+
+Intuitively, each local state can be considered as the consequence of all updates it receives. Since state-based CRDT sends the modified local state as message, the visibility relation is then the transitive closure of replica order and message delivery relation. Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_s$.
+
+
+
+
+
+
 \section{Proofs of Section \ref{sec:proving distributed linearizability}}
 \label{sec:appendix proofs of section proving distributed linearizability}
 
