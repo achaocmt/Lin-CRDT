@@ -74,8 +74,8 @@ A CRDT implementation for a type $t = (M,D)$ is a tuple $I(r) = (\Sigma, \Sigma_
 \end{definition}
 
 Here $\Sigma$ is the set of local states and $\Sigma_0$ is the set of initial state. $r$ is the replica identifier of current replica, and some CRDT implementation requires current replica identifier to generate time-stamp. When the current local state is $\sigma$ and the client intends to perform a operation of method $m$ with argument $a$, a $\mathit{do}$ action is launched, which update the local states, returns a value, and generate message if $m$ is a update method. When this replica receives a message of other replica, a $\mathit{receive}$ action will be launched, which updates the current local states according to the message. If a operation has no arguments or return value, or does not generate message, then we can safely omit the corresponding tuples in $\mathit{do}$ actions. 
-
-The formal definition of RGA can be easily obtained from its algorithms. For example, when $(a,\_,\_) \in N$, we have $\mathit{do}((N,\mathit{Tomb}),\mathit{rem},a) = ((N,\mathit{Tomb} \cup \{ a \}),a)$. Here we use $\_$ in indicate a element whose value is irrelevant. The formal definition of RGA, as well as more CRDT implementations, can be found in  Appendix \ref{sec:appendix definitions of section CRDT implementations}. 
+%The formal definition of RGA can be easily obtained from its algorithms. For example, when $(a,\_,\_) \in N$, we have $\mathit{do}((N,\mathit{Tomb}),\mathit{rem},a) = ((N,\mathit{Tomb} \cup \{ a \}),a)$. Here we use $\_$ in indicate a element whose value is irrelevant. 
+The formal definition of RGA, as well as more CRDT implementations, can be found in  Appendix \ref{sec:appendix definitions of section CRDT implementations}.
 
 
 
