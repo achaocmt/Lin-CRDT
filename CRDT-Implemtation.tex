@@ -4,6 +4,99 @@
 \section{CRDT Implementations}
 \label{sec:CRDT implementations}
 
+%A distributed system contains multiple objects, and each objects is replicated on each replica. Each object has a type, which contains its method and data type. A client of a replica interact with the objects by calling the method and then obtaining the return value. Here we do not bound the number of replica identifiers and objects.
+
+Let $\mathbb{OBJ}$ be the set of objects and $\mathbb{R}$ be the set of replica identifiers. We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Each data type $t = (M,D)$ has a set $M \subseteq \mathbb{M}$ of methods and a data domain $D \subseteq \mathbb{D}$. 
+
+Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that has no influence on the ``abstract state'' and normally returns an observation of the ``abstract state'' , and $\mathbb{U}$ update methods that has influence on the ``abstract state''. %Note that some update operation also need to read the ``abstract state''. For example, a $add(a,b)$ operation is an operation of distributed list which intends to put item $a$ immediately after item $b$. This operation implicitly requires that item $b$ is already in list.
+
+$\mathit{Optimistic \ replication \ algorithms}$ is a type of distributed algorithms where each client contains a copy of data structure; a client operations takes effect instantly at its replica without any synchronization, and then broadcast to other replicas and got applied. Convergent or Commutative Replicated Data Types (CRDTs) is a typical kinds of optimistic replication algorithms. In this section, we will introduce CRDT algorithms and their formation \footnote{To be exact, there are two kinds of CRDT algorithms: state-based and operation based. The implementations we discussed in this section is operation-based. The state-based CRDT can be similarly formalized and verified, and we discuss state-based CRDT in the discussion section of this paper.}. 
+
+In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below. 
+
+
+\renewcommand{\algorithmcfname}{CRDT Implementation}
+\noindent
+%\begin{minipage}{.5\textwidth}
+\noindent\begin{algorithm}[H]
+$\mathit{payload}$ TI-tree N, set $\mathit{Tomb}$; \\
+$\mathit{initial}$ $\emptyset$,$\emptyset$; \\
+
+$add(a,b)$ \\
+\ \ $\mathit{atSource}$: \\
+\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb})$ \\
+
+%\ \ \ \ \If {$N = \emptyset$}
+%    { \ \ \ \ let \ $ts_a$ = (myID(),1); \\ }
+%\ \ \ \ \Else
+%    {\ \ \ \ let \ $ts_a$ = (myID(),$\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$); \\ }
+
+%\ \ \ \ \If {$b = \circ$}
+%    { \ \ \ \ let \ $ts_b$ = (0,0); \\ }
+%\ \ \ \ \Else
+%    { \ \ \ \ let \ $ts_b$ be time-stamp of $b$ in $N$; \\ }
+
+\ \ \ \ let \ $ts_a$ = ($N = \emptyset$) ? (1,$\mathit{myID}$()) ! ($\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$,$\mathit{myID}$()); \\
+\ \ \ \ let \ $ts_b$ = ($b = \circ$) ? (0,$r_0$) ! (the time-stamp of $b$ in $N$); \\
+
+\ \ $\mathit{downstream}(a,ts_a,ts_b)$: \\
+\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,ts_b,\_) \in N)$ \\
+
+\ \ \ \ $N = N \cup \{ (a,ts_a,ts_b) \}$.
+
+
+$rem(a)$ \\
+\ \ $\mathit{atSource}$: \\
+\ \ \ \ $\mathit{pre}$: \ $a \neq \circ \wedge (a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$ \\
+
+\ \ $\mathit{downstream}(a)$: $\mathit{pre}$ \ $a \neq \circ \wedge (a,\_,\_) \in N)$
+
+\ \ \ \ $\mathit{Tomb} = \mathit{Tomb} \cup \{ a \}$.
+
+$read()$ \\
+\ \ \ \ \KwRet $\mathit{trans}(N,\mathit{Tomb})$; \\
+
+\caption{RGA}
+\label{Method1}
+\end{algorithm}
+
+Keyword $\mathit{payload}$ indicate the local state of a replica, and keyword $\mathit{initial}$ specifies the initial value of local state. Each update operation is executed with two phases: Its first phase, marked $\mathit{atSource}$, is local to the current replica and does not modify the local state. It is enabled if its (optional) pre-condition, marked $\mathit{pre}$, is true currently in local state. It generates the information to be delivered, which is the argument of $\mathit{downstream}$. Its second phase, marked $\mathit{downstream}$, executed immediate after the current replica, and asynchronously at other replica when they receive the message of this operation. It is enabled if its (optional) pre-condition is true. The local state will be modified in this phase. 
+
+In RGA algorithm, a replica store the list as a timestamp insertion tree (TI-tree) $N$, and stores the deleted items in tombstone $\mathit{Tomb}$. A TI-tree $N$ is a set of tuples $(a,t,p)$, where $a$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'' node. Each time-stamp is a tuple $(c,r)$ with $c \in \mathbb{N}$ and $r \in \mathbb{R}$. A total order $<_{\mathit{ts}}$ between time-stamps is defined, such that $(c_1,r_1) <_{\mathit{ts}} (c_2,r_2)$, if $c_1 < c_2 \vee (c_1 = c_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. There is a pre-existed item $\circ$ of TI-tree with time stamp $(0,r_0)$, which are considered as the root of the tree. Each element of $N$ should have unique item and time stamp, and the elements of $N$ are required to form a tree by following the parent field. The tombstone $\mathit{Tomb}$ is a set of items and records items been removed from the list.
+
+Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position immediately after that of a existing item $b$. Method $\mathit{rem}(a)$ removes $a$ from the list. Method $\mathit{read}$ returns the current list content. When the current replica does $\mathit{add}(a,b)$, it generate a tuple $(a,ts_a,ts_b)$ and put it into $N$. Here $ts_b$ is the time-stamp of $b$, and $ts_a$ is a new time-stamp that is larger than any time stamp in $N$. When the current replica does $\mathit{rem}(a)$, it put $a$ into tombstone. When the current replica does $\mathit{read}$, it uses function $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the current replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$. 
+
+Let $\mathbb{MSG}$ be the set of message contents, such as $(a,ts_a,ts_b)$ of RGA. Then, CRDT implementations are defined as follows, where operations and receiving messages are defined as functions.
+
+\begin{definition}[CRDT implementations]
+\label{definition:operation-based CRDT implementations}
+A CRDT implementation for a type $t = (M,D)$ is a tuple $I(r) = (\Sigma, \Sigma_0, \mathit{Msg}, \mathit{do},\mathit{receive})$. Here $r \in \mathbb{R}$, $\Sigma_0 \subseteq \Sigma$, $\mathit{Msg} \subseteq \mathbb{MSG}$, $\mathit{do}:\Sigma \times M \times D \rightarrow \Sigma \times D \times (\mathit{Msg} \cup \{ \emptyset \} )$, and $\mathit{receive}: \Sigma \times \mathit{Msg} \rightarrow \Sigma$.
+\end{definition}
+
+Here $\Sigma$ is the set of local states and $\Sigma_0$ is the set of initial state. $r$ is the replica identifier of current replica, and some CRDT implementation requires current replica identifier to generate time-stamp. When the current local state is $\sigma$ and the client intends to perform a operation of method $m$ with argument $a$, a $\mathit{do}$ action is launched, which update the local states, returns a value, and generate message if $m$ is a update method. When this replica receives a message of other replica, a $\mathit{receive}$ action will be launched, which updates the current local states according to the message. If a operation has no arguments or return value, or does not generate message, then we can safely omit the corresponding tuples in $\mathit{do}$ actions. 
+
+The formal definition of RGA can be easily obtained from its algorithms. For example, when $(a,\_,\_) \in N$, we have $\mathit{do}((N,\mathit{Tomb}),\mathit{rem},a) = ((N,\mathit{Tomb} \cup \{ a \}),a)$. Here we use $\_$ in indicate a element whose value is irrelevant. The formal definition of RGA, as well as more CRDT implementations, can be found in  Appendix \ref{sec:appendix definitions of section CRDT implementations}. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\forget{
+\section{CRDT Implementations}
+\label{sec:CRDT implementations}
+
 A distributed system contains multiple objects, and each objects is replicated on each replica. Each object has a type, which contains its method and data type. A client of a replica interact with the objects by calling the method and then obtaining the return value. Here we do not bound the number of replica identifiers and objects.
 
 Let $\mathbb{OBJ}$ be the set of objects and $\mathbb{R}$ be the set of replica identifiers. We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Each data type $t = (M,D)$ has a set $M \subseteq \mathbb{M}$ of methods and a data domain $D \subseteq \mathbb{D}$. Finally we have a infinite set $\mathbb{OID}$ of operation identifiers, corresponding to each individual operation performed on the CRDT throughout an execution.
@@ -161,7 +254,7 @@ $I_t(r) = (\Sigma, \sigma_0, \mathit{Msg}, \mathit{do},\mathit{receive})$, where
 \item[-] $\mathit{receive}((P,N),(P',N')) = (\lambda s. \mathit{max}\{  P[s], N'[s] \}, \mathit{max}\{  N[s], N'[s] \},)$,
 \end{itemize}
 \end{example}
-
+}
 
 
 
