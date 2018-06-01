@@ -2,6 +2,16 @@
 \label{sec:appendix definitions of section CRDT implementations}
 
 
+\begin{example}[List with add-between interface]
+\label{definition:sequential specification of list with add-after interface}
+Such kind of list is similar as list with add-after interface. One difference is the $\mathit{add}$ method: $\mathit{add}(b,a,c)$ inserts item $b$ into the list at some nondeterministic position between position of $a$ and position of $c$. The other difference is that, we assume that the initial value of list is $(\circ_1,\mathit{true}) \cdot (\circ_2,\mathit{true})$ and these two nodes can not be removed. The sequential specification $\mathit{list}_s^{\mathit{ab}}$ of list is given as follows: Here $\mathit{ab}$ represents add-between. When the context is clear, in $\mathit{read}$ operation, we will omit $\circ_1$ and $\circ_2$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge k < m < l \wedge b \notin \{ a_1, \ldots, a_n \} \}$ $add(b,a_k,a_l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_m,f_m) \cdot (b,\mathit{true}) \cdot (a_{m+1},f_{m+1}) \cdot \ldots \cdot (a_n,f_n) \}$. Here the chosen of $m$ is deterministic.
+\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge S = \{ a \vert (a,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \}$.
+\end{itemize}
+\end{example}
+
 
 
 
@@ -173,23 +183,23 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$. 
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
 
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{vis}^{-1}(i))$. 
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{vis}^{-1}(i))$.
 
-    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$. 
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
     \end{itemize}
 
-    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
-    
-    It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = h'.\mathit{vis}^{-1}(i)$. And then, we need to prove that $(a,V') = \mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i))$. 
-    
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = h'.\mathit{vis}^{-1}(i)$. And then, we need to prove that $(a,V') = \mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i))$.
+
     Recall that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$, from Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. We can prove that, for each $o = \mathit{write}(b)$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) = (b,V_b)$, where $\forall r' \neq r, V_b[r'] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert$, and $V_b[r] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert + 1$.
-    
-    It is not hard to prove that the order of merging virtual message is not important, and a virtual message can be applied multiple times. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, we can see that $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. Therefore, we can see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \} \cup \{ \mathit{ds}(i) \}$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, it is not hard to see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{ds}(i)$. 
-    
+
+    It is not hard to prove that the order of merging virtual message is not important, and a virtual message can be applied multiple times. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, we can see that $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. Therefore, we can see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \} \cup \{ \mathit{ds}(i) \}$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, it is not hard to see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{ds}(i)$.
+
     Then, we need to prove that $(a,V') = \mathit{ds}(i)$. This holds since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$, Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, and the value of $V'$.
 
 \item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},S,r)}} (R',T')$: Then,
@@ -200,16 +210,16 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
 
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read}() \Rightarrow S,i,\mathit{vd}(h,\mathit{del},r) )$. 
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read}() \Rightarrow S,i,\mathit{vd}(h,\mathit{del},r) )$.
 
     \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
-    \end{itemize} 
+    \end{itemize}
 
-    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked. 
-    
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = h'.\mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$, we can prove that there exists a set $O$, such that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. 
-    
-    By the definition of merging, it is same to assume that $O = \mathit{max}_{\mathit{vis}} \mathit{vd}(h,\mathit{del},r)$. Assume that for each operation $o = \mathit{write}(a) \in O$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o))) = (a,V_o)$. Then it is not hard to see that $R(r) = \{ (a,V_o) \vert o = \mathit{write}(a) \in O \}$. Therefore, $S = \{ a \vert o = \mathit{write}(a) \in \mathit{vis}^{-1}(i), \forall o' = \mathit{write}(\_) \in \mathit{vis}^{-1}(i), (o,o') \notin \mathit{vis} \}$. According to sequential specification $\mathit{spec}$, $(\mathit{read} \Rightarrow S,i,\mathit{obj})$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. 
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
+
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = h'.\mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$, we can prove that there exists a set $O$, such that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$.
+
+    By the definition of merging, it is same to assume that $O = \mathit{max}_{\mathit{vis}} \mathit{vd}(h,\mathit{del},r)$. Assume that for each operation $o = \mathit{write}(a) \in O$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o))) = (a,V_o)$. Then it is not hard to see that $R(r) = \{ (a,V_o) \vert o = \mathit{write}(a) \in O \}$. Therefore, $S = \{ a \vert o = \mathit{write}(a) \in \mathit{vis}^{-1}(i), \forall o' = \mathit{write}(\_) \in \mathit{vis}^{-1}(i), (o,o') \notin \mathit{vis} \}$. According to sequential specification $\mathit{spec}$, $(\mathit{read} \Rightarrow S,i,\mathit{obj})$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
 
 \item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
 
