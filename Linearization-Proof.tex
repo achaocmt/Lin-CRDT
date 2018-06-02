@@ -53,7 +53,7 @@ Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and operation $o = (m
 If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and sequential specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$.
 \end{lemma} 
 
-In definition of invariant, only $C_4$ is specific to CRDT implementation. 
+In definition of invariant, only $C_4$ is specific to CRDT implementation. The following 
 
 To give $\mathit{inv}$, it only remains to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-counter} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively.
 
