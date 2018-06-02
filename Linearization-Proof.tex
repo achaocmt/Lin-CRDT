@@ -41,7 +41,16 @@ The following are t0-specifications:
 \end{itemize}
 \end{lemma} 
 
-For a history where time-stamp is used for conflict resolution, such as RGA and last-write-win register (LWW-register), we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: If this operation (such as $\mathit{add}$ method of RGA) generate a new time-stamp, then $\mathit{ts}$ is this newly-generated time-stamp; if this operation does not change time-stamp, then $\mathit{ts}$ is the maximum of time-stamp among operations visible to $o$. We require that given operations $o_1$ and $o_2$, if $(o_1,o_2) \in \mathit{vis}$, then the time-stamp of $o_1$ is less than that of $o_2$.
+For a history where time-stamp is used for conflict resolution, such as RGA and last-write-win register (LWW-register), we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: %A set of method is selected and called special method. 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o$ generates a new unique time-stamp, then $\mathit{ts}$ is this new time-stamp.  
+
+\item[-] If $o$ does not generate new time-stamp, then $\mathit{ts}$ is the maximum of time-stamp among operations visible to $o$. 
+
+\item[-] Moreover, we require that iven operations $o_1$ and $o_2$, if $(o_1,o_2) \in \mathit{vis}$, then the time-stamp of $o_1$ is less or equal than that of $o_2$.
+\end{itemize} 
 
 
 \begin{definition}[t1-specification]
@@ -65,12 +74,12 @@ A sequential specification $\mathit{spec}$ is a t1-specification, if for each di
 
 
 
-\subsection{Proof Approach for CRDT Implementations without Time-stamp}
-\label{subsec:proof approach for CRDT implementations without time-stamp} 
+\subsection{Proof Approach for T0-Specifications}
+\label{subsec:proof approach for t0-specifications} 
 
-When the context is clear, we do not distinguish an operation and its unique identifier.
+When the context is clear, we do not distinguish an operation and its unique identifier. 
 
-Let us consider CRDT implementations that do not use time-stamp. We construct a predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ where $\mathit{config} = (R,T,\mathit{MsgHB},\mathit{MsgDel})$ is a configuration of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$, $h$ is a history, $\mathit{lin} \in \mathbb{A}^*$, and $\mathit{map} \subseteq \mathbb{MID} \times \mathbb{OID}$. We require $P(\mathit{config},h,\mathit{lin},\mathit{map})$ to be a conjunction of the following statements:
+For a t0-specification $\mathit{spec}$, we construct a predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ where $\mathit{config} = (R,T,\mathit{MsgHB},\mathit{MsgDel})$ is a configuration of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$, $h$ is a history, $\mathit{lin} \in \mathbb{A}^*$ is used for linearization, and $\mathit{map} \subseteq \mathbb{MID} \times \mathbb{OID}$ is a function used to associate messages of $\mathit{config}.T$ with operations of $h$. We require $P(\mathit{config},h,\mathit{lin},\mathit{map})$ to be a conjunction of the following statements:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -82,20 +91,22 @@ Let us consider CRDT implementations that do not use time-stamp. We construct a 
     \setlength{\itemsep}{0.5pt}
     \item[-] For message visibility of $\mathit{config}$: $(o_1,o_2) \in h.\mathit{vis}$, if and only if $(\mathit{map}(o_1),\mathit{map}(o_2)) \in \mathit{config}.\mathit{MsgHB}$.
 
-    \item[-] For message delivery of $\mathit{config}$: If $(\mathit{mid},r) \notin \mathit{config}.\mathit{MsgDel}$, then for each $\mathit{mid}'$ where $\mathit{map}(\mathit{mid}') = r$, $(\mathit{map}(\mathit{mid}),\mathit{map}(\mathit{mid}')) \notin h.\mathit{vis}$.
+    \item[-] For message delivery of $\mathit{config}$: If $(\mathit{mid},r) \notin \mathit{config}.\mathit{MsgDel}$, then for each $\mathit{mid}'$ where the message of $\mathit{mid}'$ is of replica $r$, $(\mathit{map}(\mathit{mid}),\mathit{map}(\mathit{mid}')) \notin h.\mathit{vis}$.
     \end{itemize}
 
 \item[-] $C_3$ (causal delivery): $h.\mathit{vis}$ is transitive. Moreover, if $(o_1,o_2) \in h.\mathit{vis}$ and $(\mathit{map}(o_2),r) \in \mathit{config}.\mathit{MsgDel}$, then $(\mathit{map}(o_1),r) \in \mathit{config}.\mathit{MsgDel}$.
 
 \item[-] $C_4$ (message content): A statement about message content of each message in $\mathit{config}.T$.
 
-\item[-] $C_5$ (sequential explanation): For each replica $r$, we have that $\mathit{config}.R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{config},r))$.
+\item[-] $C_5$ (sequential explanation): For each replica $r$, we have that $\mathit{config}.R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{config},r))$. 
+
+\item[-] $C_6$ (operation label pairs of t0): For operation label pairs $(l_1,l_2)$ of t0, the operation of $l_1$ is visible to the operation of $l_2$. 
 \end{itemize}
 
 Here $\mathit{vd}(h,\mathit{config},r) = \{ i \vert (i,j) \in h.\mathit{vis}, j$ is of replica $r \} \cup \{ i \vert (\mathit{map}(i)i,r) \in \mathit{config}.\mathit{MsgHB} \}$. $\mathit{vd}(h,\mathit{config},r)$ is the set of operations that are either visible to some operation of replica $r$, or has been delivered into replica $r$. The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying messages of operations in $S$ according to total order $\mathit{lin}$.
 
 
-Then, we need to prove that $P$ is a simulation relation in a way shown below. Note that when increasing linearization, a new item is always put in the last position.
+Then, we need to prove that $P$ is a simulation relation in a way shown below. Note that since $\mathit{spec}$ is a t0-specification, when increasingly built new linearization, we always insert a new operation after the tail of the old linearization. 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -106,11 +117,13 @@ Then, we need to prove that $P$ is a simulation relation in a way shown below. N
 \item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $P(\mathit{config}',h,\mathit{lin},\mathit{map})$ holds.
 \end{itemize}
 
-Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$, $h \otimes o$ returns a history $(\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ o \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (o',o) \vert \mathit{map}(o')$ is of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (o',o) \vert (\mathit{map}(o'),r) \in \mathit{config}.\mathit{MsgDel} \} \cup \{ (o',o) \vert \mathit{map}(o')$ is of replica $r \})^*$. A predicate $P$ above requirements is called an invariant. The following lemma states that the existence of such $P$ implies distributed linearizability. Its proof can be easily done by induction on the length of executions and is omitted here.
+Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$, $h \otimes o$ returns a history $(\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ o \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (o',o) \vert (\mathit{map}(o'),r) \in \mathit{config}.\mathit{MsgDel} \} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \})^*$. A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ satisfies conditions $C_1$ to $C_5$ is called an invariant. 
+
+The following lemma states that the existence of such invariant implies distributed linearizability and each sequence consistent with visibility is a linearization. To prove this lemma, we first prove that by induction on length of execution, we obtain a linearization. Then by definition of t0-specification, we know that each sequence consistent with visibility is a linearization. 
 
 \begin{lemma}
 \label{lemma:invariant of operation-based CRDT implies distributed linearizability}
-If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and sequential specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$.
+If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t0-specification $\mathit{spec}$ w.r.t $S$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility and keep operations of $S$ in visibility relation is a linearization of $h$.  
 \end{lemma}
 
 In definition of invariant, only $C_4$ is specific to CRDT implementation. The following is the $C_4$ for or-set implementation. The detailed of such $C_4$ defining a correct variant can be found in Appendix \ref{subsec:appendix proofs of or-set implementation}.
@@ -118,47 +131,19 @@ In definition of invariant, only $C_4$ is specific to CRDT implementation. The f
 \begin{example}[$C_4$ for or-set implementation]
 \label{example:c4 for or-set implementation}
 
-For each $o = (\mathit{add}(a),i,\mathit{obj})$, the message content of $\mathit{map}(i)$ is
-
-For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
+Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and a update operation $o$ of $h$, the message of $o$ is given as follows: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\item[-] If $o$ is a $\mathit{add}(a)$ operation of replica $r$:  Then the message of $o$ is $(a,(c+1,r))$, where $c = \mathit{max}\{ c_1 \vert (\_,(c_1,\_)) \in S(o) \}$. 
 
-\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize}
+\item[-] If $o$ is a $\mathit{rem}(a)$ operation: the message of $o$ is $S_1$, where $S_1 = \{ (a,\mathit{ts}') \vert (a,\mathit{ts}') \in S(o) \}$. We also require that $S_1 \neq \emptyset$. 
+\end{itemize} 
+Here $S(o) = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}')$, $(o',o) \in \mathit{vis}$, for each $\mathit{rem}(b)$ operation $o'' \neq o, (o'',o) \in \mathit{vis} \Rightarrow (o',o'') \neq \mathit{vis} \}$.
 \end{example}
 
 
 
-
-
-To give $\mathit{inv}$, it only remains to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-counter} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively.
-
-\begin{example}[virtual messages of state-based PN-counter]
-\label{example:virtual messagess of state-based PN-counter}
-
-For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-
-\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize}
-\end{example}
-
-\begin{example}[virtual messages of state-based Multi-value Register]
-\label{example:virtual messages of state-based multi-value register}
-
-For each update operation $o = (\mathit{write}(a),\_,\_)$ of replica $r$, $\mathit{ds}(o) = (a,V)$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize}
-\end{example}
 
 
 

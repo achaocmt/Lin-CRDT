@@ -106,7 +106,7 @@ The sequential specification $\mathit{OR}$-$\mathit{set}_s$ of OR-set is given a
 \setlength{\itemsep}{0.5pt}
 \item[-] $\{ \mathit{state} = S  \wedge (\_,\mathit{id},\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\mathit{id},\mathit{true}) \} \}$.
 \item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert (a,\_,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$ $\{ \mathit{state} = S \}$.
-\item[-] $\{ \mathit{state} = S \}$ $(rem(a),S_1)$ $\{ \mathit{state} = S[(b,\mathit{id}_1) \in S_2 : \mathit{false}] \}$. Here $S_2 = \{ (b,\mathit{id}_1) \vert (b,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_,\_) \in S\}$ $(rem(a),S_1)$ $\{ \mathit{state} = S[(a,\mathit{id}_1) \in S_2 : \mathit{false}] \}$. Here $S_2 = \{ (a,\mathit{id}_1) \vert (a,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
 \end{itemize}
 \end{example}
 

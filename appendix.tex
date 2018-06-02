@@ -3,10 +3,6 @@
 
 
 
-\subsection{Proof in Subsection \ref{subsec:t0 specification and t1 specification}}
-\label{subsec:proof in subsection subsec t0 specification and t1 specification}
-
-
 
 
 
@@ -14,43 +10,58 @@
 \subsection{OR-set Implementation and Formation}
 \label{subsec:or-set implementation and formation}
 
-The or-set implementation is shown below.
+The or-set implementation is shown below. Here function $\mathit{myRep}()$ returns the current replica identifier. 
 
 \renewcommand{\algorithmcfname}{CRDT Implementation}
 \noindent
 %\begin{minipage}{.5\textwidth}
 \noindent\begin{algorithm}[H]
-$\mathit{payload}$ TI-tree N, set $\mathit{Tomb}$; \\
-$\mathit{initial}$ $\emptyset$,$\emptyset$; \\
+$\mathit{payload}$ set $S$; \\
+$\mathit{initial}$ $\emptyset$; \\
 
-$add(a,b)$ \\
+$add(a)$ \\
 \ \ $\mathit{atSource}$: \\
-\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb})$ \\
+\ \ \ \ let $(c,r')$ be maximal time-stamp of $S$; \\ 
+\ \ \ \ let $\mathit{ts}' =(c+1,\mathit{myRep}())$; \\ 
 
-
-\ \ \ \ let \ $ts_a$ = ($N = \emptyset$) ? (1,$\mathit{myID}$()) ! ($\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$,$\mathit{myID}$()); \\
-\ \ \ \ let \ $ts_b$ = ($b = \circ$) ? (0,$r_0$) ! (the time-stamp of $b$ in $N$); \\
-
-\ \ $\mathit{downstream}(a,ts_a,ts_b)$: \\
-\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,ts_b,\_) \in N)$ \\
-
-\ \ \ \ $N = N \cup \{ (a,ts_a,ts_b) \}$.
+\ \ $\mathit{downstream}((a,\mathit{ts}'))$: \\
+\ \ \ \ $S = S \cup \{ (a,\mathit{ts}') \}$. 
 
 
 $rem(a)$ \\
 \ \ $\mathit{atSource}$: \\
-\ \ \ \ $\mathit{pre}$: \ $a \neq \circ \wedge (a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$ \\
+\ \ \ \ $\mathit{pre}$: \ $\exists \mathit{ts}', (a,\mathit{ts}') \in S$ \\
+\ \ \ \ let $S_1 = \{ (a,\mathit{ts}') \vert (a,\mathit{ts}') \in S \}$; \\
 
-\ \ $\mathit{downstream}(a)$: $\mathit{pre}$ \ $a \neq \circ \wedge (a,\_,\_) \in N)$
-
-\ \ \ \ $\mathit{Tomb} = \mathit{Tomb} \cup \{ a \}$.
+\ \ $\mathit{downstream}(S_1)$: \\ 
+\ \ \ \ $S = S \setminus S_1$.
 
 $read()$ \\
-\ \ \ \ \KwRet $\mathit{trans}(N,\mathit{Tomb})$; \\
+\ \ \ \ \KwRet $\{ a \vert \exists \mathit{ts}, (a,\mathit{ts}) \in S \}$; \\ 
 
 \caption{OR-set}
-\label{Method1}
+\label{Method-or-set}
 \end{algorithm}
+
+
+The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, \mathit{do},\mathit{receive})$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\Sigma = \{ S \vert$, $S$ is a set, each item of $S$ is of the form $(a,\mathit{ts})$ with $a \in D$ and $\mathit{ts} \in \mathbb{N} \times \mathbb{R} \}$. $\Sigma_0 = \emptyset$. 
+
+\item[-] Each message content in $\mathit{Msg}$ is either in $D \times \mathbb{N} \times \mathbb{R}$, or a subset of $D \times \mathbb{N} \times \mathbb{R}$. 
+
+\item[-] $\mathit{do}(S,\mathit{add},a) = (S \cup \{ (a, \mathit{ts}) \},(a,\mathit{ts}))$, where $\mathit{ts} = (\mathit{max} \{ c \vert (\_,(c,\_)) \in S \} +1,r)$.  
+
+\item[-] If $\exists \mathit{ts}', (a,\mathit{ts}') \in S$, then $\mathit{do}(S,\mathit{rem},a) = (S \setminus S_1, S_1)$, where $S_1 = \{ (a,\mathit{ts}) \vert (a,\mathit{ts}) \in S \}$.
+    
+\item[-] $\mathit{do}(S,\mathit{read}) = (S,\{ a \vert \exists \mathit{ts}, (a,\mathit{ts}) \in S \})$. 
+
+\item[-] $\mathit{receive}(S,(a,\mathit{ts})) = S \cup \{ (a,\mathit{ts}) \}$, 
+
+\item[-] $\mathit{receive}(S,S_1) = S \setminus S_1$, 
+\end{itemize} 
 
 
 
@@ -58,6 +69,13 @@ $read()$ \\
 
 \section{Proofs of Section \ref{sec:proving distributed linearizability}}
 \label{sec:appendix proofs of section proving distributed linearizability}
+
+
+
+\subsection{Proof in Subsection \ref{subsec:t0 specification and t1 specification}}
+\label{subsec:proof in subsection subsec t0 specification and t1 specification}
+
+
 
 
 
