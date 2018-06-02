@@ -1,9 +1,56 @@
 \section{Definitions of Section \ref{sec:CRDT implementations}}
-\label{sec:appendix definitions of section CRDT implementations} 
+\label{sec:appendix definitions of section CRDT implementations}
+
+
+
+\subsection{Proof in Subsection \ref{subsec:t0 specification and t1 specification}}
+\label{subsec:proof in subsection subsec t0 specification and t1 specification}
 
 
 
 
+
+
+\subsection{OR-set Implementation and Formation}
+\label{subsec:or-set implementation and formation}
+
+The or-set implementation is shown below.
+
+\renewcommand{\algorithmcfname}{CRDT Implementation}
+\noindent
+%\begin{minipage}{.5\textwidth}
+\noindent\begin{algorithm}[H]
+$\mathit{payload}$ TI-tree N, set $\mathit{Tomb}$; \\
+$\mathit{initial}$ $\emptyset$,$\emptyset$; \\
+
+$add(a,b)$ \\
+\ \ $\mathit{atSource}$: \\
+\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb})$ \\
+
+
+\ \ \ \ let \ $ts_a$ = ($N = \emptyset$) ? (1,$\mathit{myID}$()) ! ($\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$,$\mathit{myID}$()); \\
+\ \ \ \ let \ $ts_b$ = ($b = \circ$) ? (0,$r_0$) ! (the time-stamp of $b$ in $N$); \\
+
+\ \ $\mathit{downstream}(a,ts_a,ts_b)$: \\
+\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,ts_b,\_) \in N)$ \\
+
+\ \ \ \ $N = N \cup \{ (a,ts_a,ts_b) \}$.
+
+
+$rem(a)$ \\
+\ \ $\mathit{atSource}$: \\
+\ \ \ \ $\mathit{pre}$: \ $a \neq \circ \wedge (a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$ \\
+
+\ \ $\mathit{downstream}(a)$: $\mathit{pre}$ \ $a \neq \circ \wedge (a,\_,\_) \in N)$
+
+\ \ \ \ $\mathit{Tomb} = \mathit{Tomb} \cup \{ a \}$.
+
+$read()$ \\
+\ \ \ \ \KwRet $\mathit{trans}(N,\mathit{Tomb})$; \\
+
+\caption{OR-set}
+\label{Method1}
+\end{algorithm}
 
 
 
@@ -14,6 +61,8 @@
 
 
 
+\subsection{Proofs of OR-set Implementation}
+\label{subsec:appendix proofs of or-set implementation}
 
 
 
