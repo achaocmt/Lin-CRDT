@@ -10,22 +10,23 @@
 \subsection{OR-set Implementation and Formation}
 \label{subsec:or-set implementation and formation}
 
-The or-set implementation is shown below. Here function $\mathit{myRep}()$ returns the current replica identifier. 
+The or-set implementation is shown below. Here function $\mathit{myRep}()$ returns the current replica identifier.
 
 \renewcommand{\algorithmcfname}{CRDT Implementation}
 \noindent
 %\begin{minipage}{.5\textwidth}
 \noindent\begin{algorithm}[H]
-$\mathit{payload}$ set $S$; \\
-$\mathit{initial}$ $\emptyset$; \\
+$\mathit{payload}$ set $S$; $\mathit{maxTS}$\\
+$\mathit{initial}$ $\emptyset$; $(0,\mathit{myRep}())$\\
 
 $add(a)$ \\
 \ \ $\mathit{atSource}$: \\
-\ \ \ \ let $(c,r')$ be maximal time-stamp of $S$; \\ 
-\ \ \ \ let $\mathit{ts}' =(c+1,\mathit{myRep}())$; \\ 
+\ \ \ \ assume $\mathit{maxTS} = (c,r')$; \\
+\ \ \ \ let $\mathit{ts}' =(c+1,\mathit{myRep}())$; \\
 
 \ \ $\mathit{downstream}((a,\mathit{ts}'))$: \\
-\ \ \ \ $S = S \cup \{ (a,\mathit{ts}') \}$. 
+\ \ \ \ $S = S \cup \{ (a,\mathit{ts}') \}$; \\ 
+\ \ \ \ $\mathit{maxTS} = \mathit{max} \{ \mathit{maxTS},\mathit{ts}' \}$; 
 
 
 $rem(a)$ \\
@@ -33,11 +34,11 @@ $rem(a)$ \\
 \ \ \ \ $\mathit{pre}$: \ $\exists \mathit{ts}', (a,\mathit{ts}') \in S$ \\
 \ \ \ \ let $S_1 = \{ (a,\mathit{ts}') \vert (a,\mathit{ts}') \in S \}$; \\
 
-\ \ $\mathit{downstream}(S_1)$: \\ 
+\ \ $\mathit{downstream}(S_1)$: \\
 \ \ \ \ $S = S \setminus S_1$.
 
 $read()$ \\
-\ \ \ \ \KwRet $\{ a \vert \exists \mathit{ts}, (a,\mathit{ts}) \in S \}$; \\ 
+\ \ \ \ \KwRet $\{ a \vert \exists \mathit{ts}, (a,\mathit{ts}) \in S \}$; \\
 
 \caption{OR-set}
 \label{Method-or-set}
@@ -48,20 +49,20 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\Sigma = \{ S \vert$, $S$ is a set, each item of $S$ is of the form $(a,\mathit{ts})$ with $a \in D$ and $\mathit{ts} \in \mathbb{N} \times \mathbb{R} \}$. $\Sigma_0 = \emptyset$. 
+\item[-] $\Sigma = \{ (S,\mathit{ts}) \vert$, $S$ is a set, each item of $S$ is of the form $(a',\mathit{ts}')$ with $a' \in D$ and $\mathit{ts}' \in \mathbb{N} \times \mathbb{R}.$ $\mathit{ts} \in \mathbb{N} \times \mathbb{R} \}$. $\Sigma_0 = (\emptyset,(0,\mathit{myRep}()))$.
 
-\item[-] Each message content in $\mathit{Msg}$ is either in $D \times \mathbb{N} \times \mathbb{R}$, or a subset of $D \times \mathbb{N} \times \mathbb{R}$. 
+\item[-] Each message content in $\mathit{Msg}$ is either in $D \times \mathbb{N} \times \mathbb{R}$, or a subset of $D \times \mathbb{N} \times \mathbb{R}$.
 
-\item[-] $\mathit{do}(S,\mathit{add},a) = (S \cup \{ (a, \mathit{ts}) \},(a,\mathit{ts}))$, where $\mathit{ts} = (\mathit{max} \{ c \vert (\_,(c,\_)) \in S \} +1,r)$.  
+\item[-] $\mathit{do}((S,(c,r')),\mathit{add},a) = ((S \cup \{ (a, (c+1,r)) \}, (c+1,r)),(a,(c+1,r)))$. 
 
-\item[-] If $\exists \mathit{ts}', (a,\mathit{ts}') \in S$, then $\mathit{do}(S,\mathit{rem},a) = (S \setminus S_1, S_1)$, where $S_1 = \{ (a,\mathit{ts}) \vert (a,\mathit{ts}) \in S \}$.
-    
-\item[-] $\mathit{do}(S,\mathit{read}) = (S,\{ a \vert \exists \mathit{ts}, (a,\mathit{ts}) \in S \})$. 
+\item[-] If $\exists \mathit{ts}', (a,\mathit{ts}') \in S$, then $\mathit{do}((S,\mathit{ts}),\mathit{rem},a) = ((S \setminus S_1,\mathit{ts}), S_1)$, where $S_1 = \{ (a,\mathit{ts}'') \in S \}$.
 
-\item[-] $\mathit{receive}(S,(a,\mathit{ts})) = S \cup \{ (a,\mathit{ts}) \}$, 
+\item[-] $\mathit{do}((S,\mathit{ts}),\mathit{read}) = ((S,\mathit{ts}),\{ a \vert \exists \mathit{ts}', (a,\mathit{ts})' \in S \})$.
 
-\item[-] $\mathit{receive}(S,S_1) = S \setminus S_1$, 
-\end{itemize} 
+\item[-] $\mathit{receive}((S,\mathit{ts}),(a,\mathit{ts}')) = (S \cup \{ (a,\mathit{ts}') \}, \mathit{max}( \mathit{ts},\mathit{ts}' ))$,
+
+\item[-] $\mathit{receive}((S,\mathit{ts}),S_1) = (S \setminus S_1,\mathit{ts})$,
+\end{itemize}
 
 
 
@@ -80,7 +81,139 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 
 \subsection{Proofs of OR-set Implementation}
-\label{subsec:appendix proofs of or-set implementation}
+\label{subsec:appendix proofs of or-set implementation} 
+
+The following lemma states a property that can be generated from $P(\mathit{config},h,\mathit{lin},\mathit{map})$. 
+
+\begin{lemma}
+\label{lemma:a property that can be obtained from P for or-set}
+If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds, then each $\mathit{add}$ operation generate a new unique time-stamp. Moreover, for each replica $r'$, 
+
+\begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R(r').S = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{config},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$. 
+    
+    \item[-] $R(r').\mathit{maxTS} = (0,r')$ if $\mathit{vd}(h,\mathit{config},r') = \emptyset$; otherwise, $R(r').\mathit{maxTS}$ is the maximal time stamp of $\mathit{add}$ operations of $\mathit{vd}(h,\mathit{config},r')$. 
+    \end{itemize}
+\end{lemma}
+
+\begin {proof}
+By $C_4$, it is easy to see that each $\mathit{add}$ operation generate a new unique time-stamp by induction. The property of $R(r')$ can be also easily proved by induction, since the visibility relation is transitive. $\qed$
+\end {proof}
+
+
+The following lemma states that our $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set. 
+
+\begin{lemma}
+\label{lemma:P is an invariant of or-set}
+$P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set. 
+\end{lemma}
+
+\begin {proof}
+
+Let us prove that $P$ is a simulation relation. It is obvious that $P(\mathit{config}_0,\epsilon,\emptyset,\emptyset)$ holds. 
+
+Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ holds. Here we do not give the detailed value of $\mathit{MsgHB}'$ and $\mathit{MsgDel}'$, since it can be obtained from the definition of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{add},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then, 
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{ts}) ]$ and $T' = T \cup \{ (\mathit{mid},(a,\mathit{ts}),\mathit{obj}) \}$. Here $\mathit{ts} = ( \mathit{max} \{ c \vert (\_,(c,\_)) \in R(r).S \} +1,r)$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{add}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{add}(a),i,\mathit{vd}(h,\mathit{config},r))$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$. 
+    \end{itemize}
+
+    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
+    
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. %Based on $C_4$, it is not hard to prove that, 
+    
+    %\begin{itemize}
+    %\setlength{\itemsep}{0.5pt}
+    %\item[-] $\mathit{Prop}_1$: Each $\mathit{add}$ operation generate a new unique time-stamp. 
+    
+    %\item[-] $\mathit{Prop}_2$: for each replica $r'$, $R(r') = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{config},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$.
+    %\end{itemize} 
+    
+    By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
+    
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{rem},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \setminus \{ (a,\mathit{ts}) \in R(r).S \},R(r).\mathit{maxTS}) ]$ and $T' = T \cup \{ (\mathit{mid},\{ (a,\mathit{ts}) \in R(r) \},\mathit{obj}) \}$. 
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{add}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{add}(a),i,\mathit{vd}(h,\mathit{config},r))$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
+    \end{itemize}
+
+    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$. 
+    
+    By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From $R'(r) = R(r) \setminus \{ (a,\mathit{ts}) \in R(r) \}$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
+
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{read},S_1,r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R$ and $T' = T$. 
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read} \Rightarrow S_1,i,\mathit{vd}(h,\mathit{config},r))$.
+
+    \item[-] Let $\mathit{map}'$.
+    \end{itemize} 
+    
+    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{OR}$-$\mathit{set}_s$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow S_2, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$. Then by definition of $\mathit{OR}$-$\mathit{set}_s$, we can see that, $a \in S_2$, if there exists $(\mathit{add}(a),j,\_) \in \mathit{lin}'$, and for each $(\mathit{rem}(a),\_,S_2) \in \mathit{lin}'$, we have $j \notin S_2$. Lemma \ref{lemma:a property that can be obtained from P for or-set}, we can see that $S_1 = S_2$, and since $h$ is distributed linearizable and $\mathit{lin}$ is a linearization of $h$, we can see $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. 
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}),r') \in T$: Then, 
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{max} \{ R(r).\mathit{maxTS},\mathit{ts} \} ) ]$ and $T' = T$. 
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize} 
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,S_1,r') \in T$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \setminus S_1, R(r).\mathit{maxTS}) ]$ and $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
 
 
 
@@ -97,6 +230,16 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 
 
+
+
+
+
+
+
+
+
+\section{For State-based CRDT}
+\label{sec:for state-based CRDT}
 
 \begin{example}[List with add-between interface]
 \label{definition:sequential specification of list with add-after interface}
