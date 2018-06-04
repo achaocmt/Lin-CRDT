@@ -414,9 +414,27 @@ Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by con
 
 
 
+\subsection{Proof of Lemma \ref{lemma:several t0-specifications and one t1-specification can be composed}}
+\label{subsec:appendix proofs of lemma several t0-specifications and one t1-specification can be composed}
 
 
+\composingTZeroAndOneTOne*
+\begin {proof}
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
 
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Initially a set $O' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
+
+\item[-] We begin a loop as follows: In each round of the loop, we choose an operation $o$ that is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+\end{itemize}
+
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable.
+
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. $\qed$
+\end {proof}
 
 
 

@@ -36,11 +36,11 @@ It is easy to see that, a multi-object history $h$ being distributed linearizabl
 \subsection{Composing Several t0-Specifications}
 \label{lemma:several t0-specifications can be composed}
 
-The following lemma states that a history of several objects of t0 specifications are compositional. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications can be composed}.
+The following lemma states that a history of several objects of t0 specifications is compositional. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications can be composed}.
 
 \begin{restatable}{lemma}{composingTZero}
 \label{lemma:several t0-specifications can be composed}
-Given a multi-object history $h$, where each of its object uses a t0-specification. Then, $h$ is compositional.
+Given a multi-object history $h$, if each of its object uses a t0-specification, then, $h$ is compositional.
 \end{restatable}
 
 
@@ -59,13 +59,11 @@ Composing several t0-specifications with one t1-specification does not hold in g
   \label{fig:a failed example of composing a multi-value register with a last-write-win register}
 \end{figure}
 
-We say that a multi-object history $h$ satisfies 
+The following lemma states that for a multi-object history, if its object use several t0-specifications and one t1-specification, and its visibility relation is transitive, then, $h$ is compositional. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications and one t1-specification can be composed}.
 
-The following lemma states that a history of several objects of t0 specifications are compositional. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications can be composed}.
-
-\begin{restatable}{lemma}{composingTZero}
-\label{lemma:several t0-specifications can be composed}
-Given a multi-object history $h$, where each of its object uses a t0-specification. Then, $h$ is compositional.
+\begin{restatable}{lemma}{composingTZeroAndOneTOne}
+\label{lemma:several t0-specifications and one t1-specification can be composed}
+Given a multi-object $h$, if its object use several t0-specifications and one t1-specification, and its visibility relation is transitive, then, $h$ is compositional.
 \end{restatable}
 
 
