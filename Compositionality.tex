@@ -2,23 +2,53 @@
 %\newcommand{\seqPQ}{\mathsf{SeqPQ}}
 
 \section{Compositionality of Distributed Linearizability}
-\label{sec:compositionality of distributed linearizability}
+\label{sec:compositionality of distributed linearizability} 
 
+%We assume that given a multi-object history $h$, According to causal-delivery of CRDT, in this section, given a multi-object history $h$, we assume that for each object $\mathit{obj}$, the visibility relation of
 
-\begin{definition}[Compositionality]
-\label{definition:compositionality} 
-A history $h$ of multiple objects is called compositional, if: $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
+The following is the definition of distributed linearizability for multi-object histories. 
+
+\begin{definition}[Distributed Linearizability for Multi-object Histories]
+\label{definition:distributed linearizability for multi-object histories} 
+A history $h$ of multiple objects is distributed linearizabile, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
 
 \begin{enumerate}[(i)]
-\item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations of visible to $o$ via $( h \uparrow_{\mathit{obj}}). \mathit{vis}$. 
-\item For each object $\mathit{obj}$, $\mathit{lin}$ is consistent with $( h \uparrow_{\mathit{obj}}). \mathit{vis}$.  
-\item For each object $\mathit{obj}$, $\mathit{lin} \uparrow_{ \mathit{obj} }$ is a linearization of $h \uparrow_{\mathit{obj}}$. 
+\item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations of visible to $o$ via $h.\mathit{vis}$. 
+\item $\mathit{lin}$ is consistent with $h. \mathit{vis}$.
+\item For each object $\mathit{obj}$, $h \uparrow_{\mathit{obj}}$ is distributed linearizable, and $\mathit{lin} \uparrow_{ \mathit{obj} }$ is a linearization of $h \uparrow_{\mathit{obj}}$.
 \end{enumerate}
+
+A set $H$ of multi-object histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
+\end{definition}
+
+The following is the definition of compositional histories. 
+
+\begin{definition}[Compositionality]
+\label{definition:compositionality}
+A history $h$ of multiple objects is called compositional, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, $h$ is distributed linearizable. 
 \end{definition} 
 
-\noindent {\bf Composing Several t0}: 
+It is easy to see that, a multi-object history $h$ being distributed linearizable implies that the projection of $h$ into each object is distributed linearizable. When proving compositionality, we only need to consider the opposite direction. 
 
 
+
+
+\subsection{Composing Several t0-Specifications}
+\label{lemma:several t0-specifications can be composed}
+
+The following lemma states that a history of several objects of t0 specifications are compositional. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications can be composed}.
+
+\begin{restatable}{lemma}{composingTZero}
+\label{lemma:several t0-specifications can be composed}
+Given a multi-object history $h$, where each of its object uses a t0-specification. Then, $h$ is compositional. 
+\end{restatable}
+
+%\begin{lemma}
+%\label{lemma:several t0 can be composed}
+%Given a multi-object history $h$, where each of its object uses a t0-specification. Then, $h$ is compositional. 
+%\end{lemma}
+
+%\cite{BurckhardtGYZ14}
 
 
 
