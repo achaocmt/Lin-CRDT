@@ -396,16 +396,16 @@ This completes the proof of this lemma. $\qed$
 \begin {proof}
 Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
 
-We construct a linearization $\mathit{lin}$ of $h$ in a process as follows: 
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Initially a set $O' = \mathit{Op}$ and $\mathit{lin} = \epsilon$. 
+\item[-] Initially a set $O' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
 
-\item[-] We begin a loop as follows: In each round of the loop, we choose an operation $o$ that is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$. 
-\end{itemize} 
+\item[-] We begin a loop as follows: In each round of the loop, we choose an operation $o$ that is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+\end{itemize}
 
-If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable. 
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable.
 
 Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. $\qed$
 \end {proof}
@@ -420,7 +420,7 @@ Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by con
 
 \composingTZeroAndOneTOne*
 \begin {proof}
-Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{obj}_1$ be the only object that uses t1-specification, and let $\mathit{objs}_0$ be the set of other objects. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
 
 We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
 
@@ -428,12 +428,19 @@ We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] Initially a set $O' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
 
-\item[-] We begin a loop as follows: In each round of the loop, we choose an operation $o$ that is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+\item[-] We begin a loop as follows: in each round of the loop, we choose an operation $o$ shown below, and then let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$. 
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] either $o$ is of an operation of $\mathit{objs}_0$ and is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, 
+    
+    \item[-] or $o$ is of an operation of $\mathit{obj}_1$, is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, and has the minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.  
+    \end{itemize} 
 \end{itemize}
 
-If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable.
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for operation of $\mathit{obj}_1$, $\mathit{lin}$ is consistent with time-stamp. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
 
-Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. $\qed$
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $O'$. Thus, let $o_1 \in S_1$ be the operation that has minimal time-stamp among operations in $S_1$. We can see that there exists $o_2 \in O'$, such that $o_2$ is of object $\mathit{obj}_1$, $o_2 \notin S_1$, and the time-stamp of $o_2$ is less than that of $o_1$. Since $o_2 \notin S_1$, we can see that there exists operation $o_3 \in S_1$, such that $(o_3,o_2) \in \mathit{vis}$. We can see that the time-stamp of $o_1$ is less than that of $o_3$, and thus, the time-stamp of $o_2$ is less than that of $o_3$. Therefore, we found that the time-stamp is not consistent with visibility order for $o_2$ and $o_3$, which contradicts the assumption that time-stamp is consistent with visiblity. $\qed$
 \end {proof}
 
 

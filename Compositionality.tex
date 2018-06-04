@@ -4,7 +4,7 @@
 \section{Compositionality of Distributed Linearizability}
 \label{sec:compositionality of distributed linearizability}
 
-%We assume that given a multi-object history $h$, According to causal-delivery of CRDT, in this section, given a multi-object history $h$, we assume that for each object $\mathit{obj}$, the visibility relation of 
+%We assume that given a multi-object history $h$, According to causal-delivery of CRDT, in this section, given a multi-object history $h$, we assume that for each object $\mathit{obj}$, the visibility relation of
 
 The following is the definition of distributed linearizability for multi-object histories.
 
@@ -47,9 +47,9 @@ Given a multi-object history $h$, if each of its object uses a t0-specification,
 
 
 \subsection{Composing Several t0-Specifications with One T1-specification}
-\label{lemma:composing several t0-specification with one t1-specification} 
+\label{lemma:composing several t0-specification with one t1-specification}
 
-Composing several t0-specifications with one t1-specification does not hold in general. \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} is a history $h$ that is a failed example of composing a multi-value register with a last-write-win register, where the operations of LWW register are boxed. Here we assume that $\mathit{ts}_1<\mathit{ts}_2$. Since multi-value register is t0-specification and LWW register is t1-specification, we can see that the projection of $h$ into operations of multi-value register is distributed linearization and the only possible linearization is $\mathit{write}(a) \cdot \mathit{write}(b)$, and the projection of $h$ into operations of LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c) \cdot \mathit{write}(d)$. However, $h$ is not distributed linearizable, since there is a a cycle. 
+Composing several t0-specifications with one t1-specification does not hold in general. \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} is a history $h$ that is a failed example of composing a multi-value register with a last-write-win register, where the operations of LWW register are boxed. Here we assume that $\mathit{ts}_1<\mathit{ts}_2$. Since multi-value register is t0-specification and LWW register is t1-specification, we can see that the projection of $h$ into operations of multi-value register is distributed linearization and the only possible linearization is $\mathit{write}(a) \cdot \mathit{write}(b)$, and the projection of $h$ into operations of LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c) \cdot \mathit{write}(d)$. However, $h$ is not distributed linearizable, since there is a a cycle.
 
 \begin{figure}[t]
   \centering
@@ -66,6 +66,24 @@ The following lemma states that for a multi-object history, if its object use se
 Given a multi-object $h$, if its object use several t0-specifications and one t1-specification, and its visibility relation is transitive, then, $h$ is compositional.
 \end{restatable}
 
+
+
+
+\subsection{Composing Several t0-Specifications with Several T1-specification}
+\label{lemma:composing several t0-specification with several t1-specification}
+
+Composing several t0-specifications with several t1-specification does not hold in general. \figurename~\ref{fig:a failed example of composing two last-write-win registers} is a history $h$ that is a failed example of composing two last-write-win registers, where the operations of one LWW register are boxed, and the operations of the other LWW registers are not boxed. Here we assume that $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$. Since LWW register is t1-specification, we can see that the projection of $h$ into operations of one LWW register is distributed linearization and the only possible linearization is $\mathit{write}(a,\mathit{ts}'_1) \cdot \mathit{write}(b,\mathit{ts}'_2)$, and the projection of $h$ into operations of the other LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c,\mathit{ts}_1) \cdot \mathit{write}(d,\mathit{ts}_2) \cdot \mathit{write}(e,\mathit{ts}_3)$. However, $h$ is not distributed linearizable, since there is a a cycle. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7 \textwidth]{figures/LWWReg-LWWReg-NoSTS.pdf}
+\vspace{-10pt}
+  \caption{A failed example of composing two last-write-win registers (one object is boxed, the other is not), where $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$.} 
+  \label{fig:a failed example of composing two last-write-win registers}
+\end{figure}
+
+
+A history $h$ satisfies causal-time-stamp, if for each operations $o_1,o_2,o_3,o_4$, such that $(o_1,o_2) \in \mathit{vis}$, $o_2$ and $o_3$ are of same object, $\mathit{ts}(o_2) < \mathit{ts}(o_3)$, $(o_3,o_4) \in \mathit{vis}$, and $o_1$ and $o_4$ are of same object, then, we have $\mathit{ts}(o_1) < \mathit{ts}(o_4)$. 
 
 
 
