@@ -25,8 +25,8 @@ $add(a)$ \\
 \ \ \ \ let $\mathit{ts}' =(c+1,\mathit{myRep}())$; \\
 
 \ \ $\mathit{downstream}((a,\mathit{ts}'))$: \\
-\ \ \ \ $S = S \cup \{ (a,\mathit{ts}') \}$; \\ 
-\ \ \ \ $\mathit{maxTS} = \mathit{max} \{ \mathit{maxTS},\mathit{ts}' \}$; 
+\ \ \ \ $S = S \cup \{ (a,\mathit{ts}') \}$; \\
+\ \ \ \ $\mathit{maxTS} = \mathit{max} \{ \mathit{maxTS},\mathit{ts}' \}$;
 
 
 $rem(a)$ \\
@@ -53,7 +53,7 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 \item[-] Each message content in $\mathit{Msg}$ is either in $D \times \mathbb{N} \times \mathbb{R}$, or a subset of $D \times \mathbb{N} \times \mathbb{R}$.
 
-\item[-] $\mathit{do}((S,(c,r')),\mathit{add},a) = ((S \cup \{ (a, (c+1,r)) \}, (c+1,r)),(a,(c+1,r)))$. 
+\item[-] $\mathit{do}((S,(c,r')),\mathit{add},a) = ((S \cup \{ (a, (c+1,r)) \}, (c+1,r)),(a,(c+1,r)))$.
 
 \item[-] If $\exists \mathit{ts}', (a,\mathit{ts}') \in S$, then $\mathit{do}((S,\mathit{ts}),\mathit{rem},a) = ((S \setminus S_1,\mathit{ts}), S_1)$, where $S_1 = \{ (a,\mathit{ts}'') \in S \}$.
 
@@ -81,19 +81,19 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 
 \subsection{Proof of OR-set Implementation}
-\label{subsec:appendix proofs of or-set implementation} 
+\label{subsec:appendix proofs of or-set implementation}
 
-The following lemma states a property that can be generated from $P(\mathit{config},h,\mathit{lin},\mathit{map})$ for or-set. 
+The following lemma states a property that can be generated from $P(\mathit{config},h,\mathit{lin},\mathit{map})$ for or-set.
 
 \begin{lemma}
 \label{lemma:a property that can be obtained from P for or-set}
-If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds for or-set, then each $\mathit{add}$ operation generate a new unique time-stamp. Moreover, for each replica $r'$, 
+If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds for or-set, then each $\mathit{add}$ operation generate a new unique time-stamp. Moreover, for each replica $r'$,
 
 \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R(r').S = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{del},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$. 
-    
-    \item[-] $R(r').\mathit{maxTS} = (0,r')$ if $\mathit{vd}(h,\mathit{config},r') = \emptyset$; otherwise, $R(r').\mathit{maxTS}$ is the maximal time stamp of $\mathit{add}$ operations of $\mathit{vd}(h,\mathit{config},r')$. 
+    \item[-] $R(r').S = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{del},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$.
+
+    \item[-] $R(r').\mathit{maxTS} = (0,r')$ if $\mathit{vd}(h,\mathit{config},r') = \emptyset$; otherwise, $R(r').\mathit{maxTS}$ is the maximal time stamp of $\mathit{add}$ operations of $\mathit{vd}(h,\mathit{config},r')$.
     \end{itemize}
 \end{lemma}
 
@@ -102,22 +102,22 @@ By $C_4$, it is easy to see that each $\mathit{add}$ operation generate a new un
 \end {proof}
 
 
-The following lemma states that our $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set. 
+The following lemma states that our $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set.
 
 \begin{lemma}
 \label{lemma:P is an invariant of or-set}
-$P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set. 
+$P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set.
 \end{lemma}
 
 \begin {proof}
 
-Let us prove that $P$ is a simulation relation. It is obvious that $P(\mathit{config}_0,\epsilon,\emptyset,\emptyset)$ holds. 
+Let us prove that $P$ is a simulation relation. It is obvious that $P(\mathit{config}_0,\epsilon,\emptyset,\emptyset)$ holds.
 
 Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ holds. Here we do not give the detailed value of $\mathit{MsgHB}'$ and $\mathit{MsgDel}'$, since it can be obtained from the definition of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{add},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then, 
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{add},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -127,28 +127,28 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
 
     \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{add}(a),i,\mathit{vd}(h,\mathit{config},r))$.
 
-    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$. 
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
     \end{itemize}
 
     It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
-    
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. %Based on $C_4$, it is not hard to prove that, 
-    
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. %Based on $C_4$, it is not hard to prove that,
+
     %\begin{itemize}
     %\setlength{\itemsep}{0.5pt}
-    %\item[-] $\mathit{Prop}_1$: Each $\mathit{add}$ operation generate a new unique time-stamp. 
-    
+    %\item[-] $\mathit{Prop}_1$: Each $\mathit{add}$ operation generate a new unique time-stamp.
+
     %\item[-] $\mathit{Prop}_2$: for each replica $r'$, $R(r') = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{config},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$.
-    %\end{itemize} 
-    
+    %\end{itemize}
+
     By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
-    
+
 
 \item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{rem},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).S \setminus \{ (a,\mathit{ts}) \in R(r).S \},R(r).\mathit{maxTS}) ]$ and $T' = T \cup \{ (\mathit{mid},\{ (a,\mathit{ts}) \in R(r) \},r) \}$. 
+    \item[-] $R' = R[ r: (R(r).S \setminus \{ (a,\mathit{ts}) \in R(r).S \},R(r).\mathit{maxTS}) ]$ and $T' = T \cup \{ (\mathit{mid},\{ (a,\mathit{ts}) \in R(r) \},r) \}$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{rem}$ operation.
 
@@ -157,8 +157,8 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
     \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
     \end{itemize}
 
-    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$. 
-    
+    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
+
     By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
 
 
@@ -166,33 +166,33 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R$ and $T' = T$. 
+    \item[-] $R' = R$ and $T' = T$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ operation.
 
     \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read} \Rightarrow S_1,i,\mathit{vd}(h,\mathit{config},r))$.
 
     \item[-] Let $\mathit{map}'$.
-    \end{itemize} 
-    
-    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{OR}$-$\mathit{set}_s$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow S_2, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$. Then by definition of $\mathit{OR}$-$\mathit{set}_s$, we can see that, $a \in S_2$, if there exists $(\mathit{add}(a),j,\_) \in \mathit{lin}'$, and for each $(\mathit{rem}(a),\_,S_2) \in \mathit{lin}'$, we have $j \notin S_2$. Lemma \ref{lemma:a property that can be obtained from P for or-set}, we can see that $S_1 = S_2$, and since $h$ is distributed linearizable and $\mathit{lin}$ is a linearization of $h$, we can see $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. 
+    \end{itemize}
 
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}),r') \in T$: Then, 
+    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{OR}$-$\mathit{set}_s$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow S_2, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$. Then by definition of $\mathit{OR}$-$\mathit{set}_s$, we can see that, $a \in S_2$, if there exists $(\mathit{add}(a),j,\_) \in \mathit{lin}'$, and for each $(\mathit{rem}(a),\_,S_2) \in \mathit{lin}'$, we have $j \notin S_2$. Lemma \ref{lemma:a property that can be obtained from P for or-set}, we can see that $S_1 = S_2$, and since $h$ is distributed linearizable and $\mathit{lin}$ is a linearization of $h$, we can see $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}),r') \in T$: Then,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{max} \{ R(r).\mathit{maxTS},\mathit{ts} \} ) ]$ and $T' = T$. 
+    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{max} \{ R(r).\mathit{maxTS},\mathit{ts} \} ) ]$ and $T' = T$.
 
     \item[-] Let $h' = h$.
 
     \item[-] Let $\mathit{lin}' = \mathit{lin}$.
 
     \item[-] Let $\mathit{map}' = \mathit{map}$.
-    \end{itemize} 
+    \end{itemize}
 
-    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
 \item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},S_1,r') \in T$: Then,
 
@@ -219,7 +219,7 @@ This completes the proof of this lemma. $\qed$
 
 
 \subsection{Proof of RGA}
-\label{subsec:appendix proofs of rga} 
+\label{subsec:appendix proofs of rga}
 
 The following lemma states a property that can be generated from $P(\mathit{config},h,\mathit{lin},\mathit{map})$ for RGA.
 
@@ -231,7 +231,7 @@ If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds, then each $\mathit{ad
     \setlength{\itemsep}{0.5pt}
     \item[-] $R(r').N = \{ (a,\mathit{ts}_a,\mathit{ts}_b) \vert \exists o' = (\mathit{add}(\_,\_),i,\_,\_), \mathit{map}(i) = (a,\mathit{ts}_a,\mathit{ts}_b), o' \in \mathit{vd}(h,\mathit{config},r') \}$.
 
-    \item[-] $R(r').\mathit{Tomb} = \{ a \vert \exists o = (\mathit{rem}(a),i,\_,\_), \mathit{map}(i) \in \mathit{vd}(h,\mathit{config},r') \}$. 
+    \item[-] $R(r').\mathit{Tomb} = \{ a \vert \exists o = (\mathit{rem}(a),i,\_,\_), \mathit{map}(i) \in \mathit{vd}(h,\mathit{config},r') \}$.
     \end{itemize}
 \end{lemma}
 
@@ -259,18 +259,18 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).N \cup \{ (a,\mathit{ts}_a,\mathit{ts}_b) \}, R(r).\mathit{Tomb}) ]$ and $T' = T \cup \{ (\mathit{mid},(a,\mathit{ts}_a,\mathit{ts}_b),r) \}$. Here $\mathit{ts}_a = ( \mathit{max} \{ c \vert (\_,(c,\_),\_) \in R(r).N \vee (\_,\_,(c,\_)) \in R(r).N \} +1,r)$, and $\mathit{ts}_b$ is the time-stamp of $b$ in $R(r).N$. 
+    \item[-] $R' = R[ r: (R(r).N \cup \{ (a,\mathit{ts}_a,\mathit{ts}_b) \}, R(r).\mathit{Tomb}) ]$ and $T' = T \cup \{ (\mathit{mid},(a,\mathit{ts}_a,\mathit{ts}_b),r) \}$. Here $\mathit{ts}_a = ( \mathit{max} \{ c \vert (\_,(c,\_),\_) \in R(r).N \vee (\_,\_,(c,\_)) \in R(r).N \} +1,r)$, and $\mathit{ts}_b$ is the time-stamp of $b$ in $R(r).N$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{add}$ action.
 
-    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{add}(a,b),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than $\mathit{ts}_a$. 
+    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{add}(a,b),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than $\mathit{ts}_a$.
 
-    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$. 
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
     \end{itemize}
 
     It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
 
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. 
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
 
     By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From the fact that $\mathit{ts}_a$ is unique, the fact that there is no $\mathit{rem}(a)$ in $h$, the construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for rga} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
@@ -279,20 +279,20 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).N,R(r).\mathit{Tomb} \cup \{ a \} ) ]$ and $T' = T \cup \{ (\mathit{mid},\{ a \},r) \}$. 
+    \item[-] $R' = R[ r: (R(r).N,R(r).\mathit{Tomb} \cup \{ a \} ) ]$ and $T' = T \cup \{ (\mathit{mid},\{ a \},r) \}$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{rem}$ operation.
 
-    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{rem}(a),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than the time-stamp of operation $i$. 
+    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{rem}(a),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than the time-stamp of operation $i$.
 
     \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
-    \end{itemize} 
-    
-    By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is easy to see that $\mathit{lin} \uparrow_{\mathit{vd}(h,\mathit{config},r)}$ contains a $\mathit{add}(a,\_)$ operation $o$ and $(o,i) \in h'.\mathit{vis}$. By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is easy to see that $\mathit{lin} \uparrow_{\mathit{vd}(h,\mathit{config},r)}$ does not contain $\mathit{rem}(a)$. Since $i$ does not visible to any operation in $\mathit{vd}(h,\mathit{config},r)$, we can see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. 
+    \end{itemize}
 
-    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$. 
-    
-    It is obvious that $C_4$ holds for message $\mathit{mid}$. By Lemma \ref{lemma:a property that can be obtained from P for rga}, the construction of $R'(r)$, and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+    By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is easy to see that $\mathit{lin} \uparrow_{\mathit{vd}(h,\mathit{config},r)}$ contains a $\mathit{add}(a,\_)$ operation $o$ and $(o,i) \in h'.\mathit{vis}$. By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is easy to see that $\mathit{lin} \uparrow_{\mathit{vd}(h,\mathit{config},r)}$ does not contain $\mathit{rem}(a)$. Since $i$ does not visible to any operation in $\mathit{vd}(h,\mathit{config},r)$, we can see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization.
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
+
+    It is obvious that $C_4$ holds for message $\mathit{mid}$. By Lemma \ref{lemma:a property that can be obtained from P for rga}, the construction of $R'(r)$, and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
 
 \item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{read},l,r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
@@ -303,35 +303,35 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ operation.
 
-    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{rem}(a),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than the time-stamp of operation $i$. 
+    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{rem}(a),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than the time-stamp of operation $i$.
 
     \item[-] Let $\mathit{map}' = \mathit{map}$.
     \end{itemize}
 
-    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{list}_s^{\mathit{af}}$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow l_1, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$. 
-    
-    By Lemma \ref{lemma:a property that can be obtained from P for rga} and RGA implementation, we can see that $l$ and $l_1$ has the same items. 
-    
-    Given items $a,b$, assume that $a$ is before $b$ in $l$, then, there are two possibilities, 
-    
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $a$ is a ancestor of $b$ in $R(r).N$, 
-    
-    \item[-] there exists items $c_1,c_2,c_3$, such that in $R(r).N$, $c_2$ and $c_3$ are sons of $c_1$, $c_2$ is a ancestor of $a$, $c_3$ is a ancestor of $b$, and the time-stamp of $c_2$ is larger than that of $c_3$. 
-    \end{itemize} 
-    
-    If the first possibility holds, then there exists items $d_1,\ldots,d_k$, such that in $R(r).N$, $b$ is a son of $d_1$, $d_1$ is a son of $d_2$, $\ldots$, and $d_k$ is a son of $a$. It is easy to see that $(\mathit{add}(a,\_),\mathit{add}(d_k,a)),(\mathit{add}(d_k,a),\mathit{add}(d_{\mathit{k-1}},d_k)), \ldots, (\mathit{add}(d_1,d_2),\mathit{add}(b,d_1)) \in h.\mathit{vis}$. Since $\mathit{lin}$ is consistent with visibility relation, we know that in $\mathit{lin}$, $\mathit{add}(a,\_)$ is before $\mathit{add}(d_k,a)$, $\mathit{add}(d_k,a)$ is before $\mathit{add}(d_{\mathit{k-1}},d_k)$, $\ldots$, and $\mathit{add}(d_1,d_2)$ is before $\mathit{add}(b,d_1)$. According to $\mathit{list}_s^{\mathit{af}}$, it is easy to see that in $a$ is before $b$ in $l_1$. 
-    
-    If the second possibility holds, then it is easy to see that $(\mathit{add}(c_2,c_1),\mathit{add}(a,c_2)),$ $(\mathit{add}(c_1,\_),\mathit{add}(c_2,c_1)), (\mathit{add}(c_3,c_1),\mathit{add}(b,c_3)),(\mathit{add}(c_1,\_),\mathit{add}(c_3,c_1)), \in h.\mathit{vis}$. Since $\mathit{lin}$ is consistent with visibility relation and time-stamp, we know that in $\mathit{lin}$, $\mathit{add}(c_3,c_1)$ is before $\mathit{add}(c_2,c_1)$, $\mathit{add}(c_2,c_1)$ is before $\mathit{add}(a,c_2)$, and $\mathit{add}(c_3,c_1)$ is before $\mathit{add}(b,c_3)$. According to $\mathit{list}_s^{\mathit{af}}$, it is easy to see that in $a$ is before $b$ in $l_1$.
-    
-    Therefore, $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. 
-    
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}_a,\mathit{ts}_b),r') \in T$: Then, 
+    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{list}_s^{\mathit{af}}$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow l_1, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$.
+
+    By Lemma \ref{lemma:a property that can be obtained from P for rga} and RGA implementation, we can see that $l$ and $l_1$ has the same items.
+
+    Given items $a,b$, assume that $a$ is before $b$ in $l$, then, there are two possibilities,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: ( R(r).N \cup \{ (a,\mathit{ts}_a,\mathit{ts}_b) \}, R(r).\mathit{Tomb} ) ]$ and $T' = T$. 
+    \item[-] $a$ is a ancestor of $b$ in $R(r).N$,
+
+    \item[-] there exists items $c_1,c_2,c_3$, such that in $R(r).N$, $c_2$ and $c_3$ are sons of $c_1$, $c_2$ is a ancestor of $a$, $c_3$ is a ancestor of $b$, and the time-stamp of $c_2$ is larger than that of $c_3$.
+    \end{itemize}
+
+    If the first possibility holds, then there exists items $d_1,\ldots,d_k$, such that in $R(r).N$, $b$ is a son of $d_1$, $d_1$ is a son of $d_2$, $\ldots$, and $d_k$ is a son of $a$. It is easy to see that $(\mathit{add}(a,\_),\mathit{add}(d_k,a)),(\mathit{add}(d_k,a),\mathit{add}(d_{\mathit{k-1}},d_k)), \ldots, (\mathit{add}(d_1,d_2),\mathit{add}(b,d_1)) \in h.\mathit{vis}$. Since $\mathit{lin}$ is consistent with visibility relation, we know that in $\mathit{lin}$, $\mathit{add}(a,\_)$ is before $\mathit{add}(d_k,a)$, $\mathit{add}(d_k,a)$ is before $\mathit{add}(d_{\mathit{k-1}},d_k)$, $\ldots$, and $\mathit{add}(d_1,d_2)$ is before $\mathit{add}(b,d_1)$. According to $\mathit{list}_s^{\mathit{af}}$, it is easy to see that in $a$ is before $b$ in $l_1$.
+
+    If the second possibility holds, then it is easy to see that $(\mathit{add}(c_2,c_1),\mathit{add}(a,c_2)),$ $(\mathit{add}(c_1,\_),\mathit{add}(c_2,c_1)), (\mathit{add}(c_3,c_1),\mathit{add}(b,c_3)),(\mathit{add}(c_1,\_),\mathit{add}(c_3,c_1)), \in h.\mathit{vis}$. Since $\mathit{lin}$ is consistent with visibility relation and time-stamp, we know that in $\mathit{lin}$, $\mathit{add}(c_3,c_1)$ is before $\mathit{add}(c_2,c_1)$, $\mathit{add}(c_2,c_1)$ is before $\mathit{add}(a,c_2)$, and $\mathit{add}(c_3,c_1)$ is before $\mathit{add}(b,c_3)$. According to $\mathit{list}_s^{\mathit{af}}$, it is easy to see that in $a$ is before $b$ in $l_1$.
+
+    Therefore, $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}_a,\mathit{ts}_b),r') \in T$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: ( R(r).N \cup \{ (a,\mathit{ts}_a,\mathit{ts}_b) \}, R(r).\mathit{Tomb} ) ]$ and $T' = T$.
 
     \item[-] Let $h' = h$.
 
@@ -342,10 +342,10 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
 
     We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. 
-    
-    We can see that $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by additionally applying messages $\mathit{mid}$, but possibly in the middle of $\mathit{lin}'$. It is easy to see that $\mathit{map}(\mathit{mid})$ is a $\mathit{add}(a,\_)$ operation. By Lemma \ref{lemma:a property that can be obtained from P for rga}, we can see that there is no $\mathit{add}(a,\_)$ nor $\mathit{rem}(a)$ in $\mathit{vd}(h,\mathit{del},r)$. Thus, for each $\mathit{lin}''$ generated from $\mathit{lin}'$ by postponing message $\mathit{mid}$ to a later position, we can see that $\mathit{apply}(\mathit{lin}'',\mathit{vd}(h',\mathit{del}',r)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
-    
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
+
+    We can see that $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by additionally applying messages $\mathit{mid}$, but possibly in the middle of $\mathit{lin}'$. It is easy to see that $\mathit{map}(\mathit{mid})$ is a $\mathit{add}(a,\_)$ operation. By Lemma \ref{lemma:a property that can be obtained from P for rga}, we can see that there is no $\mathit{add}(a,\_)$ nor $\mathit{rem}(a)$ in $\mathit{vd}(h,\mathit{del},r)$. Thus, for each $\mathit{lin}''$ generated from $\mathit{lin}'$ by postponing message $\mathit{mid}$ to a later position, we can see that $\mathit{apply}(\mathit{lin}'',\mathit{vd}(h',\mathit{del}',r)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
     Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
 \item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},a,r') \in T$: Then,
@@ -365,15 +365,33 @@ Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ hol
 
     We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
 
-    We can see that $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by additionally applying messages $\mathit{mid}$, but possibly in the middle of $\mathit{lin}'$. 
-    
-    It is easy to see that, for each $\mathit{lin}''$ generated from $\mathit{lin}'$ by postponing message $\mathit{mid}$ to a later position, we have $\mathit{apply}(\mathit{lin}'',\mathit{vd}(h',\mathit{del}',r)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$. 
+    We can see that $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by additionally applying messages $\mathit{mid}$, but possibly in the middle of $\mathit{lin}'$.
+
+    It is easy to see that, for each $\mathit{lin}''$ generated from $\mathit{lin}'$ by postponing message $\mathit{mid}$ to a later position, we have $\mathit{apply}(\mathit{lin}'',\mathit{vd}(h',\mathit{del}',r)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 
     Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
 \end {proof}
+
+
+
+
+
+
+
+
+
+
+\section{Proofs of Section \ref{sec:compositionality of distributed linearizability}}
+\label{sec:appendix proofs of section compositionality of distributed linearizability}
+
+
+
+
+
+
 
 
 

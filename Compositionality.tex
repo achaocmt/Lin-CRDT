@@ -4,19 +4,40 @@
 \section{Compositionality of Distributed Linearizability}
 \label{sec:compositionality of distributed linearizability}
 
+The following is the definition of distributed linearizability for multi-object histories. 
+
+\begin{definition}[Distributed Linearizability for Multi-object Histories]
+\label{definition:distributed linearizability for multi-object histories} 
+A history $h$ of multiple objects is distributed linearizabile, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
+
+\begin{enumerate}[(i)]
+\item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations of visible to $o$ via $h.\mathit{vis}$. 
+\item $\mathit{lin}$ is consistent with $h. \mathit{vis}$.
+\item For each object $\mathit{obj}$, $h \uparrow_{\mathit{obj}}$ is distributed linearizable, and $\mathit{lin} \uparrow_{ \mathit{obj} }$ is a linearization of $h \uparrow_{\mathit{obj}}$.
+\end{enumerate}
+
+A set $H$ of multi-object histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
+\end{definition}
+
+The following is the definition of compositional histories. 
 
 \begin{definition}[Compositionality]
 \label{definition:compositionality}
-A history $h$ of multiple objects is called compositional, if: $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
-
-\begin{enumerate}[(i)]
-\item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations of visible to $o$ via $( h \uparrow_{\mathit{obj}}). \mathit{vis}$.
-\item For each object $\mathit{obj}$, $\mathit{lin}$ is consistent with $( h \uparrow_{\mathit{obj}}). \mathit{vis}$.
-\item For each object $\mathit{obj}$, $\mathit{lin} \uparrow_{ \mathit{obj} }$ is a linearization of $h \uparrow_{\mathit{obj}}$.
-\end{enumerate}
+A history $h$ of multiple objects is called compositional, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, $h$ is distributed linearizable. 
 \end{definition}
 
-\noindent {\bf Composing Several t0}:
+
+
+
+\subsection{Composing Several t0}
+\label{subsec:composing several t0}
+
+
+
+\begin{lemma}
+\label{lemma:invariant of operation-based CRDT implies distributed linearizability for t0-specification}
+If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t0-specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility is a linearization of $h$.
+\end{lemma}
 
 \cite{BurckhardtGYZ14}
 
