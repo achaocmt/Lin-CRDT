@@ -1,8 +1,22 @@
-%!TEX root = draft.tex
 \begin{abstract}
-  abstract
+  In this paper we consider the problem of the specification and
+  verification of Commutative Replicated Data Types (CRDTs).
+  %
+  We provide a new specification and correctness criterion for CRDTs
+  akin to Linearizability as defined by~\cite{HerlihyW90}.
+  %
+  We argue that this criterion is both simple to understand, and it
+  fits most well known implementations of known CRDTs.
+  %
+  Then we show how to prove that CRDT implementations can be
+  formally proved to be correct w.r.t. their specification.
+  %
+  In particular, we do so for many well known implementations taken
+  from~\cite{ShapiroPBZ11}.
+  %
+  We conclude the paper by showing how our criterion can be leveraged
+  to reason modularly about the composition of CRDTs.
 \end{abstract}
-
 
 %%% Local Variables:
 %%% mode: latex
