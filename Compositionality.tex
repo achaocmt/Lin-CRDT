@@ -4,7 +4,25 @@
 \section{Compositionality of Distributed Linearizability}
 \label{sec:compositionality of distributed linearizability}
 
-In this section, we propose the compositionality of distributed linearizability. 
+
+\begin{definition}[Compositionality]
+\label{definition:compositionality} 
+A history $h$ of multiple objects is called compositional, if: $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
+
+\begin{enumerate}[(i)]
+\item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations of visible to $o$ via $( h \uparrow_{\mathit{obj}}). \mathit{vis}$. 
+\item For each object $\mathit{obj}$, $\mathit{lin}$ is consistent with $( h \uparrow_{\mathit{obj}}). \mathit{vis}$.  
+\item For each object $\mathit{obj}$, $\mathit{lin} \uparrow_{ \mathit{obj} }$ is a linearization of $h \uparrow_{\mathit{obj}}$. 
+\end{enumerate}
+\end{definition} 
+
+\noindent {\bf Composing Several t0}: 
+
+
+
+
+
+
 
 %%% Local Variables:
 %%% mode: latex

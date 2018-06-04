@@ -85,14 +85,14 @@ The sequential specification $\mathit{MVReg}_s$ of multi-value register is given
 
 \begin{example}[set and its sequential specification]
 \label{definition:sequential specification of set}
-A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set; $\mathit{rem}(a)$ removes $a$ from set; and $\mathit{read}$ returns the set content. %It implicitly assumes that each item being put into the set only once. 
+A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set; $\mathit{rem}(a)$ removes $a$ from set; and $\mathit{read}$ returns the set content. %It implicitly assumes that each item being put into the set only once.
 Here we assume that when a item is removed, it will never be added again. The sequential specification $\mathit{set}_s$ of set is given as follows:  Let $\mathit{state}$ be a set and each its element $(a,S,f)$ is a tuple of a data $a$, a set $S$ of identifiers and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = S \wedge (a,\_,\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\{ \mathit{id} \},\mathit{true}) \} \}$.  
-\item[-] $\{ \mathit{state} = S \wedge (a,S_1,\mathit{true}) \in S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S[a: (S_1 \cup \{ \mathit{id} \},\mathit{true}) ] \}$. 
-\item[-] $\{ \mathit{state} = S \wedge (a,S_1,\mathit{true}) \in S \wedge S_1 \subseteq S_2 \}$ $(\mathit{rem}(a),S_2)$ $\{ \mathit{state} = S[a: (S_1,\mathit{false}) \}$. 
+\item[-] $\{ \mathit{state} = S \wedge (a,\_,\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\{ \mathit{id} \},\mathit{true}) \} \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,S_1,\mathit{true}) \in S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S[a: (S_1 \cup \{ \mathit{id} \},\mathit{true}) ] \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,S_1,\mathit{true}) \in S \wedge S_1 \subseteq S_2 \}$ $(\mathit{rem}(a),S_2)$ $\{ \mathit{state} = S[a: (S_1,\mathit{false}) \}$.
 \item[-] $\{ \mathit{state} = S \wedge S_1 = \{a \vert (a,\_,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$ $\{ \mathit{state} = S \}$.
 \end{itemize}
 \end{example}
@@ -130,14 +130,14 @@ A register has two methods: $\mathit{write}(a)$ writes $a$ into register; $\math
 \label{definition:sequential specification of list with add-after interface}
 Assume each item of the list is unique. A list has three methods: $\mathit{add}(b,a)$ inserts item $b$ into the list at the position immediately after that of item $a$; $\mathit{rem}(a)$ removes item $a$ from the list; and $\mathit{read}$ returns the list content. We assume that the initial value of list is $(\circ,\mathit{true})$ and this node can not be removed. We use the word ``add-after'' to emphasize the method $\mathit{add}(b,a)$, which is different from the other list interface that uses method $\mathit{add}(b,a,c)$.
 
-The sequential specification $\mathit{list}_s^{\mathit{af}}$ of list is given as follows: Let $\mathit{state}$ be a sequence, where each item is a tuple $(a,\mathit{id},f)$ with data $a$, identifier $\mathit{id}$ and flag $f \in \{ \mathit{true},\mathit{false} \}$. Here $\mathit{af}$ represents add-after, and we use $l \uparrow_{S}$ to represent the projection of sequence $l$ into set $S$. 
+The sequential specification $\mathit{list}_s^{\mathit{af}}$ of list is given as follows: Let $\mathit{state}$ be a sequence, where each item is a tuple $(a,\mathit{id},f)$ with data $a$, identifier $\mathit{id}$ and flag $f \in \{ \mathit{true},\mathit{false} \}$. Here $\mathit{af}$ represents add-after, and we use $l \uparrow_{S}$ to represent the projection of sequence $l$ into set $S$.
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge b \notin \{ a_1, \ldots, a_n \} \wedge \mathit{id}_k \in S_1 \}$ $(add(b,a_k),\mathit{id},S_1)$ $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,f_k) \cdot (b,\mathit{id},\mathit{true}) \cdot (a_{k+1},\mathit{id}_{k+1},f_{k+1}) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \}$.
-\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge \mathit{id}_k \in S_1 \}$ $(rem(a_k),S_1)$ $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,\mathit{false}) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \}$. 
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge \mathit{id}_k \in S_1 \}$ $(rem(a_k),S_1)$ $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,\mathit{false}) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \}$.
 \item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \wedge S = \{ a \vert (a,\_,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_n,\mathit{id}_n,f_n) \}$.
-\end{itemize} 
-When the context is clear, in $\mathit{read}$ operation, we will omit $\circ$. 
+\end{itemize}
+When the context is clear, in $\mathit{read}$ operation, we will omit $\circ$.
 \end{example}
 
 
@@ -170,7 +170,8 @@ A single-object history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ is distribu
 \item For each query operation $o$, $\mathit{lin} \uparrow_{ \mathit{vis}^{-1}(o)  } \cdot o \in \mathit{spec}$.
 \end{enumerate}
 
-A multi-object history $h$ is distributed linearizable w.r.t deterministic sequential specifications, if for each object $x$, $h \uparrow_{x}$ is distributed linearizable w.r.t its sequential specification. A set $H$ of histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
+%A multi-object history $h$ is distributed linearizable w.r.t deterministic sequential specifications, if for each object $x$, $h \uparrow_{x}$ is distributed linearizable w.r.t its sequential specification. 
+A set $H$ of histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
 \end{definition}
 
 $h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations into operations of object $x$. %Here the linearization gives a global and linearizable explanation of all operations. With sequential specification and linearization of the history, the understanding of distributed behaviors should be simplified. The linearization can be also considered as a guide to the conflict resolution.
