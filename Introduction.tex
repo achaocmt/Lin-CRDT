@@ -2,10 +2,33 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Introduction.
+\gpnote[inline, nomargin]{Need to complete this section}
 
-\gpn{Use Grow-Only Counter (GOC) to motivate the problem.}
+Here we introduce the problem of CRDTS:
+\begin{inparaenum}
+\item replication, 
+\item convergence, 
+\item specification.
+\end{inparaenum}
+To do so we illustrate the problem through RGA. Without much notation
+we show the code of~\autoref{} (RGA) and explain how RGA achieves
+these three goals.
 %
+We the consider the specification of RGA. Perhaps we will need to
+explain a little of~\cite{BurckhardtGYZ14} to do so.
+%
+We argue that this process is hard a complicated, and propose
+\emph{informally} our definition of linearizability.
+
+We then explain the proof strategy to prove this linearizability, and
+point the reader forward to the verification sections. 
+
+We finally shed some light into the compositionality and modularity
+aspects to be discussed at the end of the paper. 
+
+\gpnote*{}{By the end of section 1 the reader should know what is a
+  CRDT, the intuition behind our definition of linearizability, and
+  have an idea of the structure of the paper.}
 
 %%% Local Variables:
 %%% mode: latex
