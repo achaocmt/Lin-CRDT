@@ -105,6 +105,27 @@ Given a multi-object $h$, if its object use several t0-specifications and severa
 
 
 
+
+
+\subsection{Semantics of Multi Objects}
+\label{subsec:semantics of multi objects} 
+
+When there is multiple objects, we say $(o_1,o_2) \in \mathit{vis}$, if either $(o_1,o_2) \in \mathit{ro}$, or $o_1$ is delivered to the replica of $o_2$ before $o_2$ happens. We assume that the time-stamp of CRDT is done with a argument of integer $c$, such that for operations $o_1$ and $o_2$ of same object, if the value of $c$ in time-stamp of $o_1$ is less than that of $o_2$, then the time-stamp of $o_1$ is less than that of $o_2$. To ensure compositionality of multiple objects, the following conditions needs to be satisfied:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Cross-object-causal-delivery (COCD): Given two update operations $o_1$ and $o_2$, and assume $o_1$ is visible to $o_2$. Then, for each replica, once it receives $o_2$, it must be the case that $o_1$ has been previously received. 
+
+\item[-] Shared-time-stamp (STS): the t1-objects shares a counter of time-stamp. 
+\end{itemize} 
+
+Formally, 
+
+The formation of CRDT in this semantics is changed as follows, 
+
+The CRDT proved distributed linearizable are still distributed linearizable in this new semantics. 
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "draft"
