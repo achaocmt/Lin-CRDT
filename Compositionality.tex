@@ -41,7 +41,7 @@ The following lemma states that a history of several objects of t0 specification
 \begin{restatable}{lemma}{composingTZero}
 \label{lemma:several t0-specifications can be composed}
 Given a multi-object history $h$, if each of its object uses a t0-specification, then, $h$ is compositional.
-\end{restatable}
+\end{restatable} 
 
 
 
@@ -64,7 +64,7 @@ The following lemma states that for a multi-object history, if its object use se
 \begin{restatable}{lemma}{composingTZeroAndOneTOne}
 \label{lemma:several t0-specifications and one t1-specification can be composed}
 Given a multi-object $h$, if its object use several t0-specifications and one t1-specification, and its visibility relation is transitive, then, $h$ is compositional.
-\end{restatable}
+\end{restatable} 
 
 
 
@@ -72,18 +72,36 @@ Given a multi-object $h$, if its object use several t0-specifications and one t1
 \subsection{Composing Several t0-Specifications with Several T1-specification}
 \label{lemma:composing several t0-specification with several t1-specification}
 
-Composing several t0-specifications with several t1-specification does not hold in general. \figurename~\ref{fig:a failed example of composing two last-write-win registers} is a history $h$ that is a failed example of composing two last-write-win registers, where the operations of one LWW register are boxed, and the operations of the other LWW registers are not boxed. Here we assume that $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$. Since LWW register is t1-specification, we can see that the projection of $h$ into operations of one LWW register is distributed linearization and the only possible linearization is $\mathit{write}(a,\mathit{ts}'_1) \cdot \mathit{write}(b,\mathit{ts}'_2)$, and the projection of $h$ into operations of the other LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c,\mathit{ts}_1) \cdot \mathit{write}(d,\mathit{ts}_2) \cdot \mathit{write}(e,\mathit{ts}_3)$. However, $h$ is not distributed linearizable, since there is a a cycle. 
+Composing several t0-specifications with several t1-specification does not hold in general. \figurename~\ref{fig:a failed example of composing two last-write-win registers} is a history $h$ that is a failed example of composing two last-write-win registers, where the operations of one LWW register are boxed, and the operations of the other LWW registers are not boxed. Here we assume that $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$. Since LWW register is t1-specification, we can see that the projection of $h$ into operations of one LWW register is distributed linearization and the only possible linearization is $\mathit{write}(a,\mathit{ts}'_1) \cdot \mathit{write}(b,\mathit{ts}'_2)$, and the projection of $h$ into operations of the other LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c,\mathit{ts}_1) \cdot \mathit{write}(d,\mathit{ts}_2) \cdot \mathit{write}(e,\mathit{ts}_3)$. However, $h$ is not distributed linearizable, since there is a a cycle.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.7 \textwidth]{figures/LWWReg-LWWReg-NoSTS.pdf}
 \vspace{-10pt}
-  \caption{A failed example of composing two last-write-win registers (one object is boxed, the other is not), where $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$.} 
+  \caption{A failed example of composing two last-write-win registers (one object is boxed, the other is not), where $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$.}
   \label{fig:a failed example of composing two last-write-win registers}
 \end{figure}
 
 
-A history $h$ satisfies causal-time-stamp, if for each operations $o_1,o_2,o_3,o_4$, such that $(o_1,o_2) \in \mathit{vis}$, $o_2$ and $o_3$ are of same object, $\mathit{ts}(o_2) < \mathit{ts}(o_3)$, $(o_3,o_4) \in \mathit{vis}$, and $o_1$ and $o_4$ are of same object, then, we have $\mathit{ts}(o_1) < \mathit{ts}(o_4)$. 
+A history $h$ satisfies causal-time-stamp, if: Given operation $o_1,\ldots,o_{\mathit{2k+2}}$ of $h$ that are of objects of t1-specification, if 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $(o_2,o_3)$ are of a same object, $\ldots$, $(o_{\mathit{2k}},o_{\mathit{2k+1}})$ are of a same object, $(o_{\mathit{2k+2}},o_1)$ are of a same object, 
+
+\item[-] $\mathit{ts}(o_2) < \mathit{ts}(o_2)$, $\ldots$, and $\mathit{ts}(o_{\mathit{2k}}) < \mathit{ts}(o_{\mathit{2k+1}})$, 
+
+\item[-] $(o_1,o_2), \ldots, (o_{\mathit{ek+1}},o_{\mathit{2k+2}}) \in \mathit{vis}$. 
+\end{itemize} 
+
+Then, we have $\mathit{ts}(o_1) < \mathit{ts}(o_{\mathit{2k+1}})$. 
+
+The following lemma states that for a multi-object history, if its object use several t0-specifications and several t1-specification, and it satisfies causal-time-stamp and its visibility relation is transitive, then, $h$ is compositional. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications and several t1-specification can be composed}.
+
+\begin{restatable}{lemma}{composingTZeroAndTOne}
+\label{lemma:several t0-specifications and several t1-specification can be composed}
+Given a multi-object $h$, if its object use several t0-specifications and several t1-specification, and it satisfies causal-time-stamp and its visibility relation is transitive, then, $h$ is compositional. 
+\end{restatable} 
 
 
 
