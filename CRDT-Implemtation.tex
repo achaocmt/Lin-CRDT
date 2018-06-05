@@ -57,53 +57,178 @@ $\mathit{Optimistic \ replication \ algorithms}$ is a type of distributed algori
 
 In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below.
 
+
+\begin{lstlisting}[caption={Pseudo-code of the Replicated Growable Array (RGA) CRDT}, captionpos=b,label={lst:rga}]
+  payload Ti-Tree N, Set Tomb
+  initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
+
+  addAfter(a,b) :
+    atSource :
+      precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
+      let ts@|$_{\mathtt{a}}$|@ = (N == @|$\emptyset$|@)?(1,myID()):(max{c | (_,(_,c),_) @|$\in$|@ N},myID())
+      let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@)?(0,r@|$_{0}$|@):(timestamp of b in N)
+    downStream(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@) :
+      precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
+      N = N ts@|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@)}
+
+  remove(a) :
+    atSource :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
+    downStream(a) :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N
+      Tomb = Tomb @|$\cup$|@ {a}
+
+  read() :
+    return traverse(N, Tomb)
+\end{lstlisting}
+
+
 \renewcommand{\algorithmcfname}{CRDT Implementation}
 \noindent
 %\begin{minipage}{.5\textwidth}
-\noindent\begin{algorithm}[H]
-$\mathit{payload}$ TI-tree N, set $\mathit{Tomb}$; \\
-$\mathit{initial}$ $\emptyset$,$\emptyset$; \\
+\noindent% \begin{algorithm}[H]
+% $\mathit{payload}$ TI-tree N, set $\mathit{Tomb}$; \\
+% $\mathit{initial}$ $\emptyset$,$\emptyset$; \\
 
-$add(a,b)$ \\
-\ \ $\mathit{atSource}$: \\
-\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee$ %( b \neq \circ \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb})$ \\
+% $add(a,b)$ \\
+% \ \ $\mathit{atSource}$: \\
+% \ \ \ \ $\mathit{pre}$: \ $b = \circ \vee$ %( b \neq \circ \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb})$ \\
 
-% \ \ \ \ \If {$N = \emptyset$}
-% { \ \ \ \ let \ $ts_a$ = (myID(),1); \\ }
-% \ \ \ \ \Else
-% {\ \ \ \ let \ $ts_a$ = (myID(),$\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$); \\ }
+% % \ \ \ \ \If {$N = \emptyset$}
+% % { \ \ \ \ let \ $ts_a$ = (myID(),1); \\ }
+% % \ \ \ \ \Else
+% % {\ \ \ \ let \ $ts_a$ = (myID(),$\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$); \\ }
 
-% \ \ \ \ \%If {$b = \circ$}
-%    { \ \ \ \ let \ $ts_b$ = (0,0); \\ }
-%\ \ \ \ \Else
-%    { \ \ \ \ let \ $ts_b$ be time-stamp of $b$ in $N$; \\ }
+% % \ \ \ \ \%If {$b = \circ$}
+% %    { \ \ \ \ let \ $ts_b$ = (0,0); \\ }
+% %\ \ \ \ \Else
+% %    { \ \ \ \ let \ $ts_b$ be time-stamp of $b$ in $N$; \\ }
 
-\ \ \ \ let \ $ts_a$ = ($N = \emptyset$) ? (1,$\mathit{myID}$()) ! ($\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$,$\mathit{myID}$()); \\
-\ \ \ \ let \ $ts_b$ = ($b = \circ$) ? (0,$r_0$) ! (the time-stamp of $b$ in $N$); \\
+% \ \ \ \ let \ $ts_a$ = ($N = \emptyset$) ? (1,$\mathit{myID}$()) ! ($\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$,$\mathit{myID}$()); \\
+% \ \ \ \ let \ $ts_b$ = ($b = \circ$) ? (0,$r_0$) ! (the time-stamp of $b$ in $N$); \\
 
-\ \ $\mathit{downstream}(a,ts_a,ts_b)$: \\
-\ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,ts_b,\_) \in N)$ \\
+% \ \ $\mathit{downstream}(a,ts_a,ts_b)$: \\
+% \ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,ts_b,\_) \in N)$ \\
 
-\ \ \ \ $N = N \cup \{ (a,ts_a,ts_b) \}$.
+% \ \ \ \ $N = N \cup \{ (a,ts_a,ts_b) \}$.
 
 
-$rem(a)$ \\
-\ \ $\mathit{atSource}$: \\
-\ \ \ \ $\mathit{pre}$: \ $a \neq \circ \wedge (a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$ \\
+% $rem(a)$ \\
+% \ \ $\mathit{atSource}$: \\
+% \ \ \ \ $\mathit{pre}$: \ $a \neq \circ \wedge (a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$ \\
 
-\ \ $\mathit{downstream}(a)$: $\mathit{pre}$ \ $a \neq \circ \wedge (a,\_,\_) \in N)$
+% \ \ $\mathit{downstream}(a)$: $\mathit{pre}$ \ $a \neq \circ \wedge (a,\_,\_) \in N)$
 
-\ \ \ \ $\mathit{Tomb} = \mathit{Tomb} \cup \{ a \}$.
+% \ \ \ \ $\mathit{Tomb} = \mathit{Tomb} \cup \{ a \}$.
 
-$read()$ \\
-\ \ \ \ \KwRet $\mathit{trans}(N,\mathit{Tomb})$; \\
+% $read()$ \\
+% \ \ \ \ \KwRet $\mathit{trans}(N,\mathit{Tomb})$; \\
 
-\caption{RGA}
-\label{Method-rga}
-\end{algorithm}
+% \caption{RGA}
+% \label{Method-rga}
+% \end{algorithm}
 
-Keyword $\mathit{payload}$ indicate the local state of a replica, and keyword $\mathit{initial}$ specifies the initial value of local state. Each update operation is executed with two phases: Its first phase, marked $\mathit{atSource}$, is local to the current replica and does not modify the local state. It is enabled if its (optional) pre-condition, marked $\mathit{pre}$, is true currently in local state. It generates the information to be delivered, which is the argument of $\mathit{downstream}$. Its second phase, marked $\mathit{downstream}$, executed immediate after the current replica, and asynchronously at other replica when they receive the message of this operation. It is enabled if its (optional) pre-condition is true. The local state will be modified in this phase.
+\subsection{Example: Replicated Growable Array (RGA)}
+\label{sec:rga}
 
+Let us now consider the implementation of the Example: Replicated
+Growable Array (RGA) CRDT which can be used to represent lists.
+In fact, this CRDT is generally used to implement distributed
+concurrent text editing~\cite{AttiyaBGMYZ16}.
+
+As we mentioned before, the important characteristic of this
+implementation is that conflicts resulting form concurrent updates in
+overlapping sections of the list must be resolved deterministically in
+all replicas that have copies of the list.
+%
+To do so, each replica must keep enough metadata to
+\begin{inparaenum}
+\item identify when two operations are concurrent and conflicting, and
+\item establish a deterministic resulting list when conflicts are detected.
+\end{inparaenum}
+%
+As it is common to many CRDT implementations, replicas will use a
+timestamp mechanism to keep track of the causality between updates to
+the list, effectively capturing when two updates are concurrent, and
+moreover, they will keep the information relating the causal order in
+which elements are added to the list.
+%
+Provided with this causality information, the timestamps will be used
+to resolve conflicts in a deterministic way.
+%
+More concretely, each replica will keep what we shall name a
+\emph{Timestamp Tree} (Ti-Tree) containing in every node a pair with the
+element added to the list (for instance a line in a text editing
+application), and a timestamp which will be used to resolve conflicts.
+The tree structure is representative of the causality of the tree.
+Two nodes that are related by ancestry in the tree are causally
+related, and nodes that are not related to each other on any path of
+the tree (eg. siblings) are not causally related.
+%
+An example of such a tree is shown in~\ref{fig:rga-tree}.
+\gpwarning*{Example}{Ask Chao for a concrete example.}
+%
+
+\autoref{lst:rga} shows the pseudo-code of an implementation of RGA
+taken from~\cite{}.
+%
+Firstly, observe that the API of RGA.
+%
+The first method, \lstinline|addAfter(a, b)|, adds the element
+\lstinline|b| after the element \lstinline|a|, where the latter is
+assumed to already be included in the list.
+%
+The second method, \lstinline|remove(a)| simply removes the element
+\lstinline|a| which again is assumed to be present in the list.
+%
+And finally, the methods read simply returns the contents of the whole
+list at present.
+
+Let us now consider the pseudo-code of~\autoref{lst:rga}. 
+%
+The keyword \lstinline|payload| represents the data that is stored in
+each replica to represent the list.
+%
+In our case we have a Ti-Tree \lstinline|N| and a set of elements
+\lstinline|Tomb| which represents elements that have been removed.
+%
+These elements are not immediately removed from the tree \lstinline|N|
+because their presence might necessary to resolve conflicts later on.
+%
+However, they are marked in \lstinline|Tomb| as being erased.
+%
+Thus, the set is said to be a \emph{tombstone} and hence its name.
+%
+The keyword \lstinline|initial| indicates the initial values for the
+payload at the creation of the CRDT object.
+
+We then find the implementation of the method \lstinline|addAfter|,
+which updates the contents of the list.
+%
+Each effectful method has an immediate effect in the replica where it
+is executed, which we call the source (or origin), and a delayed
+effect on all the other replicas that keep a copy of the object.
+%
+The effect of a method in the source replica is described under the
+label \lstinline|atSource|, and the effect of the method in the other
+replicas is marked under the label \lstinline|downStream|.
+%
+Both of these effects have a precondition, which is simply an
+annotation stating which are the assumptions required for their
+correct execution.
+%
+In the case of the source replica, and \lstinline|addAfter| operation
+requires that the item be added after the default special initial
+object element $\circ$, or otherwise after an element that was
+already present in the Ti-Tree of the list.
+%
+Moreover, it assumes that the element was not previously removed.
+
+
+
+Keyword $\mathit{payload}$ indicate the local state of a replica, and
+keyword $\mathit{initial}$ specifies the initial value of local state.
+Each update operation is executed with two phases: Its first phase, marked $\mathit{atSource}$, is local to the current replica and does not modify the local state. It is enabled if its (optional) pre-condition, marked $\mathit{pre}$, is true currently in local state. It generates the information to be delivered, which is the argument of $\mathit{downstream}$. Its second phase, marked $\mathit{downstream}$, executed immediate after the current replica, and asynchronously at other replica when they receive the message of this operation. It is enabled if its (optional) pre-condition is true. The local state will be modified in this phase.
 In RGA algorithm, a replica store the list as a timestamp insertion tree (TI-tree) $N$, and stores the deleted items in tombstone $\mathit{Tomb}$. A TI-tree $N$ is a set of tuples $(a,t,p)$, where $a$ is a item, $t$ is its unique time-stamp, and $p$ is the time-stamp of its ``parent'' node. Each time-stamp is a tuple $(c,r)$ with $c \in \mathbb{N}$ and $r \in \mathbb{R}$. A total order $<_{\mathit{ts}}$ between time-stamps is defined, such that $(c_1,r_1) <_{\mathit{ts}} (c_2,r_2)$, if $c_1 < c_2 \vee (c_1 = c_2 \wedge r_1 <_r r_2)$, where $<_r$ is a total-order over $\mathbb{R}$. There is a pre-existed item $\circ$ of TI-tree with time stamp $(0,r_0)$, which are considered as the root of the tree. Each element of $N$ should have unique item and time stamp, and the elements of $N$ are required to form a tree by following the parent field. The tombstone $\mathit{Tomb}$ is a set of items and records items been removed from the list.
 
 Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position immediately after that of a existing item $b$. Method $\mathit{rem}(a)$ removes $a$ from the list. Method $\mathit{read}$ returns the current list content. When the current replica does $\mathit{add}(a,b)$, it generate a tuple $(a,ts_a,ts_b)$ and put it into $N$. Here $ts_b$ is the time-stamp of $b$, and $ts_a$ is a new time-stamp that is larger than any time stamp in $N$. When the current replica does $\mathit{rem}(a)$, it put $a$ into tombstone. When the current replica does $\mathit{read}$, it uses function $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the current replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$.
