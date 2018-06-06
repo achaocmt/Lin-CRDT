@@ -46,7 +46,7 @@ We can now define execution \emph{histories}.
   \item $\arepord \in (\alabelset \times \alabelset)$ is the
     \emph{replica order}, a binary relation between the labels of the
     execution, such that when restricted to labels of operations generated
-    by each single replica it is a total order, and it does not relate labels of 
+    by each single replica it is a total order, and it does not relate labels of
     operations from different replicas, and
   \item $\avisord \in (\alabelset \times \alabelset)$ is the
     \emph{visibility order}, again an \emph{acyclic partial order}
@@ -77,7 +77,7 @@ labels in the sequence.
   \label{definition:sequential specification} A sequential
   specification is a set of tuples $(\alabelset, \aseqord, \avisord)$, where
   \begin{enumerate}
-  \item $\alabelset$ is a set of labels, 
+  \item $\alabelset$ is a set of labels,
   \item $\aseqord$ is a sequence including all the labels in $\alabelset$,
     representing a linearization of the operations,
   \item and $\avisord$ is a partial order over $\alabelset$,
@@ -121,7 +121,7 @@ will use Hoare-style triples and write
 
 \begin{example}[sequential specification of counter]
 \label{definition:sequential specification of counter}
-The sequential specification $\mathit{counter}_s$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows: 
+The sequential specification $\mathit{counter}_s$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows:
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $k \xrightarrow{\alabellong[\mathsf{inc}]{}{}} k+1$
@@ -228,31 +228,77 @@ When the context is clear, in $\mathit{read}$ operation, we will omit $\circ$.
 
 
 
-\subsection{Definition of Distributed Linearizability}
+\subsection{Definition of Distributed \CRDTLin{}}
 \label{subsec:definition of distributed linearizability}
 
-A history is single-object, if it contains operations of a single object. A history is multi-object, if it contains operations of multiple objects. In the following we propose distributed linearizability for histories.
+We now provide our definition of linearizability.
+To simplify the argument we will assume for the time being that all
+labels in a specification can be classified into update labels
+$\alabel_{up} \in \Updates$ and into $\alabel_{qr} \in \Queries$.
+Later we will extend the framework to consider query/update
+operations.
+
+A label is an update label if in its specification the state before
+and after are different.
+Formally, if $\sigma \xrightarrow{\alabel} \sigma'$ belongs to $\Spec$
+and $\sigma \neq \sigma'$ we say that $\alabel$ is an update, and
+$\alabel \in \Updates$.\footnote{We assume that labels are
+  consistently update or query, should there be labels acting sometimes
+  as update and sometimes as only query, a simple renaming would suffice
+  to distinguish them.}
+A label is said to be a query if it is not an update.
+We will later add an additional case for query/update labels.
+
+The intuition of our definition of \crdtlin{} is that for update
+operations there is a global linear sequence (or history) which can
+produce the final state obtained by the execution.
+In other words, any state observed by any replica should be the result
+of a prefix of this sequential history.
+This notion is akin to Linearizability~\cite{HerlihyW90} when
+constrained to update-only operations.
+
+Evidently, this notion does not extend to query operations, since in
+our semantical model replicas can see a subset of the global updates
+performed at any moment, then we must allow for queries to read a
+sub-sequence of the updates in the global sequence mentioned above.
+In particular, queries should be justified by considering the
+sub-sequence of the global sequence restricted to the updates that are
+visible to it.
+We will make these notions precise in~\autoref{definition:distributed
+  linearizability} below.
 
 
-\begin{definition}[Distributed Linearizability]
+\gpnote*{We consider single-object only in this section}
+{A history is single-object, if it contains operations of a single object. A history is multi-object, if it contains operations of multiple objects.} In the following we propose distributed linearizability for histories.
+
+\gpwarning*{}{We have to say that we distinguish query and update labels, perhaps define formally (for queries the visibility is important, updates change the state, but the visibility might not be important.)}
+
+\begin{definition}[\CRDTLin{}]
 \label{definition:distributed linearizability}
 
-A single-object history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ is distributed linearizable w.r.t a deterministic sequential specification $\mathit{spec}$, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
-
+A history $h = (\alabelset,\arepord,\avisord)$ is \CRDTLin{} w.r.t. a \gp{First mention?}{deterministic} sequential specification \Spec{}, if there exists a specification history sequence $(\alabelset, \aseqord, \avisord) \in \Spec{}$, called the \crdtlin{} of $h$, where we can note that the set of labels and the visibility relation are identical, and such that
+\gpwarning*{}{This definition has to be worked out again}
 \begin{enumerate}[(i)]
-\item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\_)$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations visible to $o$.
-
+% \item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\_)$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations visible to $o$.
 %For each operation $o = (m(a) \Rightarrow b,i,\_)$ in $h$, assume the transition rule of $m$ in $\mathit{spec}$ is $\mathit{cond}_1 (\ell,\mathit{id}£¬S) \mathit{cond}_2$: If $S = \emptyset$, then we use $(m(a) \Rightarrow b,i)$; otherwise, $S \neq \emptyset$ and we use $(m(a) \Rightarrow b,i,\{ j \vert (\_,j,\_) \in \mathit{vis}^{-1}(o)),$ operations $i$ and $j$ is of a same object $\}$.
-\item $\mathit{lin}$ is consistent with $\mathit{vis}$,
-\item the projection of $\mathit{lin}$ into update operations is in $\mathit{spec}$,
-\item For each query operation $o$, $\mathit{lin} \uparrow_{ \mathit{vis}^{-1}(o)  } \cdot o \in \mathit{spec}$.
+\item the projection of $\aseqord$ to only \emph{update} labels is also in $\Spec$, and
+\item for each query label $\alabel$, $\aseqord\!\uparrow_{\avisord^{-1}(\alabel)}\! \cdot\ \alabel \in \Spec$.
 \end{enumerate}
+
+% , where the notation $h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations into operations of object $x$
+
+\gpfatal{Fix} In a nutshell this definition requires that for a given
+execution history, there exists a trace in the sequential
+specification such that the set of labels and visibility are the same,
+and moreover when considering only update operations we have that the
+sequence belongs to the specification as well, and each query
+operation can be justified based only on the updates that precede it.
 
 %A multi-object history $h$ is distributed linearizable w.r.t deterministic sequential specifications, if for each object $x$, $h \uparrow_{x}$ is distributed linearizable w.r.t its sequential specification.
 A set $H$ of histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
 \end{definition}
 
-$h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations into operations of object $x$. %Here the linearization gives a global and linearizable explanation of all operations. With sequential specification and linearization of the history, the understanding of distributed behaviors should be simplified. The linearization can be also considered as a guide to the conflict resolution.
+%Here the linearization gives a global and linearizable explanation of all operations. With sequential specification and linearization of the history, the understanding of distributed behaviors should be simplified. The linearization can be also considered as a guide to the conflict resolution.
 
 %\figurename~\ref{fig:a distributed linearizable history} is a history of OR-set. Here subscript of $\mathit{add}_1(a)$ is used to distinguish different $\mathit{add}(a)$ operations, and similarly for $\mathit{read}_1() \Rightarrow \{ a,b \}$. This history is distributed linearizable. To explain this, let the operation identifiers of operations of the first replica (resp., of the second replica) be $\mathit{id}_1,\mathit{id}_2,\mathit{id}_3,\mathit{id}_4$ (resp., $\mathit{id}_5,\mathit{id}_6,\mathit{id}_7,\mathit{id}_8$), in the replica order, respectively. The linearization of this history is $\mathit{add}_1(a) \cdot \mathit{add}_1(b) \cdot \mathit{add}_2(b) \cdot \mathit{add}_2(a) \cdot ((\mathit{rem}(b),\_,\_),\{ \mathit{id}_1, \mathit{id}_2 \}) \cdot ((\mathit{rem}(a),\_,\_),\{ \mathit{id}_5, \mathit{id}_6 \}) \cdot ((\mathit{read}_1 \Rightarrow \{ a,b \},\_,\_), S ) \cdot ((\mathit{read}_2 \Rightarrow \{ a,b \},\_,\_), S )$, where $S = \{ \mathit{id}_1, \mathit{id}_2, \mathit{id}_3, \mathit{id}_5, \mathit{id}_6, \mathit{id}_7 \}$.
 
@@ -276,8 +322,8 @@ $h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations
 %  \label{fig:a non-distributed linearizable history}
 %\end{figure}
 
-We say a history satisfy convergence, if given query operations $o_1$ and $o_2$ of this history, if $o_1$ and $o_2$ see the same set of update operations, then they observe from ``a same abstract state''. Or we can say, when such $o_1$ and $o_2$ are of same method, they should return same value. A sequential specification is deterministic, if from one state and one transition label, there is at most one destination state. It is obvious that all sequential specification examples are deterministic. By definition \ref{definition:distributed linearizability}, our distributed linearizability for deterministic sequential specification obviously implies convergence, %However, this does not holds when we consider nondeterministic sequential specification. One example is shown in \figurename~\ref{fig:a non-convergent history}. It is easy to see that this history is distributed linearizable w.r.t $\mathit{list}_s^{\mathit{ab}}$. Two $\mathit{read}$ operations both see $\mathit{add}(a,\circ_1,\circ_2)$ and $\mathit{add}(b,\circ_1,\circ_2)$. However, one of them decide to put $a$ before $b$, and the other decide to put $b$ before $a$, and this implies non-convergence.
-as stated by the following lemma.
+\gpnote*{Not sure where this is going}
+{We say a history satisfy convergence, if given query operations $o_1$ and $o_2$ of this history, if $o_1$ and $o_2$ see the same set of update operations, then they observe from ``a same abstract state''. Or we can say, when such $o_1$ and $o_2$ are of same method, they should return same value. A sequential specification is deterministic, if from one state and one transition label, there is at most one destination state. It is obvious that all sequential specification examples are deterministic. By definition \ref{definition:distributed linearizability}, our distributed linearizability for deterministic sequential specification obviously implies convergence, as stated by the following lemma.}
 
 
 %\begin{figure}[t]
