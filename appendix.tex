@@ -73,11 +73,6 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 
 
-\subsection{Proof in Subsection \ref{subsec:t0 specification and t1 specification}}
-\label{subsec:proof in subsection subsec t0 specification and t1 specification}
-
-
-
 
 
 \subsection{Proof of OR-set Implementation}
@@ -385,7 +380,46 @@ This completes the proof of this lemma. $\qed$
 
 
 \section{Proofs of Section \ref{sec:compositionality of distributed linearizability}}
-\label{sec:appendix proofs of section compositionality of distributed linearizability}
+\label{sec:appendix proofs of section compositionality of distributed linearizability}  
+
+
+
+\subsection{Definitions and Proofs in Subsection \ref{subsec:t0-linearizability and t1-linearizability}}
+\label{subsec:appendix definitions and proofs in subsection subsec t0-linearizability and t1-linearizability}
+
+A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$. 
+
+Given two sequences $l_1,l_2$, let $\mathit{diff}(l_1,l_2) = \{ (o_1,o_2) \vert$ the order of $o_1$ and $o_2$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $o_1$ an $o_2$ of $l$, let $\mathit{swap}(l,o_1,o_2)$ be a sequence obtained from $l$ by swapping $o_1$ and $o_2$. 
+
+The following lemma states that $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification. 
+
+\begin{lemma}
+\label{lemma:or-set is a t0-specification}
+$\mathit{OR}$-$\mathit{set}_s$ is a t0-specification. 
+\end{lemma}
+
+\begin {proof} 
+Given a distributed linearizable history $h$ and assume that $\mathit{lin} = (\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$ is a linearization. We need to prove that, each such sequence $\mathit{lin}'$ is also a linearization of $h$
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\mathit{lin}'$ contains the same set of elements as that of $\mathit{lin}$. 
+
+\item[-] $\mathit{lin}'$ is consistent with visibility relation. 
+\end{itemize} 
+
+We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. 
+
+
+
+$\qed$
+\end {proof}
+
+
+
+
+
+
 
 
 
@@ -407,7 +441,7 @@ We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
 
 If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable.
 
-Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$ 
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
 \end {proof}
 
 
@@ -438,12 +472,12 @@ We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
     \end{itemize}
 \end{itemize}
 
-If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for operation of $\mathit{obj}_1$, $\mathit{lin}$ is consistent with time-stamp. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable. 
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for operation of $\mathit{obj}_1$, $\mathit{lin}$ is consistent with time-stamp. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
 
-Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. Let $o_0$ be the operation that is of object $\mathit{obj}_1$ and has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. It is obvious that $o_0 \notin S_1$. Therefore, there exists operations $o_1,\ldots,o_k$, such that $o_1 \in S_1$, $o_1$ is of object $\mathit{obj}_1$, $(o_1,o_2),\ldots,(o_k,o_0) \in \mathit{vis}$. Since the visibility is transitive, we have that $(o_1,o_0) \in \mathit{vis}$. We already know that the time-stamp of $o_0$ is less than that of $o_1$. This contradicts the assumption that time-stamp is consistent with visiblity. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$ 
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. Let $o_0$ be the operation that is of object $\mathit{obj}_1$ and has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. It is obvious that $o_0 \notin S_1$. Therefore, there exists operations $o_1,\ldots,o_k$, such that $o_1 \in S_1$, $o_1$ is of object $\mathit{obj}_1$, $(o_1,o_2),\ldots,(o_k,o_0) \in \mathit{vis}$. Since the visibility is transitive, we have that $(o_1,o_0) \in \mathit{vis}$. We already know that the time-stamp of $o_0$ is less than that of $o_1$. This contradicts the assumption that time-stamp is consistent with visiblity. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
 
 %Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $O'$. Thus, let $o_1 \in S_1$ be the operation that has minimal time-stamp among operations in $S_1$. We can see that there exists $o_2 \in O'$, such that $o_2$ is of object $\mathit{obj}_1$, $o_2 \notin S_1$, and the time-stamp of $o_2$ is less than that of $o_1$. Since $o_2 \notin S_1$, we can see that there exists operation $o_3 \in S_1$, such that $(o_3,o_2) \in \mathit{vis}$. We can see that the time-stamp of $o_1$ is less than that of $o_3$, and thus, the time-stamp of $o_2$ is less than that of $o_3$. Therefore, we found that the time-stamp is not consistent with visibility order for $o_2$ and $o_3$, which contradicts the assumption that time-stamp is consistent with visiblity. $\qed$
-\end {proof} 
+\end {proof}
 
 
 
@@ -474,29 +508,29 @@ We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
     \end{itemize}
 \end{itemize}
 
-If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for each object $\mathit{ojb}_1 \in \mathit{objs}_1$, $\mathit{lin}$ is consistent with time-stamp of $\mathit{obj}_1$. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}_0$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, for each object $\mathit{obj}_1 \in \mathit{objs}_1$, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable. 
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for each object $\mathit{ojb}_1 \in \mathit{objs}_1$, $\mathit{lin}$ is consistent with time-stamp of $\mathit{obj}_1$. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}_0$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, for each object $\mathit{obj}_1 \in \mathit{objs}_1$, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
 
-Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, there exists a object $\mathit{obj}_1 \in \mathit{objs}_1$, such that $o$ is of $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. 
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, there exists a object $\mathit{obj}_1 \in \mathit{objs}_1$, such that $o$ is of $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
 
-Let $S_2 = \{ o \vert \exists \mathit{obj}_1 \in \mathit{objs}_1, o$ is of object $\mathit{obj}_1, o$ has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}' \}$. It is easy to see that $\forall o \in S_2$, $o \notin S_1$. 
+Let $S_2 = \{ o \vert \exists \mathit{obj}_1 \in \mathit{objs}_1, o$ is of object $\mathit{obj}_1, o$ has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}' \}$. It is easy to see that $\forall o \in S_2$, $o \notin S_1$.
 
-Thus, it is easy to see that, for each operation $o' \in S_2$, there exists an operation $o \in S_1$ and operations $o'_1,\ldots,o'_k$, such that $(o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis}$. Since the visibility relation is transitive, we have that $(o,o') \in \mathit{vis}$. 
+Thus, it is easy to see that, for each operation $o' \in S_2$, there exists an operation $o \in S_1$ and operations $o'_1,\ldots,o'_k$, such that $(o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis}$. Since the visibility relation is transitive, we have that $(o,o') \in \mathit{vis}$.
 
-Let $S_3 = \{ (o,o') \vert o \in S_1, o' \in S_2, \exists o'_1,\ldots,o'_k, (o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis} \}$. Let $S_4 = \{ (\mathit{obj},\mathit{obj}') \vert \exists (o,o') \in S_3$, $o$ is of object $\mathit{obj}$, $o'$ is of object $\mathit{obj}' \}$. 
+Let $S_3 = \{ (o,o') \vert o \in S_1, o' \in S_2, \exists o'_1,\ldots,o'_k, (o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis} \}$. Let $S_4 = \{ (\mathit{obj},\mathit{obj}') \vert \exists (o,o') \in S_3$, $o$ is of object $\mathit{obj}$, $o'$ is of object $\mathit{obj}' \}$.
 
-Let us prove that there is a cycle in $S_4$ by contradiction. Given $(\mathit{obj}_2,\mathit{obj}_1) in S_4$, we know that there is a operation of object of $\mathit{obj}_2$ in $S_1$, and thus, there must exists a operation of object of $\mathit{obj}_2$ in $S_2$. By definition of $S_2$, it is easy to see that there exists $\mathit{obj}_3$, such that $(\mathit{obj}_3,\mathit{obj}_2) \in S_4$. Since $S_4$ has no cycle, we applying this process and finally terminate with $(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1) \in S_4$ and could not found any $\mathit{obj}'$ to make $(\mathit{obj}',\mathit{obk}_k) \in S_4$. However, this implies that there is a operation of $\mathit{obj}_k$ that has minimal time-stamp among operations of $\mathit{obj}_k$ in $\mathit{Op}'$, and is in $S_1$. This contradicts our conclusion that $\forall o \in S_2$, $o \notin S_1$. Therefore, this is a cycle in $S_4$. 
+Let us prove that there is a cycle in $S_4$ by contradiction. Given $(\mathit{obj}_2,\mathit{obj}_1) in S_4$, we know that there is a operation of object of $\mathit{obj}_2$ in $S_1$, and thus, there must exists a operation of object of $\mathit{obj}_2$ in $S_2$. By definition of $S_2$, it is easy to see that there exists $\mathit{obj}_3$, such that $(\mathit{obj}_3,\mathit{obj}_2) \in S_4$. Since $S_4$ has no cycle, we applying this process and finally terminate with $(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1) \in S_4$ and could not found any $\mathit{obj}'$ to make $(\mathit{obj}',\mathit{obk}_k) \in S_4$. However, this implies that there is a operation of $\mathit{obj}_k$ that has minimal time-stamp among operations of $\mathit{obj}_k$ in $\mathit{Op}'$, and is in $S_1$. This contradicts our conclusion that $\forall o \in S_2$, $o \notin S_1$. Therefore, this is a cycle in $S_4$.
 
-Let the cycle in $S_4$ be $(\mathit{obj}_1,\mathit{obj}_k),(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1)$. Then, there exists operations $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}},\ldots, o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$, such that 
+Let the cycle in $S_4$ be $(\mathit{obj}_1,\mathit{obj}_k),(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1)$. Then, there exists operations $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}},\ldots, o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$, such that
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}}$ is of object $\mathit{obj}_1$, $\ldots$, $o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$ is of object $\mathit{obj}_k$. 
+\item[-] $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}}$ is of object $\mathit{obj}_1$, $\ldots$, $o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$ is of object $\mathit{obj}_k$.
 
-\item[-] $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in S_3$. 
+\item[-] $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in S_3$.
 \end{itemize}
 
-Thus, it is easy to see $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},$ $o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in \mathit{vis}$. By definition of $S_2$, we can see that $\mathit{ts}(o^{0}_{\mathit{o1}}) < \mathit{ts}(o^{1}_{\mathit{o1}}), \ldots, \mathit{ts}(o^{0}_{\mathit{ok}}) < \mathit{ts}(o^{1}_{\mathit{ok}})$. This contradicts the definition of causal-time-stamp. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$ 
-\end {proof} 
+Thus, it is easy to see $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},$ $o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in \mathit{vis}$. By definition of $S_2$, we can see that $\mathit{ts}(o^{0}_{\mathit{o1}}) < \mathit{ts}(o^{1}_{\mathit{o1}}), \ldots, \mathit{ts}(o^{0}_{\mathit{ok}}) < \mathit{ts}(o^{1}_{\mathit{ok}})$. This contradicts the definition of causal-time-stamp. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+\end {proof}
 
 
 
