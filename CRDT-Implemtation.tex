@@ -17,7 +17,8 @@
     \amesg & \in & \messages & \text{Messages} \\
     \amesgset & \subseteq & \messages & \text{Message Set} \\
     \aop & \in & \ops \equiv \opids & \text{Operations}\ (ID) \\
-    \alabellong[\amethod]{\argv}{\retv} \equiv \alabel  & \in & \methods \times \adomain \times \adomain & \text{Operation label} \\
+    \alabellong[\amethod]{\argv}{\retv} \equiv \alabel  & \in & \methods \times \adomain \times \adomain \equiv \labels & \text{Operation labels} \\
+    \alabelset & \subseteq & \labels & \text{Label Set}\\
     \arepord & \subseteq & \ops \times \ops & \text{Replica Order} \\
     \avisord & \subseteq & \ops \times \ops & \text{Visibility Order}
   \end{array}
@@ -131,13 +132,14 @@ In CRDT, each query operation works locally, while each update operation will in
 \subsection{Example: Replicated Growable Array (RGA)}
 \label{sec:rga}
 
-Let us now consider the implementation of the Example: Replicated
-Growable Array (RGA) CRDT which can be used to represent lists.
+Let us now consider as an example the implementation of the
+Replicated Growable Array (RGA) CRDT, which can be used to represent
+lists.
 In fact, this CRDT is generally used to implement distributed
 concurrent text editing~\cite{AttiyaBGMYZ16}.
 
-As we mentioned before, the important characteristic of this
-implementation is that conflicts resulting form concurrent updates in
+As we mentioned before, the important characteristic of CRDT
+implementations is that conflicts resulting form concurrent updates in
 overlapping sections of the list must be resolved deterministically in
 all replicas that have copies of the list.
 %
@@ -223,6 +225,8 @@ object element $\circ$, or otherwise after an element that was
 already present in the Ti-Tree of the list.
 %
 Moreover, it assumes that the element was not previously removed.
+
+\gpnote{Continue from here}
 
 
 

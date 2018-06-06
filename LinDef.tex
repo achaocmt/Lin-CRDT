@@ -4,61 +4,137 @@
 \section{Distributed Linearizability}
 \label{sec:distributed-lin}
 
-In this section, we propose a framework to specify the expected outcome in a linearizable approach, without referring to implementation details.
+Let us now concentrate on the definition of \crdtlin{} -- the main
+contribution of this paper.
+%
 
-
-
+\gpnote*{}{I think histories should come after sequential specs}
 \subsection{Histories}
 \label{subsec:histories}
 
+Firstly we will introduce the notion of \emph{histories} to represent
+abstractly the execution of a concrete client operating on an
+implementation of the data structure.
 
-%We define our specification on histories, which are abstract version of detailed executions and does not contain implementation details such as message delivery. Histories are used to capture the notion of client-observable effects (operations), as well as their order in each replica, and their visibility relation.
+Histories are composed of operation labels.
+An operation label $\alabellong{\argv}{\retv}$ represents the call of a method
+$\amethod \in \methods$, with argument $a \in \datadomain$, and
+resulting in the value $b \in \datadomain$.
 
-%Let us introduce the notion of operations.
-A operation label $m(a) \Rightarrow b$ with $m \in \mathbb{M}$ and $a,b \in \mathbb{D}$ is the user-observable behavior of an operation, which indicates that this operation calls method $m$ with argument $a$ and its return value is $b$. $\mathbb{OID}$ is a infinite set of operation identifiers. An operation is defined to be a tuple $(\ell,i,x)$, where $\ell$ is a operation label, $i \in \mathbb{OID}$ is a unique operation identifier, and $x \in \mathbb{OBJ}$ is the objects of this operation. Let $\mathbb{OP}$ be the set of operations. For operation label $m(a) \Rightarrow b$, when the argument (resp., return value) is not used, we write $m()\Rightarrow b$ (resp., $m(a)$) instead for short.
+We assume that in a history all labels are unique.
+Since there might be multiple calls to the same method with the same
+arguments and result, we will tag labels with a unique identifier $i$
+as in $\alabellongind{\argv}{\retv}{i}$.
+However, since we assume all labels are unique we will ignore
+identifiers when unambiguous.
+We can now define execution \emph{histories}.
 
-With the notion of operations, we can now define histories.
+\gpnote{Maybe we have an overlap of IDs}
+% We assume a set $\aopid \in \opids$ to represent unique \emph{operation identifiers}.
+
+
+% $\mathbb{OID}$ is a infinite set of operation identifiers. An operation is defined to be a tuple $(\ell,i,x)$, where $\ell$ is a operation label, $i \in \mathbb{OID}$ is a unique operation identifier, and $x \in \mathbb{OBJ}$ is the objects of this operation. Let $\mathbb{OP}$ be the set of operations. For operation label $m(a) \Rightarrow b$, when the argument (resp., return value) is not used, we write $m()\Rightarrow b$ (resp., $m(a)$) instead for short.
+
+% With the notion of operations, we can now define histories.
 
 \begin{definition}[histories]
-\label{definition:histories}
-A history is a tuple of the form $(\mathit{Op},\mathit{ro},\mathit{vis})$ .Here $\mathit{Op} \subseteq \mathbb{OP}$ is a set of operations; $\mathit{ro} \subseteq \mathit{Op} \times \mathit{Op}$ is the replica order, which is a union of transitive, irreflexive and total orders over $\mathit{Op}$; $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$ is the visibility order, which is acyclic and relates operations of same object. We require that $\mathit{ro} \subseteq \mathit{vis}$, and $\mathit{vis}^*$ be acyclic. 
+  \label{definition:histories} An execution history is a tuple of the form
+  $(\alabelset, \arepord, \avisord)$, where
+  \begin{enumerate}
+  \item $\alabelset$ is the set of labels representing the operations of
+    the execution,
+  \item $\arepord \in (\alabelset \times \alabelset)$ is the
+    \emph{replica order}, a binary relation between the labels of the
+    execution, such that when restricted to labels of operations generated
+    by each single replica it is a total order, and it does not relate labels of 
+    operations from different replicas, and
+  \item $\avisord \in (\alabelset \times \alabelset)$ is the
+    \emph{visibility order}, again an \emph{acyclic partial order}
+    relation between the labels of the execution, such that if $(\alabel,
+    \alabel') \in \avisord$ then the operation corresponding to the label
+    $\alabel'$ witnessed in its execution the effects of the operation
+    with label $\alabel$.
+  \end{enumerate}
+  % Here $\mathit{Op} \subseteq \mathbb{OP}$ is a set of operations; $\mathit{ro} \subseteq \mathit{Op} \times \mathit{Op}$ is the replica order, which is a union of transitive, irreflexive and total orders over $\mathit{Op}$; $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$ is the visibility order, which is acyclic and relates operations of same object. We require that $\mathit{ro} \subseteq \mathit{vis}$, and $\mathit{vis}^*$ be acyclic.
 \end{definition}
 
-$(o_1,o_2) \in \mathit{ro}$ represents that $o_1$ and $o_2$ are of same replica and the time point of $o_1$ is before that of $o_2$. $(o_1,o_2) \in \mathit{vis}$ means that $o_2$ is aware of $o_1$. %In detailed execution, this means that some message carrying the effect of $o_1$ has already been delivered into replica of $o_2$. In state-based CRDT implementation, this message contains some state aware of $o_1$, while in operation-based CRDT implementation, this message is the message of $o_1$. Based on this intuition, when
-We quire that for $(o_1,o_2) \in \mathit{vis}$, $o_1$ is of a update method, since only update methods have side-effect.
+% $(o_1,o_2) \in \mathit{ro}$ represents that $o_1$ and $o_2$ are of same replica and the time point of $o_1$ is before that of $o_2$. $(o_1,o_2) \in \mathit{vis}$ means that $o_2$ is aware of $o_1$. %In detailed execution, this means that some message carrying the effect of $o_1$ has already been delivered into replica of $o_2$. In state-based CRDT implementation, this message contains some state aware of $o_1$, while in operation-based CRDT implementation, this message is the message of $o_1$. Based on this intuition, when
+% We quire that for $(o_1,o_2) \in \mathit{vis}$, $o_1$ is of a update method, since only update methods have side-effect.
 
 \subsection{Sequential Specification}
 \label{subsec:sequential specification}
 
 %A sequential specification intends to propose a linearizable explanation for distributed objects.
 
-A specification alphabet is a tuple $(\ell,\mathit{id},S)$, where $\ell$ is a operation label, $\mathit{id}$ is an identifier of this specification alphabet, and $S$ is a set of identifiers. Let $\mathbb{A}$ be the set of specification alphabets. A sequential specification of CRDT is defined as a set of sequences over specification alphabets $\mathbb{A}$.
+For specifications we will consider sets of sequences of labels, each
+paired with an abstract visibility relation $\avisord$ relating the
+labels in the sequence.
+
+% A specification alphabet is a tuple $(\ell,\mathit{id},S)$, where $\ell$ is a operation label, $\mathit{id}$ is an identifier of this specification alphabet, and $S$ is a set of identifiers. Let $\mathbb{A}$ be the set of specification alphabets. A sequential specification of CRDT is defined as a set of sequences over specification alphabets $\mathbb{A}$.
 
 %\gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
-\label{definition:sequential specification}
-A sequential specification is a set of strings over specification alphabet $\mathbb{A}$.
+  \label{definition:sequential specification} A sequential
+  specification is a set of tuples $(\alabelset, \aseqord, \avisord)$, where
+  \begin{enumerate}
+  \item $\alabelset$ is a set of labels, 
+  \item $\aseqord$ is a sequence including all the labels in $\alabelset$,
+    representing a linearization of the operations,
+  \item and $\avisord$ is a partial order over $\alabelset$,
+    representing the visibility relation of the operations, and
+  \item we require that $\aseqord$ and $\avisord$ be consistent with
+    each other, that is $(\aseqord \cup \avisord)^+$ is acyclic.
+  \end{enumerate}
 \end{definition}
 
-The sequential specification is defined by transition rules of the form $\mathit{cond}_1$ $(m(a) \Rightarrow b,\mathit{id},S)$ $\mathit{cond}_2$, where $\mathit{cond}_1$ is a pre-condition and $\mathit{cond}_2$ is a post condition. When $\mathit{id}$ is not used in $\mathit{cond}_1$ and $\mathit{cond}_2$, we can skip it. When $S$ is not used in $\mathit{cond}_1$ and $\mathit{cond}_2$, we can skip it. We write $s {\xrightarrow{(m(a) \Rightarrow b,\mathit{id},S)}} s'$, if there exists a transition rule $\mathit{cond}_1$ $(m(a) \Rightarrow b,\mathit{id},S)$ $\mathit{cond}_2$, such that $s$ satisfies $\mathit{cond}_1$ and $s'$ satisfies $\mathit{cond}_2$. A sequence $(\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$ is in sequential specification, if there exists state $s_k$, such that $s_0 {\xrightarrow{(\ell_1,\mathit{id}_1,S_1)}} \ldots {\xrightarrow{(\ell_k,\mathit{id}_k,S_k)}} s_k$, and $s_0$ is the initial state. Here we also require that each $\mathit{id}$ is unique in $(\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$.
+To describe sequential specifications in a succinct way we will
+provide an operational description.
+To that end, we will associate to specifications a notion of abstract
+state, which we shall generally denote by $\abstate$ and its domain
+shall be denoted by $\abstates$.
+Then to each valid label $\alabel$ we will associate a transition
+function $\absopsemplain$ which given an initial state, and provided
+that the label can be applied into that state, it will result into a
+new abstract state.
+Hence, we denote by $\absopsem{\abstate} = \abstate'$ the fact that
+the resulting state for label $\alabel$ with initial state $\abstate$
+is $\abstate'$.
+%
+To simplify our descriptions, we will use a shortcut notation for
+$\absopsem{\abstate} = \abstate'$ and will write it as:
+\[ \abstate \xrightarrow{\alabel}  \abstate' \]
+
+In the specific case where the label $\alabel$ assumes a certain
+precondition $\apre$ over the initial abstract state $\abstate$ we
+will use Hoare-style triples and write
+\[ \big(\abstate\ |\ \apre(\abstate)\big) \xrightarrow{\alabel}  \abstate' \]
+
+
+% The sequential specification is defined by transition rules of the form $\mathit{cond}_1$ $(m(a) \Rightarrow b,\mathit{id},S)$ $\mathit{cond}_2$, where $\mathit{cond}_1$ is a pre-condition and $\mathit{cond}_2$ is a post condition. When $\mathit{id}$ is not used in $\mathit{cond}_1$ and $\mathit{cond}_2$, we can skip it. When $S$ is not used in $\mathit{cond}_1$ and $\mathit{cond}_2$, we can skip it. We write $s {\xrightarrow{(m(a) \Rightarrow b,\mathit{id},S)}} s'$, if there exists a transition rule $\mathit{cond}_1$ $(m(a) \Rightarrow b,\mathit{id},S)$ $\mathit{cond}_2$, such that $s$ satisfies $\mathit{cond}_1$ and $s'$ satisfies $\mathit{cond}_2$. A sequence $(\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$ is in sequential specification, if there exists state $s_k$, such that $s_0 {\xrightarrow{(\ell_1,\mathit{id}_1,S_1)}} \ldots {\xrightarrow{(\ell_k,\mathit{id}_k,S_k)}} s_k$, and $s_0$ is the initial state. Here we also require that each $\mathit{id}$ is unique in $(\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$.
 
 
 
-%For objects of simple types, a sequential specification is a set of operation sequences. Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, the following is the sequential specification for distributed counter, and is given as a set of transition rules between states. Each state contains a integer value. Transition rule $\{ \mathit{state} = i \}$ $(\mathit{inc},\_,\_)$ $\{ \mathit{state} = i+1 \}$ indicates that $\mathit{inc}$ will increase the state by $1$. Here we use $\_$ to indicate an element whose value has no influence. Since this rule does not use operation identifier and object, it is safe to write $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$ instead. Similarly for $\mathit{dec}$ and $\mathit{read}$ operations. We write $s {\xrightarrow{o}} s'$ to indicate one step of $o$ transition between states $s$ and $s'$ that satisfies some transition rule.
+% For objects of simple types, a sequential specification is a set of operation sequences. Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, the following is the sequential specification for distributed counter, and is given as a set of transition rules between states. Each state contains a integer value. Transition rule $\{ \mathit{state} = i \}$ $(\mathit{inc},\_,\_)$ $\{ \mathit{state} = i+1 \}$ indicates that $\mathit{inc}$ will increase the state by $1$. Here we use $\_$ to indicate an element whose value has no influence. Since this rule does not use operation identifier and object, it is safe to write $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$ instead. Similarly for $\mathit{dec}$ and $\mathit{read}$ operations. We write $s {\xrightarrow{o}} s'$ to indicate one step of $o$ transition between states $s$ and $s'$ that satisfies some transition %rul.
 
-%A sequence $(\ell_1,i_1,x) \cdot \ldots \cdot (\ell_k,i_k,x)$ is in sequential specification $\mathit{counter}_s$, if there exists state $s_k$, such that $s_0 {\xrightarrow{(\ell_1,i_1,x)}} \ldots {\xrightarrow{(\ell_k,i_k,x)}} s_k$, and $s_0$ is the initial state. For example, it is easy to see that $(\mathit{inc},\mathit{id}_1,x) \cdot (\mathit{inc},\mathit{id}_2,x) \cdot (\mathit{dec},\mathit{id}_3,x) \cdot (\mathit{read} \Rightarrow 1,\mathit{id}_4,x) \in \mathit{counter}_s$. Note that operations of one sequence of $\mathit{counter}_s$ must be of a same object. We also implicitly assume that each operation has a unique operation identifier.
+% A sequence $(\ell_1,i_1,x) \cdot \ldots \cdot (\ell_k,i_k,x)$ is in sequential specification $\mathit{counter}_s$, if there exists state $s_k$, such that $s_0 {\xrightarrow{(\ell_1,i_1,x)}} \ldots {\xrightarrow{(\ell_k,i_k,x)}} s_k$, and $s_0$ is the initial state. For example, it is easy to see that $(\mathit{inc},\mathit{id}_1,x) \cdot (\mathit{inc},\mathit{id}_2,x) \cdot (\mathit{dec},\mathit{id}_3,x) \cdot (\mathit{read} \Rightarrow 1,\mathit{id}_4,x) \in \mathit{counter}_s$. Note that operations of one sequence of $\mathit{counter}_s$ must be of a same object. We also implicitly assume that each operation has a unique operation identifier.
 
 
 \begin{example}[sequential specification of counter]
 \label{definition:sequential specification of counter}
-The sequential specification $\mathit{counter}_s$ of counter is given as follows: Let $\mathit{state}$ be a integer with initial value $0$.
-
+The sequential specification $\mathit{counter}_s$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows: 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = k \}$ $\mathit{inc}$ $\{ \mathit{state} = k+1 \}$.
-\item[-] $\{ \mathit{state} = k \}$ $\mathit{dec}$ $\{ \mathit{state} = k-1 \}$.
-\item[-] $\{ \mathit{state} = k \}$ $(\mathit{read}() \Rightarrow i)$ $\{ \mathit{state} = k \}$.
+\item[-] $k \xrightarrow{\alabellong[\mathsf{inc}]{}{}} k+1$
+\item[-] $k \xrightarrow{\alabellong[\mathsf{dec}]{}{}} k-1$
+\item[-] $k \xrightarrow{\alabellong[\mathsf{read}]{}{k}} k$
 \end{itemize}
+% given as follows: Let $\mathit{state}$ be a integer with initial value $0$.
+% \begin{itemize}
+% \setlength{\itemsep}{0.5pt}
+% \item[-] $\{ \mathit{state} = k \}$ $\mathit{inc}$ $\{ \mathit{state} = k+1 \}$.
+% \item[-] $\{ \mathit{state} = k \}$ $\mathit{dec}$ $\{ \mathit{state} = k-1 \}$.
+% \item[-] $\{ \mathit{state} = k \}$ $(\mathit{read}() \Rightarrow i)$ $\{ \mathit{state} = k \}$.
+% \end{itemize}
 \end{example}
 
 %However, for objects of some types which are designed only for distributed system, such as multi-value register and OR-set, sequential specification in above style seems insufficient (we explain this in the next subsection). To solve this problem, in the transition rules of sequential specification, for some operations, we give them a additional argument which is a set of operation identifiers. Such additional argument essentially represents the operations visible to this operation. We use the sequential specification of multi-value register as example to explain this, which is shown below.

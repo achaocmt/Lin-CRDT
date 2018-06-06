@@ -92,6 +92,10 @@
 \newcommand{\todo}[1]{{\bf \color{red}{#1}}}
 
 %%%%%%%%%%%%% CRDTs %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\crdtlin}{{\color{magenta} crdt-linearizability}}
+
+
+%%%%%%%%%%%%% CRDTs %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand{\aobj}{\ensuremath{\mathtt{o}}}
 \newcommand{\objs}{\ensuremath{\mathbb{O}\mathsf{bs}}}
@@ -105,6 +109,8 @@
 \newcommand{\adomain}{\ensuremath{\mathsf{D}}}
 \newcommand{\powerset}[1]{\ensuremath{\mathcal{P}(#1)}}
 \newcommand{\astate}{\ensuremath{\sigma}}
+\newcommand{\abstate}{\ensuremath{\alpha}}
+\newcommand{\abstates}{\ensuremath{\Sigma_{\alpha}}}
 \newcommand{\states}{\ensuremath{\Sigma}}
 \newcommand{\amesg}{\ensuremath{\mathsf{m}}}
 \newcommand{\messages}{\ensuremath{\mathcal{M}\mathsf{sg}}}
@@ -117,9 +123,21 @@
 \newcommand{\retv}{\ensuremath{r}}
 \newcommand{\alabellong}[3][\amethod]{\ensuremath{#1(#2) \Rightarrow
     #3}}
+\newcommand{\alabellongind}[4][\amethod]{\ensuremath{#1(#2) \overset{#4}{\Rightarrow}
+    #3}}
 \newcommand{\alabel}{\ensuremath{\ell}}
+\newcommand{\labels}{\ensuremath{\mathcal{L}}}
+\newcommand{\alabelset}{\ensuremath{\mathsf{L}}}
 \newcommand{\arepord}{\ensuremath{\mathsf{ro}}}
 \newcommand{\avisord}{\ensuremath{\mathsf{vis}}}
+\newcommand{\aseqord}{\ensuremath{\mathsf{seq}}}
+\newcommand{\absopsemplain}{\ensuremath{\delta}}
+\newcommand{\absopsem}[2][\alabel]{\ensuremath{\delta_{#1}(#2)}}
+\newcommand{\apre}{\ensuremath{\mathsf{pre}}}
+
+
+% \newcommand{\aopid}{i}
+% \newcommand{\opids}{\ensuremath{\mathcal{O}ID}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
