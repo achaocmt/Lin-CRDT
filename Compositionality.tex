@@ -38,7 +38,7 @@ It is easy to see that, a multi-object history $h$ being distributed linearizabl
 
 
 \subsection{T0-Linearizability and T1-Linearizability}
-\label{subsec:t0-linearizability and t1 linearizability}
+\label{subsec:t0-linearizability and t1-linearizability}
 
 T0-linearizability is a sub-class of distributed linearizability. 
 
@@ -54,16 +54,16 @@ A single-object history $h$ is t0-linearizable w.r.t a sequential specification 
 \end{itemize} 
 \end{definition} 
 
-The following lemma states some example of t0-linearizability. 
+The following lemma states some example of t0-linearizability. Their proof can be found in Appendix \ref{a}
 
 \begin{lemma}
 \label{lemma:several t0-specifications}
 The or-set implementation is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and the counter implementation is t0-linearizable w.r.t $\mathit{counter}_s$.
-\end{lemma}
+\end{lemma} 
 
-\begin{proof}
-$\qed$  
-\end{proof}
+
+
+
 
 For a history where time-stamp is used for conflict resolution, such as RGA and last-write-win register (LWW-register), we can assume that each operation also gives the information of time-stamp. Or we can say, we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: %A set of method is selected and called special method.
 
