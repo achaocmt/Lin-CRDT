@@ -6,6 +6,9 @@
 
 %We assume that given a multi-object history $h$, According to causal-delivery of CRDT, in this section, given a multi-object history $h$, we assume that for each object $\mathit{obj}$, the visibility relation of
 
+
+
+
 The following is the definition of distributed linearizability for multi-object histories.
 
 \begin{definition}[Distributed Linearizability for Multi-object Histories]
@@ -28,7 +31,94 @@ The following is the definition of compositional histories.
 A history $h$ of multiple objects is called compositional, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, $h$ is distributed linearizable.
 \end{definition}
 
-It is easy to see that, a multi-object history $h$ being distributed linearizable implies that the projection of $h$ into each object is distributed linearizable. When proving compositionality, we only need to consider the opposite direction.
+It is easy to see that, a multi-object history $h$ being distributed linearizable implies that the projection of $h$ into each object is distributed linearizable. When proving compositionality, we only need to consider the opposite direction. 
+
+
+
+
+\subsection{T0-Specification and T1-Specification}
+\label{subsec:t0 specification and t1 specification}
+
+
+
+\begin{definition}[t0-specification]
+\label{definition:t0-specification}
+A sequential specification $\mathit{spec}$ is a t0-specification, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
+
+\item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$.
+\end{itemize}
+%A sequential specification $\mathit{spec}$ is a t0-specification w.r.t a set $S$ of operation label pairs, if for each history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$ where $h$ is distributed linearizable w.r.t $\mathit{spec}$, the following conditions hold:
+
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-] Given operations $o_1,o_2 \in \mathit{Op}$, $(\ell_1,\ell_2) \in S$ implies that $(o_1,o_2) \in \mathit{vis}$. Here $\ell_1$ and $\ell_2$ is the operation labels of $o_1$ and $o_2$, respectively.
+
+%\item[-] Each such sequence $\mathit{lin}$ is a linearization of $h$: Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_)$ of $h$; $\mathit{lin}$ is consistent with $\mathit{vis}$.
+%\end{itemize}
+\end{definition}
+
+For t0-specification, any sequences consistent with visibility relation is its linearization. The following lemma shows several t0-specifications. Its proof can be found in Appendix \ref{subsec:proof in subsection subsec t0 specification and t1 specification}
+
+\begin{lemma}
+\label{lemma:several t0-specifications}
+$\mathit{counter}_s$, $\mathit{set}_s$ and $\mathit{OR}$-$\mathit{set}_s$ are t0-specification.
+
+%The following are t0-specifications:
+
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-] $\mathit{counter}_s$ is a t0-specification w.r.t $\emptyset$.
+
+%\item[-] $\mathit{set}_s^u$ is a t0-specification w.r.t $\{ (\mathit{add}(a),\mathit{rem}(a)) \vert a \in D \}$.
+
+%\item[-] $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification w.r.t $\emptyset$.
+%\end{itemize}
+\end{lemma}
+
+For a history where time-stamp is used for conflict resolution, such as RGA and last-write-win register (LWW-register), we can assume that each operation also gives the information of time-stamp. Or we can say, we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: %A set of method is selected and called special method.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o$ generates a new unique time-stamp, then $\mathit{ts}$ is this new time-stamp.
+
+\item[-] If $o$ does not generate new time-stamp, then $\mathit{ts}$ is the maximum of time-stamp among operations visible to $o$.
+
+\item[-] Moreover, we require that given operations $o_1$ and $o_2$, if $(o_1,o_2) \in \mathit{vis}$, then the time-stamp of $o_1$ is less or equal than that of $o_2$.
+\end{itemize}
+
+
+\begin{definition}[t1-specification]
+\label{definition:t1-specification}
+A sequential specification $\mathit{spec}$ is a t1-specification, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
+
+\item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$.
+
+\item[-] If the time-stamp of $o_1$ is less than that of $o_2$, then $o_1$ is before $o_2$ in $\mathit{lin}$. Or we could say, $\mathit{lin}$ is consistent with time-stamp.
+\end{itemize}
+\end{definition}
+
+The following lemma shows several t1-specifications. Its proof can be found in Appendix \ref{subsec:proof in subsection subsec t0 specification and t1 specification}
+
+\begin{lemma}
+\label{lemma:several t1-specifications}
+$\mathit{reg}_s$ and $\mathit{list}_s^{\mathit{af}}$ are t1-specification.
+\end{lemma}
+
+\begin{table}
+  \centering
+  \begin{tabular}[t]{l|l}
+    T0 & Counter, Set, \\
+    T1 & RGA,
+  \end{tabular}
+\end{table}
 
 
 
@@ -41,7 +131,7 @@ The following lemma states that a history of several objects of t0 specification
 \begin{restatable}{lemma}{composingTZero}
 \label{lemma:several t0-specifications can be composed}
 Given a multi-object history $h$, if each of its object uses a t0-specification, then, $h$ is compositional.
-\end{restatable} 
+\end{restatable}
 
 
 
@@ -64,7 +154,7 @@ The following lemma states that for a multi-object history, if its object use se
 \begin{restatable}{lemma}{composingTZeroAndOneTOne}
 \label{lemma:several t0-specifications and one t1-specification can be composed}
 Given a multi-object $h$, if its object use several t0-specifications and one t1-specification, and its visibility relation is transitive, then, $h$ is compositional.
-\end{restatable} 
+\end{restatable}
 
 
 
@@ -83,32 +173,32 @@ Composing several t0-specifications with several t1-specification does not hold 
 \end{figure}
 
 
-A history $h$ satisfies causal-time-stamp, if: Given operation $o_1,\ldots,o_{\mathit{2k+2}}$ of $h$ that are of objects of t1-specification, if 
+A history $h$ satisfies causal-time-stamp, if: Given operation $o_1,\ldots,o_{\mathit{2k+2}}$ of $h$ that are of objects of t1-specification, if
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $(o_2,o_3)$ are of a same object, $\ldots$, $(o_{\mathit{2k}},o_{\mathit{2k+1}})$ are of a same object, $(o_{\mathit{2k+2}},o_1)$ are of a same object, 
+\item[-] $(o_2,o_3)$ are of a same object, $\ldots$, $(o_{\mathit{2k}},o_{\mathit{2k+1}})$ are of a same object, $(o_{\mathit{2k+2}},o_1)$ are of a same object,
 
-\item[-] $\mathit{ts}(o_2) < \mathit{ts}(o_2)$, $\ldots$, and $\mathit{ts}(o_{\mathit{2k}}) < \mathit{ts}(o_{\mathit{2k+1}})$, 
+\item[-] $\mathit{ts}(o_2) < \mathit{ts}(o_2)$, $\ldots$, and $\mathit{ts}(o_{\mathit{2k}}) < \mathit{ts}(o_{\mathit{2k+1}})$,
 
-\item[-] $(o_1,o_2), \ldots, (o_{\mathit{ek+1}},o_{\mathit{2k+2}}) \in \mathit{vis}$. 
-\end{itemize} 
+\item[-] $(o_1,o_2), \ldots, (o_{\mathit{ek+1}},o_{\mathit{2k+2}}) \in \mathit{vis}$.
+\end{itemize}
 
-Then, we have $\mathit{ts}(o_1) < \mathit{ts}(o_{\mathit{2k+1}})$. 
+Then, we have $\mathit{ts}(o_1) < \mathit{ts}(o_{\mathit{2k+1}})$.
 
 The following lemma states that for a multi-object history, if its object use several t0-specifications and several t1-specification, and it satisfies causal-time-stamp and its visibility relation is transitive, then, $h$ is compositional. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications and several t1-specification can be composed}.
 
 \begin{restatable}{lemma}{composingTZeroAndTOne}
 \label{lemma:several t0-specifications and several t1-specification can be composed}
-Given a multi-object $h$, if its object use several t0-specifications and several t1-specification, and it satisfies causal-time-stamp and its visibility relation is transitive, then, $h$ is compositional. 
-\end{restatable} 
+Given a multi-object $h$, if its object use several t0-specifications and several t1-specification, and it satisfies causal-time-stamp and its visibility relation is transitive, then, $h$ is compositional.
+\end{restatable}
 
 
 
 
 
-\subsection{Semantics of Multi Objects} 
-\label{subsec:semantics of multi objects} 
+\subsection{Semantics of Multi Objects}
+\label{subsec:semantics of multi objects}
 
 When there is multiple objects, we say $(o_1,o_2) \in \mathit{vis}$, if either $(o_1,o_2) \in \mathit{ro}$, or $o_1$ is delivered to the replica of $o_2$ before $o_2$ happens. We consider CTDT implementation of t1-specifications use the time-stamp of Lamport's time-stamp: Each time-stamp is a tuple $(c,r)$ of a counter value $c \in \mathbb{N}$ and a replica identifier $r \in \mathbb{R}$; $(c_1,r_1) < (c_2,r_2)$, if $c_1 < c_2 \vee (c_1 = c_2 \wedge r_1 < r_2)$. To ensure compositionality of multiple objects, the following conditions needs to be satisfied:
 
@@ -116,16 +206,16 @@ When there is multiple objects, we say $(o_1,o_2) \in \mathit{vis}$, if either $
 \setlength{\itemsep}{0.5pt}
 \item[-] Cross-object-causal-delivery (COCD): We extend the notion of causal-delivery into multiple objects. Given two update operations $o_1$ and $o_2$, and assume $o_1$ is visible to $o_2$. Then, for each replica, once it receives $o_2$, it must be the case that $o_1$ has been previously received.
 
-\item[-] Shared-time-stamp (STS): the objects of t1-specifications shares a counter $\mathit{sCtr}$. Each message carries a value of $\mathit{sCtr}$, and when generating new message, the value of $\mathit{sCtr}$ is also considered.  
-\end{itemize} 
+\item[-] Shared-time-stamp (STS): the objects of t1-specifications shares a counter $\mathit{sCtr}$. Each message carries a value of $\mathit{sCtr}$, and when generating new message, the value of $\mathit{sCtr}$ is also considered.
+\end{itemize}
 
 
 
-Based on shared-time-stamp, 
+Based on shared-time-stamp,
 
 
 
-Formally, given a set $\mathit{Objs}$ of objects, its semantics is defined as $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of multiple operation-based CRDT object}. 
+Formally, given a set $\mathit{Objs}$ of objects, its semantics is defined as $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of multiple operation-based CRDT object}.
 
 
 \begin{figure}[ht]
@@ -171,12 +261,12 @@ $\Sigma' = \mathit{do}(\mathit{Objs} \times \mathbb{M} \times \mathbb{D} \times 
 \end{itemize}
 \caption{The definition of semantics of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}}$}
 \label{fig:the semantics of multiple operation-based CRDT object}
-\end{figure} 
+\end{figure}
 
 
 
 
-$R$ is now a function from object and replica identifier to local state. Message and action also record its object. $\mathit{MsgHB}$ and $\mathit{MsgDel}$ now record the relation between messages of multiple objects. In each transition rule of \figurename~\ref{fig:the semantics of multiple operation-based CRDT object}, we deal with each object according to its CRDT implementations. Similarly, a sequence $l$ of actions is an execution of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T,\mathit{MsgHB},\mathit{MsgDel}) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T,\mathit{MsgHB},\mathit{MsgDel})$. The semantics of $\mathit{Objs}$ is defined as the set of executions of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}}$. 
+$R$ is now a function from object and replica identifier to local state. Message and action also record its object. $\mathit{MsgHB}$ and $\mathit{MsgDel}$ now record the relation between messages of multiple objects. In each transition rule of \figurename~\ref{fig:the semantics of multiple operation-based CRDT object}, we deal with each object according to its CRDT implementations. Similarly, a sequence $l$ of actions is an execution of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T,\mathit{MsgHB},\mathit{MsgDel}) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T,\mathit{MsgHB},\mathit{MsgDel})$. The semantics of $\mathit{Objs}$ is defined as the set of executions of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}}$.
 
 
 
@@ -190,12 +280,12 @@ Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} 
 
 
 \subsection{Proving in Multi-Objects Semantics}
-\label{subsec:proving in multi-object semantics} 
+\label{subsec:proving in multi-object semantics}
 
 
-The formation of CRDT in this semantics is changed as follows, 
+The formation of CRDT in this semantics is changed as follows,
 
-The CRDT proved distributed linearizable are still distributed linearizable in this new semantics. 
+The CRDT proved distributed linearizable are still distributed linearizable in this new semantics.
 
 
 %%% Local Variables:

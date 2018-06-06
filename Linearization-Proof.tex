@@ -8,89 +8,7 @@ In this section, we propose the definition of t0 and t1 specification, and then 
 
 
 
-\subsection{T0-Specification and T1-Specification}
-\label{subsec:t0 specification and t1 specification}
 
-
-
-\begin{definition}[t0-specification]
-\label{definition:t0-specification}
-A sequential specification $\mathit{spec}$ is a t0-specification, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$: 
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
-
-\item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$. 
-\end{itemize}
-%A sequential specification $\mathit{spec}$ is a t0-specification w.r.t a set $S$ of operation label pairs, if for each history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$ where $h$ is distributed linearizable w.r.t $\mathit{spec}$, the following conditions hold:
-
-%\begin{itemize}
-%\setlength{\itemsep}{0.5pt}
-%\item[-] Given operations $o_1,o_2 \in \mathit{Op}$, $(\ell_1,\ell_2) \in S$ implies that $(o_1,o_2) \in \mathit{vis}$. Here $\ell_1$ and $\ell_2$ is the operation labels of $o_1$ and $o_2$, respectively.
-
-%\item[-] Each such sequence $\mathit{lin}$ is a linearization of $h$: Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_)$ of $h$; $\mathit{lin}$ is consistent with $\mathit{vis}$.
-%\end{itemize}
-\end{definition}
-
-For t0-specification, any sequences consistent with visibility relation is its linearization. The following lemma shows several t0-specifications. Its proof can be found in Appendix \ref{subsec:proof in subsection subsec t0 specification and t1 specification}
-
-\begin{lemma}
-\label{lemma:several t0-specifications}
-$\mathit{counter}_s$, $\mathit{set}_s$ and $\mathit{OR}$-$\mathit{set}_s$ are t0-specification. 
-
-%The following are t0-specifications:
-
-%\begin{itemize}
-%\setlength{\itemsep}{0.5pt}
-%\item[-] $\mathit{counter}_s$ is a t0-specification w.r.t $\emptyset$.
-
-%\item[-] $\mathit{set}_s^u$ is a t0-specification w.r.t $\{ (\mathit{add}(a),\mathit{rem}(a)) \vert a \in D \}$.
-
-%\item[-] $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification w.r.t $\emptyset$.
-%\end{itemize}
-\end{lemma}
-
-For a history where time-stamp is used for conflict resolution, such as RGA and last-write-win register (LWW-register), we can assume that each operation also gives the information of time-stamp. Or we can say, we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: %A set of method is selected and called special method.
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $o$ generates a new unique time-stamp, then $\mathit{ts}$ is this new time-stamp.
-
-\item[-] If $o$ does not generate new time-stamp, then $\mathit{ts}$ is the maximum of time-stamp among operations visible to $o$.
-
-\item[-] Moreover, we require that given operations $o_1$ and $o_2$, if $(o_1,o_2) \in \mathit{vis}$, then the time-stamp of $o_1$ is less or equal than that of $o_2$.
-\end{itemize}
-
-
-\begin{definition}[t1-specification]
-\label{definition:t1-specification}
-A sequential specification $\mathit{spec}$ is a t1-specification, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
-
-\item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$.
-
-\item[-] If the time-stamp of $o_1$ is less than that of $o_2$, then $o_1$ is before $o_2$ in $\mathit{lin}$. Or we could say, $\mathit{lin}$ is consistent with time-stamp. 
-\end{itemize}
-\end{definition}
-
-The following lemma shows several t1-specifications. Its proof can be found in Appendix \ref{subsec:proof in subsection subsec t0 specification and t1 specification}
-
-\begin{lemma}
-\label{lemma:several t1-specifications}
-$\mathit{reg}_s$ and $\mathit{list}_s^{\mathit{af}}$ are t1-specification. 
-\end{lemma}
-
-\begin{table}
-  \centering
-  \begin{tabular}[t]{l|l}
-    T0 & Counter, Set, \\
-    T1 & RGA, 
-  \end{tabular}
-\end{table}
 
 
 \gpwarning{Add a general strategy}
@@ -119,28 +37,28 @@ For a t0-specification $\mathit{spec}$, we construct a predicate $P(\mathit{conf
 
 \item[-] $C_4$ (message content): A statement about message content of each message in $\mathit{config}.T$.
 
-\item[-] $C_5$ (sequential explanation): For each replica $r$, we have that $\mathit{config}.R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{config},r))$. 
+\item[-] $C_5$ (sequential explanation): For each replica $r$, we have that $\mathit{config}.R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{config},r))$.
 \end{itemize}
 
 Here $\mathit{vd}(h,\mathit{config},r) = \{ o \vert (o,o') \in h.\mathit{vis}, \mathit{map}(o')$ is of replica $r \} \cup \{ o \vert (\mathit{map}(o),r) \in \mathit{config}.\mathit{MsgHB} \}$. $\mathit{vd}(h,\mathit{config},r)$ is the set of operations that are either visible to some operation of replica $r$, or has been delivered into replica $r$. The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying messages of operations in $S$ according to total order $\mathit{lin}$.
 
 
-Then, we need to prove that $P$ is a simulation relation in a way shown below. Note that since $\mathit{spec}$ is a t0-specification, we can freely choose many possible ways to locate linearization point of new operations. Among these possible ways, we choose to always insert a new operation after the tail of the old linearization. 
+Then, we need to prove that $P$ is a simulation relation in a way shown below. Note that since $\mathit{spec}$ is a t0-specification, we can freely choose many possible ways to locate linearization point of new operations. Among these possible ways, we choose to always insert a new operation after the tail of the old linearization.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $P(\mathit{config}_0,\epsilon,\epsilon,\emptyset)$ holds, where $\mathit{config}_0$ is the initial configuration. 
+\item[-] $P(\mathit{config}_0,\epsilon,\epsilon,\emptyset)$ holds, where $\mathit{config}_0$ is the initial configuration.
 
 \item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r,\mathit{mid})}} \mathit{config}'$, then $P(\mathit{config}', h' = h \otimes (m(a) \Rightarrow b,i,\mathit{obj}), \mathit{lin} \cdot (m(a) \Rightarrow b,i,h'.\mathit{vis}^{-1}(i)),\mathit{map} \cup \{ (\mathit{mid}, i) \})$ holds. Here $i$ is a unique operation identifier.
 
-\item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then $P(\mathit{config}',h' = h \otimes (m(a) \Rightarrow b,i,\mathit{obj}), \mathit{lin} \cdot (m(a) \Rightarrow b,i,h'.\mathit{vis}^{-1}(i)),\mathit{map})$ holds. Here $i$ is a unique operation identifier. 
+\item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then $P(\mathit{config}',h' = h \otimes (m(a) \Rightarrow b,i,\mathit{obj}), \mathit{lin} \cdot (m(a) \Rightarrow b,i,h'.\mathit{vis}^{-1}(i)),\mathit{map})$ holds. Here $i$ is a unique operation identifier.
 
 \item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $P(\mathit{config}',h,\mathit{lin},\mathit{map})$ holds.
 \end{itemize}
 
 Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$, $h \otimes o$ returns a history $(\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ o \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (o',o) \vert (\mathit{map}(o'),r) \in \mathit{config}.\mathit{MsgDel} \} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \})^*$. A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ satisfies conditions $C_1$ to $C_5$, as well as be a simulation relation described above, is called an invariant.
 
-The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t0-specification, we know that each sequence consistent with visibility is a linearization. 
+The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t0-specification, we know that each sequence consistent with visibility is a linearization.
 
 \begin{lemma}
 \label{lemma:invariant of operation-based CRDT implies distributed linearizability for t0-specification}
@@ -156,7 +74,7 @@ Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and a update operatio
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] If $o$ is a $\mathit{add}(a)$ operation of replica $r$:  then the message of $o$ is $(a,(c+1,r))$, where $c = \mathit{max}\{ c_1 \vert \exists o' = (\_,\_,\_,\mathit{ts}), (o',o) \in \mathit{vis}, \mathit{ts} = (c_1,\_) \}$. 
+\item[-] If $o$ is a $\mathit{add}(a)$ operation of replica $r$:  then the message of $o$ is $(a,(c+1,r))$, where $c = \mathit{max}\{ c_1 \vert \exists o' = (\_,\_,\_,\mathit{ts}), (o',o) \in \mathit{vis}, \mathit{ts} = (c_1,\_) \}$.
 
 \item[-] If $o$ is a $\mathit{rem}(a)$ operation: the message of $o$ is $S_1$, where $S_1 = \{ (a,\mathit{ts}') \vert (a,\mathit{ts}') \in S(o) \}$. We also require that $S_1 \neq \emptyset$.
 \end{itemize}
@@ -184,17 +102,17 @@ For a t1-specification $\mathit{spec}$, we use a same predicate $P(\mathit{confi
 \item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $P(\mathit{config}',h,\mathit{lin},\mathit{map})$ holds.
 \end{itemize}
 
-A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ satisfies conditions $C_1$ to $C_5$, as well as be a simulation relation described above, is called an invariant. 
+A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ satisfies conditions $C_1$ to $C_5$, as well as be a simulation relation described above, is called an invariant.
 
-The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility and time-stamp is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t1-specification, we know that each sequence consistent with visibility and time-stamp is a linearization. 
+The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility and time-stamp is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t1-specification, we know that each sequence consistent with visibility and time-stamp is a linearization.
 
 \begin{lemma}
 \label{lemma:invariant of operation-based CRDT implies distributed linearizability for t1-specification}
-If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t1-specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility and time-stamp is a linearization of $h$. 
-\end{lemma} 
+If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t1-specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility and time-stamp is a linearization of $h$.
+\end{lemma}
 
 
-In definition of invariant, only $C_4$ is specific to CRDT implementation. The following is the $C_4$ for rga. The detailed of such $C_4$ defining a correct variant can be found in Appendix \ref{subsec:appendix proofs of rga}. 
+In definition of invariant, only $C_4$ is specific to CRDT implementation. The following is the $C_4$ for rga. The detailed of such $C_4$ defining a correct variant can be found in Appendix \ref{subsec:appendix proofs of rga}.
 
 \begin{example}[$C_4$ for RGA]
 \label{example:c4 for rga}
@@ -202,11 +120,11 @@ Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and a update operatio
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] If $o$ is a $\mathit{add}(a,b)$ operation of replica $r$: the message of $o$ is $(a,\mathit{ts}_a,\mathit{ts}_b)$, where $\mathit{ts}_b$ is the time-stamp of operation $\mathit{add}(b,\_)$ in $h$, $\mathit{ts}_a = (c+1, r)$, and $c = \mathit{max}\{ c_1 \vert \exists o' = (\_,\_,\_,\mathit{ts}), (o',o) \in \mathit{vis}, \mathit{ts} = (c_1,\_) \}$. 
+\item[-] If $o$ is a $\mathit{add}(a,b)$ operation of replica $r$: the message of $o$ is $(a,\mathit{ts}_a,\mathit{ts}_b)$, where $\mathit{ts}_b$ is the time-stamp of operation $\mathit{add}(b,\_)$ in $h$, $\mathit{ts}_a = (c+1, r)$, and $c = \mathit{max}\{ c_1 \vert \exists o' = (\_,\_,\_,\mathit{ts}), (o',o) \in \mathit{vis}, \mathit{ts} = (c_1,\_) \}$.
 
-\item[-] If $o$ is a $\mathit{rem}(a)$ operation: the message of $o$ is $a$. 
-\end{itemize} 
-\end{example} 
+\item[-] If $o$ is a $\mathit{rem}(a)$ operation: the message of $o$ is $a$.
+\end{itemize}
+\end{example}
 
 
 
