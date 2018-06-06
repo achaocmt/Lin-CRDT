@@ -399,7 +399,7 @@ $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification.
 \end{lemma}
 
 \begin {proof} 
-Given a distributed linearizable history $h$ and assume that $\mathit{lin} = (\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$ is a linearization. We need to prove that, each such sequence $\mathit{lin}'$ is also a linearization of $h$
+Given a distributed linearizable history $h$ and assume that $\mathit{lin}$ is a linearization. We need to prove that, each such sequence $\mathit{lin}'$ described below is also a linearization of $h$
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -408,7 +408,22 @@ Given a distributed linearizable history $h$ and assume that $\mathit{lin} = (\e
 \item[-] $\mathit{lin}'$ is consistent with visibility relation. 
 \end{itemize} 
 
-We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. 
+We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. Our proof proceed in three steps: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] In the first step, we need to prove that, given a linarization $\mathit{lin}$ and a sequence $\mathit{lin}'$ consistent with visibility relation of $h$, if $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$. 
+    
+    We prove this by contradiction. Assume $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, and for each $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, we have that either $o_1$ and $o_2$ are not concurrent, or $o_1$ and $o_2$ are not adjacent in $\mathit{lin}$. 
+    
+    Since $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, let $(o,o')$ be a element of $\mathit{diff}(\mathit{lin},\mathit{lin}')$, and the distance of $o_1$ and $o_2$ is minimal in $\{$ the distance between $o_1$ and $o_2 \vert (o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}') \}$. Let us prove that $o$ and $o'$ are adjacent by contradiction: If there exists $o''$ between $o$ and $o'$. Assume that in $\mathit{lin}$, $o$ is before $o''$, and $o''$ is before $o'$. By assumption, the order between $o$ and $o''$, and between $o''$ and $o'$ is the same in $\mathit{lin}$ and in $\mathit{lin}'$. This implies that $o$ is still before $o'$ in $\mathit{lin}'$, which contradicts the fact that $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$. 
+    
+    Since $o$ and $o'$ are adjacent and $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, by assumption we know that $o$ and $o'$ are not concurrent. Or we can say, $(o,o') \in \mathit{vis} \vee \mathit{o',o} \in \mathit{vis}$. This contradicts that both $\mathit{lin}$ and $\mathit{lin}'$ are consistent with visibility relation. This completes the proof of the first step. 
+
+\item[-] In the second step, we need to prove that, given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, sequence $l$ is obtained from $\mathit{lin}$ by swapping $o_1$ and $o_2$, then, $l$ is also a linearization. 
+    
+    Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Then, to prove the second step, it is enough to prove that, if in the abstract state of $\mathit{spec}$, we have  
+\end{itemize}  
 
 
 
