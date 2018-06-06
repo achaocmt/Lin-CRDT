@@ -4,21 +4,21 @@
 \section{Proving Distributed Linearizability}
 \label{sec:proving distributed linearizability}
 
-In this section, we propose the definition of t0 and t1 specification, and then propose our approach for proving distributed linearizability for t0 and t1 specification, respectively. Our proof is done by simulation.
+%In this section, we propose the definition of t0 and t1 specification, and then propose our approach for proving distributed linearizability for t0 and t1 specification, respectively. Our proof is done by simulation. 
+
+%\gpwarning{Add a general strategy} 
+
+In this section, we propose the proving strategy for CRDT implementations based on simulation.
 
 
 
+\subsection{Time Order of Executions as Linearization}
+\label{subsec:time order of execution as linearization}  
 
+ 
+For some CRDT implementations, the time-order of operations in execution is a linearization. For such CRDT implementation, our proof approach is as follows: 
 
-
-\gpwarning{Add a general strategy}
-
-\subsection{Proof Approach for T0-Specifications}
-\label{subsec:proof approach for t0-specifications}
-
-When the context is clear, we do not distinguish an operation and its unique identifier.
-
-For a t0-specification $\mathit{spec}$, we construct a predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ where $\mathit{config} = (R,T,\mathit{MsgHB},\mathit{MsgDel})$ is a configuration of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$, $h$ is a history, $\mathit{lin} \in \mathbb{A}^*$ is used for linearization, and $\mathit{map} \subseteq \mathbb{MID} \times \mathbb{OID}$ is a function used to associate messages of $\mathit{config}.T$ with operations of $h$. We require $P(\mathit{config},h,\mathit{lin},\mathit{map})$ to be a conjunction of the following statements:
+Given a object $\mathit{obj}$ and a specification $\mathit{spec}$, we construct a predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ where $\mathit{config} = (R,T,\mathit{MsgHB},\mathit{MsgDel})$ is a configuration of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$, $h$ is a history, $\mathit{lin} \in \mathbb{A}^*$ is sequence used as linearization, and $\mathit{map} \subseteq \mathbb{MID} \times \mathbb{OID}$ is a function used to associate messages of $\mathit{config}.T$ with operations of $h$. We require $P(\mathit{config},h,\mathit{lin},\mathit{map})$ to be a conjunction of the following statements:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -43,7 +43,7 @@ For a t0-specification $\mathit{spec}$, we construct a predicate $P(\mathit{conf
 Here $\mathit{vd}(h,\mathit{config},r) = \{ o \vert (o,o') \in h.\mathit{vis}, \mathit{map}(o')$ is of replica $r \} \cup \{ o \vert (\mathit{map}(o),r) \in \mathit{config}.\mathit{MsgHB} \}$. $\mathit{vd}(h,\mathit{config},r)$ is the set of operations that are either visible to some operation of replica $r$, or has been delivered into replica $r$. The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying messages of operations in $S$ according to total order $\mathit{lin}$.
 
 
-Then, we need to prove that $P$ is a simulation relation in a way shown below. Note that since $\mathit{spec}$ is a t0-specification, we can freely choose many possible ways to locate linearization point of new operations. Among these possible ways, we choose to always insert a new operation after the tail of the old linearization.
+Then, we need to prove that $P$ is a simulation relation in a way shown below. Note that here we choose the time order of executions as the linearization. Or we can say, we obtain new linearization by inserting a new operation after the tail of the old linearization. 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -56,16 +56,16 @@ Then, we need to prove that $P$ is a simulation relation in a way shown below. N
 \item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $P(\mathit{config}',h,\mathit{lin},\mathit{map})$ holds.
 \end{itemize}
 
-Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$, $h \otimes o$ returns a history $(\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ o \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (o',o) \vert (\mathit{map}(o'),r) \in \mathit{config}.\mathit{MsgDel} \} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \})^*$. A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ satisfies conditions $C_1$ to $C_5$, as well as be a simulation relation described above, is called an invariant.
+Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$, $h \otimes o$ returns a history $(\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ o \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (o',o) \vert (\mathit{map}(o'),r) \in \mathit{config}.\mathit{MsgDel} \} \cup \{ (o',o) \vert \mathit{map}(o')$ is a message of replica $r \})^*$. A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is called an invariant, if it satisfies the simulation relation described above. It is obvious that the existence of an invariant implies distributed linearizability. 
 
-The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t0-specification, we know that each sequence consistent with visibility is a linearization.
+%The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t0-specification, we know that each sequence consistent with visibility is a linearization.
 
-\begin{lemma}
-\label{lemma:invariant of operation-based CRDT implies distributed linearizability for t0-specification}
-If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t0-specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility is a linearization of $h$.
-\end{lemma}
+%\begin{lemma}
+%\label{lemma:invariant of operation-based CRDT implies distributed linearizability for t0-specification}
+%If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t0-specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility is a linearization of $h$.
+%\end{lemma} 
 
-In definition of invariant, only $C_4$ is specific to CRDT implementation. The following is the $C_4$ for or-set implementation. The detailed of such $C_4$ defining a correct variant can be found in Appendix \ref{subsec:appendix proofs of or-set implementation}.
+In definition of invariant, only condition $C_4$ is specific to CRDT implementation. The following is the condition $C_4$ for or-set implementation. 
 
 \begin{example}[$C_4$ for or-set implementation]
 \label{example:c4 for or-set implementation}
@@ -81,15 +81,30 @@ Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and a update operatio
 Here $S(o) = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}')$, $(o',o) \in \mathit{vis}$, for each $\mathit{rem}(b)$ operation $o'' \neq o, (o'',o) \in \mathit{vis} \Rightarrow (o',o'') \neq \mathit{vis} \}$.
 \end{example}
 
+The proof for or-set can be found in Appendix \ref{subsec:appendix proofs of or-set implementation}. The counter implementation can be similarly proved and its proof can be found in Appendix \ref{a}. 
 
 
 
 
+\subsection{Time-Stamp Order as Linearization}
+\label{subsec:time-stamp order as linearizabtion}  
 
-\subsection{Proof Approach for T1-Specifications}
-\label{subsec:proof approach for t1-specifications}
+For some CRDT implementation, such as RGA, time-stamp is used for conflict resolution, and it can not be only use the time order of executions as linearization. For example, there must be a fixed order for concurrent $\mathit{add}(b,a)$ and $\mathit{add}(c,a)$, and this order may contradict the time order of execution. 
 
-For a t1-specification $\mathit{spec}$, we use a same predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ in subsection \ref{subsec:proof approach for t0-specifications}. We still need to prove that $P$ is a simulation relation. The difference is the construction of linearization: a operation with time-stamp $\mathit{ts}$ is put after the last operation with a time-stamp less or equal than $\mathit{ts}$.
+For such CRDT implementation, we can assume that each operation also gives the information of time-stamp. Or we can say, we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o$ generates a new unique time-stamp, then $\mathit{ts}$ is this new time-stamp.
+
+\item[-] If $o$ does not generate new time-stamp, then $\mathit{ts}$ is the maximum of time-stamp among operations visible to $o$.
+
+\item[-] Moreover, we require that given operations $o_1$ and $o_2$, if $(o_1,o_2) \in \mathit{vis}$, then the time-stamp of $o_1$ is less or equal than that of $o_2$.
+\end{itemize}
+
+Then, for such CRDT implementation, we use the time-stamp order as linearization and prove distributed linarization as follows: 
+
+We use a same predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ as in subsection \ref{subsec:proof approach for t0-specifications}. We still need to prove that $P$ is a simulation relation. The difference is the process of constructing new linearization: a operation with time-stamp $\mathit{ts}$ is put after the last operation with a time-stamp less or equal than $\mathit{ts}$ in old linearization.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -100,19 +115,19 @@ For a t1-specification $\mathit{spec}$, we use a same predicate $P(\mathit{confi
 \item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then $P(\mathit{config}',h' = h \otimes (m(a) \Rightarrow b,i,\mathit{obj}),\mathit{lin}',\mathit{map})$ hold. Here $i$ is a unique operation identifier, and $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(m(a) \Rightarrow b,i,h'.\mathit{vis}^{-1}(i))$ after the last operation with time-stamp less or equal than $\mathit{ts}$.
 
 \item[-] If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $P(\mathit{config}',h,\mathit{lin},\mathit{map})$ holds.
-\end{itemize}
+\end{itemize} 
 
-A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ satisfies conditions $C_1$ to $C_5$, as well as be a simulation relation described above, is called an invariant.
+A predicate $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is called an invariant, if it satisfies the simulation relation described above. It is obvious that the existence of an invariant implies distributed linearizability. 
 
-The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility and time-stamp is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t1-specification, we know that each sequence consistent with visibility and time-stamp is a linearization.
+%The following lemma states that the existence of such invariant implies distributed linearizability, and each sequence consistent with visibility and time-stamp is a linearization. To prove this lemma, we first prove that by induction on length of executions, we obtain a linearization. Then by definition of t1-specification, we know that each sequence consistent with visibility and time-stamp is a linearization.
 
-\begin{lemma}
-\label{lemma:invariant of operation-based CRDT implies distributed linearizability for t1-specification}
-If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t1-specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility and time-stamp is a linearization of $h$.
-\end{lemma}
+%\begin{lemma}
+%\label{lemma:invariant of operation-based CRDT implies distributed linearizability for t1-specification}
+%If there exists an invariant $P$ for a CRDT object $\mathit{obj}$ and a t1-specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$, and each sequences that consistent with visibility and time-stamp is a linearization of $h$.
+%\end{lemma}
 
 
-In definition of invariant, only $C_4$ is specific to CRDT implementation. The following is the $C_4$ for rga. The detailed of such $C_4$ defining a correct variant can be found in Appendix \ref{subsec:appendix proofs of rga}.
+In definition of invariant, only condition $C_4$ is specific to CRDT implementation. The following is the condition $C_4$ for RGA.
 
 \begin{example}[$C_4$ for RGA]
 \label{example:c4 for rga}
@@ -126,7 +141,7 @@ Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and a update operatio
 \end{itemize}
 \end{example}
 
-
+The detailed of RGA can be found in Appendix \ref{subsec:appendix proofs of rga}. The LWW register can be similarly proved and its proof can be found in Appendix \ref{a}. 
 
 
 

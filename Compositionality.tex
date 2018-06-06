@@ -4,16 +4,17 @@
 \section{Compositionality of Distributed Linearizability}
 \label{sec:compositionality of distributed linearizability}
 
-%We assume that given a multi-object history $h$, According to causal-delivery of CRDT, in this section, given a multi-object history $h$, we assume that for each object $\mathit{obj}$, the visibility relation of
 
 
 
+\subsection{Definition of Compositionality}
+\label{subsec:definition of compositionality}
 
 The following is the definition of distributed linearizability for multi-object histories.
 
 \begin{definition}[Distributed Linearizability for Multi-object Histories]
 \label{definition:distributed linearizability for multi-object histories}
-A history $h$ of multiple objects is distributed linearizabile, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
+A multi-object history $h$ is distributed linearizabile, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
 
 \begin{enumerate}[(i)]
 \item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations of visible to $o$ via $h.\mathit{vis}$.
@@ -28,56 +29,41 @@ The following is the definition of compositional histories.
 
 \begin{definition}[Compositionality]
 \label{definition:compositionality}
-A history $h$ of multiple objects is called compositional, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, $h$ is distributed linearizable.
+A multi-object history $h$ is called compositional, if: $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$, if and only if, $h$ is distributed linearizable.
 \end{definition}
 
-It is easy to see that, a multi-object history $h$ being distributed linearizable implies that the projection of $h$ into each object is distributed linearizable. When proving compositionality, we only need to consider the opposite direction. 
+It is easy to see that, a multi-object history $h$ being distributed linearizable implies that the projection of $h$ into each object is distributed linearizable. When proving compositionality, we only need to consider the opposite direction.
 
 
 
 
-\subsection{T0-Specification and T1-Specification}
-\label{subsec:t0 specification and t1 specification}
+\subsection{T0-Linearizability and T1-Linearizability}
+\label{subsec:t0-linearizability and t1 linearizability}
 
+T0-linearizability is a sub-class of distributed linearizability. 
 
-
-\begin{definition}[t0-specification]
-\label{definition:t0-specification}
-A sequential specification $\mathit{spec}$ is a t0-specification, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
+\begin{definition}[t0-linearizability]
+\label{definition:t0-ilnearizability}
+A single-object history $h$ is t0-linearizable w.r.t a sequential specification $\mathit{spec}$, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
 
 \item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$.
-\end{itemize}
-%A sequential specification $\mathit{spec}$ is a t0-specification w.r.t a set $S$ of operation label pairs, if for each history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$ where $h$ is distributed linearizable w.r.t $\mathit{spec}$, the following conditions hold:
+\end{itemize} 
+\end{definition} 
 
-%\begin{itemize}
-%\setlength{\itemsep}{0.5pt}
-%\item[-] Given operations $o_1,o_2 \in \mathit{Op}$, $(\ell_1,\ell_2) \in S$ implies that $(o_1,o_2) \in \mathit{vis}$. Here $\ell_1$ and $\ell_2$ is the operation labels of $o_1$ and $o_2$, respectively.
-
-%\item[-] Each such sequence $\mathit{lin}$ is a linearization of $h$: Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_)$ of $h$; $\mathit{lin}$ is consistent with $\mathit{vis}$.
-%\end{itemize}
-\end{definition}
-
-For t0-specification, any sequences consistent with visibility relation is its linearization. The following lemma shows several t0-specifications. Its proof can be found in Appendix \ref{subsec:proof in subsection subsec t0 specification and t1 specification}
+The following lemma states some example of t0-linearizability. 
 
 \begin{lemma}
 \label{lemma:several t0-specifications}
-$\mathit{counter}_s$, $\mathit{set}_s$ and $\mathit{OR}$-$\mathit{set}_s$ are t0-specification.
-
-%The following are t0-specifications:
-
-%\begin{itemize}
-%\setlength{\itemsep}{0.5pt}
-%\item[-] $\mathit{counter}_s$ is a t0-specification w.r.t $\emptyset$.
-
-%\item[-] $\mathit{set}_s^u$ is a t0-specification w.r.t $\{ (\mathit{add}(a),\mathit{rem}(a)) \vert a \in D \}$.
-
-%\item[-] $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification w.r.t $\emptyset$.
-%\end{itemize}
+The or-set implementation is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and the counter implementation is t0-linearizable w.r.t $\mathit{counter}_s$.
 \end{lemma}
+
+\begin{proof}
+$\qed$  
+\end{proof}
 
 For a history where time-stamp is used for conflict resolution, such as RGA and last-write-win register (LWW-register), we can assume that each operation also gives the information of time-stamp. Or we can say, we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: %A set of method is selected and called special method.
 
