@@ -52,48 +52,41 @@ A single-object history $h$ is t0-linearizable w.r.t a sequential specification 
 
 \item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$.
 \end{itemize}
-\end{definition} 
+\end{definition}
 
-To prove t0-linearizability, we introduce the notion of t0-specifications. A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$. 
+To prove t0-linearizability, we introduce the notion of t0-specifications. A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
 
-The following lemma shows some sequential specifications are t0-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t0-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that or-set is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and counter are t0-linearizable w.r.t $\mathit{counter}_s$. 
+The following lemma shows some sequential specifications are t0-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t0-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that or-set is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and counter is t0-linearizable w.r.t $\mathit{counter}_s$.
 
 \begin{restatable}{lemma}{SeveralTZeroSpecifications}
 \label{lemma:several t0-specifications}
-$\mathit{OR}$-$\mathit{set}_s$, $\mathit{set}_s$ and $\mathit{counter}_s$ are t0-specifications. 
+$\mathit{OR}$-$\mathit{set}_s$, $\mathit{set}_s$ and $\mathit{counter}_s$ are t0-specifications.
 \end{restatable}
 
 
-T1-linearizability is a sub-class of distributed linearizability.
+
+Given a history $h$, a sequence $\mathit{lin}$ is called a strict time-stamp order candidate of $h$, if for each elements $o_1,o_2$ of $\mathit{lin}$, if the time-stamp of $o_1$ in $h$ is less than that of $o_2$, then, $o_1$ is before $o_2$ in $\mathit{lin}$. T1-linearizability is a sub-class of distributed linearizability.
 
 \begin{definition}[t1-linearizability]
 \label{definition:t1-ilnearizability}
-A single-object history $h$ is t1-linearizable w.r.t a sequential specification $\mathit{spec}$, if each sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
-
-\item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$. 
-
-\item[-] $\mathit{lin}$ is consistent with time-stamp of operations of $h$. 
-\end{itemize}
+A single-object history $h$ is t1-linearizable w.r.t a sequential specification $\mathit{spec}$, if each strict time-stamp order candidiate $\mathit{lin}$ is a linearization of $h$. 
 \end{definition} 
 
+To prove t1-linearizability, we introduce the notion of t1-specifications. A specification $\mathit{spec}$ is called t1-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, and has a strict time-stamp order candidate as linearization, then any strict time-stamp order candidate is a linearization of $h$.
 
+The following lemma shows some sequential specifications are t1-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t1-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that RGA is t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$. 
 
-The following lemma shows several t1-specifications. Its proof can be found in Appendix \ref{subsec:proof in subsection subsec t0 specification and t1 specification}
-
-\begin{lemma}
+\begin{restatable}{lemma}{SeveralTOneSpecifications}
 \label{lemma:several t1-specifications}
-$\mathit{reg}_s$ and $\mathit{list}_s^{\mathit{af}}$ are t1-specification.
-\end{lemma}
+$\mathit{list}_s^{\mathit{af}}$ and $\mathit{reg}_s$ are t1-specifications.
+\end{restatable}
+
 
 \begin{table}
   \centering
   \begin{tabular}[t]{l|l}
-    T0 & Counter, Set, \\
-    T1 & RGA,
+    T0 & $\mathit{OR}$-$\mathit{set}_s$, $\mathit{set}_s$, $\mathit{counter}_s$,  \\
+    T1 & $\mathit{list}_s^{\mathit{af}}$, $\mathit{reg}_s$, 
   \end{tabular}
 \end{table}
 
@@ -169,6 +162,60 @@ The following lemma states that for a multi-object history, if its object use se
 \label{lemma:several t0-specifications and several t1-specification can be composed}
 Given a multi-object $h$, if its object use several t0-specifications and several t1-specification, and it satisfies causal-time-stamp and its visibility relation is transitive, then, $h$ is compositional.
 \end{restatable}
+
+
+
+
+
+
+\subsection{Modified CRDT Implementation}
+\label{subsec:modified CRDT implementation} 
+
+To ensure composing, we modify t1-algorithms as follows: The system supplies a method called $\mathit{updateGlobalTS}$, which supplies a time-stamp that is updated along the global system. When a method needs to generate new time-stamp, it calls this method to generate new time-stamp, and such process will also update the global time-stamp of this replica. When a method sends a message, the message should contain the current global time-stamp value. When a replica receives a message, it also use the global time-stamp value in message to update its own global time-stamp value. Moreover, the global time-stamp satisfies causal-time-stamp property.
+
+The RGA algorithm after modification is as follows: Here a message contains the current global time-stamp value, and a replica update global time-stamp value is not explicitly written in code. Instead, such processes will be make explicit when constructing the operational semantics. 
+
+\begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:rga}]
+  payload Ti-Tree N, Set Tomb
+  initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
+
+  addAfter(a,b) :
+    atSource :
+      precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
+      let ts@|$_{\mathtt{a}}$|@ = updateGlobalTS() 
+      let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@)?(0,r@|$_{0}$|@):(timestamp of b in N)
+    downStream(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@) :
+      precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
+      N = N ts@|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@)}
+
+  remove(a) :
+    atSource :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
+    downStream(a) :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N
+      Tomb = Tomb @|$\cup$|@ {a}
+
+  read() :
+    return traverse(N, Tomb)
+\end{lstlisting} 
+
+
+The following lemma states that the modified RGA is also t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and the modified LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$. Its proof can be found in Appendix \ref{a}. 
+
+\begin{restatable}{lemma}{ModifiedRGAandLWWRegStillTOne}
+\label{lemma:modified RGA and LWW-register is still t1-linearizable}
+$\mathit{list}_s^{\mathit{af}}$ and $\mathit{reg}_s$ are t1-specifications.
+\end{restatable} 
+
+Lamport's time-stamp is one way to implement global time-stamp, as stated by the following lemma. Its proof can be found in Appendix \ref{a}. 
+
+\begin{restatable}{lemma}{LamportTSasGlobalTS}
+\label{lemma:lamport time-stamp as global time-stamp}
+Lamport's time-stamp satisfies causal-time-stamp. 
+\end{restatable} 
+
+
+ 
 
 
 
