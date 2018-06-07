@@ -221,15 +221,6 @@ When the context is clear, in $\mathit{read}$ operation, we will omit $\circ$.
 \end{example}
 
 
-
-
-
-
-
-
-
-
-
 \subsection{Definition of Distributed \CRDTLin{}}
 \label{subsec:definition of distributed linearizability}
 
@@ -240,8 +231,11 @@ $\alabel_{up} \in \Updates$ and into $\alabel_{qr} \in \Queries$.
 Later we will extend the framework to consider query/update
 operations.
 
-A label is an update label if in its specification the state before
-and after are different.
+We will generally assume that methods are predefined as either update
+or query, and labels are defined according to the method.
+In general however, given a specification in the operational style
+described above, we can identify a label as an update if in its
+specification the state before and after are different.
 Formally, if $\sigma \xrightarrow{\alabel} \sigma'$ belongs to $\Spec$
 and $\sigma \neq \sigma'$ we say that $\alabel$ is an update, and
 $\alabel \in \Updates$.\footnote{We assume that labels are
@@ -282,7 +276,7 @@ A history $h = (\alabelset,\arepord,\avisord)$ is \CRDTLin{} w.r.t. a \gp{First 
 \gpwarning*{}{This definition has to be worked out again}
 \begin{enumerate}[(i)]
 % \item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\_)$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations visible to $o$.
-%For each operation $o = (m(a) \Rightarrow b,i,\_)$ in $h$, assume the transition rule of $m$ in $\mathit{spec}$ is $\mathit{cond}_1 (\ell,\mathit{id}£¬S) \mathit{cond}_2$: If $S = \emptyset$, then we use $(m(a) \Rightarrow b,i)$; otherwise, $S \neq \emptyset$ and we use $(m(a) \Rightarrow b,i,\{ j \vert (\_,j,\_) \in \mathit{vis}^{-1}(o)),$ operations $i$ and $j$ is of a same object $\}$.
+%For each operation $o = (m(a) \Rightarrow b,i,\_)$ in $h$, assume the transition rule of $m$ in $\mathit{spec}$ is $\mathit{cond}_1 (\ell,\mathit{id}, S) \mathit{cond}_2$: If $S = \emptyset$, then we use $(m(a) \Rightarrow b,i)$; otherwise, $S \neq \emptyset$ and we use $(m(a) \Rightarrow b,i,\{ j \vert (\_,j,\_) \in \mathit{vis}^{-1}(o)),$ operations $i$ and $j$ is of a same object $\}$.
 \item the projection of $\aseqord$ to only \emph{update} labels is also in $\Spec$, and
 \item for each query label $\alabel$, $\aseqord\!\uparrow_{\avisord^{-1}(\alabel)}\! \cdot\ \alabel \in \Spec$.
 \end{enumerate}

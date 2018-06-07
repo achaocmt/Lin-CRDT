@@ -39,7 +39,7 @@ Given a CRDT object $\mathit{obj}$ with $\Sigma$ be the set of local states, its
 \[
   \inferrule[\text{\sc Operation}]
   {\gstates(r) = (\alabelset, \astate) \\ \semop[\alabel]{\astate} = \effector \\ \effector(\astate) = \astate'}
-  {(\gstates, \avisord, \downstreams) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate', \)], 
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate', \downstreams)], 
     \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
 \]
 
