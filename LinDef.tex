@@ -164,8 +164,8 @@ The sequential specification $\mathit{MVReg}_s$ of multi-value register is given
 \begin{example}[set and its sequential specification]
 \label{definition:sequential specification of set}
 A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set; $\mathit{rem}(a)$ removes $a$ from set; and $\mathit{read}$ returns the set content. %It implicitly assumes that each item being put into the set only once.
-%Here we assume that when a item is removed, it will never be added again. 
-Here we assume that $\mathit{rem}$ will also be checked for visibility. 
+%Here we assume that when a item is removed, it will never be added again.
+Here we assume that $\mathit{rem}$ will also be checked for visibility.
 The sequential specification $\mathit{set}_s$ of set is given as follows:  Let $\mathit{state}$ be a set and each its element $(a,f)$ is a tuple of a data $a$ and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
 
 \begin{itemize}
@@ -264,22 +264,59 @@ We will make these notions precise in~\autoref{definition:distributed
   linearizability} below.
 
 
-\gpnote*{We consider single-object only in this section}
-{A history is single-object, if it contains operations of a single object. A history is multi-object, if it contains operations of multiple objects.} In the following we propose distributed linearizability for histories.
+\gpnote*{We consider single-object only in this section} {A history is
+  single-object, if it contains operations of a single object.
+  A history is multi-object, if it contains operations of multiple
+  objects.}
+In the following we propose distributed linearizability for histories.
+\gpwarning*{}{We have to say that we distinguish query and update
+  labels, perhaps define formally (for queries the visibility is
+  important, updates change the state, but the visibility might not be
+  important.)}
 
-\gpwarning*{}{We have to say that we distinguish query and update labels, perhaps define formally (for queries the visibility is important, updates change the state, but the visibility might not be important.)}
+Before defining $\crdtlin{}$ it will be useful to present a definition
+of linearizability as given by Herlihy and Wing~\cite{HerlihyW90} but
+specialized for our notion of histories.
+We shall call this notion \HWLin{}.
 
+\begin{definition}[\HWLin{}]
+  A history $h = (\alabelset,\arepord,\avisord)$ is related by \HWLin{}
+  w.r.t.
+  a sequential specification \Spec{}, if there exists a specification
+  history $(\alabelset, \aseqord, \bigcup_{\alabel \in
+    \alabelset} \{\alabel\} \times \aseqord^{-1}(\alabel)) \in \Spec{}$,
+  called the \hwlinearization{} of $h$, where we require that $\aseqord$ be
+  consistent with $\avisord$ (i.e.
+  $(\aseqord \cup \avisord)^+$ is acyclic).
+  Notice that this means that the visibility of operations in the
+  \hwlinear{} history is exactly the prefix in $\aseqord$ up to that
+  operation.
+\end{definition}
+
+This notion is too strong in general as we have shown in the examples
+of~\ref{sec:CRDT implementations}.
+To that end, we shall relax the definition to accept histories where
+not all operations are seen by every query.
+
+\gpnote*{}{Not sure about the details here. Gotta check again.}
 \begin{definition}[\CRDTLin{}]
-\label{definition:distributed linearizability}
-
-A history $h = (\alabelset,\arepord,\avisord)$ is \CRDTLin{} w.r.t. a \gp{First mention?}{deterministic} sequential specification \Spec{}, if there exists a specification history sequence $(\alabelset, \aseqord, \avisord) \in \Spec{}$, called the \crdtlin{} of $h$, where we can note that the set of labels and the visibility relation are identical, and such that
-\gpwarning*{}{This definition has to be worked out again}
+  \label{definition:distributed linearizability} A history $h =
+  (\alabelset,\arepord,\avisord)$ is \CRDTLin{} w.r.t.
+  a \gp{First mention?}{deterministic} sequential specification
+  \Spec{}, if there exists a specification history sequence
+  $(\alabelset, \aseqord, \avisord) \in \Spec{}$, called the
+  \crdtlinearization{} of $h$, where we can note that the set of labels
+  and the visibility relation are identical, and such that %
+  \gpwarning*{}{This definition has to be worked out again}
 \begin{enumerate}[(i)]
-% \item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\_)$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations visible to $o$.
-%For each operation $o = (m(a) \Rightarrow b,i,\_)$ in $h$, assume the transition rule of $m$ in $\mathit{spec}$ is $\mathit{cond}_1 (\ell,\mathit{id}, S) \mathit{cond}_2$: If $S = \emptyset$, then we use $(m(a) \Rightarrow b,i)$; otherwise, $S \neq \emptyset$ and we use $(m(a) \Rightarrow b,i,\{ j \vert (\_,j,\_) \in \mathit{vis}^{-1}(o)),$ operations $i$ and $j$ is of a same object $\}$.
-\item the projection of $\aseqord$ to only \emph{update} labels is also in $\Spec$, and
-\item for each query label $\alabel$, $\aseqord\!\uparrow_{\avisord^{-1}(\alabel)}\! \cdot\ \alabel \in \Spec$.
+\item the projection of $\aseqord$ to only \emph{update} labels is
+  related by \hwlin{} with $\Spec$, and
+\item for each query label $\alabel$,
+  $\aseqord\!\uparrow_{\avisord^{-1}(\alabel)}\!
+  \cdot\ \alabel$ is related byb \hwlin{} to $\Spec$.
 \end{enumerate}
+
+\gpnote*{}{I have to add the stuff about query/update operations}
 
 % , where the notation $h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations into operations of object $x$
 
