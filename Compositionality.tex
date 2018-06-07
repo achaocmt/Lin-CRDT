@@ -44,7 +44,7 @@ T0-linearizability is a sub-class of distributed linearizability.
 
 \begin{definition}[t0-linearizability]
 \label{definition:t0-ilnearizability}
-A single-object history $h$ is t0-linearizable w.r.t a sequential specification $\mathit{spec}$, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
+A single-object history $h$ is t0-linearizable w.r.t a sequential specification $\mathit{spec}$, if each sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -54,46 +54,33 @@ A single-object history $h$ is t0-linearizable w.r.t a sequential specification 
 \end{itemize}
 \end{definition} 
 
-To prove t0-linearizability, we introduce the notion of , A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
+To prove t0-linearizability, we introduce the notion of t0-specifications. A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$. 
 
+The following lemma shows some sequential specifications are t0-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t0-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that or-set is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and counter are t0-linearizable w.r.t $\mathit{counter}_s$. 
 
-
-The following lemma states some example of t0-linearizability. Their proof can be found in Appendix \ref{subsec:appendix definitions and proofs in subsection subsec t0-linearizability and t1-linearizability}
-
-\begin{lemma}
+\begin{restatable}{lemma}{SeveralTZeroSpecifications}
 \label{lemma:several t0-specifications}
-The or-set implementation is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and the counter implementation is t0-linearizable w.r.t $\mathit{counter}_s$.
-\end{lemma}
+$\mathit{OR}$-$\mathit{set}_s$, $\mathit{set}_s$ and $\mathit{counter}_s$ are t0-specifications. 
+\end{restatable}
 
 
+T1-linearizability is a sub-class of distributed linearizability.
 
-
-
-For a history where time-stamp is used for conflict resolution, such as RGA and last-write-win register (LWW-register), we can assume that each operation also gives the information of time-stamp. Or we can say, we can implicitly assume that each operation is of the form $o = (\ell,i,\mathit{obj},\mathit{ts})$, where $\mathit{ts}$ is the ``time-stamp'' of this operation: %A set of method is selected and called special method.
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $o$ generates a new unique time-stamp, then $\mathit{ts}$ is this new time-stamp.
-
-\item[-] If $o$ does not generate new time-stamp, then $\mathit{ts}$ is the maximum of time-stamp among operations visible to $o$.
-
-\item[-] Moreover, we require that given operations $o_1$ and $o_2$, if $(o_1,o_2) \in \mathit{vis}$, then the time-stamp of $o_1$ is less or equal than that of $o_2$.
-\end{itemize}
-
-
-\begin{definition}[t1-specification]
-\label{definition:t1-specification}
-A sequential specification $\mathit{spec}$ is a t1-specification, if for each distributed linearizable history $h=(\mathit{Op},\mathit{ro},\mathit{vis})$, a sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
+\begin{definition}[t1-linearizability]
+\label{definition:t1-ilnearizability}
+A single-object history $h$ is t1-linearizable w.r.t a sequential specification $\mathit{spec}$, if each sequence $\mathit{lin}$ shown below is a linearization of $h$ w.r.t $\mathit{spec}$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
 
-\item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$.
+\item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$. 
 
-\item[-] If the time-stamp of $o_1$ is less than that of $o_2$, then $o_1$ is before $o_2$ in $\mathit{lin}$. Or we could say, $\mathit{lin}$ is consistent with time-stamp.
+\item[-] $\mathit{lin}$ is consistent with time-stamp of operations of $h$. 
 \end{itemize}
-\end{definition}
+\end{definition} 
+
+
 
 The following lemma shows several t1-specifications. Its proof can be found in Appendix \ref{subsec:proof in subsection subsec t0 specification and t1 specification}
 
