@@ -164,14 +164,16 @@ The sequential specification $\mathit{MVReg}_s$ of multi-value register is given
 \begin{example}[set and its sequential specification]
 \label{definition:sequential specification of set}
 A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set; $\mathit{rem}(a)$ removes $a$ from set; and $\mathit{read}$ returns the set content. %It implicitly assumes that each item being put into the set only once.
-Here we assume that when a item is removed, it will never be added again. The sequential specification $\mathit{set}_s$ of set is given as follows:  Let $\mathit{state}$ be a set and each its element $(a,S,f)$ is a tuple of a data $a$, a set $S$ of identifiers and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
+%Here we assume that when a item is removed, it will never be added again. 
+Here we assume that $\mathit{rem}$ will also be checked for visibility. 
+The sequential specification $\mathit{set}_s$ of set is given as follows:  Let $\mathit{state}$ be a set and each its element $(a,f)$ is a tuple of a data $a$ and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = S \wedge (a,\_,\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\{ \mathit{id} \},\mathit{true}) \} \}$.
-\item[-] $\{ \mathit{state} = S \wedge (a,S_1,\mathit{true}) \in S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S[a: (S_1 \cup \{ \mathit{id} \},\mathit{true}) ] \}$.
-\item[-] $\{ \mathit{state} = S \wedge (a,S_1,\mathit{true}) \in S \wedge S_1 \subseteq S_2 \}$ $(\mathit{rem}(a),S_2)$ $\{ \mathit{state} = S[a: (S_1,\mathit{false}) \}$.
-\item[-] $\{ \mathit{state} = S \wedge S_1 = \{a \vert (a,\_,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$ $\{ \mathit{state} = S \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\mathit{true}) \} \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$ $(\mathit{rem}(a))$ $\{ \mathit{state} = S[a: \mathit{false} \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{a \vert (a,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$ $\{ \mathit{state} = S \}$.
 \end{itemize}
 \end{example}
 

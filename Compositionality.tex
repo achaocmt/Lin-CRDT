@@ -40,7 +40,7 @@ It is easy to see that, a multi-object history $h$ being distributed linearizabl
 \subsection{T0-Linearizability and T1-Linearizability}
 \label{subsec:t0-linearizability and t1-linearizability}
 
-T0-linearizability is a sub-class of distributed linearizability. 
+T0-linearizability is a sub-class of distributed linearizability.
 
 \begin{definition}[t0-linearizability]
 \label{definition:t0-ilnearizability}
@@ -51,15 +51,19 @@ A single-object history $h$ is t0-linearizable w.r.t a sequential specification 
 \item[-] Each element $(\ell,i,\mathit{vis}^{-1}(i))$ of $\mathit{lin}$ is generated from an operation $(\ell,i,\_,\mathit{ts})$ of $h$.
 
 \item[-] $\mathit{lin}$ is consistent with $\mathit{vis}$.
-\end{itemize} 
+\end{itemize}
 \end{definition} 
 
-The following lemma states some example of t0-linearizability. Their proof can be found in Appendix \ref{a}
+To prove t0-linearizability, we introduce the notion of , A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
+
+
+
+The following lemma states some example of t0-linearizability. Their proof can be found in Appendix \ref{subsec:appendix definitions and proofs in subsection subsec t0-linearizability and t1-linearizability}
 
 \begin{lemma}
 \label{lemma:several t0-specifications}
 The or-set implementation is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and the counter implementation is t0-linearizable w.r.t $\mathit{counter}_s$.
-\end{lemma} 
+\end{lemma}
 
 
 
