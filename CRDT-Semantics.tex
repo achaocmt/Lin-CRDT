@@ -25,6 +25,36 @@ Given a CRDT object $\mathit{obj}$ with $\Sigma$ be the set of local states, its
 
 \gpfatal[nomargin, inline]{This rules are crazy complicated. We have to fix them.}
 
+\begin{figure}[t]
+  \centering
+
+\begin{itemize}
+\item $ \Delta : \states \rightarrow \states \ni \effector$ \hspace{\fill} Effector or Downstream
+\item $\semop[]{} : \labels \times \states \rightarrow (\states \rightarrow \states)$ \hspace{\fill} Operational Semantics of a Single Operation (Label)
+\item $\localstates : \powerset{\labels} \times \states \ni (\alabelset, \astate)$ \hspace{\fill} Local States
+\item $\globalstates : (\reps \rightarrow \localstates) \times \powerset{\labels \times \labels} \times (\labels \rightarrow \Delta) \ni (\gstates, \avisord, \downstreams )$ \hspace{\fill} Global States
+\end{itemize}  
+
+  
+\[
+  \inferrule[\text{\sc Operation}]
+  {\gstates(r) = (\alabelset, \astate) \\ \semop[\alabel]{\astate} = \effector \\ \effector(\astate) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate', \)], 
+    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
+\]
+
+\[
+  \inferrule[\text{\sc DownStream}]
+  {\gstates(r) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\dom{\avisord} / \alabelset) \\ 
+    \downstreams(\alabel)(\astate) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
+\]
+
+  \caption{Operational Semantics of CRDTs}
+  \label{fig:crdt-opsem}
+\end{figure}
+
+
 \begin{figure}[ht]
 $\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
 
