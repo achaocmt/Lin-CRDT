@@ -39,17 +39,17 @@ We can now define execution \emph{histories}.
 
 \begin{definition}[histories]
   \label{definition:histories} An execution history is a tuple of the form
-  $(\alabelset, \arepord, \avisord)$, where
+  $(\alabelset, \avisord)$, where
   \begin{enumerate}
   \item $\alabelset$ is the set of labels representing the operations of
     the execution,
-  \item $\arepord \in (\alabelset \times \alabelset)$ is the
-    \emph{replica order}, a binary relation between the labels of the
-    execution, such that when restricted to labels of operations generated
-    by each single replica it is a total order, and it does not relate labels of
-    operations from different replicas, and
+  % \item $\arepord \in (\alabelset \times \alabelset)$ is the
+  %   \emph{replica order}, a binary relation between the labels of the
+  %   execution, such that when restricted to labels of operations generated
+  %   by each single replica it is a total order, and it does not relate labels of
+  %   operations from different replicas, and
   \item $\avisord \in (\alabelset \times \alabelset)$ is the
-    \emph{visibility order}, again an \emph{acyclic partial order}
+    \emph{visibility order}, an \emph{acyclic partial order}
     relation between the labels of the execution, such that if $(\alabel,
     \alabel') \in \avisord$ then the operation corresponding to the label
     $\alabel'$ witnessed in its execution the effects of the operation
@@ -75,15 +75,15 @@ labels in the sequence.
 %\gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
   \label{definition:sequential specification} A sequential
-  specification is a set of tuples $(\alabelset, \aseqord, \avisord)$, where
+  specification is a set of tuples $(\alabelset, \aseqord)$, where
   \begin{enumerate}
-  \item $\alabelset$ is a set of labels,
+  \item $\alabelset$ is a set of labels, and
   \item $\aseqord$ is a sequence including all the labels in $\alabelset$,
-    representing a linearization of the operations,
-  \item and $\avisord$ is a partial order over $\alabelset$,
-    representing the visibility relation of the operations, and
-  \item we require that $\aseqord$ and $\avisord$ be consistent with
-    each other, that is $(\aseqord \cup \avisord)^+$ is acyclic.
+    representing a sequential execution of the operations.
+  % \item and $\avisord$ is a partial order over $\alabelset$,
+  %   representing the visibility relation of the operations, and
+  % \item we require that $\aseqord$ and $\avisord$ be consistent with
+  %   each other, that is $(\aseqord \cup \avisord)^+$ is acyclic.
   \end{enumerate}
 \end{definition}
 
@@ -109,12 +109,15 @@ precondition $\apre$ over the initial abstract state $\abstate$ we
 will use Hoare-style triples and write
 \[ \big(\abstate\ |\ \apre(\abstate)\big) \xrightarrow{\alabel}  \abstate' \]
 
+A sequential specification then is the set of labels that are accepted
+by the successive application of the transition function starting from
+some given initial state $\abstate_{i}$.
 
 % The sequential specification is defined by transition rules of the form $\mathit{cond}_1$ $(m(a) \Rightarrow b,\mathit{id},S)$ $\mathit{cond}_2$, where $\mathit{cond}_1$ is a pre-condition and $\mathit{cond}_2$ is a post condition. When $\mathit{id}$ is not used in $\mathit{cond}_1$ and $\mathit{cond}_2$, we can skip it. When $S$ is not used in $\mathit{cond}_1$ and $\mathit{cond}_2$, we can skip it. We write $s {\xrightarrow{(m(a) \Rightarrow b,\mathit{id},S)}} s'$, if there exists a transition rule $\mathit{cond}_1$ $(m(a) \Rightarrow b,\mathit{id},S)$ $\mathit{cond}_2$, such that $s$ satisfies $\mathit{cond}_1$ and $s'$ satisfies $\mathit{cond}_2$. A sequence $(\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$ is in sequential specification, if there exists state $s_k$, such that $s_0 {\xrightarrow{(\ell_1,\mathit{id}_1,S_1)}} \ldots {\xrightarrow{(\ell_k,\mathit{id}_k,S_k)}} s_k$, and $s_0$ is the initial state. Here we also require that each $\mathit{id}$ is unique in $(\ell_1,\mathit{id}_1,S_1) \cdot \ldots \cdot (\ell_k,\mathit{id}_k,S_k)$.
 
 
 
-% For objects of simple types, a sequential specification is a set of operation sequences. Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, the following is the sequential specification for distributed counter, and is given as a set of transition rules between states. Each state contains a integer value. Transition rule $\{ \mathit{state} = i \}$ $(\mathit{inc},\_,\_)$ $\{ \mathit{state} = i+1 \}$ indicates that $\mathit{inc}$ will increase the state by $1$. Here we use $\_$ to indicate an element whose value has no influence. Since this rule does not use operation identifier and object, it is safe to write $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$ instead. Similarly for $\mathit{dec}$ and $\mathit{read}$ operations. We write $s {\xrightarrow{o}} s'$ to indicate one step of $o$ transition between states $s$ and $s'$ that satisfies some transition %rul.
+% For objects of simple types, a sequential specification is a set of operation sequences. Normally, the sequential specification is defined by the pre-condition and post-conditions. For example, the following is the sequential specification for distributed counter, and is given as a set of transition rules between states. Each state contains a integer value. Transition rule $\{ \mathit{state} = i \}$ $(\mathit{inc},\_,\_)$ $\{ \mathit{state} = i+1 \}$ indicates that $\mathit{inc}$ will increase the state by $1$. Here we use $\_$ to indicate an element whose value has no influence. Since this rule does not use operation identifier and object, it is safe to write $\{ \mathit{state} = i \}$ $\mathit{inc}$ $\{ \mathit{state} = i+1 \}$ instead. Similarly for $\mathit{dec}$ and $\mathit{read}$ operations. We write $s {\xrightarrow{o}} s'$ to indicate one step of $o$ transition between states $s$ and $s'$ that satisfies some transition %%ru.
 
 % A sequence $(\ell_1,i_1,x) \cdot \ldots \cdot (\ell_k,i_k,x)$ is in sequential specification $\mathit{counter}_s$, if there exists state $s_k$, such that $s_0 {\xrightarrow{(\ell_1,i_1,x)}} \ldots {\xrightarrow{(\ell_k,i_k,x)}} s_k$, and $s_0$ is the initial state. For example, it is easy to see that $(\mathit{inc},\mathit{id}_1,x) \cdot (\mathit{inc},\mathit{id}_2,x) \cdot (\mathit{dec},\mathit{id}_3,x) \cdot (\mathit{read} \Rightarrow 1,\mathit{id}_4,x) \in \mathit{counter}_s$. Note that operations of one sequence of $\mathit{counter}_s$ must be of a same object. We also implicitly assume that each operation has a unique operation identifier.
 
@@ -236,8 +239,8 @@ or query, and labels are defined according to the method.
 In general however, given a specification in the operational style
 described above, we can identify a label as an update if in its
 specification the state before and after are different.
-Formally, if $\sigma \xrightarrow{\alabel} \sigma'$ belongs to $\Spec$
-and $\sigma \neq \sigma'$ we say that $\alabel$ is an update, and
+Formally, if $\abstate \xrightarrow{\alabel} \abstate'$ belongs to $\Spec$
+and $\abstate \neq \abstate'$ we say that $\alabel$ is an update, and
 $\alabel \in \Updates$.\footnote{We assume that labels are
   consistently update or query, should there be labels acting sometimes
   as update and sometimes as only query, a simple renaming would suffice
@@ -280,49 +283,50 @@ specialized for our notion of histories.
 We shall call this notion \HWLin{}.
 
 \begin{definition}[\HWLin{}]
-  A history $h = (\alabelset,\arepord,\avisord)$ is related by \HWLin{}
+  A history $h = (\alabelset,\avisord)$ is related by \HWLin{}
   w.r.t.
   a sequential specification \Spec{}, if there exists a specification
-  history $(\alabelset, \aseqord, \bigcup_{\alabel \in
-    \alabelset} \{\alabel\} \times \aseqord^{-1}(\alabel)) \in \Spec{}$,
+  history $(\alabelset, \aseqord)$,
   called the \hwlinearization{} of $h$, where we require that $\aseqord$ be
   consistent with $\avisord$ (i.e.
   $(\aseqord \cup \avisord)^+$ is acyclic).
-  Notice that this means that the visibility of operations in the
-  \hwlinear{} history is exactly the prefix in $\aseqord$ up to that
-  operation.
+  % Notice that this means that the visibility of operations in the
+  % \hwlinear{} history is exactly the prefix in $\aseqord$ up to that
+  % operation.
 \end{definition}
 
 This notion is too strong in general as we have shown in the examples
-of~\ref{sec:CRDT implementations}.
-To that end, we shall relax the definition to accept histories where
+of~\autoref{sec:CRDT implementations}.
+We shall relax this definition to accept histories where
 not all operations are seen by every query.
 
 \begin{definition}[\CRDTLin{}]
   \label{definition:distributed linearizability} A history $h =
-  (\alabelset,\arepord,\avisord)$ is \CRDTLin{} w.r.t.
-  a \gp{First mention?}{deterministic} sequential specification
-  \Spec{}, if there exists a specification history sequence
-  $(\alabelset, \aseqord, \avisord) \in \Spec{}$, called the
-  \crdtlinearization{} of $h$, where we can note that the set of labels
-  and the visibility relation are identical, and such that %
-  \gpwarning*{}{This definition has to be worked out again}
-\begin{enumerate}[(i)]
-\item the projection of $\aseqord$ to only \emph{update} labels is
-  related by \hwlin{} with $\Spec$, and
-\item for each query label $\alabel$,
-  $\aseqord\!\uparrow_{\avisord^{-1}(\alabel)}\!
-  \cdot\ \alabel$ is related byb \hwlin{} to $\Spec$.
+  (\alabelset,\avisord)$ is \CRDTLin{} w.r.t. a 
+  \gpnote*{First mention?}{deterministic} sequential specification
+  \Spec{}, if there exists a specification sequence
+  $(\alabelset, \aseqord) \in \Spec{}$, called the
+  \crdtlinearization{} of $h$, where we remark that the set of labels
+  are identical, and such that %
+  % \gpwarning*{}{This definition has to be worked out again}
+  \begin{enumerate}[(i)]
+  \item \aseqord{} is consistent with  \avisord{}, that is: $(\avisord
+    \cup \aseqord)^{+}$ is acyclic, 
+  \item the projection of $\aseqord$ to \emph{update-only} labels is
+    \hwlinearizable{} w.r.t. $\Spec$, i.e. $\aseqord/_{\Updates} \in \Spec$, and 
+  \item for each query label $\alabel_{\mathsf{qr}}$,
+    $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!\cdot\
+    \alabel_{\mathsf{qr}}$ be \hwlinearizable{} w.r.t. $\Spec$. 
 \end{enumerate}
 
 In a nutshell, this definition requires that for a given execution
-history, there exists a trace in the sequential specification such
+history, there exists a sequential specification traces such
 that
 \begin{inparaenum}
-\item the set of labels and visibility are the same,
-\item we restricted to update only operations, the sequence belongs to
-  the specification assuming that visibility is total w.r.t. the found
-  sequence, and
+\item the set of labels are the same and the sequential history is
+  consistent with the visibility of the execution history, that
+\item when restricted to update-only operations, the sequence belongs to
+  the specification, and that
 \item query operation can be justified by the specification based only
   on the updates that precede it in the sequence.
 \end{inparaenum}
