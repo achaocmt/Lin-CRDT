@@ -169,13 +169,12 @@ Here we assume that $\mathit{rem}$ will also be checked for visibility.
 The sequential specification $\mathit{set}_s$ of set is given as follows:  Let $\mathit{state}$ be a set and each its element $(a,f)$ is a tuple of a data $a$ and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
 
 \begin{itemize}
-  \setlength{\itemsep}{0.5pt}
+\setlength{\itemsep}{0.5pt}
 \item[-] $\{ \mathit{state} = S \wedge (a,\_) \notin S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{ (a,\mathit{true}) \} \}$.
 \item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \}$.
 \item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$ $(\mathit{rem}(a))$ $\{ \mathit{state} = S[a: \mathit{false} \}$.
 \item[-] $\{ \mathit{state} = S \wedge S_1 = \{a \vert (a,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$ $\{ \mathit{state} = S \}$.
 \end{itemize}
-
 \end{example}
 
 
@@ -228,7 +227,7 @@ When the context is clear, in $\mathit{read}$ operation, we will omit $\circ$.
 We now provide our definition of linearizability.
 To simplify the argument we will assume for the time being that all
 labels in a specification can be classified into update labels
-$\alabel_{\mathsf{up}} \in \Updates$ and into $\alabel_{\mathsf{qr}} \in \Queries$.
+$\alabel_{up} \in \Updates$ and into $\alabel_{qr} \in \Queries$.
 Later we will extend the framework to consider query/update
 operations.
 
@@ -264,62 +263,59 @@ visible to it.
 We will make these notions precise in~\autoref{definition:distributed
   linearizability} below.
 
+
 \gpnote*{We consider single-object only in this section} {A history is
   single-object, if it contains operations of a single object.
   A history is multi-object, if it contains operations of multiple
   objects.}
-
 In the following we propose distributed linearizability for histories.
+\gpwarning*{}{We have to say that we distinguish query and update
+  labels, perhaps define formally (for queries the visibility is
+  important, updates change the state, but the visibility might not be
+  important.)}
+
 Before defining $\crdtlin{}$ it will be useful to present a definition
 of linearizability as given by Herlihy and Wing~\cite{HerlihyW90} but
 specialized for our notion of histories.
 We shall call this notion \HWLin{}.
 
 \begin{definition}[\HWLin{}]
-  A history $h = (\alabelset,\arepord,\avisord)$ is related by
-  \HWLin{} to a sequential specification \Spec{} if there exists a
-  history $(\alabelset, \aseqord, \bigcup_{\alabel \in \alabelset}
-  \{\alabel\} \times \aseqord^{-1}(\alabel)) \in \Spec{}$, called the
-  \hwlinearization{} of $h$, where we require $\aseqord$ to be
-  consistent with $\avisord$ (i.e. $(\aseqord \cup \avisord)^+$ is acyclic).
-  Notice that the sets of labels are the same, and moreover, we
-  require the visibility relation of the specification history to be
-  given by the sequential order $\aseqord$, meaning that for each
-  operation its visibility is the prefix in $\aseqord$ up to that
+  A history $h = (\alabelset,\arepord,\avisord)$ is related by \HWLin{}
+  w.r.t.
+  a sequential specification \Spec{}, if there exists a specification
+  history $(\alabelset, \aseqord, \bigcup_{\alabel \in
+    \alabelset} \{\alabel\} \times \aseqord^{-1}(\alabel)) \in \Spec{}$,
+  called the \hwlinearization{} of $h$, where we require that $\aseqord$ be
+  consistent with $\avisord$ (i.e.
+  $(\aseqord \cup \avisord)^+$ is acyclic).
+  Notice that this means that the visibility of operations in the
+  \hwlinear{} history is exactly the prefix in $\aseqord$ up to that
   operation.
 \end{definition}
 
-
 This notion is too strong in general as we have shown in the examples
-of~\autoref{sec:CRDT implementations}.
-Thus, we shall relax the definition to accept histories where
-not all update operations are required to be seen by every query
-operation.
+of~\ref{sec:CRDT implementations}.
+To that end, we shall relax the definition to accept histories where
+not all operations are seen by every query.
 
-\gpnote*{}{Not sure about the details here. Gotta check again.}
 \begin{definition}[\CRDTLin{}]
   \label{definition:distributed linearizability} A history $h =
   (\alabelset,\arepord,\avisord)$ is \CRDTLin{} w.r.t.
-  a \gpnote*{First mention?}{deterministic} sequential specification
+  a \gp{First mention?}{deterministic} sequential specification
   \Spec{}, if there exists a specification history sequence
   $(\alabelset, \aseqord, \avisord) \in \Spec{}$, called the
   \crdtlinearization{} of $h$, where we can note that the set of labels
-  and the visibility relation are identical, and such that: %
+  and the visibility relation are identical, and such that %
+  \gpwarning*{}{This definition has to be worked out again}
 \begin{enumerate}[(i)]
 \item the projection of $\aseqord$ to only \emph{update} labels is
-  related by \hwlin{} with $\Spec$, i.e. $\aseqord/_{\Updates}$ is
-  \hwlinear{}, and
-\item for each query label $\alabel_{\mathsf{qr}}$,
-  $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!
-  \cdot\ \alabel_{\mathsf{qr}}$ is related by \hwlinear{} w.r.t.
-  $\Spec$.
-  Where the notation $\aseqord\!\uparrow_{S}$ represents the
-  restriction of the order $\aseqord$ to the elements in the set $S$.
+  related by \hwlin{} with $\Spec$, and
+\item for each query label $\alabel$,
+  $\aseqord\!\uparrow_{\avisord^{-1}(\alabel)}\!
+  \cdot\ \alabel$ is related byb \hwlin{} to $\Spec$.
 \end{enumerate}
-\end{definition}
 
-\gpnote*{}{I have to add the stuff about query/update operations}
-
+<<<<<<< HEAD
 In a nutshell, this definition requires that for a given execution
 history, there exists a trace in the sequential specification such
 that
@@ -331,11 +327,22 @@ that
 \item query operation can be justified by the specification based only
   on the updates that precede it in the sequence.
 \end{inparaenum}
+=======
+\gpnote*{}{I have to add the stuff about query/update operations}
+
+% , where the notation $h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations into operations of object $x$
+
+\gpfatal{Fix} In a nutshell this definition requires that for a given
+execution history, there exists a trace in the sequential
+specification such that the set of labels and visibility are the same,
+and moreover when considering only update operations we have that the
+sequence belongs to the specification as well, and each query
+operation can be justified based only on the updates that precede it.
+>>>>>>> parent of ab58579... GP: refininig defintion of crdt-lin
 
 %A multi-object history $h$ is distributed linearizable w.r.t deterministic sequential specifications, if for each object $x$, $h \uparrow_{x}$ is distributed linearizable w.r.t its sequential specification.
-A set $H$ of histories is \crdtlinearizable{} (or \hwlinearizable{}) w.r.t
-a \gpnote*{}{deterministic} sequential specification \Spec, if each of
-its histories is \crdtlinearizable{} (resp. \hwlinearizable{}) w.r.t. \Spec.
+A set $H$ of histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
+\end{definition}
 
 %Here the linearization gives a global and linearizable explanation of all operations. With sequential specification and linearization of the history, the understanding of distributed behaviors should be simplified. The linearization can be also considered as a guide to the conflict resolution.
 
@@ -360,6 +367,9 @@ its histories is \crdtlinearizable{} (resp. \hwlinearizable{}) w.r.t. \Spec.
 %  \caption{A non-distributed linearizable history.}
 %  \label{fig:a non-distributed linearizable history}
 %\end{figure}
+
+\gpnote*{}{I have to add the stuff about query/update operations}
+
 
 \gpnote*{Not sure where this is going}
 {We say a history satisfy convergence, if given query operations $o_1$ and $o_2$ of this history, if $o_1$ and $o_2$ see the same set of update operations, then they observe from ``a same abstract state''. Or we can say, when such $o_1$ and $o_2$ are of same method, they should return same value. A sequential specification is deterministic, if from one state and one transition label, there is at most one destination state. It is obvious that all sequential specification examples are deterministic. By definition \ref{definition:distributed linearizability}, our distributed linearizability for deterministic sequential specification obviously implies convergence, as stated by the following lemma.}
