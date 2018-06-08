@@ -315,7 +315,6 @@ not all operations are seen by every query.
   \cdot\ \alabel$ is related byb \hwlin{} to $\Spec$.
 \end{enumerate}
 
-<<<<<<< HEAD
 In a nutshell, this definition requires that for a given execution
 history, there exists a trace in the sequential specification such
 that
@@ -327,18 +326,6 @@ that
 \item query operation can be justified by the specification based only
   on the updates that precede it in the sequence.
 \end{inparaenum}
-=======
-\gpnote*{}{I have to add the stuff about query/update operations}
-
-% , where the notation $h \uparrow_{x}$ is obtained from $h$ by projecting the operations and relations into operations of object $x$
-
-\gpfatal{Fix} In a nutshell this definition requires that for a given
-execution history, there exists a trace in the sequential
-specification such that the set of labels and visibility are the same,
-and moreover when considering only update operations we have that the
-sequence belongs to the specification as well, and each query
-operation can be justified based only on the updates that precede it.
->>>>>>> parent of ab58579... GP: refininig defintion of crdt-lin
 
 %A multi-object history $h$ is distributed linearizable w.r.t deterministic sequential specifications, if for each object $x$, $h \uparrow_{x}$ is distributed linearizable w.r.t its sequential specification.
 A set $H$ of histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
