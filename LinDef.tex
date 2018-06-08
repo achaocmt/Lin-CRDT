@@ -286,7 +286,7 @@ We shall call this notion \HWLin{}.
   A history $h = (\alabelset,\avisord)$ is related by \HWLin{}
   w.r.t.
   a sequential specification \Spec{}, if there exists a specification
-  history $(\alabelset, \aseqord)$,
+  history $(\alabelset, \aseqord) \in \Spec$,
   called the \hwlinearization{} of $h$, where we require that $\aseqord$ be
   consistent with $\avisord$ (i.e.
   $(\aseqord \cup \avisord)^+$ is acyclic).
@@ -313,10 +313,15 @@ not all operations are seen by every query.
   \item \aseqord{} is consistent with  \avisord{}, that is: $(\avisord
     \cup \aseqord)^{+}$ is acyclic, 
   \item the projection of $\aseqord$ to \emph{update-only} labels is
-    \hwlinearizable{} w.r.t. $\Spec$, i.e. $\aseqord/_{\Updates} \in \Spec$, and 
+    \hwlinearizable{} w.r.t. $\Spec$, i.e.
+    $\aseqord\!\uparrow_{\Updates} \in \Spec$, where we denote by
+    $\aseqord\uparrow_{S}$ the restriction of the order $\aseqord$ to
+    the subset $S$, and 
   \item for each query label $\alabel_{\mathsf{qr}}$,
     $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!\cdot\
-    \alabel_{\mathsf{qr}}$ be \hwlinearizable{} w.r.t. $\Spec$. 
+    \alabel_{\mathsf{qr}}$ be \hwlinearizable{} w.r.t. $\Spec$, i.e.
+    $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!\cdot\ 
+    \alabel_{\mathsf{qr}} \in \Spec$. 
 \end{enumerate}
 
 In a nutshell, this definition requires that for a given execution
