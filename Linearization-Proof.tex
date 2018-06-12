@@ -70,7 +70,7 @@ We can see that, in the definition of $P(\mathit{config},\mathit{lin})$, conditi
 \end{lstlisting}
 
 
-In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, an tuple $(\argv,\mathit{ts})$ will be added to the local state; while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, a set $S_1$ will be removed from the local state. We call such tuple $(\argv,\mathit{ts})$ or set $S_1$ the downstream content of the corresponding operation. The following is the condition $C_2$ for or-set implementation.
+In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, an tuple $(\argv,\mathit{ts})$ will be added to the local state; while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, a set $S_1$ will be removed from the local state. We call such tuple $(\argv,\mathit{ts})$ or set $S_1$ the content of the downstream. The following is the condition $C_2$ for or-set implementation.
 
 \begin{example}[Condition $C_2$ for or-set implementation]
 \label{example:condition c2 for or-set implementation} 
@@ -81,8 +81,9 @@ Given a configuration $(\gstates, \avisord, \downstreams)$ and an operation $\al
 \setlength{\itemsep}{0.5pt}
 \item[-] If $\alabel = \alabellongNoret[\mathit{add}]{\argv}$: Assume $\alabel$ is generated for replica $\arep$. Let $c = \mathsf{max}\{ c' \vert \exists \alabel'$, such that $(\alabel', \alabel) \in \avisord$, and $(\_,(c',\_))$ is the downstream content of $\alabel' \}$. Then, the downstream content of $\alabel$ is $(a,(c+1,r))$. 
 
-\item[-] If $\alabel = \alabellongNoret[\mathit{remove}]{\argv}$: Let $S' = \{ \alabel' = \alabellongNoret[\mathit{add}]{\argv} \vert (\alabel',\alabel) \in \avisord, \neg \exists \alabel'' = \alabellongNoret[\mathit{remove}]{\argv}, (\alabel',\alabel''), (\alabel'',\alabel) \in \avisord \}$. Then, the downstream content of $\alabel$ is the set of downstream contents of operations of $S'$.  
-\end{itemize} 
+\item[-] If $\alabel = \alabellongNoret[\mathit{remove}]{\argv}$: Let $S' = \{ \alabel' = \alabellongNoret[\mathit{add}]{\argv} \vert (\alabel',\alabel) \in \avisord, \neg \exists \alabel'' = \alabellongNoret[\mathit{remove}]{\argv}, (\alabel',\alabel''), (\alabel'',\alabel) \in \avisord \}$. Then, the downstream content of $\alabel$ is the set of downstream content of operations in $S'$. 
+\end{itemize}
+\end{example}
 
 The proof for or-set can be found in Appendix \ref{subsec:appendix proofs of or-set implementation}. The counter implementation can be similarly proved and its proof can be found in Appendix \ref{a}.
 
