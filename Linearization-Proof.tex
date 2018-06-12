@@ -12,50 +12,77 @@ In this section, we propose the proving strategy for CRDT implementations based 
 \label{subsec:time order of execution as linearization}
 
 
-For some CRDT implementations, when proving its correctness, we can use the total-order of executions as linearization. For such CRDT implementations, our proof approach is as follows: 
+For some CRDT implementations, when proving its correctness, we can use the total-order of executions as linearization. For such CRDT implementations, our proof approach is as follows:
 
 
-Given a object $\aobj$ and a specification \Spec{}, we construct a predicate $P(\mathit{config},\mathit{lin})$ where $\mathit{config} = (\gstates, \avisord, \downstreams)$ is a configuration of $\llbracket \aobj \rrbracket_{\mathit{op}}$, and $\mathit{lin}$ is a sequence used as linearization. Let $(\alabelset, \avisord)$ be the history of $\mathit{config}$, where $\alabelset$ is the set of labels in domain of $\downstreams$. We require $P(\mathit{config},\mathit{lin})$ to be a conjunction of the following statements:
+Given a object $\aobj$ and a specification \Spec{}, we construct a predicate $P(\mathit{config},\mathit{lin})$ where $\mathit{config} = (\gstates, \avisord, \downstreams)$ is a configuration of $\llbracket \aobj \rrbracket_{\mathit{op}}$, and $\mathit{lin}$ is a sequence used as linearization. We require $P(\mathit{config},\mathit{lin})$ to be a conjunction of the following statements:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Condition $C_1$ (linearizability): $(\alabelset, \avisord)$ is \crdtlinearizable{} w.r.t \Spec{} and $\mathit{lin}$ is a linearization. 
+\item[-] Condition $C_1$ (linearizability): The history $(\alabelset, \avisord)$ is \crdtlinearizable{} w.r.t \Spec{} and $\mathit{lin}$ is a linearization. Here $\alabelset$ is the set of labels in domain of $\downstreams$.
 
-\item[-] Condition $C_2$ (downstream): A statement about downstream for each operation label in $\mathit{config}$. 
+\item[-] Condition $C_2$ (downstream): A statement about downstream for each operation label in $\mathit{config}$.
 
 \item[-] Condition $C_3$ (sequential explanation): For each replica $\arep$, we have that $\gstates(\arep).\astate = \mathit{apply}(\mathit{lin},\gstates(\arep).\alabelset)$.
 \end{itemize}
 
-Here the function $\mathit{apply}(\mathit{lin},S)$ returns a local state obtained by applying downstream of operations in $S$ according to total order of $\mathit{lin}$. 
+Here the function $\mathit{apply}(\mathit{lin},S)$ returns a local state obtained by applying downstream of operations in $S$ according to total order of $\mathit{lin}$.
 
-Then, we need to prove that $P$ is a simulation relation. Moreover, we prove that we can always obtain a new linearization by putting a new operation after the tail of a old linearization. Therefore, the total-order of execution is a linearization. 
+Then, we need to prove that $P$ is a simulation relation. Moreover, we prove that we can always obtain a new linearization by putting a new operation after the tail of a old linearization. We call such relation a execution-order simulation relation. 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $P(\mathit{config}_0,\epsilon)$ holds, where $\mathit{config}_0$ is the initial configuration. 
+\item[-] $P(\mathit{config}_0,\epsilon)$ holds, where $\mathit{config}_0$ is the initial configuration.
 
-\item[-] If $P(\mathit{config},\mathit{lin})$ holds and $\mathit{config} {\xrightarrow{\alabel}} \mathit{config}'$, then $P(\mathit{config}', \mathit{lin} \cdot \alabel)$ holds. 
+\item[-] If $P(\mathit{config},\mathit{lin})$ holds and $\mathit{config} {\xrightarrow{\alabel}} \mathit{config}'$, then $P(\mathit{config}', \mathit{lin} \cdot \alabel)$ holds.
 
-\item[-] If $P(\mathit{config},\mathit{lin})$ holds and $\mathit{config} {\xrightarrow{}} \mathit{config}'$, then $P(\mathit{config}',\mathit{lin})$ holds. 
+\item[-] If $P(\mathit{config},\mathit{lin})$ holds and $\mathit{config} {\xrightarrow{}} \mathit{config}'$, then $P(\mathit{config}',\mathit{lin})$ holds.
 \end{itemize}
 
-It is obvious that $P(\mathit{config},\mathit{lin})$ being a simulation relation relation implies \crdtlinearizable{}. 
+It is easy to see that, execution-order simulation relation implies a \crdtlinearizable{} relation proof with the execution as linearization. 
 
-We can see that, in the definition of $P(\mathit{config},\mathit{lin})$, condition $C_2$ is specific to CRDT implementations. The following is the condition $C_2$ for or-set implementation.
+We can see that, in the definition of $P(\mathit{config},\mathit{lin})$, condition $C_2$ is specific to CRDT implementations. The pseudo-code of or-set implementation is shown in \autoref{lst:or-set}. Its formal definition can be easily obtained from the pseudo-code and is omitted here.
+
+\begin{lstlisting}[caption={Pseudo-code of the or-set CRDT}, captionpos=b,label={lst:or-set}]
+  payload Set S, Timestamp maxTS
+  initial S = @|$\emptyset$|@, maxTS = @|(0,myID())|@  
+
+  add(a) :
+    atSource :
+      precondition : 
+      assume maxTS = (c,r)
+      let ts = (c+1,myID()) 
+    downStream(a, ts) :
+      precondition: 
+      S = S @|$\cup$|@ {(a, ts)}
+      maxTS = max(maxTS, ts) 
+      
+  remove(a) :
+    atSource :
+      precondition : @|$\exists$|@ ts, (a,ts) @|$\in$|@ S 
+      let S@|$_1$|@ = @|$\{$|@ (a,ts) @|$\in$|@ S @|$\}$|@
+    downStream(S@|$_1$|@) :
+      precondition : 
+      S = S @|$\setminus$|@ S@|$_1$|@ 
+
+  read() :
+    return {a @|$\vert$|@ @|$\exists$|@ ts, (a,ts) @|$\in$|@ S} 
+\end{lstlisting}
+
+
+In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, an tuple $(\argv,\mathit{ts})$ will be added to the local state; while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, a set $S_1$ will be removed from the local state. We call such tuple $(\argv,\mathit{ts})$ or set $S_1$ the downstream content of the corresponding operation. The following is the condition $C_2$ for or-set implementation.
 
 \begin{example}[Condition $C_2$ for or-set implementation]
-\label{example:condition c2 for or-set implementation}
+\label{example:condition c2 for or-set implementation} 
 
-Given history $h = (\mathit{Op},\mathit{ro},\mathit{vis})$ and a update operation $o$ of $h$, the message of $o$ is given as follows:
+Given a configuration $(\gstates, \avisord, \downstreams)$ and an operation $\alabel \in \dom{\avisord}$, the downstream of $\alabel$ is given as follows: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] If $o$ is a $\mathit{add}(a)$ operation of replica $r$:  then the message of $o$ is $(a,(c+1,r))$, where $c = \mathit{max}\{ c_1 \vert \exists o' = (\_,\_,\_,\mathit{ts}), (o',o) \in \mathit{vis}, \mathit{ts} = (c_1,\_) \}$.
+\item[-] If $\alabel = \alabellongNoret[\mathit{add}]{\argv}$: Assume $\alabel$ is generated for replica $\arep$. Let $c = \mathsf{max}\{ c' \vert \exists \alabel'$, such that $(\alabel', \alabel) \in \avisord$, and $(\_,(c',\_))$ is the downstream content of $\alabel' \}$. Then, the downstream content of $\alabel$ is $(a,(c+1,r))$. 
 
-\item[-] If $o$ is a $\mathit{rem}(a)$ operation: the message of $o$ is $S_1$, where $S_1 = \{ (a,\mathit{ts}') \vert (a,\mathit{ts}') \in S(o) \}$. We also require that $S_1 \neq \emptyset$.
-\end{itemize}
-Here $S(o) = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}')$, $(o',o) \in \mathit{vis}$, for each $\mathit{rem}(b)$ operation $o'' \neq o, (o'',o) \in \mathit{vis} \Rightarrow (o',o'') \neq \mathit{vis} \}$.
-\end{example}
+\item[-] If $\alabel = \alabellongNoret[\mathit{remove}]{\argv}$: Let $S' = \{ \alabel' = \alabellongNoret[\mathit{add}]{\argv} \vert (\alabel',\alabel) \in \avisord, \neg \exists \alabel'' = \alabellongNoret[\mathit{remove}]{\argv}, (\alabel',\alabel''), (\alabel'',\alabel) \in \avisord \}$. Then, the downstream content of $\alabel$ is the set of downstream contents of operations of $S'$.  
+\end{itemize} 
 
 The proof for or-set can be found in Appendix \ref{subsec:appendix proofs of or-set implementation}. The counter implementation can be similarly proved and its proof can be found in Appendix \ref{a}.
 

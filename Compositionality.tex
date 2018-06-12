@@ -69,12 +69,12 @@ Given a history $h$, a sequence $\mathit{lin}$ is called a strict time-stamp ord
 
 \begin{definition}[t1-linearizability]
 \label{definition:t1-ilnearizability}
-A single-object history $h$ is t1-linearizable w.r.t a sequential specification $\mathit{spec}$, if each strict time-stamp order candidiate $\mathit{lin}$ is a linearization of $h$. 
-\end{definition} 
+A single-object history $h$ is t1-linearizable w.r.t a sequential specification $\mathit{spec}$, if each strict time-stamp order candidiate $\mathit{lin}$ is a linearization of $h$.
+\end{definition}
 
 To prove t1-linearizability, we introduce the notion of t1-specifications. A specification $\mathit{spec}$ is called t1-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, and has a strict time-stamp order candidate as linearization, then any strict time-stamp order candidate is a linearization of $h$.
 
-The following lemma shows some sequential specifications are t1-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t1-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that RGA is t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$. 
+The following lemma shows some sequential specifications are t1-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t1-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that RGA is t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$.
 
 \begin{restatable}{lemma}{SeveralTOneSpecifications}
 \label{lemma:several t1-specifications}
@@ -86,7 +86,7 @@ $\mathit{list}_s^{\mathit{af}}$ and $\mathit{reg}_s$ are t1-specifications.
   \centering
   \begin{tabular}[t]{l|l}
     T0 & $\mathit{OR}$-$\mathit{set}_s$, $\mathit{set}_s$, $\mathit{counter}_s$,  \\
-    T1 & $\mathit{list}_s^{\mathit{af}}$, $\mathit{reg}_s$, 
+    T1 & $\mathit{list}_s^{\mathit{af}}$, $\mathit{reg}_s$,
   \end{tabular}
 \end{table}
 
@@ -169,20 +169,20 @@ Given a multi-object $h$, if its object use several t0-specifications and severa
 
 
 \subsection{Modified CRDT Implementation}
-\label{subsec:modified CRDT implementation} 
+\label{subsec:modified CRDT implementation}
 
 To ensure composing, we modify t1-algorithms as follows: The system supplies a method called $\mathit{updateGlobalTS}$, which supplies a time-stamp that is updated along the global system. When a method needs to generate new time-stamp, it calls this method to generate new time-stamp, and such process will also update the global time-stamp of this replica. When a method sends a message, the message should contain the current global time-stamp value. When a replica receives a message, it also use the global time-stamp value in message to update its own global time-stamp value. Moreover, the global time-stamp satisfies causal-time-stamp property.
 
-The RGA algorithm after modification is as follows: Here a message contains the current global time-stamp value, and a replica update global time-stamp value is not explicitly written in code. Instead, such processes will be make explicit when constructing the operational semantics. 
+The RGA algorithm after modification is as follows: Here a message contains the current global time-stamp value, and a replica update global time-stamp value is not explicitly written in code. Instead, such processes will be make explicit when constructing the operational semantics.
 
-\begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:rga}]
+\begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:modifier rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
 
   addAfter(a,b) :
     atSource :
       precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
-      let ts@|$_{\mathtt{a}}$|@ = updateGlobalTS() 
+      let ts@|$_{\mathtt{a}}$|@ = updateGlobalTS()
       let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@)?(0,r@|$_{0}$|@):(timestamp of b in N)
     downStream(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@) :
       precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
@@ -197,25 +197,25 @@ The RGA algorithm after modification is as follows: Here a message contains the 
 
   read() :
     return traverse(N, Tomb)
-\end{lstlisting} 
+\end{lstlisting}
 
 
-The following lemma states that the modified RGA is also t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and the modified LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$. Its proof can be found in Appendix \ref{a}. 
+The following lemma states that the modified RGA is also t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and the modified LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$. Its proof can be found in Appendix \ref{a}.
 
 \begin{restatable}{lemma}{ModifiedRGAandLWWRegStillTOne}
 \label{lemma:modified RGA and LWW-register is still t1-linearizable}
 $\mathit{list}_s^{\mathit{af}}$ and $\mathit{reg}_s$ are t1-specifications.
-\end{restatable} 
+\end{restatable}
 
-Lamport's time-stamp is one way to implement global time-stamp, as stated by the following lemma. Its proof can be found in Appendix \ref{a}. 
+Lamport's time-stamp is one way to implement global time-stamp, as stated by the following lemma. Its proof can be found in Appendix \ref{a}.
 
 \begin{restatable}{lemma}{LamportTSasGlobalTS}
 \label{lemma:lamport time-stamp as global time-stamp}
-Lamport's time-stamp satisfies causal-time-stamp. 
-\end{restatable} 
+Lamport's time-stamp satisfies causal-time-stamp.
+\end{restatable}
 
 
- 
+
 
 
 
