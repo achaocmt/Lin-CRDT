@@ -4,6 +4,103 @@
 \section{CRDT Implementation Correctness}
 \label{sec:CRDT implementation semantics and correctness}
 
+In this section, we propose the semantics of CRDT implementations. Based on our definition, we can extract histories from an execution. Then we define the correctness of an CRDT implementation. 
+
+
+
+%\subsection{Semantics of Single Object}
+%\label{subsec:semantics of single object}
+
+CRDT implementations assume the following two guarantees of downstream:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The downstream of each operation is applied at most once for each replica. 
+\item[-] Assume the downstream of operation $\aop_1$ is applied in replica of $\aop_2$ before $\aop_2$ happens. Then, for each replica $\arep$, the downstream of $\aop_2$ can be applied only if the downstream of $\aop_1$ has already been applied. 
+\end{itemize}
+
+Given a CRDT object $\aobj$, its semantics is defined as a transition system $\llbracket \aobj \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:crdt-opsem}.
+ 
+
+
+%\gpfatal[nomargin, inline]{remove if we decide to keep the other semantics}
+
+\begin{figure}[t]
+  \centering
+
+\begin{itemize}
+\item $ \Delta : \states \rightarrow \states \ni \effector$ \hspace{\fill} Effector or Downstream
+%\item $\semop[]{} : \labels \times \states \rightarrow (\states \rightarrow \states)$ \hspace{\fill} Operational Semantics of a Single Operation (Label)
+\item $\localstates : \powerset{\labels} \times \states \ni (\alabelset, \astate)$ \hspace{\fill} Local States
+\item $\globalstates : (\reps \rightarrow \localstates) \times \powerset{\labels \times \labels} \times (\labels \rightarrow \Delta) \ni (\gstates, \avisord, \downstreams )$ \hspace{\fill} Global States
+\end{itemize}
+
+
+\[
+  \inferrule[\text{\sc Operation}]
+  {\gstates(r) = (\alabelset, \astate) \\ \mathit{do}(\sigma,\amethod,\argv,\arep) = (\retv,\effector) \\  \effector(\astate) = \astate' \\ \alabel = \alabellongind{\argv}{\retv}{i} \\ \mathit{unique}(i) }
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')],
+    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
+\]
+
+
+\[
+  \inferrule[\text{\sc DownStream}]
+  {\gstates(r) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\dom{\avisord} / \alabelset) \\
+    \downstreams(\alabel)(\astate) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
+\]
+
+  \caption{Operational Semantics of CRDTs}
+  \label{fig:crdt-opsem}
+\end{figure} 
+
+A configuration $(\gstates, \avisord, \downstreams)$ is a snapshot of distributed system. $\gstates \in \reps \rightarrow \localstates$ stores the local configuration of each replica. A local configuration $(\alabelset, \astate)$ contains a local state $\astate$ of $\aobj$ and a set $\alabelset$ of labels: $\alabel \in \alabelset$, if the downstream of $\alabel$ has already been applied in this replica. $\avisord \in \powerset{\labels \times \labels}$ stores the visibility among operations, and $\downstreams$ stores the downstream of operations. 
+
+$\rightarrow \in \globalstates \times \labels \times \globalstates$ is the transition relation. The first rule in \figurename~\ref{fig:crdt-opsem} describes replica $\arep$ performing an operation and (possibly) generate a new downstream. $\mathit{unique}(i)$ ensures that $i$ is a unique identifier, and then $\alabel$ is a unique operation label. A new downstream $\effector$ is generated and applied to replica $\arep$. The set $\alabelset$ and $\avisord$ is updated according to $\alabel$. The second rule describes the downstream of $\alabel$ being applied to replica $\arep$. With $\alabel \in \mathsf{min}_{\avisord}(\dom{\avisord} / \alabelset)$, we always choose a operation $\alabel$ that is minimal among operations whose downstream not applied to replica $\arep$ yet. This satisfies the guarantees of downstream. 
+
+
+A sequence $l$ of operation labels is an execution of $\llbracket \aobj \rrbracket_{\mathit{op}}$, if there exists configuration $(\gstates, \avisord, \downstreams)$, such that $\mathit{config}_0 {\xrightarrow{ l }} (\gstates, \avisord, \downstreams)$. The history of $l$ is a tuple $(\alabelset, \avisord')$, where $\alabelset$ is the set of labels of $l$ and $\avisord' = \avisord$ is the visibility relation recorded in the configuration along transitions.
+
+
+%\subsection{Correctness of a Single Object}
+%\label{subsec:correctness of a single object}
+
+%Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$ of CRDT object $\mathit{obj}$, we can associate unique operation identifiers with each action of $l$, and then obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
+
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-] Each operation in $\mathit{Op}$ is a tuple $(m(a) \Rightarrow b,i,\mathit{obj})$, such that $i$ is the operation identifier of a $\mathit{do}(m,a,b,r)$ action of $l$.
+
+%\item[-] $(o_1,o_2) \in \mathit{ro}$, if they are of same replica, and the index of $o_1$ in $h$ is before that of $o_2$.
+
+%\item[-] $(o_1,o_2) \in \mathit{vis}$, if the action of $o_1$ is $\mathit{send}(\mathit{mid},\_)$, and either the action of $o_2$ is $\mathit{receive}(\mathit{mid},\_)$, or there exists $o_3$, such that the action of $o_3$ is $\mathit{receive}(\mathit{mid},\_)$, and $(o_3,o_2) \in \mathit{ro}$.
+%\end{itemize}
+
+Let $\mathit{history}(\llbracket \aobj \rrbracket_{\mathit{op}})$ be the set of histories of all executions of $\llbracket \aobj \rrbracket_{\mathit{op}}$. Then, $\aobj$ is \crdtlinearizable{}, if each of its history is, as stated by the following:
+
+\begin{definition}[Correctness of a CRDT Object]
+\label{definition:correctness of a CRDT object}
+A CRDT object $\aobj$ is \crdtlinearizable{} w.r.t a sequential specification $\mathit{spec}$, if each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is \crdtlinearizable{} w.r.t $\mathit{spec}$.
+\end{definition}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\forget{
 In this section, we propose the semantics of %a state-based CRDT or a operation-based CRDT.
 CRDT implementations. Then we shows how to extract histories from execution, and the correctness of CRDT implementations.
 
@@ -33,19 +130,19 @@ Given a CRDT object $\mathit{obj}$ with $\Sigma$ be the set of local states, its
 \item $\semop[]{} : \labels \times \states \rightarrow (\states \rightarrow \states)$ \hspace{\fill} Operational Semantics of a Single Operation (Label)
 \item $\localstates : \powerset{\labels} \times \states \ni (\alabelset, \astate)$ \hspace{\fill} Local States
 \item $\globalstates : (\reps \rightarrow \localstates) \times \powerset{\labels \times \labels} \times (\labels \rightarrow \Delta) \ni (\gstates, \avisord, \downstreams )$ \hspace{\fill} Global States
-\end{itemize}  
+\end{itemize}
 
-  
+
 \[
   \inferrule[\text{\sc Operation}]
   {\gstates(r) = (\alabelset, \astate) \\ \semop[\alabel]{\astate} = \effector \\ \effector(\astate) = \astate'}
-  {(\gstates, \avisord, \downstreams) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate', \downstreams)], 
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate', \downstreams)],
     \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
 \]
 
 \[
   \inferrule[\text{\sc DownStream}]
-  {\gstates(r) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\dom{\avisord} / \alabelset) \\ 
+  {\gstates(r) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\dom{\avisord} / \alabelset) \\
     \downstreams(\alabel)(\astate) = \astate'}
   {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
 \]
@@ -112,10 +209,6 @@ A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket
 
 
 
-
-
-
-
 \subsection{Correctness of a Single Object}
 \label{subsec:correctness of a single object}
 
@@ -136,6 +229,7 @@ Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ be the 
 \label{definition:correctness of a CRDT object}
 A CRDT object $\mathit{obj}$ is distributed linearizable w.r.t a sequential specification $\mathit{spec}$, if each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_{\mathit{op}})$ is distributed linearizable w.r.t $\mathit{spec}$.
 \end{definition}
+}
 
 
 
