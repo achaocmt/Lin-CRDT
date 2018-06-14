@@ -4,6 +4,15 @@
 \section{CRDT Implementation Correctness}
 \label{sec:CRDT implementation semantics and correctness}
 
+\textblue{
+I think this section should be about proving linearizability. Here we introduce:
+\begin{itemize}
+\item a semantics for CRDTs
+\item a general methodology based on simulation relation (explain that it can also be seen as invariant checking)
+\item the two proof strategies for building linearizations, as particular instances of that simulation relation
+\end{itemize}}
+
+
 In this section, we propose the semantics of CRDT implementations. Based on our definition, we can extract histories from an execution. Then we define the correctness of an CRDT implementation.
 
 

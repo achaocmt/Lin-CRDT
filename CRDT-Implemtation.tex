@@ -3,6 +3,17 @@
 \section{CRDT Implementations}
 \label{sec:CRDT implementations}
 
+\textblue{
+Here we define:
+\begin{itemize}
+\item the notations required for labels: $\aobj.\alabellongind{\argv}{\retv}{i,\ts}$ (partition queries/updates)
+\item the notion of history: $(\alabelset, \avisord)$
+\item the notion of sequential specification: a set of sequences $(\alabelset, \aseqord)$. Talk about per-object specification (and a representation of these specs based on pre/post conditions) and a specification for a set of objects (defined by interleavings)
+\item the notion of \CRDTLin{}: label rewriting + linearization of the visibilities (make it in one shot for both - the intuition should be clear from the overview). Also, in one shot for multiple objects, given that we already defined specifications for multiple objects.
+\item should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section)
+\end{itemize}}
+
+
 \begin{figure}
   \centering
 
