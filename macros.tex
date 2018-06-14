@@ -152,8 +152,8 @@
 \newcommand{\effector}{\ensuremath{\delta}}
 \newcommand{\semop}[2][\aop]{\ensuremath{\llbracket #1
     \rrbracket}\ifthenelse{\isempty{#2}}{}{(#2)}}
-\newcommand{\localstates}{\ensuremath{\mathsf{LS}}}
-\newcommand{\globalstates}{\ensuremath{\mathsf{GS}}}
+\newcommand{\localstates}{\ensuremath{\mathsf{LC}}}
+\newcommand{\globalstates}{\ensuremath{\mathsf{GC}}}
 \newcommand{\gstates}{\ensuremath{\mathsf{G}}}
 \newcommand{\dom}[1]{\ensuremath{\mathsf{dom}(#1)}}
 \newcommand{\downstreams}{\ensuremath{\mathsf{DS}}}
@@ -167,7 +167,10 @@
     #2}} % m() \Rightarrow b
 
 \newcommand{\ats}{\ensuremath{\mathtt{ts}}} % a timestamp
-\newcommand{\tss}{\ensuremath{\mathbb{T}\mathsf{s}}} % set of timestamps
+\newcommand{\tss}{\ensuremath{\mathbb{T}\mathsf{s}}} % set of timestamps 
+\newcommand{\atsource}{\ensuremath{\theta}} % atsource
+\newcommand{\aglobalstate}{\ensuremath{\mathtt{gc}}} % a global state
+\newcommand{\aexec}{\ensuremath{\mathtt{e}}} % an execution
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -14,15 +14,15 @@ The following is the definition of distributed linearizability for multi-object 
 
 \begin{definition}[Distributed Linearizability for Multi-object Histories]
 \label{definition:distributed linearizability for multi-object histories}
-A multi-object history $h$ is distributed linearizabile, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
+A multi-object history $h$ is \crdtlinearizable{}, if there exists a sequence $\mathit{lin}$, called linearization of $h$, such that
 
 \begin{enumerate}[(i)]
 \item The elements of $\mathit{lin}$ is generated from the operations of $h$: each operation $o = (m(a) \Rightarrow b,i,\mathit{obj})$ is transformed into $(m(a) \Rightarrow b,i,S)$ with $S$ set of identifiers of operations of visible to $o$ via $h.\mathit{vis}$.
 \item $\mathit{lin}$ is consistent with $h. \mathit{vis}$.
-\item For each object $\mathit{obj}$, $h \uparrow_{\mathit{obj}}$ is distributed linearizable, and $\mathit{lin} \uparrow_{ \mathit{obj} }$ is a linearization of $h \uparrow_{\mathit{obj}}$.
+\item For each object $\mathit{obj}$, $h \uparrow_{\mathit{obj}}$ is \crdtlinearizable{}, and $\mathit{lin} \uparrow_{ \mathit{obj} }$ is a \crdtlinearization{} of $h \uparrow_{\mathit{obj}}$.
 \end{enumerate}
 
-A set $H$ of multi-object histories are distributed linearizable w.r.t deterministic sequential specifications, if each of its history is.
+A set $H$ of multi-object histories are \crdtlinearizable{} w.r.t deterministic sequential specifications, if each of its history is.
 \end{definition}
 
 The following is the definition of compositional histories.
@@ -38,9 +38,11 @@ It is easy to see that, a multi-object history $h$ being distributed linearizabl
 
 
 \subsection{T0-Linearizability and T1-Linearizability}
-\label{subsec:t0-linearizability and t1-linearizability}
+\label{subsec:t0-linearizability and t1-linearizability} 
 
-T0-linearizability is a sub-class of distributed linearizability.
+To prove compositional 
+
+T0-linearizability is a sub-class of distributed linearizability. 
 
 \begin{definition}[t0-linearizability]
 \label{definition:t0-ilnearizability}
