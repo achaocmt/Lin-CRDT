@@ -1,0 +1,13 @@
+%!TEX root = draft.tex
+\section{Overview}
+
+\textblue{
+Here we introduce:
+\begin{itemize}
+\item a first example of a CRDT implementation: RGA
+\item the notion of history with an example
+\item explain what does it mean that the history is linearizable: we have to talk about specifications (that they are sequential), about linearizing the visibility, the relationship between the visibility and the linearization (say that this linearization is not really the arbitration order in Burkhardt's: the arbitration is for solving conflicts (usually defined by timestamps), our linearization is for explaining the behavior)
+\item a second example: OR-set, talk about the rewriting of labels
+\item talk about compositionality: that it doesn't hold for the original definition, that we define two strengthenings, and how they compose
+\end{itemize}}
+
