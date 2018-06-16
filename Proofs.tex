@@ -1,4 +1,4 @@
-%TEX root = draft.tex
+%!TEX root = draft.tex
 \section{Linearizability proofs}
 
 \textblue{
@@ -93,7 +93,7 @@ Given a object $\aobj$ and a specification \Spec{}, we construct a predicate $P(
 
 Here the function $\mathit{apply}(\mathit{lin},S)$ returns a local state obtained by applying downstream of operations in $S$ according to total order of $\mathit{lin}$.
 
-\subsubsection{Execution-Order Simulation Relation}
+\subsection{Execution-Order Simulation Relation}
 \label{subsec:time order of execution as linearization}
 
 Then, we need to prove that $P$ is a simulation relation. Moreover, we prove that we can always obtain a new linearization by putting a new operation after the tail of a old linearization. We call such relation a execution-order simulation relation.
