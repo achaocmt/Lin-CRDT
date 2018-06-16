@@ -1,0 +1,449 @@
+%!TEX root = draft.tex
+\section{CRDT Linearizability}
+
+\textblue{
+Here we define:
+\begin{itemize}
+\item the notations required for labels: $\aobj.\alabellongind{\argv}{\retv}{i,\ts}$ (partition queries/updates)
+\item the notion of history: $(\alabelset, \avisord)$
+\item the notion of sequential specification: a set of sequences $(\alabelset, \aseqord)$. Talk about per-object specification (and a representation of these specs based on pre/post conditions) and a specification for a set of objects (defined by interleavings)
+\item the notion of \CRDTLin{}: label rewriting + linearization of the visibilities (make it in one shot for both - the intuition should be clear from the overview). Also, in one shot for multiple objects, given that we already defined specifications for multiple objects.
+\item should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section)
+\end{itemize}}
+
+Let us now concentrate on the definition of \crdtlin{} -- the main
+contribution of this paper.
+
+\subsection{Histories}
+
+\begin{figure}
+  \centering
+
+  \(
+  \begin{array}[t]{rcll}
+    \aobj & \in  & \objs & \text{Objects} \\
+    \arep & \in & \reps & \text{Replicas} \\
+    \amethod & \in & \methods & \text{Methods}\\
+    \adomain & \subseteq & \datadomain & \text{Data Domain} \\
+    \acrdttyp & \in & \powerset{\methods} \times \powerset{\adomain} & \text{CRDT definition} \\
+    \astate & \in & \states & \text{States} \\
+    \amesg & \in & \messages & \text{Messages} \\
+    \amesgset & \subseteq & \messages & \text{Message Set} \\
+    \aop & \in & \ops \equiv \opids & \text{Operations}\ (ID) \\
+    \alabellong[\amethod]{\argv}{\retv} \equiv \alabel  & \in & \methods \times \adomain \times \adomain \equiv \labels & \text{Operation labels} \\
+    \alabelset & \subseteq & \labels & \text{Label Set}\\
+    \arepord & \subseteq & \ops \times \ops & \text{Replica Order} \\
+    \avisord & \subseteq & \ops \times \ops & \text{Visibility Order}
+  \end{array}
+  \)
+  \caption{Summary of notations}
+  \label{fig:notations}
+\end{figure}
+
+
+To formalize our CRDT correctness criterion we will introduce the
+following semantic domains.
+%
+We let $\aobj \in \objs$ be an object in the set of objects $\objs$. Similarly,
+$\arep \in \mathbb{R}$ is a replica in the set of replicas
+$\reps$.
+We assume that both objects and replicas are uniquely identified, and
+therefore we will equate an object with its identifier, with the same
+convention applying to replicas.
+
+We will assume that the specification of a CRDT is given by a set of
+method names $\amethod \in \methods$, and that each method has a
+number of arguments sampled from a data domain $\datadomain$, and a
+return value also from the data domain.
+We ignore here the issues of typing which should be ensured by the
+underlying programming language.
+Hence, a data type $\acrdttyp = (\amethodset, \adomain)$ is given by a
+set of method names $\amethodset \subseteq \methods$ and a data domain
+$\adomain \subseteq \datadomain$.
+
+%A distributed system contains multiple objects, and each objects is replicated on each replica. Each object has a type, which contains its method and data type. A client of a replica interact with the objects by calling the method and then obtaining the return value. Here we do not bound the number of replica identifiers and objects.
+
+% Let $\objs$ be the set of objects and $\mathbb{R}$ be the set of replica identifiers. We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Each data type $t = (M,D)$ has a set $M \subseteq \mathbb{M}$ of methods and a data domain $D \subseteq \mathbb{D}$.
+
+Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that has no influence on the ``abstract state'' and normally returns an observation of the ``abstract state'' , and $\mathbb{U}$ update methods that has influence on the ``abstract state''. %Note that some update operation also need to read the ``abstract state''. For example, a $add(a,b)$ operation is an operation of distributed list which intends to put item $a$ immediately after item $b$. This operation implicitly requires that item $b$ is already in list.
+
+Firstly we will introduce the notion of \emph{histories} to represent
+abstractly the execution of a concrete client operating on an
+implementation of the data structure.
+
+Histories are composed of operation labels.
+An operation label $\alabellong{\argv}{\retv}$ represents the call of a method
+$\amethod \in \methods$, with argument $a \in \datadomain$, and
+resulting in the value $b \in \datadomain$.
+
+We assume that in a history all labels are unique.
+Since there might be multiple calls to the same method with the same
+arguments and result, we will tag labels with a unique identifier $i$
+as in $\alabellongind{\argv}{\retv}{i}$.
+However, since we assume all labels are unique we will ignore
+identifiers when unambiguous.
+We can now define execution \emph{histories}.
+
+\gpnote[nomargin, inline]{Maybe we have an overlap of IDs}
+% We assume a set $\aopid \in \opids$ to represent unique \emph{operation identifiers}.
+
+
+\begin{definition}[histories]
+  \label{definition:histories} An execution history is a tuple of the form
+  $(\alabelset, \avisord)$, where
+  \begin{enumerate}
+  \item $\alabelset$ is the set of labels representing the operations of
+    the execution,
+  % \item $\arepord \in (\alabelset \times \alabelset)$ is the
+  %   \emph{replica order}, a binary relation between the labels of the
+  %   execution, such that when restricted to labels of operations generated
+  %   by each single replica it is a total order, and it does not relate labels of
+  %   operations from different replicas, and
+  \item $\avisord \in (\alabelset \times \alabelset)$ is the
+    \emph{visibility order}, an \emph{acyclic partial order}
+    relation between the labels of the execution, such that if $(\alabel,
+    \alabel') \in \avisord$ then the operation corresponding to the label
+    $\alabel'$ witnessed in its execution the effects of the operation
+    with label $\alabel$.
+  \end{enumerate}
+\end{definition}
+
+\subsection{Sequential Specification}
+\label{subsec:sequential specification}
+
+For specifications we will consider sets of sequences of labels, each
+paired with an abstract visibility relation $\avisord$ relating the
+labels in the sequence.
+
+
+%\gp{We should add the specifications (even non-deterministic here.)}
+\begin{definition}[Sequential Specification]
+  \label{definition:sequential specification} A sequential
+  specification is a set of tuples $(\alabelset, \aseqord)$, where
+  \begin{enumerate}
+  \item $\alabelset$ is a set of labels, and
+  \item $\aseqord$ is a sequence including all the labels in $\alabelset$,
+    representing a sequential execution of the operations.
+  % \item and $\avisord$ is a partial order over $\alabelset$,
+  %   representing the visibility relation of the operations, and
+  % \item we require that $\aseqord$ and $\avisord$ be consistent with
+  %   each other, that is $(\aseqord \cup \avisord)^+$ is acyclic.
+  \end{enumerate}
+\end{definition}
+
+To describe sequential specifications in a succinct way we will
+provide an operational description.
+To that end, we will associate to specifications a notion of abstract
+state, which we shall generally denote by $\abstate$ and its domain
+shall be denoted by $\abstates$.
+Then to each valid label $\alabel$ we will associate a transition
+function $\absopsemplain$ which given an initial state, and provided
+that the label can be applied into that state, it will result into a
+new abstract state.
+Hence, we denote by $\absopsem{\abstate} = \abstate'$ the fact that
+the resulting state for label $\alabel$ with initial state $\abstate$
+is $\abstate'$.
+%
+To simplify our descriptions, we will use a shortcut notation for
+$\absopsem{\abstate} = \abstate'$ and will write it as:
+\[ \abstate \xrightarrow{\alabel}  \abstate' \]
+
+In the specific case where the label $\alabel$ assumes a certain
+precondition $\apre$ over the initial abstract state $\abstate$ we
+will use Hoare-style triples and write
+\[ \big(\abstate\ |\ \apre(\abstate)\big) \xrightarrow{\alabel}  \abstate' \]
+
+A sequential specification then is the set of labels that are accepted
+by the successive application of the transition function starting from
+some given initial state $\abstate_{i}$.
+
+\begin{example}[sequential specification of counter]
+\label{definition:sequential specification of counter}
+The sequential specification $\mathit{counter}_s$ of counter is so
+that $\abstates = \mathbb{Z}$, that is the state will be an integer,
+and the transitions are given as follows:
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $k \xrightarrow{\alabellong[\mathsf{inc}]{}{}} k+1$
+\item[-] $k \xrightarrow{\alabellong[\mathsf{dec}]{}{}} k-1$
+\item[-] $k \xrightarrow{\alabellong[\mathsf{read}]{}{k}} k$
+\end{itemize}
+\end{example}
+
+\gpwarning{Complete the others}
+
+\begin{example}[sequential specification of multi-value register]
+\label{def:spec-MVR}
+The sequential specification $\mathit{MVReg}_s$ of multi-value
+register is given as follows: Let $\mathit{state}$ be a set and each
+its element $(a,\mathit{id},f)$ is a tuple of a data $a$, an
+identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{
+\mathit{true},\mathit{false} \}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = S \}$ $(write(a),\mathit{id},S_1)$ $\{
+  \mathit{state} = S[(b,\mathit{id}_1) \in S_2 : \mathit{false}] \cup
+  \{ (a,id,\mathit{true}) \} \}$. Here $S_2 = \{ (b,\mathit{id}_1)
+  \vert (b,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert
+  (a,\_,\mathit{true}) \in S \} \}$ $read() \Rightarrow S_1$ $\{
+  \mathit{state} = S \}$.
+\end{itemize}
+\end{example}
+
+\begin{example}[set and its sequential specification]
+\label{definition:sequential specification of set}
+A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set;
+$\mathit{rem}(a)$ removes $a$ from set; and $\mathit{read}$ returns
+the set content.
+% It implicitly assumes that each item being put into the set only
+% once.
+% Here we assume that when a item is removed, it will never be added
+% again.
+Here we assume that $\mathit{rem}$ will also be checked for
+visibility.
+The sequential specification $\mathit{set}_s$ of set is given as
+follows:  Let $\mathit{state}$ be a set and each its element $(a,f)$
+is a tuple of a data $a$ and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \notin S \}$
+  $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{
+  (a,\mathit{true}) \} \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$
+  $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$
+  $(\mathit{rem}(a))$ $\{ \mathit{state} = S[a: \mathit{false} \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{a \vert
+  (a,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$
+  $\{ \mathit{state} = S \}$.
+\end{itemize}
+\end{example}
+
+
+\begin{example}[OR-set and its sequential specification]
+\label{def:specification-ORS}
+OR-set is essential a multi-set: $\mathit{add}(a)$ inserts an item $a$
+into multi-set; $\mathit{rem}(a)$ cancels only items $a$ that are
+inserted by $\mathit{add}(a)$ operations visible to this remove
+operation; $\mathit{read}$ returns the set of items in multi-set. A
+value can be inserted multiple times.
+
+The sequential specification $\mathit{OR}$-$\mathit{set}_s$ of OR-set
+is given as follows: Let $\mathit{state}$ be a set and each its
+element $(a,\mathit{id},f)$ is a tuple of a data $a$, an identifier
+$\mathit{id}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
+% In $((rem(a),\mathit{id}'),S_1)$, $S_1$ represents the operations
+% visible to this remove operation.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = S  \wedge (\_,\mathit{id},\_) \notin S
+  \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{
+  (a,\mathit{id},\mathit{true}) \} \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert
+  (a,\_,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow
+  S_1)$ $\{ \mathit{state} = S \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_,\_) \in S\}$
+  $(rem(a),S_1)$ $\{ \mathit{state} = S[(a,\mathit{id}_1) \in S_2 :
+  \mathit{false}] \}$. Here $S_2 = \{ (a,\mathit{id}_1) \vert
+  (a,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
+\end{itemize}
+\end{example}
+
+
+\begin{example}[register and its sequential specification]
+\label{def:spec-register}
+A register has two methods: $\mathit{write}(a)$ writes $a$ into
+register; $\mathit{read}$ returns the value of register. The
+sequential specification $\mathit{reg}_s$ of register is given as
+follows: Let $\mathit{state} \in \mathbb{D}$ be a value.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = a  \}$ $\mathit{write}(b)$ $\{
+  \mathit{state} = b \}$.
+\item[-] $\{ \mathit{state} = a \}$ $(\mathit{read}() \Rightarrow a)$
+  $\{ \mathit{state} = a \}$.
+\end{itemize}
+\end{example}
+
+
+\begin{example}[List with add-after interface]
+\label{definition:spec-list-add-after}
+Assume each item of the list is unique. A list has three methods:
+$\mathit{add}(b,a)$ inserts item $b$ into the list at the position
+immediately after that of item $a$; $\mathit{rem}(a)$ removes item $a$
+from the list; and $\mathit{read}$ returns the list content. We assume
+that the initial value of list is $(\circ,\mathit{true})$ and this
+node can not be removed. We use the word ``add-after'' to emphasize
+the method $\mathit{add}(b,a)$, which is different from the other list
+interface that uses method $\mathit{add}(b,a,c)$.
+
+The sequential specification $\mathit{list}_s^{\mathit{af}}$ of list
+is given as follows: Let $\mathit{state}$ be a sequence, where each
+item is a tuple $(a,\mathit{id},f)$ with data $a$, identifier
+$\mathit{id}$ and flag $f \in \{ \mathit{true},\mathit{false} \}$.
+Here $\mathit{af}$ represents add-after, and we use $l \uparrow_{S}$
+to represent the projection of sequence $l$ into set $S$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge b \notin \{
+  a_1, \ldots, a_n \} \wedge \mathit{id}_k \in S_1 \}$
+  $(add(b,a_k),\mathit{id},S_1)$ $\{ \mathit{state} =
+  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,f_k)
+  \cdot (b,\mathit{id},\mathit{true}) \cdot
+  (a_{k+1},\mathit{id}_{k+1},f_{k+1}) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge \mathit{id}_k
+  \in S_1 \}$ $(rem(a_k),S_1)$ $\{ \mathit{state} =
+  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
+  (a_k,\mathit{id}_k,\mathit{false}) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge S = \{ a \vert
+  (a,\_,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot
+  \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{
+  \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\end{itemize}
+When the context is clear, in $\mathit{read}$ operation, we will omit
+$\circ$.
+\end{example}
+
+\subsection{Definition of Distributed \CRDTLin{}}
+\label{subsec:definition of distributed linearizability}
+
+We now provide our definition of linearizability.
+To simplify the argument we will assume for the time being that all
+labels in a specification can be classified into update labels
+$\alabel_{up} \in \Updates$ and into $\alabel_{qr} \in \Queries$.
+Later we will extend the framework to consider query/update
+operations.
+
+We will generally assume that methods are predefined as either update
+or query, and labels are defined according to the method.
+In general however, given a specification in the operational style
+described above, we can identify a label as an update if in its
+specification the state before and after are different.
+Formally, if $\abstate \xrightarrow{\alabel} \abstate'$ belongs to $\Spec$
+and $\abstate \neq \abstate'$ we say that $\alabel$ is an update, and
+$\alabel \in \Updates$.\footnote{We assume that labels are
+  consistently update or query, should there be labels acting sometimes
+  as update and sometimes as only query, a simple renaming would suffice
+  to distinguish them.}
+A label is said to be a query if it is not an update.
+We will later add an additional case for query/update labels.
+
+The intuition of our definition of \crdtlin{} is that for update
+operations there is a global linear sequence (or history) which can
+produce the final state obtained by the execution.
+In other words, any state observed by any replica should be the result
+of a prefix of this sequential history.
+This notion is akin to Linearizability~\cite{HerlihyW90} when
+constrained to update-only operations.
+
+Evidently, this notion does not extend to query operations, since in
+our semantical model replicas can see a subset of the global updates
+performed at any moment, then we must allow for queries to read a
+sub-sequence of the updates in the global sequence mentioned above.
+In particular, queries should be justified by considering the
+sub-sequence of the global sequence restricted to the updates that are
+visible to it.
+We will make these notions precise in~\autoref{definition:distributed
+  linearizability} below.
+
+
+\gpnote*{We consider single-object only in this section} {A history is
+  single-object, if it contains operations of a single object.
+  A history is multi-object, if it contains operations of multiple
+  objects.}
+In the following we propose distributed linearizability for histories.
+\gpwarning*{}{We have to say that we distinguish query and update
+  labels, perhaps define formally (for queries the visibility is
+  important, updates change the state, but the visibility might not be
+  important.)}
+
+Before defining $\crdtlin{}$ it will be useful to present a definition
+of linearizability as given by Herlihy and Wing~\cite{HerlihyW90} but
+specialized for our notion of histories.
+We shall call this notion \HWLin{}.
+
+\begin{definition}[\HWLin{}]
+  A history $h = (\alabelset,\avisord)$ is related by \HWLin{}
+  w.r.t.
+  a sequential specification \Spec{}, if there exists a specification
+  history $(\alabelset, \aseqord) \in \Spec$,
+  called the \hwlinearization{} of $h$, where we require that $\aseqord$ be
+  consistent with $\avisord$ (i.e.
+  $(\aseqord \cup \avisord)^+$ is acyclic).
+  % Notice that this means that the visibility of operations in the
+  % \hwlinear{} history is exactly the prefix in $\aseqord$ up to that
+  % operation.
+\end{definition}
+
+This notion is too strong in general as we have shown in the examples
+of~\autoref{sec:CRDT implementations}.
+We shall relax this definition to accept histories where
+not all operations are seen by every query.
+
+\begin{definition}[\CRDTLin{}]
+  \label{definition:distributed linearizability} A history $h =
+  (\alabelset,\avisord)$ is \CRDTLin{} w.r.t. a
+  \gpnote*{First mention?}{deterministic} sequential specification
+  \Spec{}, if there exists a specification sequence
+  $(\alabelset, \aseqord) \in \Spec{}$, called the
+  \crdtlinearization{} of $h$, where we remark that the set of labels
+  are identical, and such that %
+  % \gpwarning*{}{This definition has to be worked out again}
+  \begin{enumerate}[(i)]
+  \item \aseqord{} is consistent with  \avisord{}, that is: $(\avisord
+    \cup \aseqord)^{+}$ is acyclic,
+  \item the projection of $\aseqord$ to \emph{update-only} labels is
+    \hwlinearizable{} w.r.t. $\Spec$, i.e.
+    $\aseqord\!\uparrow_{\Updates} \in \Spec$, where we denote by
+    $\aseqord\uparrow_{S}$ the restriction of the order $\aseqord$ to
+    the subset $S$, and
+  \item for each query label $\alabel_{\mathsf{qr}}$,
+    $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!\cdot\
+    \alabel_{\mathsf{qr}}$ be \hwlinearizable{} w.r.t. $\Spec$, i.e.
+    $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!\cdot\
+    \alabel_{\mathsf{qr}} \in \Spec$.
+\end{enumerate}
+\end{definition}
+
+In a nutshell, this definition requires that for a given execution
+history, there exists a sequential specification traces such
+that
+\begin{inparaenum}
+\item the set of labels are the same and the sequential history is
+  consistent with the visibility of the execution history, that
+\item when restricted to update-only operations, the sequence belongs to
+  the specification, and that
+\item query operation can be justified by the specification based only
+  on the updates that precede it in the sequence.
+\end{inparaenum}
+
+
+A set $H$ of histories is \crdtlinearizable{} w.r.t
+a sequential specifications $\Spec$, if each of its history is
+\crdtlinearizable{}.
+%
+
+An important property of CRDT algorithms is \emph{convergence}.
+Convergence means that all replicas will arrive to the same final
+state when the same set of operations are applied to them.
+For the moment we concentrate on specifications that are
+\emph{deterministic}.
+That is to say that for every label, the transition from a given
+initial state can produce at most one final state.
+We will later remove this restriction.
+It is useful to remark that if the specification of a CRDT is
+deterministic, then our definition of \crdtlin{} implies the
+convergence of the data type, as formalized in the following lemma.
+
+\begin{lemma}
+\label{lemma:distributed linarizability implies convergence}
+If a history $h$ is \crdtlinearizable{} w.r.t. a deterministic
+sequential specification \Spec, then $h$ is convergent.
+\end{lemma}
