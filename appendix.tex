@@ -603,7 +603,7 @@ The following lemma states that $\mathit{reg}_s$ is a t1-specification.
 $\mathit{reg}_s$ is a t1-specification.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
 We prove this lemma similarly as that of Lemma \ref{lemma:list-af is a t1-specification}. We need to prove that, given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have the same time-stamp in $h$. Then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization and is also a strict time-stamp order candidate. It is obvious that $l$ is still a strict time-stamp order candidate.
 
@@ -703,7 +703,7 @@ Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by con
 \label{subsec:appendix proofs of lemma several t0-specifications and several t1-specification can be composed}
 
 
-\composingTZeroAndOneTOne*
+\composingTZeroAndTOne*
 \begin {proof}
 Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{objs}_0$ be the set of objects that use t0-specifications in $h$, and let $\mathit{objs}_1$ be the set of objects that use t1-specifications in $h$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
 
