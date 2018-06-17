@@ -11,12 +11,21 @@ Here we define:
 \item should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section)
 \end{itemize}}
 
-Let us now concentrate on the definition of \crdtlin{} -- the main
-contribution of this paper.
+TODO MAKE A SUMMARY OF THIS SECTION
 
-\subsection{Histories}
+\subsection{The Semantics of CRDT objects}
 
-\begin{figure}
+TODO MAKE THE CONNECTION WITH THE OVERVIEW. IN PARTICULAR, SAY THAT WE ASSUME CAUSAL DELIVERY, BUT THIS IS ONLY TO SIMPLIFY THE EXPOSITION (AND ANYWAY, IT IS ASSUMED IN MOST IMPLEMENTATIONS)
+
+CRDT implementations assume the following two guarantees of downstream:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The downstream of each operation is applied at most once for each replica.
+\item[-] Assume the downstream of operation $\aop_1$ is applied in replica of $\aop_2$ before $\aop_2$ happens. Then, for each replica $\arep$, the downstream of $\aop_2$ can be applied only if the downstream of $\aop_1$ has already been applied.
+\end{itemize}
+
+\begin{figure}[t]
   \centering
 
   \(
@@ -24,111 +33,182 @@ contribution of this paper.
     \aobj & \in  & \objs & \text{Objects} \\
     \arep & \in & \reps & \text{Replicas} \\
     \amethod & \in & \methods & \text{Methods}\\
-    \adomain & \subseteq & \datadomain & \text{Data Domain} \\
-    \acrdttyp & \in & \powerset{\methods} \times \powerset{\adomain} & \text{CRDT definition} \\
-    \astate & \in & \states & \text{States} \\
-    \amesg & \in & \messages & \text{Messages} \\
-    \amesgset & \subseteq & \messages & \text{Message Set} \\
-    \aop & \in & \ops \equiv \opids & \text{Operations}\ (ID) \\
-    \alabellong[\amethod]{\argv}{\retv} \equiv \alabel  & \in & \methods \times \adomain \times \adomain \equiv \labels & \text{Operation labels} \\
+    \argv, \retv & \in & \datadomain & \text{Data Domain} \\
+    \ts & \in & \timestampdomain & \text{Timestamp Domain} \\
+%    \acrdttyp & \in & \powerset{\methods} \times \powerset{\adomain} & \text{CRDT definition} \\
+%    \astate & \in & \states & \text{States} \\
+%    \amesg & \in & \messages & \text{Messages} \\
+%    \amesgset & \subseteq & \messages & \text{Message Set} \\
+%    \aop & \in & \ops \equiv \opids & \text{Operations}\ (ID) \\
+%    \alabellong[\amethod]{\argv}{\retv} \equiv \alabel  & \in & \methods \times \adomain \times \adomain \equiv \labels & \text{Operation labels} \\
     \alabelset & \subseteq & \labels & \text{Label Set}\\
-    \arepord & \subseteq & \ops \times \ops & \text{Replica Order} \\
-    \avisord & \subseteq & \ops \times \ops & \text{Visibility Order}
+%    \arepord & \subseteq & \ops \times \ops & \text{Replica Order} \\
+%    \avisord & \subseteq & \ops \times \ops & \text{Visibility Order}
   \end{array}
   \)
-  \caption{Summary of notations}
+  \caption{Summary of notations.}
   \label{fig:notations}
 \end{figure}
 
+%\gpfatal[nomargin, inline]{remove if we decide to keep the other semantics}
 
-To formalize our CRDT correctness criterion we will introduce the
+\begin{figure}[t]
+  \centering
+
+\begin{itemize}
+\item $ \Theta \eqdef [\states \times \methods \times \datadomain  \rightarrow \datadomain \times \Delta \times \tss] \ni \atsource$ \hspace{\fill} {\tt atSource}
+\item $ \Delta \eqdef [\states \rightarrow \states] \ni \effector$ \hspace{\fill} {\tt downstream}
+%\item $\semop[]{} : \labels \times \states \rightarrow (\states \rightarrow \states)$ \hspace{\fill} Operational Semantics of a Single Operation (Label)
+\item $\localstates \eqdef \powerset{\labels} \times \states \ni (\alabelset, \astate)$ \hspace{\fill} Local Configurations
+\item $\globalstates \eqdef [\reps \rightarrow \localstates] \times \powerset{\labels \times \labels} \times [\labels \rightarrow \Delta] \ni (\gstates, \avisord, \downstreams )$ \hspace{\fill} Global Configurations
+\end{itemize}
+
+
+\[
+  \inferrule[\text{\sc Operation}]
+  {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) }
+  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], %\alabel
+    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
+\]
+
+
+\[
+  \inferrule[\text{\sc DownStream}]
+  {\gstates(\arep) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\labeldom{\avisord} \setminus \alabelset) \\
+    \downstreams(\alabel)= \delta \\ \delta(\astate) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
+\]
+
+  \caption{Operational Semantics of CRDTs. We use $[A\rightarrow B]$ to denote the set of total functions from $A$ to $B$. Also, $\mathit{unique}(i)$ ensures that $i$ is a unique identifier, and $\labeldom{\avisord}=\{\alabel: \exists \alabel'.\ (\alabel,\alabel')\in \avisord \lor (\alabel',\alabel)\in \avisord\}$.}
+  \label{fig:crdt-opsem}
+\end{figure}
+
+
+To formalize the semantics of CRDT objects and our correctness criterion we will introduce the
 following semantic domains.
 %
-We let $\aobj \in \objs$ be an object in the set of objects $\objs$. Similarly,
+We let $\aobj \in \objs$ be a CRDT object in the set of objects $\objs$. Similarly,
 $\arep \in \mathbb{R}$ is a replica in the set of replicas
 $\reps$.
 We assume that both objects and replicas are uniquely identified, and
 therefore we will equate an object with its identifier, with the same
 convention applying to replicas.
 
-We will assume that the specification of a CRDT is given by a set of
-method names $\amethod \in \methods$, and that each method has a
+We consider a set of method names $\amethod \in \methods$, and that each method has a
 number of arguments sampled from a data domain $\datadomain$, and a
 return value also from the data domain.
 We ignore here the issues of typing which should be ensured by the
-underlying programming language.
-Hence, a data type $\acrdttyp = (\amethodset, \adomain)$ is given by a
-set of method names $\amethodset \subseteq \methods$ and a data domain
-$\adomain \subseteq \datadomain$.
+underlying programming language. 
+Also, some methods, e.g., the method {\tt addAfter} of the RGA object, generate timestamps from a 
+totally-ordered domain $\timestampdomain$.
+%Hence, a data type $\acrdttyp = (\amethodset, \adomain)$ is given by a
+%set of method names $\amethodset \subseteq \methods$ and a data domain
+%$\adomain \subseteq \datadomain$.
 
-%A distributed system contains multiple objects, and each objects is replicated on each replica. Each object has a type, which contains its method and data type. A client of a replica interact with the objects by calling the method and then obtaining the return value. Here we do not bound the number of replica identifiers and objects.
 
-% Let $\objs$ be the set of objects and $\mathbb{R}$ be the set of replica identifiers. We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Each data type $t = (M,D)$ has a set $M \subseteq \mathbb{M}$ of methods and a data domain $D \subseteq \mathbb{D}$.
-
-Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that has no influence on the ``abstract state'' and normally returns an observation of the ``abstract state'' , and $\mathbb{U}$ update methods that has influence on the ``abstract state''. %Note that some update operation also need to read the ``abstract state''. For example, a $add(a,b)$ operation is an operation of distributed list which intends to put item $a$ immediately after item $b$. This operation implicitly requires that item $b$ is already in list.
-
-Firstly we will introduce the notion of \emph{histories} to represent
-abstractly the execution of a concrete client operating on an
-implementation of the data structure.
-
-Histories are composed of operation labels.
-An operation label $\alabellong{\argv}{\retv}$ represents the call of a method
-$\amethod \in \methods$, with argument $a \in \datadomain$, and
-resulting in the value $b \in \datadomain$.
-
-We assume that in a history all labels are unique.
+An operation label $\alabelobjind{\argv}{\retv}{i,\ts}$
+%$\alabellong{\argv}{\retv}$ 
+represents the call of a method
+$\amethod \in \methods$ of object $\aobj\in \objs$, with argument $\argv \in \datadomain$, 
+resulting in the value $\retv \in \datadomain$, and generating the timestamp $\ts$. We may omit the object $\aobj$ when it is understood from the context.
+For uniformity, we assume that $\ts$ is a distinguished value $\bot$ for methods $\amethod$ that don't generate timestamps, e.g., the method {\tt remove} of the RGA object. We may omit the timestamp when it is not important.
+%We assume that in a history all labels are unique.
 Since there might be multiple calls to the same method with the same
-arguments and result, we will tag labels with a unique identifier $i$
-as in $\alabellongind{\argv}{\retv}{i}$.
-However, since we assume all labels are unique we will ignore
-identifiers when unambiguous.
-We can now define execution \emph{histories}.
+arguments and result, labels are tagged with a unique identifier $i$.
+%as in $\alabellongind{\argv}{\retv}{i}$.
+However, since we assume that each label of an operation in an execution is tagged with a unique identifier, we will ignore
+identifiers when unambiguous. The set of all operation labels is denoted by $\labels$.
 
-\gpnote[nomargin, inline]{Maybe we have an overlap of IDs}
-% We assume a set $\aopid \in \opids$ to represent unique \emph{operation identifiers}.
+%\labels
+% the transitions are labeled by operation labels in $\labels$,
+%\times \labels
 
+Given a CRDT object $\aobj$, its semantics is defined as a transition system $\llbracket \aobj \rrbracket = (\globalstates,\aglobalstate_0,\rightarrow)$ as in \figurename~\ref{fig:crdt-opsem}, where $\globalstates$ is a set of global configurations, $\aglobalstate_0$ is the initial configuration, and $\rightarrow\subseteq \globalstates  \times \globalstates$ is the transition relation.
 
-\begin{definition}[histories]
-  \label{definition:histories} An execution history is a tuple of the form
-  $(\alabelset, \avisord)$, where
-  \begin{enumerate}
-  \item $\alabelset$ is the set of labels representing the operations of
-    the execution,
-  % \item $\arepord \in (\alabelset \times \alabelset)$ is the
-  %   \emph{replica order}, a binary relation between the labels of the
-  %   execution, such that when restricted to labels of operations generated
-  %   by each single replica it is a total order, and it does not relate labels of
-  %   operations from different replicas, and
-  \item $\avisord \in (\alabelset \times \alabelset)$ is the
-    \emph{visibility order}, an \emph{acyclic partial order}
-    relation between the labels of the execution, such that if $(\alabel,
-    \alabel') \in \avisord$ then the operation corresponding to the label
-    $\alabel'$ witnessed in its execution the effects of the operation
-    with label $\alabel$.
-  \end{enumerate}
-\end{definition}
+A global configuration $(\gstates, \avisord, \downstreams)$ is a ``snapshot'' of the system that also records all the operations that have been executed. $\gstates \in [\reps \rightarrow \localstates]$ stores the local configuration of each replica. A local configuration $(\alabelset, \astate)$ contains the state $\astate$ of a replica and the set $\alabelset$ of labels of operations that have been originated at this replica, or whose downstreams have been executed at this replica. When $\alabel\in \alabelset$, we say that $\alabel$ is \emph{visible} to the replica or that the replica \emph{sees} $\alabel$.
+The relation $\avisord\subseteq \powerset{\labels \times \labels}$ is the \emph{visibility} relation between operations, i.e., $(\alabel_1,\alabel_2)\in \avisord$, where $\alabel_2$ is an operation originated at a replica $\arep$, if the downstream of $\alabel_1$ is executed at $\arep$ before $\alabel_2$. When $(\alabel_1,\alabel_2)\in \avisord$, we say that $\alabel_1$ is \emph{visible} to $\alabel_2$, or that $\alabel_2$ \emph{sees} $\alabel_1$. As it will be clear from the definition of the transition relation, $\avisord$ is actually a \emph{strict partial order} (i.e., satisfying irreflexivity and transitivity). 
+Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to each operation a downstream, which is a transformer $\effector\in [\states \rightarrow \states]$ of replica states. 
 
-\subsection{Sequential Specification}
+For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
+
+The transition relation $\rightarrow$ is defined in \figurename~\ref{fig:crdt-opsem}. The first rule describes a replica $\arep$ in state $\astate$ executing an invocation of $\amethod$ with argument $\argv$. This transition consists in first applying the {\tt atSource} function $\atsource$ which outputs a return value $\retv$, a downstream $\effector$ to be executed at all replicas, and possibly, a timestamp $\ats$. We assume that $\ats=\bot$ for methods that don't generate timestamps. The association between the label $\alabel$ corresponding to this invocation and the downstream $\effector$ is recorded in the $\downstreams$ component of the new global configuration. The local configuration $(\alabelset,\sigma)$ of $\arep$ is changed by applying the downstream $\effector$ on the state $\sigma$, resulting in a new state $\sigma'$, and adding $\alabel$ to the set of labels $\alabelset$. Finally, the visibility relation $\avisord$ is changed to record the fact that the downstreams of all operations in $\alabelset$ have been applied before $\alabel$. 
+
+TODO EXAMPLE BASED ON RGA
+
+The second rule describes a replica $\arep$ in state $\astate$ executing the downstream $\effector$ that corresponds to an operation $\alabel$. It is required that $\effector$ is one of the downstreams that haven't been already executed at $\arep$ (i.e., its corresponding label is not in the $\alabelset$ component of $\arep$'s configuration) and a minimal one with respect to the order $\avisord$ among such downstreams, i.e., there exists no $\alabel'\not\in \alabelset$ such that $(\alabel',\alabel)\in \avisord$. This transition results in modifying the state of $\arep$ to $\effector(\sigma)$ and adding $\alabel$ to the set of operations whose downstreams have been executed by $\arep$. Note that these transition rules preserve the fact that $\avisord$ is a strict partial order.
+
+TODO EXAMPLE BASED ON RGA
+ 
+We say that a method $\amethod\in\methods$ of an object $\aobj\in \objs$ is called a \emph{query} method if it always results (by applying the {\tt atSource} function $\atsource$) in a downstream $\effector$ which is the identity function (i.e., $\delta(\sigma)=\sigma$ for all replica states $\sigma$)~\footnote{While we could have defined a semantics in which a read-only operation doesn't  generate any downstream, we have preferred the current version for uniformity.}. A method $\amethod$ which is not a query, and whose effectors (generated by $\atsource$) do not ``depend'' on the state $\sigma$ of the replica at which the invocations of $\amethod$ are originated, is called an \emph{update}. More precisely, given an equivalence relation $\equiv$ between downstreams that relates any two downstreams that have the same effect, modulo the values of timestamps or unique identifiers, $\amethod$ is called an update when $\atsource(\sigma,\amethod,\argv)|_2 \equiv \atsource(\sigma',\amethod,\argv)|_2$, for every $\argv\in\datadomain$ and two states $\sigma,\sigma'\in\Sigma$ (for a tuple $x$, $x|_k$ denotes the projection of $x$ on the $k$-th component).
+A method $\amethod$ which is not a query or an update is called a \emph{query-update} (it generates a downstream which is not the identity function, and whose effect depends on the local state of the replica at which the invocation of $\amethod$ is originated). We denote by $\queries$, $\updates$, and $\queryupdates$, the set of operation labels $\alabelobjind{\argv}{\retv}{i,\ts}$ where $\amethod$ is a query, update, and query-update, respectively. They are called query, update, and query-update labels, respectively.
+
+TODO EXAMPLES OF QUERIES, UPDATES, QUERY-UPDATES. PROBABLY DISCUSSED ALREADY ALSO IN THE OVERVIEW.
+
+Executions and reachable global configurations of an object $\aobj$ are defined as usual. A \emph{history} is a pair $(\alabelset,\avisord)$ where $\avisord\subseteq \alabelset\times\alabelset$ is a strict partial order over the set of labels $\alabelset$. Given an execution $e$ ending in a global configuration $(\gstates, \avisord, \downstreams)$, 
+the \emph{history} of $e$ is the pair $(\labeldom{\avisord}, \avisord)$. The set of histories $\histories(\aobj)$ of an object $\aobj$ is the set of histories $h$ of an execution $e$ of $\aobj$.
+
+TODO EXAMPLE OF HISTORY OF AN EXECUTION
+
+%\ce{Need to talk about read/updates}
+%
+%Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that has no influence on the ``abstract state'' and normally returns an observation of the ``abstract state'' , and $\mathbb{U}$ update methods that has influence on the ``abstract state''. 
+
+%
+%A sequence $\aexec$ of operation labels is an execution of $\llbracket \aobj \rrbracket$, if there exists a global configuration $\aglobalstate = (\gstates, \avisord, \downstreams)$, such that $\aglobalstate_0 {\xrightarrow{ l }} \aglobalstate$. The history of $\aexec$ is a tuple $(\alabelset, \avisord)$, where $\alabelset$ is the set of labels of $l$. Let $\mathit{history}(\llbracket \aobj \rrbracket)$ be the set of histories of all executions of $\llbracket \aobj \rrbracket$. Then, $\aobj$ is \crdtlinearizable{}, if each of its history is, as stated by the following:
+%
+%
+%
+%\begin{definition}[Correctness of a CRDT Object]
+%\label{definition:correctness of a CRDT object}
+%A CRDT object $\aobj$ is \crdtlinearizable{} w.r.t a sequential specification \Spec{}, if each history of $\mathit{history}(\llbracket \aobj \rrbracket)$ is \crdtlinearizable{} w.r.t \Spec{}.
+%\end{definition}
+%
+
+%\subsection{Histories}
+%
+%
+%Firstly we will introduce the notion of \emph{histories} to represent
+%abstractly the execution of a concrete client operating on an
+%implementation of the data structure.
+%
+%Histories are composed of operation labels.
+%We can now define execution \emph{histories}.
+%
+%\gpnote[nomargin, inline]{Maybe we have an overlap of IDs}
+%% We assume a set $\aopid \in \opids$ to represent unique \emph{operation identifiers}.
+%
+%
+%\begin{definition}[histories]
+%  \label{definition:histories} An execution history is a tuple of the form
+%  $(\alabelset, \avisord)$, where
+%  \begin{enumerate}
+%  \item $\alabelset$ is the set of labels representing the operations of
+%    the execution,
+%  % \item $\arepord \in (\alabelset \times \alabelset)$ is the
+%  %   \emph{replica order}, a binary relation between the labels of the
+%  %   execution, such that when restricted to labels of operations generated
+%  %   by each single replica it is a total order, and it does not relate labels of
+%  %   operations from different replicas, and
+%  \item $\avisord \in (\alabelset \times \alabelset)$ is the
+%    \emph{visibility order}, an \emph{acyclic partial order}
+%    relation between the labels of the execution, such that if $(\alabel,
+%    \alabel') \in \avisord$ then the operation corresponding to the label
+%    $\alabel'$ witnessed in its execution the effects of the operation
+%    with label $\alabel$.
+%  \end{enumerate}
+%\end{definition}
+
+\subsection{Sequential Specifications}
 \label{subsec:sequential specification}
 
-For specifications we will consider sets of sequences of labels, each
-paired with an abstract visibility relation $\avisord$ relating the
-labels in the sequence.
-
+TODO INTRODUCE THIS SUBSECTION
 
 %\gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
-  \label{definition:sequential specification} A sequential
-  specification is a set of tuples $(\alabelset, \aseqord)$, where
-  \begin{enumerate}
-  \item $\alabelset$ is a set of labels, and
-  \item $\aseqord$ is a sequence including all the labels in $\alabelset$,
-    representing a sequential execution of the operations.
-  % \item and $\avisord$ is a partial order over $\alabelset$,
-  %   representing the visibility relation of the operations, and
-  % \item we require that $\aseqord$ and $\avisord$ be consistent with
-  %   each other, that is $(\aseqord \cup \avisord)^+$ is acyclic.
-  \end{enumerate}
+  \label{definition:sequential specification} A \emph{sequential
+  specification} (specification, for short) $\Spec$ is a set of tuples $(\alabelset, \aseqord)$, where
+  $\alabelset$ is a set of labels and 
+  $\aseqord$ is a sequence including all the labels in $\alabelset$.
 \end{definition}
 
 To describe sequential specifications in a succinct way we will
@@ -137,25 +217,29 @@ To that end, we will associate to specifications a notion of abstract
 state, which we shall generally denote by $\abstate$ and its domain
 shall be denoted by $\abstates$.
 Then to each valid label $\alabel$ we will associate a transition
-function $\absopsemplain$ which given an initial state, and provided
+function $\xRightarrow{\alabel}$ which given a state, and provided
 that the label can be applied into that state, it will result into a
 new abstract state.
-Hence, we denote by $\absopsem{\abstate} = \abstate'$ the fact that
+Hence, we denote by $\abstate \xRightarrow{\alabel}  \abstate'$
+%$\absopsem{\abstate} = \abstate'$ 
+the fact that
 the resulting state for label $\alabel$ with initial state $\abstate$
 is $\abstate'$.
 %
-To simplify our descriptions, we will use a shortcut notation for
-$\absopsem{\abstate} = \abstate'$ and will write it as:
-\[ \abstate \xrightarrow{\alabel}  \abstate' \]
+%To simplify our descriptions, we will use a shortcut notation for
+%$\absopsem{\abstate} = \abstate'$ and will write it as:
+%\[ \abstate \xRightarrow{\alabel}  \abstate' \]
 
 In the specific case where the label $\alabel$ assumes a certain
 precondition $\apre$ over the initial abstract state $\abstate$ we
 will use Hoare-style triples and write
-\[ \big(\abstate\ |\ \apre(\abstate)\big) \xrightarrow{\alabel}  \abstate' \]
+\[ \big(\abstate\ |\ \apre(\abstate)\big) \xRightarrow{\alabel}  \abstate' \]
 
 A sequential specification then is the set of labels that are accepted
 by the successive application of the transition function starting from
-some given initial state $\abstate_{i}$.
+some given initial state $\abstate_{0}$.
+
+TODO REWORK THESE EXAMPLES. DON'T WE NEED JUST TWO EXAMPLES, RGA AND OR-SET ?
 
 \begin{example}[sequential specification of counter]
 \label{definition:sequential specification of counter}
@@ -311,124 +395,160 @@ When the context is clear, in $\mathit{read}$ operation, we will omit
 $\circ$.
 \end{example}
 
-\subsection{Definition of Distributed \CRDTLin{}}
+TODO TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.
+
+\subsection{Definition of \CRDTLin{}}
 \label{subsec:definition of distributed linearizability}
 
-We now provide our definition of linearizability.
-To simplify the argument we will assume for the time being that all
-labels in a specification can be classified into update labels
-$\alabel_{up} \in \Updates$ and into $\alabel_{qr} \in \Queries$.
-Later we will extend the framework to consider query/update
-operations.
-
-We will generally assume that methods are predefined as either update
-or query, and labels are defined according to the method.
-In general however, given a specification in the operational style
-described above, we can identify a label as an update if in its
-specification the state before and after are different.
-Formally, if $\abstate \xrightarrow{\alabel} \abstate'$ belongs to $\Spec$
-and $\abstate \neq \abstate'$ we say that $\alabel$ is an update, and
-$\alabel \in \Updates$.\footnote{We assume that labels are
-  consistently update or query, should there be labels acting sometimes
-  as update and sometimes as only query, a simple renaming would suffice
-  to distinguish them.}
-A label is said to be a query if it is not an update.
-We will later add an additional case for query/update labels.
-
-The intuition of our definition of \crdtlin{} is that for update
-operations there is a global linear sequence (or history) which can
-produce the final state obtained by the execution.
-In other words, any state observed by any replica should be the result
-of a prefix of this sequential history.
-This notion is akin to Linearizability~\cite{HerlihyW90} when
-constrained to update-only operations.
-
-Evidently, this notion does not extend to query operations, since in
-our semantical model replicas can see a subset of the global updates
-performed at any moment, then we must allow for queries to read a
-sub-sequence of the updates in the global sequence mentioned above.
-In particular, queries should be justified by considering the
+We now provide the definition of \crdtlin{} which characterizes histories of CRDT objects.
+For presentation reasons, we first consider the case where all the labels in the history are 
+either queries or updates (the case of query-updates is considered later in this section).
+%
+%To simplify the argument we will assume for the time being that all
+%labels in a specification can be classified into update labels
+%$\alabel_{up} \in \Updates$ and into $\alabel_{qr} \in \Queries$.
+%Later we will extend the framework to consider query/update
+%operations.
+%
+%We will generally assume that methods are predefined as either update
+%or query, and labels are defined according to the method.
+%In general however, given a specification in the operational style
+%described above, we can identify a label as an update if in its
+%specification the state before and after are different.
+%Formally, if $\abstate \xrightarrow{\alabel} \abstate'$ belongs to $\Spec$
+%and $\abstate \neq \abstate'$ we say that $\alabel$ is an update, and
+%$\alabel \in \Updates$.\footnote{We assume that labels are
+%  consistently update or query, should there be labels acting sometimes
+%  as update and sometimes as only query, a simple renaming would suffice
+%  to distinguish them.}
+%A label is said to be a query if it is not an update.
+%We will later add an additional case for query/update labels.
+%
+The intuition of our notion of \crdtlin{} is that there is a \emph{global} sequence 
+(or linearization) of the update operations in a history which can
+produce the state of \emph{each} replica when \emph{all} the updates are visible to them.
+In intermediate steps, any replica state should be the result of applying a subsequence of updates 
+of this global sequence. This is because our semantical model allows replicas to see a subset of the updates
+performed up to some moment. 
+%``explains'' the states of each replica,
+%i.e., any state observed by any replica should be the result of applying a subsequence of updates 
+%in this sequence, and eventually, when all the updates are delivered at a replica~\footnote{Their corresponding downstreams are executed on that replica.}, its state is the result of applying this sequence of updates.
+%%for update
+%%operations there is a global linear sequence (or history) which can
+%%produce the final state obtained by the execution.
+%%In other words, any state observed by any replica should be the result
+%%of a prefix of this sequential history.
+%This notion is akin to Linearizability~\cite{HerlihyW90} when
+%constrained to update-only operations.
+%Evidently, this notion does not extend to query operations, since in
+%our semantical model replicas can see a subset of the global updates
+%performed at any moment, then we must allow for queries to read a
+%sub-sequence of the updates in the global sequence mentioned above.
+Therefore, each query should be justified by considering the
 sub-sequence of the global sequence restricted to the updates that are
-visible to it.
-We will make these notions precise in~\autoref{definition:distributed
-  linearizability} below.
+visible to that query.
+We will make these notions precise in~\autoref{definition:ralinearizability1} below.
 
 
-\gpnote*{We consider single-object only in this section} {A history is
-  single-object, if it contains operations of a single object.
-  A history is multi-object, if it contains operations of multiple
-  objects.}
-In the following we propose distributed linearizability for histories.
-\gpwarning*{}{We have to say that we distinguish query and update
-  labels, perhaps define formally (for queries the visibility is
-  important, updates change the state, but the visibility might not be
-  important.)}
+%\gpnote*{We consider single-object only in this section} {A history is
+%  single-object, if it contains operations of a single object.
+%  A history is multi-object, if it contains operations of multiple
+%  objects.}
+%In the following we propose distributed linearizability for histories.
+%\gpwarning*{}{We have to say that we distinguish query and update
+%  labels, perhaps define formally (for queries the visibility is
+%  important, updates change the state, but the visibility might not be
+%  important.)}
 
-Before defining $\crdtlin{}$ it will be useful to present a definition
-of linearizability as given by Herlihy and Wing~\cite{HerlihyW90} but
-specialized for our notion of histories.
-We shall call this notion \HWLin{}.
+%Before defining $\crdtlin{}$ it will be useful to present a definition
+%of linearizability as given by Herlihy and Wing~\cite{HerlihyW90} but
+%specialized for our notion of histories.
+%We shall call this notion \HWLin{}.
+%
+%\begin{definition}[\HWLin{}]
+%  A history $h = (\alabelset,\avisord)$ is related by \HWLin{}
+%  w.r.t.
+%  a sequential specification \Spec{}, if there exists a specification
+%  history $(\alabelset, \aseqord) \in \Spec$,
+%  called the \hwlinearization{} of $h$, where we require that $\aseqord$ be
+%  consistent with $\avisord$ (i.e.
+%  $(\aseqord \cup \avisord)^+$ is acyclic).
+%  % Notice that this means that the visibility of operations in the
+%  % \hwlinear{} history is exactly the prefix in $\aseqord$ up to that
+%  % operation.
+%\end{definition}
 
-\begin{definition}[\HWLin{}]
-  A history $h = (\alabelset,\avisord)$ is related by \HWLin{}
-  w.r.t.
-  a sequential specification \Spec{}, if there exists a specification
-  history $(\alabelset, \aseqord) \in \Spec$,
-  called the \hwlinearization{} of $h$, where we require that $\aseqord$ be
-  consistent with $\avisord$ (i.e.
-  $(\aseqord \cup \avisord)^+$ is acyclic).
-  % Notice that this means that the visibility of operations in the
-  % \hwlinear{} history is exactly the prefix in $\aseqord$ up to that
-  % operation.
-\end{definition}
+%This notion is too strong in general as we have shown in the examples
+%of~\autoref{sec:CRDT implementations}.
+%We shall relax this definition to accept histories where
+%not all operations are seen by every query.
 
-This notion is too strong in general as we have shown in the examples
-of~\autoref{sec:CRDT implementations}.
-We shall relax this definition to accept histories where
-not all operations are seen by every query.
-
-\begin{definition}[\CRDTLin{}]
-  \label{definition:distributed linearizability} A history $h =
-  (\alabelset,\avisord)$ is \CRDTLin{} w.r.t. a
-  \gpnote*{First mention?}{deterministic} sequential specification
+\begin{definition}
+  \label{definition:ralinearizability1} A history $h =
+  (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\cup\updates$ is \crdtlinearizable{} w.r.t. a
+   sequential specification
+%\gpnote*{First mention?}{deterministic}
   \Spec{}, if there exists a specification sequence
   $(\alabelset, \aseqord) \in \Spec{}$, called the
-  \crdtlinearization{} of $h$, where we remark that the set of labels
-  are identical, and such that %
+  \emph{\crdtlinearization{}} of $h$, where we remark that the set of labels
+  are identical, such that %
   % \gpwarning*{}{This definition has to be worked out again}
   \begin{enumerate}[(i)]
   \item \aseqord{} is consistent with  \avisord{}, that is: $(\avisord
     \cup \aseqord)^{+}$ is acyclic,
-  \item the projection of $\aseqord$ to \emph{update-only} labels is
-    \hwlinearizable{} w.r.t. $\Spec$, i.e.
-    $\aseqord\!\uparrow_{\Updates} \in \Spec$, where we denote by
-    $\aseqord\uparrow_{S}$ the restriction of the order $\aseqord$ to
+  \item the projection of $\aseqord$ to \emph{updates} is
+    admitted by $\Spec$, i.e.
+    $\aseqord\!\downarrow_{\updates} \in \Spec$, where we denote by
+    $\aseqord\downarrow_{S}$ the restriction of the order $\aseqord$ to
     the subset $S$, and
-  \item for each query label $\alabel_{\mathsf{qr}}$,
-    $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!\cdot\
-    \alabel_{\mathsf{qr}}$ be \hwlinearizable{} w.r.t. $\Spec$, i.e.
-    $\aseqord\!\uparrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})}\!\cdot\
+  \item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ itself is admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
     \alabel_{\mathsf{qr}} \in \Spec$.
 \end{enumerate}
 \end{definition}
 
-In a nutshell, this definition requires that for a given execution
-history, there exists a sequential specification traces such
+In a nutshell, this definition requires that for a given 
+history, there exists a specification sequence such
 that
 \begin{inparaenum}
-\item the set of labels are the same and the sequential history is
-  consistent with the visibility of the execution history, that
-\item when restricted to update-only operations, the sequence belongs to
+\item the set of labels are the same and the order in the sequence is
+  consistent with the visibility order of the history, that
+\item when restricted to update operations, the sequence belongs to
   the specification, and that
-\item query operation can be justified by the specification based only
-  on the updates that precede it in the sequence.
+\item query operations can be justified by the specification based only
+  on the updates that precede it in the sequence and that are visible to them.
 \end{inparaenum}
 
+TODO REFER TO AN EXAMPLE FROM THE OVERVIEW
 
-A set $H$ of histories is \crdtlinearizable{} w.r.t
-a sequential specifications $\Spec$, if each of its history is
-\crdtlinearizable{}.
+We now consider the case where histories include query-updates. In such a case, we apply~\autoref{definition:ralinearizability1} on a rewriting of the original history where 
+each query-update is decomposed into a label representing the query part and another label representing the update part. This rewriting may introduce new labels, which do not correspond to original operations of the considered object, but which have to be taken into account by the specification. TODO EXPLAIN THE OR-SET CASE.
+
+A mapping $\gamma:\queryupdates\rightarrow \labels^2$ is called a \emph{query-update rewriting}. For $\alabel\in \queryupdates$ and $\gamma(\alabel)=(\alabel_1,\alabel_2)$, the label $\alabel_1$ is considered a query and $\alabel_2$ an update. 
+The query-update rewriting of a history $h$ is obtained by replacing each query-update label $\alabel$ with the two labels $\alabel_1$ and $\alabel_2$ in $\gamma(\alabel)$ (and leaving the rest of the labels unchanged), and extending the visibility order to include the fact that the query $\alabel_1$ is ordered before the update $\alabel_2$, and also that any other label $\alabel'$ ordered before $\alabel$ remains ordered before the query $\alabel_1$ and any other label $\alabel'$ ordered after $\alabel$ remains ordered after the update $\alabel_2$.
+Formally, given a history $h=(\alabelset,\avisord)$, we define $\gamma(h)=(\alabelset',\avisord')$ where
+\begin{align*}
+\alabelset' & =  \alabelset\cap (\queries\cup\updates) \cup \{\alabel_1,\alabel_2: \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\} \\
+\avisord' & =  \avisord \cup \{(\alabel_1,\alabel_2): \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\} \\
+&\hspace{5mm}\cup \{(\alabel',\alabel_1): \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\land (\alabel',\alabel)\in\avisord\} \\
+&\hspace{5mm}\cup \{(\alabel_2,\alabel'): \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\land (\alabel,\alabel')\in\avisord\}
+\end{align*}
+Note that the query-update rewriting of a history will include labels which are either queries or updates. The following definition extends~\autoref{definition:ralinearizability1} to arbitrary histories using such rewritings.
+
+\begin{definition}[\CRDTLin{}]
+  \label{definition:distributed linearizability} A history $h =
+  (\alabelset,\avisord)$ is \crdtlinearizable{} w.r.t. a
+   sequential specification
+%\gpnote*{First mention?}{deterministic}
+  \Spec{}, if there exists a query-update rewriting $\gamma$ such that $\gamma(h)$ is \crdtlinearizable{} w.r.t. \Spec{}.
+\end{definition}
+
+
+A set $H$ of histories is called \crdtlinearizable{} w.r.t
+a sequential specification $\Spec$ when each history $h\in H$ is
+\crdtlinearizable{} w.r.t. $\Spec$. An object $\aobj$ is \crdtlinearizable{} w.r.t. $\Spec$ when $\histories(\aobj)$ is linearizable w.r.t. $\Spec$.
 %
+
+TODO MOVE THE FOLLOWING WHEN WE NEED IT (WHEN WE TALK ABOUT SOME NONDETERMINISTIC SPECIFICATION, E.G., WOOT)
 
 An important property of CRDT algorithms is \emph{convergence}.
 Convergence means that all replicas will arrive to the same final
