@@ -199,25 +199,25 @@ Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position i
 \begin{lstlisting}[caption={Pseudo-code of the or-set CRDT}, captionpos=b,label={lst:or-set}]
   payload Set S
   initial S = @|$\emptyset$|@
-  @{ initial lin = @|$\epsilon$|@ }
+  @{ initial seq = @|$\epsilon$|@ }
 
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      @{ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[add]{a,k}{\bot}{i}$|@ }
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[add]{a,k}{\bot}{i}$|@ 
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
-      @{ S@|$'$|@ = S @|$\cup$|@ {(a, k)} }
+      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)} 
 
   remove(a) :
     atSource :
       precondition : @|$\exists$|@ k. (a,k) @|$\in$|@ S
       let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      @{ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[readIds]{a}{R}{i}\,\cdot\,\alabellongind[remove]{a,R}{\bot}{i}$|@ }
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{i}\,\cdot\,\alabellongind[remove]{a,R}{\bot}{i}$|@ 
     downStream(R) :
       S = S @|$\setminus$|@ R
-      @{ S@|$'$|@ = S@|$\,\cup\, \{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \downstreams^{-1}({\tt this})) \in \avisord$|@ 
-      	                  @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\downstreams^{-1}({\tt this}))\}\not\subseteq \avisord\}$|@ }
+      //@ S@|$'$|@ = S@|$\,\cup\, \{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \downstreams^{-1}({\tt this})) \in \avisord$|@ 
+      	                  @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\downstreams^{-1}({\tt this}))\}\not\subseteq \avisord\}$|@ 
 
   read() :
     return {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
