@@ -114,7 +114,7 @@ The following lemma states that, transitive visibility relation and causal-times
 
 \begin{restatable}{lemma}{composingTZeroAndTOne}
 \label{lemma:several t0-specifications and several t1-specification can be composed}
-Given a multi-object history $\ahis$ satisfies transitive visibility relation and causal-timestamp. If for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is either \tzerolinearizable{} or \tonelinearizable{}, then, $\ahis$ is \crdtlinearizable{}.
+Given a multi-object history $\ahis$ satisfies transitive visibility relation, and satisfies causal-timestamp for operations of objects of \tonelin{}. If for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is either \tzerolinearizable{} or \tonelinearizable{}, then, $\ahis$ is \crdtlinearizable{}. 
 \end{restatable}
 
 Note that here we permit different \crdtimp{} to use different style of timestamp and order.
@@ -126,9 +126,11 @@ Note that here we permit different \crdtimp{} to use different style of timestam
 \subsection{Modified Implementation and Multi-Objects Semantics}
 \label{subsec:smodified implementation and multi-objects semantics} 
 
+Given a set of objects, we may choose some objects which later will be proved to be ``\tzerolinearizable{}'' while other objects will be proved to be ``\tonelinearizable{}''. We may call the former objects and latter objects objects of \tzerolin{} and \tonelin{}, respectively. 
+
 We will begin to discuss compositionality from the aspect of objects. To ensure the two conditions, transitive visibility and causal-timestamp, of Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}, we propose a semantics for multiple objects. The transitive visibility can be easily satisfied by always choosing a minimum downstream w.r.t visibility relation among objects. To deal with causal-timestamp, we introduce a \gts{} shared among objects of \tonelin{}. Objects of \tonelin{} use \gts{}, instead of its inner information, to generate new timestamp; The distributed system is responsible for updating global-timestamp, and we give only abstract restriction for it.
 
-The value of \gts{} is a tuple $(c,\arep)$ with $c \in \mathbb{N}$. The \gts{} have a method $\updategts{}$ which updates the value of \gts{} and returns a new timestamp. As discussed above, \crdtimp{} of objects of \tonelin is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp. As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified.
+The value of \gts{} is a tuple $(c,\arep)$ with $c \in \mathbb{N}$. The \gts{} have two methods: $\updategts{}$ and $\rupdategts{}$. $\updategts{}$ updates the value of \gts{} and returns a new and bigger timestamp. $\rupdategts{}$ updates the value of \gts{} and returns a random new and bigger timestamp, and will be used in the next subsection. As discussed above, \crdtimp{} of objects of \tonelin{} is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp. As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified.
 
 \begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:modified rga}]
   payload Ti-Tree N, Set Tomb
@@ -154,7 +156,7 @@ The value of \gts{} is a tuple $(c,\arep)$ with $c \in \mathbb{N}$. The \gts{} h
     return traverse(N, Tomb)
 \end{lstlisting}
 
-With objects of \tonelin{} been modified, we could now introduce the semantics for multiple objects. 
+When necessary, we use object with \gts{} to mention objects which is of \tonelin{} and use $\updategts{}$ to generate new timestamp. Then, we could now introduce the semantics for multiple objects.
 
 
 \begin{figure}[t]
@@ -188,13 +190,13 @@ With objects of \tonelin{} been modified, we could now introduce the semantics f
   \label{fig:modified semantics for multiple object}
 \end{figure} 
 
-Given a set $\severalobj$ of CRDT objects, its semantics is defined as a transition system $\llbracket \severalobj \rrbracket = (\globalstates,\aglobalstate_0,\rightarrow)$ as in \figurename~\ref{fig:modified semantics for multiple object}, where $\globalstates$ is a set of global configurations, $\aglobalstate_0$ is the initial configuration, and $\rightarrow\subseteq \globalstates  \times \globalstates$ is the transition relation. Below we only interpret The difference between $\llbracket \severalobj \rrbracket$ and $\llbracket \aobj \rrbracket$ is as follows:
+Given a set $\severalobj$ of CRDT objects, where all objects of \tonelin{} are object with \gts{}, its semantics is defined as a transition system $\llbracket \severalobj \rrbracket = (\globalstates,\aglobalstate_0,\rightarrow)$ as in \figurename~\ref{fig:modified semantics for multiple object}, where $\globalstates$ is a set of global configurations, $\aglobalstate_0$ is the initial configuration, and $\rightarrow\subseteq \globalstates  \times \globalstates$ is the transition relation. The difference between $\llbracket \severalobj \rrbracket$ and $\llbracket \aobj \rrbracket$ is as follows:
 
-In global configuration $(\gstates, \avisord, \downstreams)$, $\gstates \in [\reps \rightarrow \localstates]$ stores the local configuration of each replica, and now in a local configuration $(\alabelset, \funobjtostates)$, we use $\funobjtostates$ to store the $\astate$ of objects in a replica. For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \funobjtostates_0)$, and $\funobjtostates_0$ maps each objects into its initial state. 
+In a local configuration $(\alabelset, \funobjtostates)$ of global configuration $(\gstates, \avisord, \downstreams)$, we use $\funobjtostates$ to store the $\astate$ of objects in a replica. For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \funobjtostates_0)$, and $\funobjtostates_0$ maps each objects into its initial state.
 
-In the first transition rule, we use the transition rule of object $\aobj$, and use the downstream to change the state of object $\aobj$ of local configuration of replica $\arep$. Note that here if $\aobj$ is an object of \tonelin{} and want to generate new timestamp, then method $\updategts$ is used to generate new timestamp. In the second transition rule, we choose a downstream $\effector$ that haven't been already executed at $\arep$ and is a minimal one with respect to the order $\avisord$ among such downstreams. Then we use $\effector$ to change the state of object $\aobj$ of local configuration of replica $\arep$, where $\aobj$ is the object of $\effector$.
+In the first transition rule, we use the transition rule of object $\aobj$, and use the downstream to change the state of object $\aobj$ in local configuration of replica $\arep$. Note that here if $\aobj$ is an object of \tonelin{} and want to generate new timestamp, then method $\updategts$ is used to generate new timestamp. In the second transition rule, we choose a downstream $\effector$ that haven't been already executed at $\arep$ and is a minimal one with respect to the order $\avisord$ among such downstreams. Then we use $\effector$ to change the state of object $\aobj$ of local configuration of replica $\arep$, where $\aobj$ is the object of $\effector$.
 
-Executions and reachable global configurations of $\llbracket \severalobj \rrbracket$ are defined as usual. $(\alabelset,\avisord)$ is a history of $\llbracket \severalobj \rrbracket$, if there exists an execution ending in a global configuration $(\gstates, \avisord, \downstreams)$, and the following conditions are satisfied: (1) each timestamp generated by calling $\updategts$ is unique, and (2) given operations $\alabel_1$ and $\alabel_2$ of objects of \tonelin{}, if they both use $\updategts$ to generate new timestamp and $(\alabel_1,\alabel_2) \in \avisord$, then the timestamp of $\alabel_1$ is less than that of $\alabel_2$. The set of histories $\histories(\severalobj)$ of objects $\severalobj$ is the set of histories of $\llbracket \severalobj \rrbracket$. 
+Executions and reachable global configurations of $\llbracket \severalobj \rrbracket$ are defined as usual. $(\alabelset,\avisord)$ is a history of $\llbracket \severalobj \rrbracket$, if there exists an execution $e$ ending in a global configuration $(\gstates, \avisord, \downstreams)$, and the following conditions are satisfied: (1) each timestamp generated by calling $\updategts$ is unique, and (2) given operations $\alabel_1$ and $\alabel_2$ of objects of \tonelin{}, if they both use $\updategts$ or $\rupdategts$ to generate new timestamp and $(\alabel_1,\alabel_2) \in \avisord$, then the timestamp of $\alabel_1$ is less than that of $\alabel_2$. The set of histories $\histories(\severalobj)$ of objects $\severalobj$ is the set of histories of $\llbracket \severalobj \rrbracket$. Since all objects with \gts{} share a same timestamp generater, it is obvious that \gts{} satisfies causal-timestamp.
 
 Note that, here we leave the way of implementing \gts{} completely abstract, and only give conditions to executions. In practice, one possible way to implement \gts{} is as follows:
 
@@ -202,6 +204,7 @@ Note that, here we leave the way of implementing \gts{} completely abstract, and
 \setlength{\itemsep}{0.5pt}
 \item[-] Each replica stores a integer value $c$, 
 \item[-] To do $\updategts$, returns $(c+1,\arep)$, and change $c$ into $c+1$, where $\arep$ is the identifier of current replica, 
+\item[-] To do $\rupdategts$, returns $(c+d,\arep)$, and change $c$ into $c+s$, where $\arep$ is the identifier of current replica an $d$ is a random positive integer, 
 \item[-] Embed $c$ in downstream of objects of \tonelin{}, 
 \item[-] When doing downstream, set value $c$ of current replica to be the maximum of current $c$ and the $c$ in downstream. 
 \end{itemize} 
@@ -212,129 +215,21 @@ Note that, here we leave the way of implementing \gts{} completely abstract, and
 \subsection{Composing Objects}
 \label{lemma:composing objects} 
 
-Since the value of \gts{} of an object of \tonelin{} may be influenced by transitions of another object of \tonelin{}, given an object $\aobj$, a modified semantics $\llbracket \aobj \rrbracket' = (\globalstates,\aglobalstate_0,\rightarrow)$ is defined. $\llbracket \aobj \rrbracket¡®$ is obtained from $\llbracket \severalobj \rrbracket$ by using one object and adding the following transition rule: 
+Given a object $\aobj$ with \gts{}, let $\mobj{\aobj}$ be an object obtained from $\aobj$ by using $\rupdategts$ instead of $\updategts$. It is obvious that, given a history $\ahis$ of $\llbracket \severalobj \rrbracket$, there is always a history $\ahis'$ of $\llbracket \mobj{\aobj} \rrbracket$, such that the projection of $\ahis$ into operations of $\mobj{\aobj}$ is $\ahis'$. To explain this, we can obtain an execution of $\ahis'$ from an execution of $\ahis$ by removing operations of other objects and use $\rupdategts$ instead of $\updategts$ to obtain new timestamp. 
 
-\[
-  \inferrule[\text{\sc Operation}]
-  {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) }
-  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], %\alabel
-    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
-\]
+According to Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}, we have the first version of composing objects: Given a set $\severalobj$ of objects, if 
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] for each object $\aobj$ of \tzerolin{}, each history of $\llbracket \aobj \rrbracket$ is \tzerolinearizable{}
+\item[-] for each object $\aobj$ of \tonelin{}, each history of $\llbracket \mobj{\aobj} \rrbracket$ is \tonelinearizable{}
+\end{itemize}
 
+Then, each history of $\llbracket \severalobj \rrbracket$ is \crdtlinearizable{}. This holds since given a history $\ahis$ of $\llbracket \severalobj \rrbracket$ and an object $\aobj \in \severalobj$, $\ahis \uparrow_{\aobj}$ is a history of $\llbracket \aobj \rrbracket$ or $\llbracket \mobj{\aobj} \rrbracket$. 
 
+Although this gives an approach for modular proof, it is complex to prove \tzerolin{} or \tonelin{} for each object. Another problem is that we can not directly reuse our proof with execution-order simulation relation and timestamp-order simulation relation. We solve these problem by considering properties of sequential specifications.  
 
-
- 
-
-
-
-
-
-
-
-\subsection{Modified CRDT Implementation}
-\label{subsec:modified CRDT implementation}
-
-Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed} shows how to ensure compositionality from the aspect of histories. In this and the latter subsections we will discuss how to ensure compositionality from the aspect of objects.
-
-Intuitively, we extend the distributed system by supply a \gts{} that is shared among objects of \tonelin{}. The value of \gts{} is a tuple $(c,\arep)$ with $c \in \mathbb{N}$. The \gts{} gives a method $\updategts{}$ which update the value of \gts{} and returns a new timestamp. \crdtimp{} of objects of \tonelin is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp.
-
-As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified.
-
-\begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:modified rga}]
-  payload Ti-Tree N, Set Tomb
-  initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
-
-  addAfter(a,b) :
-    atSource :
-      precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
-      let ts@|$_{\mathtt{a}}$|@ = @|$\updategts{}()$|@
-      let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@)?(0,r@|$_{0}$|@):(timestamp of b in N)
-    downStream(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@) :
-      precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
-      N = N ts@|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@)}
-
-  remove(a) :
-    atSource :
-      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
-    downStream(a) :
-      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N
-      Tomb = Tomb @|$\cup$|@ {a}
-
-  read() :
-    return traverse(N, Tomb)
-\end{lstlisting}
-
-Each replica now needs to store the related information of \gts{}, and the information of \gts{} will be contained in downstream of \crdtimp{} for objects of \tonelin{}. The detail for \gts{} will be shown in the next subsection.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-To ensure composing, we modify t1-algorithms as follows: The system supplies a method called $\mathit{updateGlobalTS}$, which supplies a time-stamp that is updated along the global system. When a method needs to generate new time-stamp, it calls this method to generate new time-stamp, and such process will also update the global time-stamp of this replica. When a method sends a message, the message should contain the current global time-stamp value. When a replica receives a message, it also use the global time-stamp value in message to update its own global time-stamp value. Moreover, the global time-stamp satisfies causal-time-stamp property.
-
-The RGA algorithm after modification is as follows: Here a message contains the current global time-stamp value, and a replica update global time-stamp value is not explicitly written in code. Instead, such processes will be make explicit when constructing the operational semantics.
-
-
-
-The following lemma states that the modified RGA is also t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and the modified LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$. Its proof can be found in Appendix \ref{a}.
-
-\begin{restatable}{lemma}{ModifiedRGAandLWWRegStillTOne}
-\label{lemma:modified RGA and LWW-register is still t1-linearizable}
-$\mathit{list}_s^{\mathit{af}}$ and $\mathit{reg}_s$ are t1-specifications.
-\end{restatable}
-
-Lamport's time-stamp is one way to implement global time-stamp, as stated by the following lemma. Its proof can be found in Appendix \ref{a}.
-
-\begin{restatable}{lemma}{LamportTSasGlobalTS}
-\label{lemma:lamport time-stamp as global time-stamp}
-Lamport's time-stamp satisfies causal-time-stamp.
-\end{restatable}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+We do not directly prove \tzerolin{}, but prove \crdtlinearizable{} w.r.t a \tzerospec{} instead. 
 
 
 To prove t0-linearizability, we introduce the notion of t0-specifications. A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
@@ -345,6 +240,51 @@ The following lemma shows some sequential specifications are t0-specifications. 
 \label{lemma:several t0-specifications}
 $\mathit{OR}$-$\mathit{set}_s$, $\mathit{set}_s$ and $\mathit{counter}_s$ are t0-specifications.
 \end{restatable}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{result}
+\label{lemma:result} 
+
+
+
+
+
 
 
 
