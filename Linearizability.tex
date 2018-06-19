@@ -1,5 +1,5 @@
 %!TEX root = draft.tex
-\section{CRDT Linearizability}
+\section{\CRDTLin{}}
 
 \textblue{
 Here we define:
@@ -111,7 +111,7 @@ An operation label $\alabelobjind{\argv}{\retv}{i,\ts}$
 represents the call of a method
 $\amethod \in \methods$ of object $\aobj\in \objs$, with argument $\argv \in \datadomain$, 
 resulting in the value $\retv \in \datadomain$, and generating the timestamp $\ts$. We may omit the object $\aobj$ when it is understood from the context.
-For uniformity, we assume that $\ts$ is a distinguished value $\bot$ for methods $\amethod$ that don't generate timestamps, e.g., the method {\tt remove} of the RGA object. We may omit the timestamp when it is not important.
+For uniformity, we assume that $\ts$ is a distinguished value $\bot$ for methods $\amethod$ that don't generate timestamps, e.g., the method {\tt remove} of the RGA object. The same applies to return values. We may omit the timestamp when it is not important.
 %We assume that in a history all labels are unique.
 Since there might be multiple calls to the same method with the same
 arguments and result, labels are tagged with a unique identifier $i$.
@@ -130,6 +130,8 @@ The relation $\avisord\subseteq \powerset{\labels \times \labels}$ is the \emph{
 Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to each operation a downstream, which is a transformer $\effector\in [\states \rightarrow \states]$ of replica states. 
 
 For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
+
+TODO ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.
 
 The transition relation $\rightarrow$ is defined in \figurename~\ref{fig:crdt-opsem}. The first rule describes a replica $\arep$ in state $\astate$ executing an invocation of $\amethod$ with argument $\argv$. This transition consists in first applying the {\tt atSource} function $\atsource$ which outputs a return value $\retv$, a downstream $\effector$ to be executed at all replicas, and possibly, a timestamp $\ats$. We assume that $\ats=\bot$ for methods that don't generate timestamps. The association between the label $\alabel$ corresponding to this invocation and the downstream $\effector$ is recorded in the $\downstreams$ component of the new global configuration. The local configuration $(\alabelset,\sigma)$ of $\arep$ is changed by applying the downstream $\effector$ on the state $\sigma$, resulting in a new state $\sigma'$, and adding $\alabel$ to the set of labels $\alabelset$. Finally, the visibility relation $\avisord$ is changed to record the fact that the downstreams of all operations in $\alabelset$ have been applied before $\alabel$. 
 
@@ -504,6 +506,7 @@ We will make these notions precise in~\autoref{definition:ralinearizability1} be
   \item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ itself is admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
     \alabel_{\mathsf{qr}} \in \Spec$.
 \end{enumerate}
+$(\alabelset, \aseqord)$ is called an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.
 \end{definition}
 
 In a nutshell, this definition requires that for a given 
@@ -521,7 +524,10 @@ that
 TODO REFER TO AN EXAMPLE FROM THE OVERVIEW
 
 We now consider the case where histories include query-updates. In such a case, we apply~\autoref{definition:ralinearizability1} on a rewriting of the original history where 
-each query-update is decomposed into a label representing the query part and another label representing the update part. This rewriting may introduce new labels, which do not correspond to original operations of the considered object, but which have to be taken into account by the specification. TODO EXPLAIN THE OR-SET CASE.
+each query-update is decomposed into a label representing the query part and another label representing the update part. This rewriting may introduce new labels, which do not correspond to original operations of the considered object, but which have to be taken into account by the specification. Also, other (update) operations of the object may be rewritten as well.
+TODO EXPLAIN THE OR-SET CASE.
+
+TODO MODIFY $\gamma$ BECAUSE IT MAY REWRITE UPDATES AS WELL. DO WE NEED TO REWRITE QUERIES ?
 
 A mapping $\gamma:\queryupdates\rightarrow \labels^2$ is called a \emph{query-update rewriting}. For $\alabel\in \queryupdates$ and $\gamma(\alabel)=(\alabel_1,\alabel_2)$, the label $\alabel_1$ is considered a query and $\alabel_2$ an update. 
 The query-update rewriting of a history $h$ is obtained by replacing each query-update label $\alabel$ with the two labels $\alabel_1$ and $\alabel_2$ in $\gamma(\alabel)$ (and leaving the rest of the labels unchanged), and extending the visibility order to include the fact that the query $\alabel_1$ is ordered before the update $\alabel_2$, and also that any other label $\alabel'$ ordered before $\alabel$ remains ordered before the query $\alabel_1$ and any other label $\alabel'$ ordered after $\alabel$ remains ordered after the update $\alabel_2$.
