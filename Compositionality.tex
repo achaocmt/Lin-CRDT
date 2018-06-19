@@ -39,7 +39,7 @@ In \figurename~\ref{fig:an example of linearization of single objects do not imp
 
 A order $R$ is a interval-order, if $(\aop_1,\aop_2), (\aop_3,\aop_4) \in R$ implies that $(o_1,o_4) \in R \vee (o_3,o_2) \in R$. There is a difference between our \crdtlin{} and the linearizability of \cite{HerlihyW90}: the visibility relation of \crdtlin{} is not a interval-order, while the happen-before relation in \cite{HerlihyW90} is a interval-order. The compositionality proof of \cite{HerlihyW90} proves that we can compose linearization of projection of each object into a linearization of the whole history, and such proof relies on the property of interval-order.
 
-Although we can not directly compose smaller \crdtlinearization{} into a bigger \crdtlinearization{} directly, we can do this work by using some permutations of smaller \crdtlinearization{}. For example, we can see that $\mathit{write}(d) \cdot \mathit{write}(c)$, a permutation of \crdtlinearization{} $\mathit{write}(c) \cdot \mathit{write}(d)$ that preserves visiblity relation, is also a \crdtlinearization{} of $\aobj_2$, and $\ahis$ has a \crdtlinearization{} $\mathit{write}(d) \cdot \mathit{write}(a) \cdot \mathit{write}(b) \cdot \mathit{write}(c)$, which is consistent with both $\mathit{write}(a) \cdot \mathit{write}(b)$ and $\mathit{write}(d) \cdot \mathit{write}(c)$. Based on above intuition, we propose \tzerolin{} and \tonelin{}. Both of them are sub-class of \crdtlin{} and require that certain permutation of a \crdtlinearization{} is still a \crdtlinearization{}.
+Although we can not directly compose smaller \crdtlinearization{} into a bigger \crdtlinearization{} directly, we can do this work by using some permutations of smaller \crdtlinearization{}. For example, for the history $\ahis$ of \figurename~\ref{fig:an example of linearization of single objects do not imply a linearization of the whole history}, we can see that $\mathit{write}(d) \cdot \mathit{write}(c)$, a permutation of \crdtlinearization{} $\mathit{write}(c) \cdot \mathit{write}(d)$ that preserves visiblity relation, is also a \crdtlinearization{} of $\aobj_2$, and $\ahis$ has a \crdtlinearization{} $\mathit{write}(d) \cdot \mathit{write}(a) \cdot \mathit{write}(b) \cdot \mathit{write}(c)$, which is consistent with both $\mathit{write}(a) \cdot \mathit{write}(b)$ and $\mathit{write}(d) \cdot \mathit{write}(c)$. Based on above intuition, we propose \tzerolin{} and \tonelin{}. Both of them are sub-class of \crdtlin{} and require that certain permutation of a \crdtlinearization{} is still a \crdtlinearization{}.
 
 \begin{definition}[\tzerolin{}]
 \label{definition:t0-ilnearizability}
@@ -59,7 +59,9 @@ A single-object history $\ahis$ is \tonelinearizable{} w.r.t a sequential specif
 
 
 \subsection{Composing Histories}
-\label{lemma:composing histories}
+\label{lemma:composing histories} 
+
+In this subsection, we consider the case of having a history with \crdtlinearization{} for each object, and give conditions for composing smaller \crdtlinearization{} into bigger \crdtlinearization{}. 
 
 The following lemma states that, if each object is \tzerolinearizable{}, then the whole history is \crdtlinearizable{}. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications can be composed}.
 
@@ -69,7 +71,7 @@ Given a multi-object history $\ahis$. If for each of its object $\aobj$, $\ahis 
 \end{restatable}
 
 
-However, if each object is either \tzerolinearizable{} or \tonelinearizable{}, and at least one object is \tonelinearizable{}, then, the whole history may be not \crdtlinearizable. In \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} we show an example when there is one \tonelinearizable{} object and one \tzerolinearizable{} object. The history $\ahis$ of \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} contains operations of a multi-value register object $\aobj_1$ and a last-write-win register object $\aobj_2$. The operations of $\aobj_2$ are boxed. Here we assume that $\mathit{ts}_1<\mathit{ts}_2$. Due to definition of \tzerolin{} and \tonelin{}, we can see that $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ are \crdtlinearizable, and the only possible linearization of $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ is $\mathit{write}(a) \cdot \mathit{write}(b)$ and $\mathit{write}(c) \cdot \mathit{write}(d)$, respectively. However, the whole history $\ahis$ is not \crdtlinearizable, since there is a cycle. 
+However, if each object is either \tzerolinearizable{} or \tonelinearizable{}, and at least one object is \tonelinearizable{}, then, the whole history may be not \crdtlinearizable. In \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} we show an example when there is one \tonelinearizable{} object and one \tzerolinearizable{} object. The history $\ahis$ of \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} contains operations of a multi-value register object $\aobj_1$ and a last-write-win register object $\aobj_2$. The operations of $\aobj_2$ are boxed. Here we assume that $\mathit{ts}_1<\mathit{ts}_2$. Due to definition of \tzerolin{} and \tonelin{}, we can see that $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ are \crdtlinearizable, and the only possible linearization of $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ is $\mathit{write}(a) \cdot \mathit{write}(b)$ and $\mathit{write}(c) \cdot \mathit{write}(d)$, respectively. However, the whole history $\ahis$ is not \crdtlinearizable, since there is a cycle.
 
 \begin{figure}[t]
   \centering
@@ -84,9 +86,9 @@ To get rid of such problem, we additionally require the visibility relation to b
 \begin{restatable}{lemma}{composingTZeroAndOneTOne}
 \label{lemma:several t0-specifications and one t1-specification can be composed}
 Given a multi-object history $\ahis$ with transitive visibility relation. If for one object $\aobj$, $\ahis \uparrow_{\aobj}$ is \tonelinearizable{}, and for other object $\aobj'$, $\ahis \uparrow_{\aobj'}$ is \tzerolinearizable{}, then, $\ahis$ is \crdtlinearizable{}.
-\end{restatable} 
+\end{restatable}
 
-When there are more than one \tonelinearizable{} objects, transitive visibility relation alone is not enough to make the whole history being \crdtlinearizable{}. In \figurename~\ref{fig:a failed example of composing two last-write-win registers} we show an example when there is two \tonelinearizable{} objects. The history $\ahis$ of \figurename~\ref{fig:a failed example of composing two last-write-win registers} contains operations of a two last-write-win register objects $\aobj_1$ and $\aobj_2$. The operations of $\aobj_2$ are boxed. Here we assume that $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$. Due to definition of \tonelin{}, we can see that $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ are \crdtlinearizable, and the only possible linearization of $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ is $\mathit{write}(a,\mathit{ts}'_1) \cdot \mathit{write}(b,\mathit{ts}'_2)$ and $\mathit{write}(c,\mathit{ts}_1) \cdot \mathit{write}(d,\mathit{ts}_2) \cdot \mathit{write}(e,\mathit{ts}_3)$, respectively. However, the whole history $\ahis$ is not \crdtlinearizable, since there is a cycle. 
+When there are more than one \tonelinearizable{} objects, transitive visibility relation alone is not enough to make the whole history being \crdtlinearizable{}. In \figurename~\ref{fig:a failed example of composing two last-write-win registers} we show an example when there are two \tonelinearizable{} objects. The history $\ahis$ of \figurename~\ref{fig:a failed example of composing two last-write-win registers} contains operations of a two last-write-win register objects $\aobj_1$ and $\aobj_2$. The operations of $\aobj_2$ are boxed. Here we assume that $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$. Due to definition of \tonelin{}, we can see that $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ are \crdtlinearizable, and the only possible linearization of $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ is $\mathit{write}(a,\mathit{ts}'_1) \cdot \mathit{write}(b,\mathit{ts}'_2)$ and $\mathit{write}(c,\mathit{ts}_1) \cdot \mathit{write}(d,\mathit{ts}_2) \cdot \mathit{write}(e,\mathit{ts}_3)$, respectively. However, the whole history $\ahis$ is not \crdtlinearizable, since there is a cycle.
 
 
 \begin{figure}[t]
@@ -97,40 +99,36 @@ When there are more than one \tonelinearizable{} objects, transitive visibility 
   \label{fig:a failed example of composing two last-write-win registers}
 \end{figure}
 
-To get rid of such problem, we require a condition called causal-timestamp. Intuitively, causal-timestamp requires multiple object to ``share timestamp''. Formally, a history $\ahis$ satisfies causal-time-stamp, if for operations $\aop_1,\aop'_1,\ldots,\aop_k,\aop'_k$ of $\ahis$ satisfies the following condition, we have that the timestamp of $\aop'_1$ is less than that of $\aop_1$: 
+To get rid of such problem, we require a condition called causal-timestamp. Intuitively, causal-timestamp requires multiple objects to ``share timestamp''. Formally, a history $\ahis$ satisfies causal-time-stamp, if for operations $\aop_1,\aop'_1,\ldots,\aop_k,\aop'_k$ of $\ahis$ satisfies the following condition, we have that the timestamp of $\aop'_1$ is less than that of $\aop_1$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $(\aop_1,\aop'_1)$ are of a same object, $\ldots$, $(\aop_k,\aop'_k)$ are of a same object,
 
-\item[-] The timestamp of $\aop_2$ is less than that of $\aop'_2$, $\ldots$, the timestamp of $\aop_k$ is less than that of $\aop'_k$, 
+\item[-] The timestamp of $\aop_2$ is less than that of $\aop'_2$, $\ldots$, the timestamp of $\aop_k$ is less than that of $\aop'_k$,
 
-\item[-] $(\aop'_1,\aop_2), \ldots, (\aop'_{\mathit{k-1}},\aop_k), (\aop'_k,\aop_1) \in \avisord{}$. 
-\end{itemize} 
+\item[-] $(\aop'_1,\aop_2), \ldots, (\aop'_{\mathit{k-1}},\aop_k), (\aop'_k,\aop_1) \in \avisord{}$.
+\end{itemize}
 
 The following lemma states that, transitive visibility relation and causal-timestamp are enough to deal with the case when there is more than one \tonelinearizable{} objects. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications and several t1-specification can be composed}.
 
 \begin{restatable}{lemma}{composingTZeroAndTOne}
-\label{lemma:several t0-specifications and several t1-specification can be composed} 
-Given a multi-object history $\ahis$ satisfies transitive visibility relation and causal-timestamp. If for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is either \tzerolinearizable{} or \tonelinearizable{}, then, $\ahis$ is \crdtlinearizable{}. 
-\end{restatable} 
+\label{lemma:several t0-specifications and several t1-specification can be composed}
+Given a multi-object history $\ahis$ satisfies transitive visibility relation and causal-timestamp. If for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is either \tzerolinearizable{} or \tonelinearizable{}, then, $\ahis$ is \crdtlinearizable{}.
+\end{restatable}
 
-Note that here we permit different \crdtimp{} to use different style of timestamp and order.   
-
-
+Note that here we permit different \crdtimp{} to use different style of timestamp and order.
 
 
 
 
 
-\subsection{Modified CRDT Implementation}
-\label{subsec:modified CRDT implementation} 
+\subsection{Modified Implementation and Multi-Objects Semantics}
+\label{subsec:smodified implementation and multi-objects semantics} 
 
-Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed} shows how to ensure compositionality from the aspect of histories. In this and the latter subsections we will discuss how to ensure compositionality from the aspect of objects. 
+We will begin to discuss compositionality from the aspect of objects. To ensure the two conditions, transitive visibility and causal-timestamp, of Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}, we propose a semantics for multiple objects. The transitive visibility can be easily satisfied by always choosing a minimum downstream w.r.t visibility relation among objects. To deal with causal-timestamp, we introduce a \gts{} shared among objects of \tonelin{}. Objects of \tonelin{} use \gts{}, instead of its inner information, to generate new timestamp; The distributed system is responsible for updating global-timestamp, and we give only abstract restriction for it.
 
-Intuitively, we extend the distributed system by supply a \gts{} that is shared among objects of \tonelin{}. The value of \gts{} is a tuple $(c,\arep)$ with $c \in \mathbb{N}$. The \gts{} gives a method $\updategts{}$ which update the value of \gts{} and returns a new timestamp. \crdtimp{} of objects of \tonelin is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp. 
-
-As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified. 
+The value of \gts{} is a tuple $(c,\arep)$ with $c \in \mathbb{N}$. The \gts{} have a method $\updategts{}$ which updates the value of \gts{} and returns a new timestamp. As discussed above, \crdtimp{} of objects of \tonelin is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp. As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified.
 
 \begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:modified rga}]
   payload Ti-Tree N, Set Tomb
@@ -154,49 +152,67 @@ As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}
 
   read() :
     return traverse(N, Tomb)
-\end{lstlisting} 
+\end{lstlisting}
 
-Each replica now needs to store the related information of \gts{}, and the information of \gts{} will be contained in downstream of \crdtimp{} for objects of \tonelin{}. The detail for \gts{} will be shown in the next subsection. 
-
-
-
-
-
-
-
-\subsection{Modified Semantics for Multiple Objects}
-\label{subsec:modified semantics for multiple objects} 
-
-
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] The downstream of each operation is applied at most once for each replica.
-\item[-] Assume the downstream of operation $\aop_1$ is applied in replica of $\aop_2$ before $\aop_2$ happens. Then, for each replica $\arep$, the downstream of $\aop_2$ can be applied only if the downstream of $\aop_1$ has already been applied.
-\end{itemize} 
-
-When there is multiple objects, we say $(o_1,o_2) \in \mathit{vis}$, if either $(o_1,o_2) \in \mathit{ro}$, or $o_1$ is delivered to the replica of $o_2$ before $o_2$ happens. We consider CTDT implementation of t1-specifications use the time-stamp of Lamport's time-stamp: Each time-stamp is a tuple $(c,r)$ of a counter value $c \in \mathbb{N}$ and a replica identifier $r \in \mathbb{R}$; $(c_1,r_1) < (c_2,r_2)$, if $c_1 < c_2 \vee (c_1 = c_2 \wedge r_1 < r_2)$. To ensure compositionality of multiple objects, the following conditions needs to be satisfied:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Cross-object-causal-delivery (COCD): We extend the notion of causal-delivery into multiple objects. Given two update operations $o_1$ and $o_2$, and assume $o_1$ is visible to $o_2$. Then, for each replica, once it receives $o_2$, it must be the case that $o_1$ has been previously received.
-
-\item[-] Shared-time-stamp (STS): the objects of t1-specifications shares a counter $\mathit{sCtr}$. Each message carries a value of $\mathit{sCtr}$, and when generating new message, the value of $\mathit{sCtr}$ is also considered.
-\end{itemize}
-
+With objects of \tonelin{} been modified, we could now introduce the semantics for multiple objects. 
 
 
 \begin{figure}[t]
   \centering
 
 \begin{itemize}
-\item $ \Theta \eqdef [\states \times \methods \times \datadomain  \rightarrow \datadomain \times \Delta \times \tss] \ni \atsource$ \hspace{\fill} {\tt atSource}
+\item $ \Theta \eqdef [\objs \rightarrow (\states \times \methods \times \datadomain  \rightarrow \datadomain \times \Delta \times \tss)] \ni \atsource$ \hspace{\fill} {\tt atSource}
 \item $ \Delta \eqdef [\states \rightarrow \states] \ni \effector$ \hspace{\fill} {\tt downstream}
 %\item $\semop[]{} : \labels \times \states \rightarrow (\states \rightarrow \states)$ \hspace{\fill} Operational Semantics of a Single Operation (Label)
-\item $\localstates \eqdef \powerset{\labels} \times \states \ni (\alabelset, \astate)$ \hspace{\fill} Local Configurations
+\item $\localstates \eqdef \powerset{\labels} \times (\objs \rightarrow \states) \ni (\alabelset, \funobjtostates)$ \hspace{\fill} Local Configurations
 \item $\globalstates \eqdef [\reps \rightarrow \localstates] \times \powerset{\labels \times \labels} \times [\labels \rightarrow \Delta] \ni (\gstates, \avisord, \downstreams )$ \hspace{\fill} Global Configurations
 \end{itemize}
 
+
+\[
+  \inferrule[\text{\sc Operation}]
+  {\gstates(\arep) = (\alabelset, \funobjtostates) \\ \atsource(\aobj)(\funobjtostates(\aobj), \amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\funobjtostates(\aobj)) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) }
+  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \funobjtostates[\aobj \rightarrow \astate'])], %\alabel
+    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
+\]
+
+
+\[
+  \inferrule[\text{\sc DownStream}]
+  {\gstates(\arep) = (\alabelset, \funobjtostates) \\ \alabel \in \mathsf{min}_{\avisord}(\labeldom{\avisord} \setminus \alabelset) \\
+    \downstreams(\alabel)= \delta \\ \alabel = \aobj.\_ \\ \delta(\funobjtostates(\aobj)) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \funobjtostates[\aobj \rightarrow \astate'])], \avisord, \downstreams)}
+\]
+
+  \caption{Operational Semantics of multiple objects.}
+  \label{fig:modified semantics for multiple object}
+\end{figure} 
+
+Given a set $\severalobj$ of CRDT objects, its semantics is defined as a transition system $\llbracket \severalobj \rrbracket = (\globalstates,\aglobalstate_0,\rightarrow)$ as in \figurename~\ref{fig:modified semantics for multiple object}, where $\globalstates$ is a set of global configurations, $\aglobalstate_0$ is the initial configuration, and $\rightarrow\subseteq \globalstates  \times \globalstates$ is the transition relation. Below we only interpret The difference between $\llbracket \severalobj \rrbracket$ and $\llbracket \aobj \rrbracket$ is as follows:
+
+In global configuration $(\gstates, \avisord, \downstreams)$, $\gstates \in [\reps \rightarrow \localstates]$ stores the local configuration of each replica, and now in a local configuration $(\alabelset, \funobjtostates)$, we use $\funobjtostates$ to store the $\astate$ of objects in a replica. For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \funobjtostates_0)$, and $\funobjtostates_0$ maps each objects into its initial state. 
+
+In the first transition rule, we use the transition rule of object $\aobj$, and use the downstream to change the state of object $\aobj$ of local configuration of replica $\arep$. Note that here if $\aobj$ is an object of \tonelin{} and want to generate new timestamp, then method $\updategts$ is used to generate new timestamp. In the second transition rule, we choose a downstream $\effector$ that haven't been already executed at $\arep$ and is a minimal one with respect to the order $\avisord$ among such downstreams. Then we use $\effector$ to change the state of object $\aobj$ of local configuration of replica $\arep$, where $\aobj$ is the object of $\effector$.
+
+Executions and reachable global configurations of $\llbracket \severalobj \rrbracket$ are defined as usual. $(\alabelset,\avisord)$ is a history of $\llbracket \severalobj \rrbracket$, if there exists an execution ending in a global configuration $(\gstates, \avisord, \downstreams)$, and the following conditions are satisfied: (1) each timestamp generated by calling $\updategts$ is unique, and (2) given operations $\alabel_1$ and $\alabel_2$ of objects of \tonelin{}, if they both use $\updategts$ to generate new timestamp and $(\alabel_1,\alabel_2) \in \avisord$, then the timestamp of $\alabel_1$ is less than that of $\alabel_2$. The set of histories $\histories(\severalobj)$ of objects $\severalobj$ is the set of histories of $\llbracket \severalobj \rrbracket$. 
+
+Note that, here we leave the way of implementing \gts{} completely abstract, and only give conditions to executions. In practice, one possible way to implement \gts{} is as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each replica stores a integer value $c$, 
+\item[-] To do $\updategts$, returns $(c+1,\arep)$, and change $c$ into $c+1$, where $\arep$ is the identifier of current replica, 
+\item[-] Embed $c$ in downstream of objects of \tonelin{}, 
+\item[-] When doing downstream, set value $c$ of current replica to be the maximum of current $c$ and the $c$ in downstream. 
+\end{itemize} 
+
+
+
+
+\subsection{Composing Objects}
+\label{lemma:composing objects} 
+
+Since the value of \gts{} of an object of \tonelin{} may be influenced by transitions of another object of \tonelin{}, given an object $\aobj$, a modified semantics $\llbracket \aobj \rrbracket' = (\globalstates,\aglobalstate_0,\rightarrow)$ is defined. $\llbracket \aobj \rrbracket¡®$ is obtained from $\llbracket \severalobj \rrbracket$ by using one object and adding the following transition rule: 
 
 \[
   \inferrule[\text{\sc Operation}]
@@ -206,25 +222,51 @@ When there is multiple objects, we say $(o_1,o_2) \in \mathit{vis}$, if either $
 \]
 
 
-\[
-  \inferrule[\text{\sc DownStream}]
-  {\gstates(\arep) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\labeldom{\avisord} \setminus \alabelset) \\
-    \downstreams(\alabel)= \delta \\ \delta(\astate) = \astate'}
-  {(\gstates, \avisord, \downstreams) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
-\]
-
-  \caption{Operational Semantics of CRDTs. We use $[A\rightarrow B]$ to denote the set of total functions from $A$ to $B$. Also, $\mathit{unique}(i)$ ensures that $i$ is a unique identifier, and $\labeldom{\avisord}=\{\alabel: \exists \alabel'.\ (\alabel,\alabel')\in \avisord \lor (\alabel',\alabel)\in \avisord\}$.}
-  \label{fig:modified semantics for multiple object}
-\end{figure} 
-
-
 
 
 
  
- 
- 
- 
+
+
+
+
+
+
+
+\subsection{Modified CRDT Implementation}
+\label{subsec:modified CRDT implementation}
+
+Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed} shows how to ensure compositionality from the aspect of histories. In this and the latter subsections we will discuss how to ensure compositionality from the aspect of objects.
+
+Intuitively, we extend the distributed system by supply a \gts{} that is shared among objects of \tonelin{}. The value of \gts{} is a tuple $(c,\arep)$ with $c \in \mathbb{N}$. The \gts{} gives a method $\updategts{}$ which update the value of \gts{} and returns a new timestamp. \crdtimp{} of objects of \tonelin is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp.
+
+As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified.
+
+\begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:modified rga}]
+  payload Ti-Tree N, Set Tomb
+  initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
+
+  addAfter(a,b) :
+    atSource :
+      precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
+      let ts@|$_{\mathtt{a}}$|@ = @|$\updategts{}()$|@
+      let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@)?(0,r@|$_{0}$|@):(timestamp of b in N)
+    downStream(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@) :
+      precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
+      N = N ts@|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@)}
+
+  remove(a) :
+    atSource :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
+    downStream(a) :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N
+      Tomb = Tomb @|$\cup$|@ {a}
+
+  read() :
+    return traverse(N, Tomb)
+\end{lstlisting}
+
+Each replica now needs to store the related information of \gts{}, and the information of \gts{} will be contained in downstream of \crdtimp{} for objects of \tonelin{}. The detail for \gts{} will be shown in the next subsection.
 
 
 
@@ -237,7 +279,24 @@ When there is multiple objects, we say $(o_1,o_2) \in \mathit{vis}$, if either $
 
 
 
-To ensure composing, we modify t1-algorithms as follows: The system supplies a method called $\mathit{updateGlobalTS}$, which supplies a time-stamp that is updated along the global system. When a method needs to generate new time-stamp, it calls this method to generate new time-stamp, and such process will also update the global time-stamp of this replica. When a method sends a message, the message should contain the current global time-stamp value. When a replica receives a message, it also use the global time-stamp value in message to update its own global time-stamp value. Moreover, the global time-stamp satisfies causal-time-stamp property. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To ensure composing, we modify t1-algorithms as follows: The system supplies a method called $\mathit{updateGlobalTS}$, which supplies a time-stamp that is updated along the global system. When a method needs to generate new time-stamp, it calls this method to generate new time-stamp, and such process will also update the global time-stamp of this replica. When a method sends a message, the message should contain the current global time-stamp value. When a replica receives a message, it also use the global time-stamp value in message to update its own global time-stamp value. Moreover, the global time-stamp satisfies causal-time-stamp property.
 
 The RGA algorithm after modification is as follows: Here a message contains the current global time-stamp value, and a replica update global time-stamp value is not explicitly written in code. Instead, such processes will be make explicit when constructing the operational semantics.
 
