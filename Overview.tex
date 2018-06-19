@@ -197,30 +197,32 @@ In RGA algorithm, a replica store the list as a timestamp insertion tree (TI-tre
 Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position immediately after that of a existing item $b$. Method $\mathit{rem}(a)$ removes $a$ from the list. Method $\mathit{read}$ returns the current list content. When the current replica does $\mathit{add}(a,b)$, it generate a tuple $(a,ts_a,ts_b)$ and put it into $N$. Here $ts_b$ is the time-stamp of $b$, and $ts_a$ is a new time-stamp that is larger than any time stamp in $N$. When the current replica does $\mathit{rem}(a)$, it put $a$ into tombstone. When the current replica does $\mathit{read}$, it uses function $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the current replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$.
 
 \begin{lstlisting}[caption={Pseudo-code of the or-set CRDT}, captionpos=b,label={lst:or-set}]
-  payload Set S, Timestamp maxTS
-  initial S = @|$\emptyset$|@, maxTS = @|(0,myID())|@
+  payload Set S
+  initial S = @|$\emptyset$|@
+  @{ initial lin = @|$\epsilon$|@ }
 
   add(a) :
     atSource :
-      precondition :
-      assume maxTS = (c,r)
-      let @|$\ats$|@ = (c+1,myID())
-    downStream(a, @|$\ats$|@) :
-      precondition:
-      S = S @|$\cup$|@ {(a, @|$\ats$|@)}
-      maxTS = max(maxTS, @|$\ats$|@)
+      let k = getUniqueIdentifier()
+      @{ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[add]{a,k}{\bot}{i}$|@ }
+    downStream(a, k) :
+      S = S @|$\cup$|@ {(a, k)}
+      @{ S@|$'$|@ = S @|$\cup$|@ {(a, k)} }
 
   remove(a) :
     atSource :
-      precondition : @|$\exists$|@ @|$\ats$|@, (a,@|$\ats$|@) @|$\in$|@ S
-      let S@|$_1$|@ = @|$\{$|@ (a,@|$\ats$|@) @|$\in$|@ S @|$\}$|@
-    downStream(S@|$_1$|@) :
-      precondition :
-      S = S @|$\setminus$|@ S@|$_1$|@
+      precondition : @|$\exists$|@ k. (a,k) @|$\in$|@ S
+      let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
+      @{ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[readIds]{a}{R}{i}\,\cdot\,\alabellongind[remove]{a,R}{\bot}{i}$|@ }
+    downStream(R) :
+      S = S @|$\setminus$|@ R
+      @{ S@|$'$|@ = S@|$\,\cup\, \{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \downstreams^{-1}({\tt this})) \in \avisord$|@ 
+      	                  @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\downstreams^{-1}({\tt this}))\}\not\subseteq \avisord\}$|@ }
 
   read() :
-    return {a @|$\vert$|@ @|$\exists$|@ ts, (a,@|$\ats$|@) @|$\in$|@ S}
+    return {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
 \end{lstlisting}
+%let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
 
 
 In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, an tuple $(\argv,\ats)$ will be added to the local state; while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, a set $S_1$ will be removed from the local state. We call such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream. The following is the condition $C_2$ for or-set implementation.
