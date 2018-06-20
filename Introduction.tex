@@ -25,8 +25,8 @@ type design and in general no synchronization is needed among nodes to
 achieve it.
 
 To illustrate the problem we will consider the implementation of a
-data type to implement a list-like object (usually used for text
-editing applications).
+data type to implement a list-like object (usually used for
+text-editing applications).
 %
 We will base our discussion on a CRDT definition called the Replicated
 Growing Array (RGA) due to~\cite{RohJKL11}.\footnote{We use the code
@@ -57,7 +57,7 @@ in time be modified or read by any of the replicas?
 The naive approach would require to synchronize all the replicas for
 each operation, thus rendering the system unavailable if any one
 replicas becomes off-line.
-
+%
 \gpnote*[inline, nomargin]{Continue from here.}
 {
 Instead of the naive approach, RGA ensures that as operations are
