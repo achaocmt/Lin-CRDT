@@ -26,23 +26,25 @@ In CRDT, each query operation works locally, while each update operation will in
   addAfter(a,b) :
     atSource :
       precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
-      let ts@|$_{\mathtt{a}}$|@ = (N == @|$\emptyset$|@)?(1,myID()):(max{c | (_,(_,c),_) @|$\in$|@ N},myID())
-      let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@)?(0,r@|$_{0}$|@):(timestamp of b in N)
-    downStream(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@) :
+      let ts@|$_{\mathtt{a}}$|@ = getTimestamp()
+    downStream(a, ts@|$_{\mathtt{a}}$|@, b) :
       precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
-      N = N ts@|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@)}
+      N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, b)}
 
   remove(a) :
     atSource :
-      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
+      precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
     downStream(a) :
-      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N
+      precondition : (a,_,_) @|$\in$|@ N
       Tomb = Tomb @|$\cup$|@ {a}
 
   read() :
     return traverse(N, Tomb)
 \end{lstlisting}
-
+%(N == @|$\emptyset$|@)?(1,myID()):(max{c | (_,(_,c),_) @|$\in$|@ N},myID())
+%       let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@) ? 0 : (timestamp of b in N)
+% ts@|$_{\mathtt{b}}$|@
+%ts@|$_{\mathtt{b}}$|@
 
 \renewcommand{\algorithmcfname}{CRDT Implementation}
 \noindent
