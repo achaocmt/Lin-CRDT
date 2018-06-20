@@ -2,12 +2,75 @@
 \section{Introduction}
 \label{sec:introduction}
 
-\gpnote[inline, nomargin]{Need to complete this section}
+Convergent Replicated Data Types (CRDTs)~\cite{ShapiroPBZ11} have
+recently been proposed to address the problem of availability of an
+application under the presence of network partitions.
+%
+CRDTs represent a methodological approach to address the problem of
+retaining data-Consistency and Availability under network Partitions (CAP),
+famously shown to be impossible to achieve by the CAP
+theorem~\cite{GilbertL02}.
+%
+Thus, CRDTs are data types designed to favor availability over
+consistency by replicating the data type instances across multiple
+nodes, and allowing different nodes to temporarily have different
+views of the same instance at times.
+%
+However, CRDTs guarantee that the different states of the multiple
+nodes will \emph{eventually} converge to a unique state common to all
+nodes.
+%
+Importantly, this \emph{convergence property} is intrinsic to the data
+type design and in general no synchronization is needed among nodes to
+achieve it.
+
+To illustrate the problem we will consider the implementation of a
+data type to implement a list-like object (usually used for text
+editing applications).
+%
+We will base our discussion on a CRDT definition called the Replicated
+Growing Array (RGA) due to~\cite{RohJKL11}.\footnote{We use the code
+  as shown in~\cite{ShapiroPBZ11} to be consistent with the rest of
+  the paper.}
+%
+RGA supports three simple operations:
+\begin{inparaenum}
+\item \lstinline|addAfter(a, b)| which adds the character (the
+  concrete type is inconsequential)
+  \lstinline|b| immediately after the occurrence of the character
+  \lstinline|a| assumed to already be present in the list\footnote{To
+    simplify the exposition we assume elements are unique, which is easily
+    implemented with timestamps.},
+\item \lstinline|remove(a)| which removes the character \lstinline|a|
+  assumed to be present in the list, and
+\item \lstinline|read()| which returns the current contents of the
+  list.
+\end{inparaenum}
+
+To make the system available under partitions RGA allows multiple
+nodes to have a copy of the list instance.
+%
+Then the question is, how do we maintain the consistency of the
+different copies of the list given that the data could be at any point
+in time be modified or read by any of the replicas?
+%
+The naive approach would require to synchronize all the replicas for
+each operation, thus rendering the system unavailable if any one
+replicas becomes off-line.
+
+\gpnote*[inline, nomargin]{Continue from here.}
+{
+Instead of the naive approach, RGA ensures that as operations are
+propagated from one replica to another (by sending messages containing
+the data of the operation), there is a single possible list that could
+result for any replica that has observed all operations.
+}
+
 
 Here we introduce the problem of CRDTS:
 \begin{inparaenum}
-\item replication, 
-\item convergence, 
+\item replication,
+\item convergence,
 \item specification.
 \end{inparaenum}
 To do so we illustrate the problem through RGA. Without much notation
@@ -21,10 +84,10 @@ We argue that this process is hard a complicated, and propose
 \emph{informally} our definition of linearizability.
 
 We then explain the proof strategy to prove this linearizability, and
-point the reader forward to the verification sections. 
+point the reader forward to the verification sections.
 
 We finally shed some light into the compositionality and modularity
-aspects to be discussed at the end of the paper. 
+aspects to be discussed at the end of the paper.
 
 \gpnote*{}{By the end of section 1 the reader should know what is a
   CRDT, the intuition behind our definition of linearizability, and
