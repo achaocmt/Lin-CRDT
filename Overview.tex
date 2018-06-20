@@ -18,7 +18,8 @@ $\mathit{Optimistic \ replication \ algorithms}$ is a type of distributed algori
 In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below.
 
 
-\begin{lstlisting}[caption={Pseudo-code of the Replicated Growable Array (RGA) CRDT}, captionpos=b,label={lst:rga}]
+\begin{lstlisting}[caption={Pseudo-code of the Replicated Growable
+    Array (RGA) CRDT (adapted from~\cite{ShapiroPBZ11})}, captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
 
@@ -232,5 +233,14 @@ Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position i
 %let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
 
 
-In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, an tuple $(\argv,\ats)$ will be added to the local state; while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, a set $S_1$ will be removed from the local state. We call such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream. The following is the condition $C_2$ for or-set implementation.
+In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$
+operation, an tuple $(\argv,\ats)$ will be added to the local state;
+while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$
+operation, a set $S_1$ will be removed from the local state. We call
+such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream.
+The following is the condition $C_2$ for or-set implementation. 
 
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "draft"
+%%% End:
