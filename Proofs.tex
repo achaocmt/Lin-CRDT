@@ -32,7 +32,7 @@ To prove that this is an inductive invariant we rely on additional assertions de
 The proof of $\mathsf{Refinement}$ relies on a \emph{refinement mapping}~\cite{}, denoted by $\refmap$, between replica states and states of the specification. The proof goal is that for any two replica states $\sigma$ and $\sigma'$,
 \begin{itemize}
 	\item if $\sigma'$ is obtained from $\sigma$ by applying a downstream $\delta$ produced by an update $\alabel$, then $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$, where $\xRightarrow{\alabel}$ is the transition function of $\Spec$, and
-	\item if a query $\alabel$ is applied on a state $\sigma$, then $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
+	\item if a query $\alabel$ is applied on a state $\sigma$ or it is introduced by a rewriting of a query-update that executes {\tt atSource} on a state $\sigma$, then $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
 \end{itemize}
 
 
@@ -80,46 +80,12 @@ The annotations of the downstreams specify their effect, e.g., relating their ef
 
 In the following, we show that $\mathsf{ReplicaStates}$ is an inductive invariant. Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, in the linearization order, all operations visible to it. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant is the situation where two downstreams correspond to two ``concurrent'' operations (not related by visibility) and their linearization order is different from the order in which they are applied at a given replica. However, as already assumed in some definitions of CRDT objects~\cite{}, such downstreams commute, i.e., applying them in one order or another leads to the same state. The fact that they commute is an easy consequence of the downstream annotations: two {\tt add} or two {\tt remove} downstreams commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} downstream commute when they are concurrent because in this case, the element-id pairs removed by {\tt remove} are different from the pair added by the {\tt add} (since the {\tt add} is not visible to {\tt remove}).
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity. For instance, applying the downstream produced by $\alabelshort[add]{a,k}$~\footnote{In the proof of $\mathsf{Refinement}$, we implicitly assume that whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[add]{a}$ is rewritten to $\alabelshort[add]{a,k}$, then the downstream produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the downstream produced by $\alabel$ must be simulated by the operation $\alabel_2$ in the specification.}   or the $\alabelshort[add]{a,k}$ operation of the specification ??? has exactly the same effect. The same holds for the downstream produced by $\alabelshort[remove]{a,R}$. 
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity. For instance, applying the downstream produced by $\alabelshort[add]{a,k}$~\footnote{In the proof of $\mathsf{Refinement}$, we implicitly assume that whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[add]{a}$ is rewritten to $\alabelshort[add]{a,k}$, then the downstream produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the downstream produced by $\alabel$ must be simulated by the operation $\alabel_2$ in the specification.}   or the $\alabelshort[add]{a,k}$ operation of the specification ??? has exactly the same effect. The same holds for the downstream produced by $\alabelshort[remove]{a,R}$. Concerning query operations, there are two cases: (1) whenever the query-update $\alabelshort[remove]{a}$ executes {\tt atSource} on a state $\sigma$, then the query $\alabellong[readIds]{a}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(\sigma)=\sigma$, which clearly holds because the computation of $R$ in {\tt atSource} and as the result of $\alabelshort[readIds]{a}$ in the specification state $\sigma$ are exactly the same, and (2) applying the query $\alabelshort[read]{a}$ on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\sigma$, which again holds trivially.
 
-Concerning $\mathsf{\CRDTLinshort{}}$, the projection of $\aseqord$ on the updates is obviously admitted by the specification (from the point of view of the specification, the updates are always enabled). 
+Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute {\tt atSource} clearly implies that $\aseqord$ is consistent with the visibility. Next, the projection of $\aseqord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification). 
 %The only thing to show is that the element-id pairs removed by a {\tt remove} have been added by {\tt adds} which precede it in the linearization, and not already removed by other {\tt remove}s that precede it. This is a direct consequence of the fact that the linearization order is consistent with the visibility relation, and the invariant $\mathsf{ReplicaStates}$, which implies that every element-id pair in a the state of a replica $\arep$ has been added by an {\tt add} visible to $\arep$ and not removed by other {\tt remove}s visible to $\arep$. Then, 
-We have to prove that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{a}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\aseqord'\cdot \alabel_{\mathsf{qr}}$ where $\aseqord'$ is the projection of $\aseqord$ on the set of updates 
-visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification.
-
-
-of updates $\aseqord'$ visible to $\alabel_{\mathsf{qr}}$, in linearization order, together with $\alabel_{\mathsf{qr}}$ is admitted by the specification 
-
- values returned by the queries are correct according to the l
-
-
-First, note that the linearization $\aseqord$ being consistent with the visibility order is an inductive invariant: 
-
-
-Concerning $\mathsf{ReplicaStates}$,
-
-%relating the effect of the downstream corresponding to a {\tt remove} operation with the set of operations visible to the replica where this operation has originated (when the downstream has been computed). 
-
-We can see that, in the definition of $P(\mathit{config},\mathit{lin})$, condition $C_2$ is specific to CRDT implementations. The pseudo-code of or-set implementation is shown in \autoref{lst:or-set}. Its formal definition can be easily obtained from the pseudo-code and is omitted here.
-
-\begin{example}[Condition $C_2$ for or-set implementation]
-\label{example:condition c2 for or-set implementation}
-Given a configuration $(\gstates, \avisord, \downstreams)$ and an operation $\alabel \in \dom{\avisord}$, the downstream of $\alabel$ is given as follows: 
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $\alabel = \alabellongNoret[\mathit{add}]{\argv}$: Assume $\alabel$ is generated for replica $\arep$. Then, the downstream of $\alabel$ is a function that maps a state $(S,\mathit{maxTS})$ into $(S \cup \{ (a,(c+1,r)) \}, \mathit{max}(\mathit{maxTS},(c+1,r)))$.  
-    
-    Here $c = \mathsf{max}\{ c' \vert \exists \alabel'$, such that $\alabel' = \alabellongNoret[\mathit{add}]{\_}, (\alabel', \alabel) \in \avisord$, and $(\_,(c',\_))$ is the downstream content of $\alabel' \}$. 
-
-\item[-] If $\alabel = \alabellongNoret[\mathit{remove}]{\argv}$: The downstream of $\alabel$ is a function that maps a state $(S,\mathit{maxTS})$ into $(S \setminus S', \mathit{maxTS})$. 
-    Here $S' = \{ \alabel' = \alabellongNoret[\mathit{add}]{\argv} \vert (\alabel',\alabel) \in \avisord, \neg \exists \alabel'' = \alabellongNoret[\mathit{remove}]{\argv}$, such that $(\alabel',\alabel''), (\alabel'',\alabel) \in \avisord \}$. 
-
-\item[-] If $\alabel = \alabellongNoret[\mathit{read}]{}$: The downstream of $\downstreams(\alabel)$ is the identical function. 
-\end{itemize}
-\end{example}
-
-The proof for or-set can be found in Appendix \ref{subsec:appendix proofs of or-set implementation}. The counter implementation can be similarly proved and its proof can be found in Appendix \ref{a}.
+We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{a}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\aseqord'\cdot \alabel_{\mathsf{qr}}$ where $\aseqord'$ is the projection of $\aseqord$ on the set of updates 
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\aseqord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\aseqord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\aseqord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 
 \subsection{Timestamp-Order Linearizations}
 \label{subsec:time-stamp order as linearizabtion} 
