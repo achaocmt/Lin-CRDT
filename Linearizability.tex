@@ -241,6 +241,10 @@ A sequential specification then is the set of labels that are accepted
 by the successive application of the transition function starting from
 some given initial state $\abstate_{0}$.
 
+%A label is called \emph{read-only} if it doesn't change the abstract state, and a \emph{modifier} otherwise. 
+%The set of labels of a specification $\Spec$ is denoted by $\labelsspec\Spec$. The set of read-only, resp., modifier,
+%labels of a specification $\Spec$ is denoted by $\labelsspecrd\Spec$, resp., $\labelsspecmod\Spec$.
+
 TODO REWORK THESE EXAMPLES. DON'T WE NEED JUST TWO EXAMPLES, RGA AND OR-SET ?
 
 \begin{example}[sequential specification of counter]
@@ -530,16 +534,20 @@ TODO EXPLAIN THE OR-SET CASE.
 
 TODO MODIFY $\gamma$ BECAUSE IT MAY REWRITE UPDATES AS WELL. DO WE NEED TO REWRITE QUERIES ?
 
-A mapping $\gamma:\queryupdates\rightarrow \labels^2$ is called a \emph{query-update rewriting}. For $\alabel\in \queryupdates$ and $\gamma(\alabel)=(\alabel_1,\alabel_2)$, the label $\alabel_1$ is considered a query and $\alabel_2$ an update. 
-The query-update rewriting of a history $h$ is obtained by replacing each query-update label $\alabel$ with the two labels $\alabel_1$ and $\alabel_2$ in $\gamma(\alabel)$ (and leaving the rest of the labels unchanged), and extending the visibility order to include the fact that the query $\alabel_1$ is ordered before the update $\alabel_2$, and also that any other label $\alabel'$ ordered before $\alabel$ remains ordered before the query $\alabel_1$ and any other label $\alabel'$ ordered after $\alabel$ remains ordered after the update $\alabel_2$.
-Formally, given a history $h=(\alabelset,\avisord)$, we define $\gamma(h)=(\alabelset',\avisord')$ where
-\begin{align*}
-\alabelset' & =  \alabelset\cap (\queries\cup\updates) \cup \{\alabel_1,\alabel_2: \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\} \\
-\avisord' & =  \avisord \cup \{(\alabel_1,\alabel_2): \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\} \\
-&\hspace{5mm}\cup \{(\alabel',\alabel_1): \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\land (\alabel',\alabel)\in\avisord\} \\
-&\hspace{5mm}\cup \{(\alabel_2,\alabel'): \exists \alabel\in\alabelset\cap \queryupdates. \gamma(\alabel)=(\alabel_1,\alabel_2)\land (\alabel,\alabel')\in\avisord\}
-\end{align*}
-Note that the query-update rewriting of a history will include labels which are either queries or updates. The following definition extends~\autoref{definition:ralinearizability1} to arbitrary histories using such rewritings.
+A mapping $\gamma:\labels\rightarrow \labels^{\leq 2}$, where $\labels^{\leq 2}$ is the set of labels and pairs of labels in $\labels$, is called a \emph{query-update rewriting}. 
+%Labels mapped by $\gamma$ to singletons preserve their query or update status 
+We assume that every query or update label is mapped by $\gamma$ to a singleton and that the $\gamma$ image of such a label preserves its status, i.e., $\gamma(\alabel)$ is a query, resp., update, whenever $\alabel$ is a query, resp., update. Also, query-updates labels $\alabel$ are mapped to pairs $\gamma(\alabel)=(\alabel_1,\alabel_2)$ where $\alabel_1$ is a query and $\alabel_2$ is an update. These assumptions are important when applying~\autoref{definition:ralinearizability1} on the rewriting of a history, since this definition relies on a partitioning of the labels in queries and updates.
+%We say that $\gamma$ is \emph{consistent} with $\Spec$ when $\mathsf{image}(\gamma)\subseteq \labelsspec\Spec^{\leq 2}$ and for every label $\alabel$, if $\gamma(\alabel)=(\alabel_1,\alabel_2)$ then $\alabel_1$ is read-only and $\alabel_2$ is a modifier (of $\Spec$). 
+%For $\alabel\in \queryupdates$ and $\gamma(\alabel)=(\alabel_1,\alabel_2)$, the label $\alabel_1$ is considered a query and $\alabel_2$ an update. 
+For a history $h=(\alabelset,\avisord)$, its $\gamma$-rewriting is a history $\gamma(h)=(\alabelset',\avisord')$ where
+\begin{itemize}
+	\item $\alabelset'$ is obtained by replacing each label $\alabel$ in $\alabelset$ with $\gamma(\alabel)$ (a label may be replaced by two labels),
+	\item the query is ordered before the update whenever a (query-update) label is mapped by $\gamma$ to such a pair, i.e., $(\alabel_1,\alabel_2)\in \avisord'$ if there exists $\alabel\in\alabelset$ such that $\gamma(\alabel)=(\alabel_1,\alabel_2)$,
+	\item $\avisord'$ preserves the order between labels which are mapped to singletons, and 
+%whenever two labels are ordered by $\avisord$ and they are mapped by $\gamma$ to singletons, then their $\gamma$-images remain ordered in $\avisord'$. Similarly, 
+for (query-update) labels $\alabel$ mapped to pairs $(\alabel_1,\alabel_2)$, the query $\alabel_1$ sees exactly the same set of operations as $\alabel$ and any operation which saw $\alabel$ must see $\alabel_2$. Formally, $(\secondrep(\gamma(\alabel)), \firstrep(\gamma(\alabel')))\in\avisord'$ if $(\alabel,\alabel')\in\avisord$, where for each label $\alabel$, $\firstrep(\gamma(\alabel))$, resp., $\secondrep(\gamma(\alabel))$, is $\gamma(\alabel)$ when this is a singleton or the first, resp., second, component when $\gamma(\alabel)$ is a pair.
+\end{itemize}
+The following definition extends~\autoref{definition:ralinearizability1} to arbitrary histories using such rewritings.
 
 \begin{definition}[\CRDTLin{}]
   \label{definition:distributed linearizability} A history $h =
