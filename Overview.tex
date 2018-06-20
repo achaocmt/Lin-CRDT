@@ -209,29 +209,28 @@ Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position i
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
       //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)} 
-      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
-
+      
   remove(a) :
     atSource :
       let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
       //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@ 
-      //@ @|$\alpha(S) \xrightarrow{\alabellongind[readIds]{a}{R}{}} \alpha(S)$|@
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \downstreams^{-1}({\tt this})) \in \avisord$|@ 
-      	               @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\downstreams^{-1}({\tt this}))\}\not\subseteq \avisord\}$|@ 
+      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@ 
+      	               @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@ 
       //@ S@|$'$|@ = S @|$\setminus$|@ R
-      //@ @|$\alpha(S) \xrightarrow{\alabelshort[remove]{a,R}} \alpha(S')$|@
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
     //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@ 
-    //@ @|$\alpha(S) \xrightarrow{\alabellongind[read]{}{A}{}} \alpha(S)$|@
     return A
 \end{lstlisting}
 %      precondition : %@|$\exists$|@ k. (a,k) @|$\in$|@ S
 %let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
-
+%      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
+%       //@ @|$\alpha(S) \xrightarrow{\alabellongind[readIds]{a}{R}{}} \alpha(S)$|@
+%       //@ @|$\alpha(S) \xrightarrow{\alabelshort[remove]{a,R}} \alpha(S')$|@
+%     //@ @|$\alpha(S) \xrightarrow{\alabellongind[read]{}{A}{}} \alpha(S)$|@
 
 In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$
 operation, an tuple $(\argv,\ats)$ will be added to the local state;
