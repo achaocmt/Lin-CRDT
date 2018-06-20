@@ -204,24 +204,31 @@ Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position i
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[add]{a,k}{\bot}{i}$|@ 
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@ 
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
       //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)} 
+      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
 
   remove(a) :
     atSource :
-      precondition : @|$\exists$|@ k. (a,k) @|$\in$|@ S
       let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{i}\,\cdot\,\alabellongind[remove]{a,R}{\bot}{i}$|@ 
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@ 
+      //@ @|$\alpha(S) \xrightarrow{\alabellongind[readIds]{a}{R}{}} \alpha(S)$|@
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ S@|$'$|@ = S@|$\,\cup\, \{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \downstreams^{-1}({\tt this})) \in \avisord$|@ 
-      	                  @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\downstreams^{-1}({\tt this}))\}\not\subseteq \avisord\}$|@ 
+      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \downstreams^{-1}({\tt this})) \in \avisord$|@ 
+      	               @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\downstreams^{-1}({\tt this}))\}\not\subseteq \avisord\}$|@ 
+      //@ S@|$'$|@ = S @|$\setminus$|@ R
+      //@ @|$\alpha(S) \xrightarrow{\alabelshort[remove]{a,R}} \alpha(S')$|@
 
   read() :
-    return {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
+    let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
+    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@ 
+    //@ @|$\alpha(S) \xrightarrow{\alabellongind[read]{}{A}{}} \alpha(S)$|@
+    return A
 \end{lstlisting}
+%      precondition : %@|$\exists$|@ k. (a,k) @|$\in$|@ S
 %let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
 
 

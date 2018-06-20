@@ -18,10 +18,10 @@ The linearization $\aseqord$ is updated every time an operation executes the {\t
 Then, the objective is to prove that $\aseqord$ being an \crdtlinearization{} of the current history (w.r.t. $\Spec{}$) is an invariant of the object. This invariant may be strengthened with additional requirements in order to become inductive. In the case of the objects we investigated, the inductive invariant is defined as the conjunction of two properties:
 \begin{itemize}
 %\setlength{\itemsep}{0.5pt}
+\item[-] $\mathsf{ReplicaStates}$: For each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by applying the downstreams of the operations in $\alabelset$ (that have been delivered to $\arep$) in the order defined by $\aseqord$.  
+
 \item[-] $\mathsf{\CRDTLinshort{}}$: the sequence $\aseqord$ is an \crdtlinearization{} of the current history (w.r.t. $\Spec{}$) 
 %is \crdtlinearizable{} w.r.t \Spec{} and $\mathit{lin}$ is a linearization. Here $\alabelset$ is the set of labels in domain of $\downstreams$.
-
-\item[-] $\mathsf{ReplicaStates}$: For each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by applying the downstreams of the operations in $\alabelset$ (that have been delivered to $\arep$) in the order defined by $\aseqord$.  
 \end{itemize}
 We may also use additional assertions describing the effect of each downstream.
 
@@ -62,9 +62,30 @@ The second class of objects that includes the RGA object in Listing~\ref{lst:rga
 %
 %It is easy to see that, execution-order simulation relation implies a \crdtlinearizable{} relation proof with the execution as linearization.
 
-In this section, we describe a first instantiation of the methodology described above using as example the OR-Set object in Listing~\ref{lst:or-set}. The proof that this object satisfies \crdtlin{} w.r.t. the specification defined in Example~\ref{} relies on several annotations which are given on the lines starting with {\tt //@} in Listing~\ref{lst:or-set}.
+In this section, we describe a first instantiation of the methodology described above using as example the OR-Set object in Listing~\ref{lst:or-set}. The proof that this object satisfies \crdtlin{} w.r.t. the specification defined in Example~\ref{} relies on several annotations which are given on the lines starting with {\tt //@} in Listing~\ref{lst:or-set} and that we describe hereafter.
 
- the linearization order is exactly the order in which the operations execute the {\tt atSource} procedure. 
+The annotations included in the {\tt atSource} procedures describe the construction of the linearization. We describe updates of the linearization using a two-vocabulary formula, the primed, resp., unprimed, variables denoting values after, resp., before, the execution of the procedure. Therefore, the linearization is extended by appending operations, eventually rewritten using a ??? $\gamma$, when they execute the {\tt atSource} procedure.
+The annotations of the downstreams specify their effect, e.g., relating their effect with the set of operations visible to the replica where this operation has originated (when the downstream has been computed). For instance, the downstream corresponding to a {\tt remove} operation removes the set of element-id pairs added by {\tt add} operations visible at the replica $\arep$ where the {\tt remove} originated, and which were not ``canceled'' by other {\tt remove}s visible at $\arep$ ({\tt remove}s that saw those {\tt add} operations).
+
+In the following, we show that $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$ are inductive invariants. Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, in the linearization order, all operations visible to it. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant is the situation where two downstreams correspond to two ``concurrent'' operations (not related by visibility) and their linearization order is different from the order in which they are applied at a given replica. However, as already assumed in some definitions of CRDT objects~\cite{}, such downstreams commute, i.e., applying them in one order or another leads to the same state. The fact that they commute is an easy consequence of the downstream annotations: two {\tt add} or two {\tt remove} downstreams commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} downstream commute when they are concurrent because in this case, the element-id pairs removed by {\tt remove} are different from the pair added by the {\tt add} (since the {\tt add} is not visible to {\tt remove}).
+
+Concerning $\mathsf{\CRDTLinshort{}}$, the projection of $\aseqord$ on the updates is obviously admitted by the specification (from the point of view of the specification, the updates are always enabled). 
+%The only thing to show is that the element-id pairs removed by a {\tt remove} have been added by {\tt adds} which precede it in the linearization, and not already removed by other {\tt remove}s that precede it. This is a direct consequence of the fact that the linearization order is consistent with the visibility relation, and the invariant $\mathsf{ReplicaStates}$, which implies that every element-id pair in a the state of a replica $\arep$ has been added by an {\tt add} visible to $\arep$ and not removed by other {\tt remove}s visible to $\arep$. Then, 
+We have to prove that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{a}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\aseqord'\cdot \alabel_{\mathsf{qr}}$ where $\aseqord'$ is the projection of $\aseqord$ on the set of updates 
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification.
+
+
+of updates $\aseqord'$ visible to $\alabel_{\mathsf{qr}}$, in linearization order, together with $\alabel_{\mathsf{qr}}$ is admitted by the specification 
+
+ values returned by the queries are correct according to the l
+
+
+First, note that the linearization $\aseqord$ being consistent with the visibility order is an inductive invariant: 
+
+
+Concerning $\mathsf{ReplicaStates}$,
+
+%relating the effect of the downstream corresponding to a {\tt remove} operation with the set of operations visible to the replica where this operation has originated (when the downstream has been computed). 
 
 We can see that, in the definition of $P(\mathit{config},\mathit{lin})$, condition $C_2$ is specific to CRDT implementations. The pseudo-code of or-set implementation is shown in \autoref{lst:or-set}. Its formal definition can be easily obtained from the pseudo-code and is omitted here.
 
