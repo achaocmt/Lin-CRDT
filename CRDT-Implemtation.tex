@@ -3,6 +3,128 @@
 \section{CRDT Implementations}
 \label{sec:CRDT implementations}
 
+\textblue{
+Here we define:
+\begin{itemize}
+\item the notations required for labels: $\aobj.\alabellongind{\argv}{\retv}{i,\ts}$ (partition queries/updates)
+\item the notion of history: $(\alabelset, \avisord)$
+\item the notion of sequential specification: a set of sequences $(\alabelset, \aseqord)$. Talk about per-object specification (and a representation of these specs based on pre/post conditions) and a specification for a set of objects (defined by interleavings)
+\item the notion of \CRDTLin{}: label rewriting + linearization of the visibilities (make it in one shot for both - the intuition should be clear from the overview). Also, in one shot for multiple objects, given that we already defined specifications for multiple objects.
+\item should we talk here about non-determinism and convergence ?
+  (maybe left for later in a discussion section)
+  \gpnote*{}{Maybe talk about it when we introduce WOOT}
+\end{itemize}}
+
+
+\begin{figure}
+  \centering
+
+  \(
+  \begin{array}[t]{rcll}
+    \aobj & \in  & \objs & \text{Objects} \\
+    \arep & \in & \reps & \text{Replicas} \\
+    \amethod & \in & \methods & \text{Methods}\\
+    \adomain & \subseteq & \datadomain & \text{Data Domain} \\
+    \acrdttyp & \in & \powerset{\methods} \times \powerset{\adomain} & \text{CRDT definition} \\
+    \astate & \in & \states & \text{States} \\
+    \amesg & \in & \messages & \text{Messages} \\
+    \amesgset & \subseteq & \messages & \text{Message Set} \\
+    \aop & \in & \ops \equiv \opids & \text{Operations}\ (ID) \\
+    \alabellong[\amethod]{\argv}{\retv} \equiv \alabel  & \in & \methods \times \adomain \times \adomain \equiv \labels & \text{Operation labels} \\
+    \alabelset & \subseteq & \labels & \text{Label Set}\\
+    \arepord & \subseteq & \ops \times \ops & \text{Replica Order} \\
+    \avisord & \subseteq & \ops \times \ops & \text{Visibility Order}
+  \end{array}
+  \)
+  \caption{Summary of notations}
+  \label{fig:notations}
+\end{figure}
+
+
+To formalize our CRDT correctness criterion we will introduce the
+following semantic domains.
+%
+We let $\aobj \in \objs$ be an object in the set of objects $\objs$. Similarly,
+$\arep \in \mathbb{R}$ is a replica in the set of replicas
+$\reps$.
+We assume that both objects and replicas are uniquely identified, and
+therefore we will equate an object with its identifier, with the same
+convention applying to replicas.
+
+We will assume that the specification of a CRDT is given by a set of
+method names $\amethod \in \methods$, and that each method has a
+number of arguments sampled from a data domain $\datadomain$, and a
+return value also from the data domain.
+We ignore here the issues of typing which should be ensured by the
+underlying programming language.
+Hence, a data type $\acrdttyp = (\amethodset, \adomain)$ is given by a
+set of method names $\amethodset \subseteq \methods$ and a data domain
+$\adomain \subseteq \datadomain$.
+
+%A distributed system contains multiple objects, and each objects is replicated on each replica. Each object has a type, which contains its method and data type. A client of a replica interact with the objects by calling the method and then obtaining the return value. Here we do not bound the number of replica identifiers and objects.
+
+% Let $\objs$ be the set of objects and $\mathbb{R}$ be the set of replica identifiers. We consider a finite set $\mathbb{M}$ of method names; and a possibly infinite set $\mathbb{D}$ of arguments and return values, the data domain. Each data type $t = (M,D)$ has a set $M \subseteq \mathbb{M}$ of methods and a data domain $D \subseteq \mathbb{D}$.
+
+Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that has no influence on the ``abstract state'' and normally returns an observation of the ``abstract state'' , and $\mathbb{U}$ update methods that has influence on the ``abstract state''. %Note that some update operation also need to read the ``abstract state''. For example, a $add(a,b)$ operation is an operation of distributed list which intends to put item $a$ immediately after item $b$. This operation implicitly requires that item $b$ is already in list.
+
+$\mathit{Optimistic \ replication \ algorithms}$ is a type of distributed algorithms where each client contains a copy of data structure; a client operations takes effect instantly at its replica without any synchronization, and then broadcast to other replicas and got applied. Convergent or Commutative Replicated Data Types (CRDTs) is a typical kinds of optimistic replication algorithms. In this section, we will introduce CRDT algorithms and their formation \footnote{To be exact, there are two kinds of CRDT algorithms: state-based and operation based. The implementations we discussed in this section is operation-based. The state-based CRDT can be similarly formalized and verified, and we discuss state-based CRDT in the discussion section of this paper.}.
+
+In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below.
+
+
+\begin{lstlisting}[caption={Pseudo-code of the Replicated Growable Array (RGA) CRDT}, captionpos=b,label={lst:rga}]
+  payload Ti-Tree N, Set Tomb
+  initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
+
+  addAfter(a,b) :
+    atSource :
+      precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
+      let ts@|$_{\mathtt{a}}$|@ = (N == @|$\emptyset$|@)?(1,myID()):(max{c | (_,(_,c),_) @|$\in$|@ N},myID())
+      let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@)?(0,r@|$_{0}$|@):(timestamp of b in N)
+    downStream(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@) :
+      precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
+      N = N ts@|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, ts@|$_{\mathtt{b}}$|@)}
+
+  remove(a) :
+    atSource :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
+    downStream(a) :
+      precondition : a != @|$\emptyset$|@ and (a,_,_) @|$\in$|@ N
+      Tomb = Tomb @|$\cup$|@ {a}
+
+  read() :
+    return traverse(N, Tomb)
+\end{lstlisting}
+
+
+\renewcommand{\algorithmcfname}{CRDT Implementation}
+\noindent
+%\begin{minipage}{.5\textwidth}
+\noindent% \begin{algorithm}[H]
+% $\mathit{payload}$ TI-tree N, set $\mathit{Tomb}$; \\
+% $\mathit{initial}$ $\emptyset$,$\emptyset$; \\
+
+% $add(a,b)$ \\
+% \ \ $\mathit{atSource}$: \\
+% \ \ \ \ $\mathit{pre}$: \ $b = \circ \vee$ %( b \neq \circ \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb})$ \\
+
+% % \ \ \ \ \If {$N = \emptyset$}
+% % { \ \ \ \ let \ $ts_a$ = (myID(),1); \\ }
+% % \ \ \ \ \Else
+% % {\ \ \ \ let \ $ts_a$ = (myID(),$\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$); \\ }
+
+% % \ \ \ \ \%If {$b = \circ$}
+% %    { \ \ \ \ let \ $ts_b$ = (0,0); \\ }
+% %\ \ \ \ \Else
+% %    { \ \ \ \ let \ $ts_b$ be time-stamp of $b$ in $N$; \\ }
+
+% \ \ \ \ let \ $ts_a$ = ($N = \emptyset$) ? (1,$\mathit{myID}$()) ! ($\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$,$\mathit{myID}$()); \\
+% \ \ \ \ let \ $ts_b$ = ($b = \circ$) ? (0,$r_0$) ! (the time-stamp of $b$ in $N$); \\
+
+% \ \ $\mathit{downstream}(a,ts_a,ts_b)$: \\
+% \ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,ts_b,\_) \in N)$ \\
+
+% \ \ \ \ $N = N \cup \{ (a,ts_a,ts_b) \}$.
 
 
 %Let $\mathbb{MSG}$ be the set of message contents, such as $(a,ts_a,ts_b)$ of RGA. Then, CRDT implementations are defined as follows, where operations and receiving messages are defined as functions.

@@ -18,7 +18,8 @@ $\mathit{Optimistic \ replication \ algorithms}$ is a type of distributed algori
 In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below.
 
 
-\begin{lstlisting}[caption={Pseudo-code of the Replicated Growable Array (RGA) CRDT}, captionpos=b,label={lst:rga}]
+\begin{lstlisting}[caption={Pseudo-code of the Replicated Growable
+    Array (RGA) CRDT (adapted from~\cite{ShapiroPBZ11})}, captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
 
@@ -145,7 +146,7 @@ The second method, \lstinline|remove(a)| simply removes the element
 And finally, the methods read simply returns the contents of the whole
 list at present.
 
-Let us now consider the pseudo-code of~\autoref{lst:rga}. 
+Let us now consider the pseudo-code of~\autoref{lst:rga}.
 %
 The keyword \lstinline|payload| represents the data that is stored in
 each replica to represent the list.
@@ -196,34 +197,38 @@ In RGA algorithm, a replica store the list as a timestamp insertion tree (TI-tre
 
 Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position immediately after that of a existing item $b$. Method $\mathit{rem}(a)$ removes $a$ from the list. Method $\mathit{read}$ returns the current list content. When the current replica does $\mathit{add}(a,b)$, it generate a tuple $(a,ts_a,ts_b)$ and put it into $N$. Here $ts_b$ is the time-stamp of $b$, and $ts_a$ is a new time-stamp that is larger than any time stamp in $N$. When the current replica does $\mathit{rem}(a)$, it put $a$ into tombstone. When the current replica does $\mathit{read}$, it uses function $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the current replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$.
 
-\begin{lstlisting}[caption={Pseudo-code of the or-set CRDT}, captionpos=b,label={lst:or-set}]
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Pseudo-code of the or-set CRDT},
+captionpos=b,label={lst:or-set}]
   payload Set S
   initial S = @|$\emptyset$|@
-  @{ initial seq = @|$\epsilon$|@ }
+  initial seq = @|$\epsilon$|@
 
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@ 
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
-      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)} 
-      
+      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
+
   remove(a) :
     atSource :
       let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@ 
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@ 
-      	               @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@ 
+      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@
+                       @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@
       //@ S@|$'$|@ = S @|$\setminus$|@ R
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@ 
+    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
     return A
 \end{lstlisting}
+\end{minipage}
 %      precondition : %@|$\exists$|@ k. (a,k) @|$\in$|@ S
 %let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
 %      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
@@ -231,5 +236,14 @@ Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position i
 %       //@ @|$\alpha(S) \xrightarrow{\alabelshort[remove]{a,R}} \alpha(S')$|@
 %     //@ @|$\alpha(S) \xrightarrow{\alabellongind[read]{}{A}{}} \alpha(S)$|@
 
-In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, an tuple $(\argv,\ats)$ will be added to the local state; while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$ operation, a set $S_1$ will be removed from the local state. We call such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream. The following is the condition $C_2$ for or-set implementation.
+In the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$
+operation, an tuple $(\argv,\ats)$ will be added to the local state;
+while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$
+operation, a set $S_1$ will be removed from the local state. We call
+such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream.
+The following is the condition $C_2$ for or-set implementation.
 
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "draft"
+%%% End:
