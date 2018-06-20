@@ -1,5 +1,52 @@
-\section{Definitions of Section \ref{sec:CRDT implementations}}
-\label{sec:appendix definitions of section CRDT implementations}
+\section{\crdtimp{} }
+\label{sec:crdt implementation} 
+
+
+
+\subsection{Multi-Value Register Implementation}
+\label{subsec:multi-value register implementation} 
+
+
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Pseudo-code of the or-set CRDT},
+captionpos=b,label={lst:operation-based multi-value register}]
+  payload Set S
+  initial S = @|$\emptyset$|@
+  initial seq = @|$\epsilon$|@
+
+  add(a) :
+    atSource :
+      let k = getUniqueIdentifier()
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
+    downStream(a, k) :
+      S = S @|$\cup$|@ {(a, k)}
+      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
+
+  remove(a) :
+    atSource :
+      let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
+    downStream(R) :
+      S = S @|$\setminus$|@ R
+      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@
+                       @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@
+      //@ S@|$'$|@ = S @|$\setminus$|@ R
+
+  read() :
+    let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
+    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
+    return A
+\end{lstlisting}
+\end{minipage}
+%      precondition : %@|$\exists$|@ k. (a,k) @|$\in$|@ S
+%let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
+%      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
+%       //@ @|$\alpha(S) \xrightarrow{\alabellongind[readIds]{a}{R}{}} \alpha(S)$|@
+%       //@ @|$\alpha(S) \xrightarrow{\alabelshort[remove]{a,R}} \alpha(S')$|@
+%     //@ @|$\alpha(S) \xrightarrow{\alabellongind[read]{}{A}{}} \alpha(S)$|@
+
+
 
 
 
@@ -63,6 +110,27 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 \item[-] $\mathit{receive}((S,\mathit{ts}),S_1) = (S \setminus S_1,\mathit{ts})$,
 \end{itemize}
+
+
+
+
+
+
+\section{\Spec{}}
+\label{sec:specification}  
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
