@@ -15,7 +15,7 @@ TODO MAKE A SUMMARY OF THIS SECTION
 
 \subsection{The Semantics of CRDT objects}
 
-TODO MAKE THE CONNECTION WITH THE OVERVIEW. IN PARTICULAR, SAY THAT WE ASSUME CAUSAL DELIVERY, BUT THIS IS ONLY TO SIMPLIFY THE EXPOSITION (AND ANYWAY, IT IS ASSUMED IN MOST IMPLEMENTATIONS)
+\fxwarning[nomargin, inline]{MAKE THE CONNECTION WITH THE OVERVIEW. IN PARTICULAR, SAY THAT WE ASSUME CAUSAL DELIVERY, BUT THIS IS ONLY TO SIMPLIFY THE EXPOSITION (AND ANYWAY, IT IS ASSUMED IN MOST IMPLEMENTATIONS)}
 
 CRDT implementations assume the following two guarantees of downstream:
 
@@ -84,11 +84,12 @@ CRDT implementations assume the following two guarantees of downstream:
 \end{figure}
 
 
-To formalize the semantics of CRDT objects and our correctness criterion we will introduce the
-following semantic domains.
+To formalize the semantics of CRDT objects and our correctness
+criterion we will introduce the following semantic domains.
 %
-We let $\aobj \in \objs$ be a CRDT object in the set of objects $\objs$. Similarly,
-$\arep \in \mathbb{R}$ is a replica in the set of replicas
+We let $\aobj \in \objs$ be a CRDT object in the set of objects
+$\objs$.
+Similarly, $\arep \in \reps$ is a replica in the set of replicas
 $\reps$.
 We assume that both objects and replicas are uniquely identified, and
 therefore we will equate an object with its identifier, with the same
@@ -106,50 +107,160 @@ totally-ordered domain $\timestampdomain$.
 %$\adomain \subseteq \datadomain$.
 
 
-An operation label $\alabelobjind{\argv}{\retv}{i,\ts}$
-%$\alabellong{\argv}{\retv}$ 
-represents the call of a method
-$\amethod \in \methods$ of object $\aobj\in \objs$, with argument $\argv \in \datadomain$, 
-resulting in the value $\retv \in \datadomain$, and generating the timestamp $\ts$. We may omit the object $\aobj$ when it is understood from the context.
-For uniformity, we assume that $\ts$ is a distinguished value $\bot$ for methods $\amethod$ that don't generate timestamps, e.g., the method {\tt remove} of the RGA object. The same applies to return values. We may omit the timestamp when it is not important.
+An operation label $\alabelobjind{\argv}{\retv}{i,\ts}$ represents the
+call of a method $\amethod \in \methods$ of object $\aobj\in \objs$,
+with argument $\argv \in \datadomain$, resulting in the value $\retv
+\in \datadomain$, and generating the timestamp $\ts$.
+We may omit the object $\aobj$ when it is understood from the context.
+For uniformity, we assume that the set $\labels$ contains a
+distinguished element $\bot$ which we shall use for operations that do
+not generate a timestamp as the method {\tt remove} of the RGA.
+In that case the meta-variable $\ts$ adopts the value $\bot$.
+The same applies to return values.
+We may omit the timestamp when it is not important.
 %We assume that in a history all labels are unique.
 Since there might be multiple calls to the same method with the same
 arguments and result, labels are tagged with a unique identifier $i$.
 %as in $\alabellongind{\argv}{\retv}{i}$.
-However, since we assume that each label of an operation in an execution is tagged with a unique identifier, we will ignore
-identifiers when unambiguous. The set of all operation labels is denoted by $\labels$.
-
+However, since we assume that each label of an operation in an
+execution is tagged with a unique identifier, we will ignore
+identifiers when unambiguous.
+The set of all operation labels is denoted by $\labels$.
 %\labels
 % the transitions are labeled by operation labels in $\labels$,
 %\times \labels
 
-Given a CRDT object $\aobj$, its semantics is defined as a transition system $\llbracket \aobj \rrbracket = (\globalstates,\aglobalstate_0,\rightarrow)$ as in \figurename~\ref{fig:crdt-opsem}, where $\globalstates$ is a set of global configurations, $\aglobalstate_0$ is the initial configuration, and $\rightarrow\subseteq \globalstates  \times \globalstates$ is the transition relation.
+\gpnote[inline, nomargin]{I would probably state it as a function
+  directly.}
+Given a CRDT object $\aobj$, its semantics is defined as a transition
+system $\llbracket \aobj \rrbracket =
+(\globalstates,\aglobalstate_0,\rightarrow)$ as shown in
+\figurename~\ref{fig:crdt-opsem}, where $\globalstates$ is a set of
+global configurations, $\aglobalstate_0$ is the initial configuration,
+and $\rightarrow\subseteq \globalstates \times \globalstates$ is the
+transition relation.
 
-A global configuration $(\gstates, \avisord, \downstreams)$ is a ``snapshot'' of the system that also records all the operations that have been executed. $\gstates \in [\reps \rightarrow \localstates]$ stores the local configuration of each replica. A local configuration $(\alabelset, \astate)$ contains the state $\astate$ of a replica and the set $\alabelset$ of labels of operations that have been originated at this replica, or whose downstreams have been executed at this replica. When $\alabel\in \alabelset$, we say that $\alabel$ is \emph{visible} to the replica or that the replica \emph{sees} $\alabel$.
-The relation $\avisord\subseteq \powerset{\labels \times \labels}$ is the \emph{visibility} relation between operations, i.e., $(\alabel_1,\alabel_2)\in \avisord$, where $\alabel_2$ is an operation originated at a replica $\arep$, if the downstream of $\alabel_1$ is executed at $\arep$ before $\alabel_2$. When $(\alabel_1,\alabel_2)\in \avisord$, we say that $\alabel_1$ is \emph{visible} to $\alabel_2$, or that $\alabel_2$ \emph{sees} $\alabel_1$. As it will be clear from the definition of the transition relation, $\avisord$ is actually a \emph{strict partial order} (i.e., satisfying irreflexivity and transitivity). 
-Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to each operation a downstream, which is a transformer $\effector\in [\states \rightarrow \states]$ of replica states. 
+A global configuration $(\gstates, \avisord, \downstreams)$ is a
+``snapshot'' of the system that records all the operations that have
+been executed.
+$\gstates \in [\reps \rightarrow \localstates]$ stores the local
+configuration of each replica.
+A local configuration $(\alabelset, \astate)$ contains the state
+$\astate$ of a replica and the set $\alabelset$ of labels of
+operations that have been originated at this replica, or whose
+downstreams have been executed (or applied) at this replica.
+When $\alabel\in \alabelset$, we say that $\alabel$ is \emph{visible}
+to the replica or that the replica \emph{sees} $\alabel$.
+The relation $\avisord\subseteq \powerset{\labels \times \labels}$ is
+the \emph{visibility} relation between operations, i.e.,
+$(\alabel_1,\alabel_2)\in \avisord$, where $\alabel_2$ is an operation
+originated at a replica $\arep$, if the downstream of $\alabel_1$ was
+executed at $\arep$ before $\alabel_2$.
+When $(\alabel_1,\alabel_2)\in \avisord$, we say that $\alabel_1$ is
+\emph{visible} to $\alabel_2$, or that $\alabel_2$ \emph{sees}
+$\alabel_1$.
+As it will be clear from the definition of the transition relation,
+$\avisord$ is a \emph{strict partial order} (i.e. irreflexive and transitive).
+Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to
+each operation a downstream, which is a transformer $\effector\in
+[\states \rightarrow \states]$ of replica states.
 
 For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
 
-TODO ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.
+\fxwarning[nomargin, inline]{ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.}
 
-The transition relation $\rightarrow$ is defined in \figurename~\ref{fig:crdt-opsem}. The first rule describes a replica $\arep$ in state $\astate$ executing an invocation of $\amethod$ with argument $\argv$. This transition consists in first applying the {\tt atSource} function $\atsource$ which outputs a return value $\retv$, a downstream $\effector$ to be executed at all replicas, and possibly, a timestamp $\ats$. We assume that $\ats=\bot$ for methods that don't generate timestamps. The association between the label $\alabel$ corresponding to this invocation and the downstream $\effector$ is recorded in the $\downstreams$ component of the new global configuration. The local configuration $(\alabelset,\sigma)$ of $\arep$ is changed by applying the downstream $\effector$ on the state $\sigma$, resulting in a new state $\sigma'$, and adding $\alabel$ to the set of labels $\alabelset$. Finally, the visibility relation $\avisord$ is changed to record the fact that the downstreams of all operations in $\alabelset$ have been applied before $\alabel$. 
+The transition relation between global configurations is denoted by
+the symbol $\rightarrow$ and is defined in
+\figurename~\ref{fig:crdt-opsem}.
+The first rule describes a replica $\arep$ in state $\astate$
+executing an invocation of method $\amethod$ with argument $\argv$.
+This transition first applies the {\tt atSource} function $\atsource$
+in the state of the originating replica, and as a result it outputs a
+return value $\retv$, and a downstream state transformer $\effector$
+to be applied on all replicas, and possibly, a timestamp $\ats$.
+As mentioned above, $\ats=\bot$ for methods that don't generate
+timestamps.
+The association between the label $\alabel$ corresponding to this
+invocation and the downstream $\effector$ is recorded in the
+$\downstreams$ component of the new global configuration.
+The local configuration $(\alabelset,\sigma)$ of $\arep$ is changed by
+applying the downstream $\effector$ on the state $\sigma$, resulting
+in a new state $\sigma'$, and adding $\alabel$ to the set of labels
+$\alabelset$.
+Finally, the visibility relation $\avisord$ is changed to record the
+fact that the downstreams of all operations in $\alabelset$ have been
+applied before $\alabel$.
+\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA}
 
-TODO EXAMPLE BASED ON RGA
+The second rule describes a replica $\arep$ in state $\astate$
+executing the downstream $\effector$ that corresponds to an operation
+$\alabel$ originated in a different replica.\footnote{We could
+  simplify the first rule by not performing the downstream immediately,
+  but in general we assume no interleavings of operations within a
+  single replica.}
+The rule requires that $\effector$ is a downstream of a label that has
+not yet been applied at $\arep$ (i.e., its corresponding label is not
+in the $\alabelset$ component of $\arep$'s configuration) and
+moreover, that it is a minimal one with respect to the order
+$\avisord$ among such downstreams, i.e., there exists no
+$\alabel'\not\in \alabelset$ such that $(\alabel',\alabel)\in
+\avisord$.
+This transition results in modifying the state of $\arep$ to
+$\effector(\sigma)$ and adding $\alabel$ to the set of operations
+whose downstreams have been executed by $\arep$.
+Remark that these transition rules preserve the fact that $\avisord$ is
+a strict partial order.
+\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA}
 
-The second rule describes a replica $\arep$ in state $\astate$ executing the downstream $\effector$ that corresponds to an operation $\alabel$. It is required that $\effector$ is one of the downstreams that haven't been already executed at $\arep$ (i.e., its corresponding label is not in the $\alabelset$ component of $\arep$'s configuration) and a minimal one with respect to the order $\avisord$ among such downstreams, i.e., there exists no $\alabel'\not\in \alabelset$ such that $(\alabel',\alabel)\in \avisord$. This transition results in modifying the state of $\arep$ to $\effector(\sigma)$ and adding $\alabel$ to the set of operations whose downstreams have been executed by $\arep$. Note that these transition rules preserve the fact that $\avisord$ is a strict partial order.
+In the sequel it will be useful to distinguish query (or pure) methods
+which do not modify the state from state modifying methods, which we
+shall call updates (or effectful).
+%
+We say that a method $\amethod\in\methods$ of object $\aobj\in \objs$
+is a \emph{query} if it always results (by applying the {\tt atSource}
+function $\atsource$) in an identity downstream $\effector$ (i.e.
+$\delta(\sigma)=\sigma$ for all replica states
+$\sigma$).\footnote{While we could have defined a semantics in which a
+  read-only operation doesn't generate any downstream, we have preferred
+  the current version for uniformity.}
+We shall call an \emph{update} to any method $\amethod$ which is not a query,
+that is, whose effectors (generated by $\atsource$) is not the
+identity function, and whose resulting downstream and return value do
+not ``depend'' on the initial state $\astate$ of the origin replica.
+That is, it's behavior is fully determined by its arguments.
+More formally, assuming a function equivalence relation $\equiv$
+between downstreams that relates any two downstreams that have the same
+effect (modulo the values of timestamps or unique identifiers)
+$\amethod$ is called an update when
+$\atsource(\sigma,\amethod,\argv)|_2 \equiv
+\atsource(\sigma',\amethod,\argv)|_2$, for every $\argv\in\datadomain$
+and two states $\sigma,\sigma'\in\Sigma$ (for a tuple $x$, $x|_k$
+denotes the projection of $x$ on the $k$-th component).
+A method $\amethod$ which is not a query or an update is called a
+\emph{query-update} (it generates a downstream which is not the
+identity function, and whose effect depends on the local state of the
+replica at which the invocation of $\amethod$ originated).
+We denote by $\queries$, $\updates$, and $\queryupdates$, the sets of
+operation labels $\alabelobjind{\argv}{\retv}{i,\ts}$ where $\amethod$
+is a query, an update, or query-update respectively.
+We shall name them query, update, and query-update labels,
+respectively.
+\fxwarning[nomargin, inline]{EXAMPLES OF QUERIES, UPDATES,
+  QUERY-UPDATES.
+  PROBABLY DISCUSSED ALREADY ALSO IN THE OVERVIEW.}
 
-TODO EXAMPLE BASED ON RGA
- 
-We say that a method $\amethod\in\methods$ of an object $\aobj\in \objs$ is called a \emph{query} method if it always results (by applying the {\tt atSource} function $\atsource$) in a downstream $\effector$ which is the identity function (i.e., $\delta(\sigma)=\sigma$ for all replica states $\sigma$)~\footnote{While we could have defined a semantics in which a read-only operation doesn't  generate any downstream, we have preferred the current version for uniformity.}. A method $\amethod$ which is not a query, and whose effectors (generated by $\atsource$) do not ``depend'' on the state $\sigma$ of the replica at which the invocations of $\amethod$ are originated, is called an \emph{update}. More precisely, given an equivalence relation $\equiv$ between downstreams that relates any two downstreams that have the same effect, modulo the values of timestamps or unique identifiers, $\amethod$ is called an update when $\atsource(\sigma,\amethod,\argv)|_2 \equiv \atsource(\sigma',\amethod,\argv)|_2$, for every $\argv\in\datadomain$ and two states $\sigma,\sigma'\in\Sigma$ (for a tuple $x$, $x|_k$ denotes the projection of $x$ on the $k$-th component).
-A method $\amethod$ which is not a query or an update is called a \emph{query-update} (it generates a downstream which is not the identity function, and whose effect depends on the local state of the replica at which the invocation of $\amethod$ is originated). We denote by $\queries$, $\updates$, and $\queryupdates$, the set of operation labels $\alabelobjind{\argv}{\retv}{i,\ts}$ where $\amethod$ is a query, update, and query-update, respectively. They are called query, update, and query-update labels, respectively.
+Executions and reachable global configurations of an object $\aobj$
+are defined as usual.
+A \emph{history} is a pair $(\alabelset,\avisord)$ where
+$\avisord\subseteq \alabelset\times\alabelset$ is a strict partial
+order over the set of labels $\alabelset$.
+Given an execution $e$ ending in a global configuration $(\gstates,
+\avisord, \downstreams)$, the \emph{history} of $e$ is the pair
+$(\labeldom{\avisord}, \avisord)$.
+The set of histories $\histories(\aobj)$ of an object $\aobj$ is the
+set of histories $h$ of an execution $e$ of $\aobj$.
 
-TODO EXAMPLES OF QUERIES, UPDATES, QUERY-UPDATES. PROBABLY DISCUSSED ALREADY ALSO IN THE OVERVIEW.
-
-Executions and reachable global configurations of an object $\aobj$ are defined as usual. A \emph{history} is a pair $(\alabelset,\avisord)$ where $\avisord\subseteq \alabelset\times\alabelset$ is a strict partial order over the set of labels $\alabelset$. Given an execution $e$ ending in a global configuration $(\gstates, \avisord, \downstreams)$, 
-the \emph{history} of $e$ is the pair $(\labeldom{\avisord}, \avisord)$. The set of histories $\histories(\aobj)$ of an object $\aobj$ is the set of histories $h$ of an execution $e$ of $\aobj$.
-
-TODO EXAMPLE OF HISTORY OF AN EXECUTION
+\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.}
 
 %\ce{Need to talk about read/updates}
 %
@@ -203,7 +314,7 @@ TODO EXAMPLE OF HISTORY OF AN EXECUTION
 \subsection{Sequential Specifications}
 \label{subsec:sequential specification}
 
-TODO INTRODUCE THIS SUBSECTION
+\fxwarning[nomargin, inline]{INTRODUCE THIS SUBSECTION}
 
 %\gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
@@ -218,10 +329,10 @@ provide an operational description.
 To that end, we will associate to specifications a notion of abstract
 state, which we shall generally denote by $\abstate$ and its domain
 shall be denoted by $\abstates$.
-Then to each valid label $\alabel$ we will associate a transition
-function $\xRightarrow{\alabel}$ which given a state, and provided
-that the label can be applied into that state, it will result into a
-new abstract state.
+Then, to each valid label $\alabel$ we will associate a transition
+relation \;$\xRightarrow{\alabel}$\; which, given a state and provided
+that the label can be applied into that state, produces a new abstract
+state.
 Hence, we denote by $\abstate \xRightarrow{\alabel}  \abstate'$
 %$\absopsem{\abstate} = \abstate'$ 
 the fact that
@@ -231,21 +342,23 @@ is $\abstate'$.
 %To simplify our descriptions, we will use a shortcut notation for
 %$\absopsem{\abstate} = \abstate'$ and will write it as:
 %\[ \abstate \xRightarrow{\alabel}  \abstate' \]
-
 In the specific case where the label $\alabel$ assumes a certain
 precondition $\apre$ over the initial abstract state $\abstate$ we
 will use Hoare-style triples and write
 \[ \big(\abstate\ |\ \apre(\abstate)\big) \xRightarrow{\alabel}  \abstate' \]
 
 A sequential specification then is the set of labels that are accepted
-by the successive application of the transition function starting from
+by the successive application of the transition relation starting from
 some given initial state $\abstate_{0}$.
 
 %A label is called \emph{read-only} if it doesn't change the abstract state, and a \emph{modifier} otherwise. 
 %The set of labels of a specification $\Spec$ is denoted by $\labelsspec\Spec$. The set of read-only, resp., modifier,
 %labels of a specification $\Spec$ is denoted by $\labelsspecrd\Spec$, resp., $\labelsspecmod\Spec$.
 
-TODO REWORK THESE EXAMPLES. DON'T WE NEED JUST TWO EXAMPLES, RGA AND OR-SET ?
+\fxwarning[nomargin, inline]{REWORK THESE EXAMPLES. DON'T WE NEED JUST
+  TWO EXAMPLES, RGA AND OR-SET ?}
+\gpnote[nomargin, inline]{Yes, I think so. Though it might be nice to
+  show more specs, since it kinda proves that they are easy to read/write/understand.}
 
 \begin{example}[sequential specification of counter]
 \label{definition:sequential specification of counter}
@@ -260,8 +373,7 @@ and the transitions are given as follows:
 \end{itemize}
 \end{example}
 
-\gpwarning{Complete the others}
-
+\fxfatal[nomargin, inline]{Complete the others!}
 \begin{example}[sequential specification of multi-value register]
 \label{def:spec-MVR}
 The sequential specification $\mathit{MVReg}_s$ of multi-value
@@ -402,7 +514,7 @@ When the context is clear, in $\mathit{read}$ operation, we will omit
 $\circ$.
 \end{example}
 
-TODO TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.
+\fxwarning[nomargin, inline]{TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.}
 
 \subsection{Definition of \CRDTLin{}}
 \label{subsec:definition of distributed linearizability}
@@ -582,3 +694,8 @@ convergence of the data type, as formalized in the following lemma.
 If a history $h$ is \crdtlinearizable{} w.r.t. a deterministic
 sequential specification \Spec, then $h$ is convergent.
 \end{lemma}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "draft"
+%%% End:
