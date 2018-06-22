@@ -1,50 +1,68 @@
-\section{\crdtimp{} }
-\label{sec:crdt implementation} 
+\section{\crdtimp{}}
+\label{sec:crdt implementation}
 
 
 
 \subsection{Multi-Value Register Implementation}
-\label{subsec:multi-value register implementation} 
+\label{subsec:multi-value register implementation}
 
+\cite{ShapiroPBZ11} shows how to obtain a state-based \crdtimp{} from a operation-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. To do an operation $f(a)$, we compute the state-based update and perform merge method in downstream. Here the precondition of downstream is empty because merge is always enabled.
 
 
 \begin{minipage}[t]{1.0\linewidth}
-\begin{lstlisting}[frame=top,caption={Pseudo-code of the or-set CRDT},
+\begin{lstlisting}[frame=top,caption={operation-based emulation of state-based object},
+captionpos=b,label={lst:operation-based emulation of state-based object}]
+  payload S ( the state-based payload )
+  initial initial payload of S
+
+  update method f(a)
+    atSource :
+      precondition : precondition of f(a)
+      let s = atSource of f(a) in state-based
+    downStream(s) :
+      S = merge(S,s)
+\end{lstlisting}
+\end{minipage}
+
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$. 
+Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$. 
+
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based multi-value register},
 captionpos=b,label={lst:operation-based multi-value register}]
   payload Set S
   initial S = @|$\emptyset$|@
-  initial seq = @|$\epsilon$|@
+  initial seq = @|$\epsilon$|@ 
 
-  add(a) :
-    atSource :
-      let k = getUniqueIdentifier()
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
-    downStream(a, k) :
-      S = S @|$\cup$|@ {(a, k)}
-      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
-
-  remove(a) :
-    atSource :
-      let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
-    downStream(R) :
-      S = S @|$\setminus$|@ R
-      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@
-                       @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@
-      //@ S@|$'$|@ = S @|$\setminus$|@ R
+  write(a) :
+    atSource : 
+      let g = myRep() 
+      let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@  
+      let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@ 
+      let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
+    downStream(a, V@|$'$|@) :
+      let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@ 
+      let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
+      S = A @|$\cup$|@ B
+      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabellongind[write]{\_,\_}{\bot}{*}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@ 
 
   read() :
-    let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
-    return A
+    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S} 
+    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
+    return @|$S_1$|@ 
 \end{lstlisting}
 \end{minipage}
-%      precondition : %@|$\exists$|@ k. (a,k) @|$\in$|@ S
-%let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
-%      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
-%       //@ @|$\alpha(S) \xrightarrow{\alabellongind[readIds]{a}{R}{}} \alpha(S)$|@
-%       //@ @|$\alpha(S) \xrightarrow{\alabelshort[remove]{a,R}} \alpha(S')$|@
-%     //@ @|$\alpha(S) \xrightarrow{\alabellongind[read]{}{A}{}} \alpha(S)$|@
+
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
+
+
+
+
+
+\subsection{Multi-Value Register Implementation}
+\label{subsec:multi-value register implementation}
 
 
 
@@ -54,70 +72,190 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
 
 
-\subsection{OR-set Implementation and Formation}
-\label{subsec:or-set implementation and formation}
-
-The or-set implementation is shown below. Here function $\mathit{myRep}()$ returns the current replica identifier.
-
-\renewcommand{\algorithmcfname}{CRDT Implementation}
-\noindent
-%\begin{minipage}{.5\textwidth}
-\noindent\begin{algorithm}[H]
-$\mathit{payload}$ set $S$; $\mathit{maxTS}$\\
-$\mathit{initial}$ $\emptyset$; $(0,\mathit{myRep}())$\\
-
-$add(a)$ \\
-\ \ $\mathit{atSource}$: \\
-\ \ \ \ assume $\mathit{maxTS} = (c,r')$; \\
-\ \ \ \ let $\mathit{ts}' =(c+1,\mathit{myRep}())$; \\
-
-\ \ $\mathit{downstream}((a,\mathit{ts}'))$: \\
-\ \ \ \ $S = S \cup \{ (a,\mathit{ts}') \}$; \\
-\ \ \ \ $\mathit{maxTS} = \mathit{max} \{ \mathit{maxTS},\mathit{ts}' \}$;
 
 
-$rem(a)$ \\
-\ \ $\mathit{atSource}$: \\
-\ \ \ \ $\mathit{pre}$: \ $\exists \mathit{ts}', (a,\mathit{ts}') \in S$ \\
-\ \ \ \ let $S_1 = \{ (a,\mathit{ts}') \vert (a,\mathit{ts}') \in S \}$; \\
-
-\ \ $\mathit{downstream}(S_1)$: \\
-\ \ \ \ $S = S \setminus S_1$.
-
-$read()$ \\
-\ \ \ \ \KwRet $\{ a \vert \exists \mathit{ts}, (a,\mathit{ts}) \in S \}$; \\
-
-\caption{OR-set}
-\label{Method-or-set}
-\end{algorithm}
 
 
-The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, \mathit{do},\mathit{receive})$, where
+
+
+
+\section{Sequential Specifications}
+\label{sec:sequential specifications}
+
+%In this section we give several sequential specifications.
+
+
+
+\subsection{The Sequential Specification of Multi-Value Register}
+\label{subsec:the sequential specification of multi-value register} 
+
+The query-update rewriting of multi-value register is as follows: $\gamma( \alabellong[\mathsf{write}]{a}{} ) = ( \alabellong[\mathsf{readIds}]{}{S}, \alabellong[\mathsf{write}]{a,id,S}{})$. 
+
+
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{mvreg}_s$ of multi-value register is given with the transitions as follows: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\Sigma = \{ (S,\mathit{ts}) \vert$, $S$ is a set, each item of $S$ is of the form $(a',\mathit{ts}')$ with $a' \in D$ and $\mathit{ts}' \in \mathbb{N} \times \mathbb{R}.$ $\mathit{ts} \in \mathbb{N} \times \mathbb{R} \}$. $\Sigma_0 = (\emptyset,(0,\mathit{myRep}()))$.
+\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{readIds}]{}{\abstate}} \abstate$ 
 
-\item[-] Each message content in $\mathit{Msg}$ is either in $D \times \mathbb{N} \times \mathbb{R}$, or a subset of $D \times \mathbb{N} \times \mathbb{R}$.
+\item[-] $\big(\abstate\ |\ (a,id) \notin \abstate \big) \xrightarrow{ \alabellong[\mathsf{write}]{a,id,S}{} }  \abstate \setminus S \cup \{ (a,id) \}$ 
 
-\item[-] $\mathit{do}((S,(c,r')),\mathit{add},a) = ((S \cup \{ (a, (c+1,r)) \}, (c+1,r)),(a,(c+1,r)))$.
+\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }} \abstate$ 
+\end{itemize} 
 
-\item[-] If $\exists \mathit{ts}', (a,\mathit{ts}') \in S$, then $\mathit{do}((S,\mathit{ts}),\mathit{rem},a) = ((S \setminus S_1,\mathit{ts}), S_1)$, where $S_1 = \{ (a,\mathit{ts}'') \in S \}$.
 
-\item[-] $\mathit{do}((S,\mathit{ts}),\mathit{read}) = ((S,\mathit{ts}),\{ a \vert \exists \mathit{ts}', (a,\mathit{ts})' \in S \})$.
 
-\item[-] $\mathit{receive}((S,\mathit{ts}),(a,\mathit{ts}')) = (S \cup \{ (a,\mathit{ts}') \}, \mathit{max}( \mathit{ts},\mathit{ts}' ))$,
 
-\item[-] $\mathit{receive}((S,\mathit{ts}),S_1) = (S \setminus S_1,\mathit{ts})$,
+
+
+
+
+
+
+
+
+\section{Proofs of \crdtimp}
+\label{sec:appendix proofs of crdt implementations} 
+
+
+
+\subsection{Proof of Operation-Based Multi-Value Register}
+\label{subsec:proof of operation-based multi-value register}  
+
+Given two sequences $l_1,l_2$  such that $l_2$ is a permutation of $l_1$, let $\mathit{diff}(l_1,l_2) = \{ (a,b) \vert$ the order of $a$ and $b$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $a$ and $b$ of $l$, let $\mathit{swap}(l,a,b)$ be a sequence obtained from $l$ by swapping $a$ and $b$. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
+
+\begin{lemma}
+\label{lemma:given two sequence consistent with visibility order, one can be obtained from the other} 
+Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are both consistent with $\avisord$. If $\aseqord_1 \neq \aseqord_2$, then we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
+\end{lemma}
+
+\begin {proof} 
+
+First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $l_1$ and $l_2$ are concurrent, and $l_1$ and $l_2$ are adjacent in $\aseqord_1$.
+
+We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$. 
+
+Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alabel')$ be a element of $\mathit{diff}(\aseqord_1,\aseqord_2)$, and the distance of $\alabel$ and $\alabel'$ is minimal in $\{$ the distance between $\alabel_1$ and $\alabel_2 \vert (\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2) \}$. Let us prove that $\alabel$ and $\alabel'$ are adjacent by contradiction: If there exists $\alabel''$ between $\alabel$ and $\alabel'$. Assume that in $\aseqord_1$, $\alabel$ is before $\alabel''$, and $\alabel''$ is before $\alabel'$. By assumption, the order between $\alabel$ and $\alabel''$, and between $\alabel''$ and $\alabel'$ is the same in $\aseqord_1$ and in $\aseqord_2$. This implies that $\alabel$ is still before $\alabel'$ in $\aseqord_2$, which contradicts the fact that $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$. 
+
+Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, by assumption we know that $\alabel$ and $\alabel'$ are not concurrent. Or we can say, $(\alabel,\alabel') \in \avisord \vee (\alabel',\alabel) \in \avisord$. This contradicts that both $\aseqord_1$ and $\aseqord_2$ are consistent with visibility relation. This completes the proof of the first part.
+
+Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of operations. This completes the proof of this lemma. $\qed$ 
+\end {proof} 
+
+
+Then, let us prove that the operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$. 
+
+\begin{lemma}
+\label{lemma:multi-value register is correct} 
+The operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$
+\end{lemma} 
+
+
+\begin {proof} 
+
+Let us give two facts: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $fact1$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $V_1 < V_2$. 
+\item[-] $fact2$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$. 
+
+%\item[-] $fact3$: Let $S$ be the payload of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$ is maximal w.r.t $\avisord$ among write operations applied in current replica $\}$.
 \end{itemize}
 
 
+\noindent Proof of $fact1$: Assume $\alabel_1$ happens on replica $\arep$. By the {\textred{causal delivery}} assumption, we know that for each replica $\arep' \neq \arep$, $\alabel_2$ see more or equal number of operations happens on replica $\arep'$ than that of $\alabel_1$, and $\alabel_2$ see more number of operations happens on replica $\arep$ than that of $\alabel_1$. By Annotation1, we know that $\forall \arep' \neq \arep$, $V_1[\arep'] \geq V_2[\arep']$, and $V_1[\arep] > V_2[\arep]$. Therefore, $V_1 < V_2$.
+
+\noindent Proof of $fact2$: Let us prove that $\neg (V_1 < V_2 \vee V_2 < V_1)$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $V_1 < V_2$, and assume that $\alabel_1$ happens on replica $\arep_1$. Since $V_1 < V_2$, we know that $V_1[\arep_1] \leq V_2[\arep_1]$. By the {\textred{causal delivery}} assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$. 
+
+Let us propose Annotation2, which is an annotation of payload and obviously holds in the initial global configuration. 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Annotation2: Let $S$ be the payload of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$ is maximal w.r.t $\avisord$ among write operations applied in current replica $\}$.
+\end{itemize} 
+
+Our proof of the lemma proceed as follows:  
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. Let $\aseqord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\aseqord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\aseqord_2$ can be obtained from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations. 
+
+Let us prove that applying downstream of such pair of operations commute, and we only need to consider the case of two concurrent $write$ labels. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream of labels $\alabellongind[write]{a_1,V_1}{\bot}{*}$ and $\alabellongind[write]{a_2,V_2}{\bot}{*}$, respectively. Given a payload $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabellongind[write]{a_1,V_1}{\bot}{*}$ and $\alabellongind[write]{a_2,V_2}{\bot}{*}$ are concurrent, by  $fact_2$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
+
+
+
+\item[-] Let we prove that the Annotation1 and Annotation2 is an inductive invariant. 
+
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider $write$ action or downstream: 
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] For case of a $\alabellongind[write]{a,V'}{\bot}{*}$ action of replica $\arep$: Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously $S' = \{ (a,V') \}$.
+        
+        Since $\alabellongind[write]{a,V'}{\bot}{*}$ is larger than any labels in $S$ w.r.t the visibility relation, Annotation2 still holds in $\aglobalstate'$. 
+        
+        By Annotation2 we know what labels are contained in $S$, by Annotation1 we know the content of these labels. By the {\textred{causal delivery}} assumption we know that if a label $\alabel$ is visible to a label $\alabel'$ of $S$, then $\alabel$ must be already applied in replica $\arep$. let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. Therefore, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of operations happen on replica $\arep'$ and has been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. We can see that, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds in $\aglobalstate'$. 
+    
+    \item[-] For case of applying downstream $(a,V')$: We only need to consider Annotation2. Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
+        
+        By the {\textred{causal delivery}} assumption, if $\alabellongind[write]{a,V'}{\bot}{*}$ is visible to a operation $\alabel$, then $\alabel$ does not applied in $\aglobalstate'$ yet. By Annotation2, $fact1$ and $fact2$, we know that, $\forall (b,V) \in S$, we have $\neg(V > V')$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. By $fact1$ and $fact2$, each element in $\{ (b,V) \vert (b,V) \in S \wedge V < V' \}$ is visible to $\alabellongind[write]{a,V'}{\bot}{*}$, and they are not in $S'$. Therefore, Annotation2 still holds in $\aglobalstate'$.
+    \end{itemize}
+
+\item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity. 
+    
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] For $(a,V')$ and $write(a,V',S_1)$: 
+    
+    Assume we obtain payload $S'$ from $S$ by doing downstream of $(a,V')$, in sequential specification have $\abstate \xrightarrow{write(a,V',S_1)} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$. 
+    
+    By the {\textred{causal delivery}} assumption, if $(\alabellongind[write]{a,V'}{\bot}{*},\alabel) \in \avisord$, then the downstream of $\alabel$ is not applied yet in the replica of $S$. By Annotation2, $fact1$ and $fact2$, we can see that, $\forall (b,V) \in S$, $\neg(V > V')$. Therefore, according to the implementaiton, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
+    
+    According to Annotation2, we can see that, $S_1 = \{ (b,V) \vert \exists \alabel = \alabellongind[write]{b,V}{\bot}{*}, (b,V)$ is the downstream of $l, l$ is maximal among $write$ operations visible to $\alabellongind[write]{a,V'}{\bot}{*} \}$. We can see that $\abstate' = \abstate \setminus S_1 \cup \{ (a,V') \}$. 
+    
+    Let us prove $S' = \abstate'$ by contradiction. 
+    
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] If there exists item $(c,V'')$ in $\abstate'$ but not in $S'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_1$, and $(c,V'') \in S_2$. 
+        
+        Since $(c,V'') \notin S_1$, we know that there exists a $write$ operation $\alabel$, such that $(\alabellongind[write]{c,V''}{\bot}{*},\alabel),(\alabel,\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. Since $(c,V'') \in S$, we can see that the downstream $\alabel$ is not applied yet in the replica of $S$, while in $S'$, the downstream of $\alabellongind[write]{a,V'}{\bot}{*}$ is applied. This violates the {\textred{causal delivery}} assumption. 
+        
+        \item[-] If there exists item $(c,V'')$ in $S'$ but not in $S\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$. 
+        
+        Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V)$. Since $(c,V'') \in S_1$, we know that $(\alabellongind[write]{c,V''}{\bot}{*},\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. This contradicts $fact1$ and $fact2$. 
+        \end{itemize}
+    
+    Therefore, we know that $S' = \abstate'$, and the case of $(a,V')$ and $write(a,V',S_1)$ holds. 
+    
+    \item[-] When the query-update $\alabelshort[write]{a}$ executes {\tt atSource} on a state $S$, then the query $\alabellong[readIds]{}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(S)=\abstate$, which clearly holds because the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$. 
+    
+    \item[-] Applying the query $\alabelshort[read]{}$ on the payload $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
+    \end{itemize} 
+
+\item[-] Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute {\tt atSource} clearly implies that $\aseqord$ is consistent with the visibility. Next, the projection of $\aseqord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
+We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\aseqord'\cdot \alabel_{\mathsf{qr}}$ where $\aseqord'$ is the projection of $\aseqord$ on the set of updates
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\aseqord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\aseqord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\aseqord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$ 
+\end {proof}
 
 
 
 
-\section{\Spec{}}
-\label{sec:specification}  
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1260,3 +1398,1328 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 This completes the proof of this lemma. $\qed$
 \end {proof}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\forget{
+\section{\crdtimp{}}
+\label{sec:crdt implementation}
+
+
+
+\subsection{Multi-Value Register Implementation}
+\label{subsec:multi-value register implementation}
+
+\cite{ShapiroPBZ11} shows how to obtain a state-based \crdtimp{} from a operation-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. To do an operation $f(a)$, we compute the state-based update and perform merge method in downstream. Here the precondition of downstream is empty because merge is always enabled.
+
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={operation-based emulation of state-based object},
+captionpos=b,label={lst:operation-based emulation of state-based object}]
+  payload S ( the state-based payload )
+  initial initial payload of S
+
+  update method f(a)
+    atSource :
+      precondition : precondition of f
+      let s = atSource of f(a) in state-based
+    downStream(s) :
+      S = merge(S,s)
+\end{lstlisting}
+\end{minipage}
+
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}.
+
+
+The following is a multi-value register implementation.
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Pseudo-code of the or-set CRDT},
+captionpos=b,label={lst:operation-based multi-value register}]
+  payload Set S
+  initial S = @|$\emptyset$|@
+  initial seq = @|$\epsilon$|@
+
+  add(a) :
+    atSource :
+      let k = getUniqueIdentifier()
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
+    downStream(a, k) :
+      S = S @|$\cup$|@ {(a, k)}
+      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
+
+  remove(a) :
+    atSource :
+      let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
+    downStream(R) :
+      S = S @|$\setminus$|@ R
+      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@
+                       @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@
+      //@ S@|$'$|@ = S @|$\setminus$|@ R
+
+  read() :
+    let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
+    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
+    return A
+\end{lstlisting}
+\end{minipage}
+
+
+
+
+
+
+
+
+
+\subsection{OR-set Implementation and Formation}
+\label{subsec:or-set implementation and formation}
+
+The or-set implementation is shown below. Here function $\mathit{myRep}()$ returns the current replica identifier.
+
+\renewcommand{\algorithmcfname}{CRDT Implementation}
+\noindent
+%\begin{minipage}{.5\textwidth}
+\noindent\begin{algorithm}[H]
+$\mathit{payload}$ set $S$; $\mathit{maxTS}$\\
+$\mathit{initial}$ $\emptyset$; $(0,\mathit{myRep}())$\\
+
+$add(a)$ \\
+\ \ $\mathit{atSource}$: \\
+\ \ \ \ assume $\mathit{maxTS} = (c,r')$; \\
+\ \ \ \ let $\mathit{ts}' =(c+1,\mathit{myRep}())$; \\
+
+\ \ $\mathit{downstream}((a,\mathit{ts}'))$: \\
+\ \ \ \ $S = S \cup \{ (a,\mathit{ts}') \}$; \\
+\ \ \ \ $\mathit{maxTS} = \mathit{max} \{ \mathit{maxTS},\mathit{ts}' \}$;
+
+
+$rem(a)$ \\
+\ \ $\mathit{atSource}$: \\
+\ \ \ \ $\mathit{pre}$: \ $\exists \mathit{ts}', (a,\mathit{ts}') \in S$ \\
+\ \ \ \ let $S_1 = \{ (a,\mathit{ts}') \vert (a,\mathit{ts}') \in S \}$; \\
+
+\ \ $\mathit{downstream}(S_1)$: \\
+\ \ \ \ $S = S \setminus S_1$.
+
+$read()$ \\
+\ \ \ \ \KwRet $\{ a \vert \exists \mathit{ts}, (a,\mathit{ts}) \in S \}$; \\
+
+\caption{OR-set}
+\label{Method-or-set}
+\end{algorithm}
+
+
+The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, \mathit{do},\mathit{receive})$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\Sigma = \{ (S,\mathit{ts}) \vert$, $S$ is a set, each item of $S$ is of the form $(a',\mathit{ts}')$ with $a' \in D$ and $\mathit{ts}' \in \mathbb{N} \times \mathbb{R}.$ $\mathit{ts} \in \mathbb{N} \times \mathbb{R} \}$. $\Sigma_0 = (\emptyset,(0,\mathit{myRep}()))$.
+
+\item[-] Each message content in $\mathit{Msg}$ is either in $D \times \mathbb{N} \times \mathbb{R}$, or a subset of $D \times \mathbb{N} \times \mathbb{R}$.
+
+\item[-] $\mathit{do}((S,(c,r')),\mathit{add},a) = ((S \cup \{ (a, (c+1,r)) \}, (c+1,r)),(a,(c+1,r)))$.
+
+\item[-] If $\exists \mathit{ts}', (a,\mathit{ts}') \in S$, then $\mathit{do}((S,\mathit{ts}),\mathit{rem},a) = ((S \setminus S_1,\mathit{ts}), S_1)$, where $S_1 = \{ (a,\mathit{ts}'') \in S \}$.
+
+\item[-] $\mathit{do}((S,\mathit{ts}),\mathit{read}) = ((S,\mathit{ts}),\{ a \vert \exists \mathit{ts}', (a,\mathit{ts})' \in S \})$.
+
+\item[-] $\mathit{receive}((S,\mathit{ts}),(a,\mathit{ts}')) = (S \cup \{ (a,\mathit{ts}') \}, \mathit{max}( \mathit{ts},\mathit{ts}' ))$,
+
+\item[-] $\mathit{receive}((S,\mathit{ts}),S_1) = (S \setminus S_1,\mathit{ts})$,
+\end{itemize}
+
+
+
+
+
+
+\section{\Spec{}}
+\label{sec:specification}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Proofs of Section \ref{sec:proving distributed linearizability}}
+\label{sec:appendix proofs of section proving distributed linearizability}
+
+
+
+
+
+\subsection{Proof of OR-set Implementation}
+\label{subsec:appendix proofs of or-set implementation}
+
+The following lemma states a property that can be generated from $P(\mathit{config},h,\mathit{lin},\mathit{map})$ for or-set.
+
+\begin{lemma}
+\label{lemma:a property that can be obtained from P for or-set}
+If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds for or-set, then each $\mathit{add}$ operation generate a new unique time-stamp. Moreover, for each replica $r'$,
+
+\begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R(r').S = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{del},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$.
+
+    \item[-] $R(r').\mathit{maxTS} = (0,r')$ if $\mathit{vd}(h,\mathit{config},r') = \emptyset$; otherwise, $R(r').\mathit{maxTS}$ is the maximal time stamp of $\mathit{add}$ operations of $\mathit{vd}(h,\mathit{config},r')$.
+    \end{itemize}
+\end{lemma}
+
+\begin {proof}
+By $C_4$, it is easy to see that each $\mathit{add}$ operation generate a new unique time-stamp by induction. The property of $R(r')$ can be also easily proved by induction, since the visibility relation is transitive. $\qed$
+\end {proof}
+
+
+The following lemma states that our $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set.
+
+\begin{lemma}
+\label{lemma:P is an invariant of or-set}
+$P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set.
+\end{lemma}
+
+\begin {proof}
+
+Let us prove that $P$ is a simulation relation. It is obvious that $P(\mathit{config}_0,\epsilon,\emptyset,\emptyset)$ holds.
+
+Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ holds. Here we do not give the detailed value of $\mathit{MsgHB}'$ and $\mathit{MsgDel}'$, since it can be obtained from the definition of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{add},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{ts}) ]$ and $T' = T \cup \{ (\mathit{mid},(a,\mathit{ts}),r) \}$. Here $\mathit{ts} = ( \mathit{max} \{ c \vert (\_,(c,\_)) \in R(r).S \} +1,r)$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{add}$ operation.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{add}(a),i,\mathit{vd}(h,\mathit{config},r))$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
+    \end{itemize}
+
+    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. %Based on $C_4$, it is not hard to prove that,
+
+    %\begin{itemize}
+    %\setlength{\itemsep}{0.5pt}
+    %\item[-] $\mathit{Prop}_1$: Each $\mathit{add}$ operation generate a new unique time-stamp.
+
+    %\item[-] $\mathit{Prop}_2$: for each replica $r'$, $R(r') = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{config},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$.
+    %\end{itemize}
+
+    By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
+
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{rem},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \setminus \{ (a,\mathit{ts}) \in R(r).S \},R(r).\mathit{maxTS}) ]$ and $T' = T \cup \{ (\mathit{mid},\{ (a,\mathit{ts}) \in R(r) \},r) \}$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{rem}$ operation.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{add}(a),i,\mathit{vd}(h,\mathit{config},r))$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
+    \end{itemize}
+
+    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
+
+    By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
+
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{read},S_1,r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ operation.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read} \Rightarrow S_1,i,\mathit{vd}(h,\mathit{config},r))$.
+
+    \item[-] Let $\mathit{map}'$.
+    \end{itemize}
+
+    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{OR}$-$\mathit{set}_s$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow S_2, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$. Then by definition of $\mathit{OR}$-$\mathit{set}_s$, we can see that, $a \in S_2$, if there exists $(\mathit{add}(a),j,\_) \in \mathit{lin}'$, and for each $(\mathit{rem}(a),\_,S_2) \in \mathit{lin}'$, we have $j \notin S_2$. Lemma \ref{lemma:a property that can be obtained from P for or-set}, we can see that $S_1 = S_2$, and since $h$ is distributed linearizable and $\mathit{lin}$ is a linearization of $h$, we can see $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}),r') \in T$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{max} \{ R(r).\mathit{maxTS},\mathit{ts} \} ) ]$ and $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},S_1,r') \in T$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).S \setminus S_1, R(r).\mathit{maxTS}) ]$ and $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+\subsection{Proof of RGA}
+\label{subsec:appendix proofs of rga}
+
+The following lemma states a property that can be generated from $P(\mathit{config},h,\mathit{lin},\mathit{map})$ for RGA.
+
+\begin{lemma}
+\label{lemma:a property that can be obtained from P for rga}
+If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds, then each $\mathit{add}$ operation generate a new unique time-stamp. Moreover, for each replica $r'$,
+
+\begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R(r').N = \{ (a,\mathit{ts}_a,\mathit{ts}_b) \vert \exists o' = (\mathit{add}(\_,\_),i,\_,\_), \mathit{map}(i) = (a,\mathit{ts}_a,\mathit{ts}_b), o' \in \mathit{vd}(h,\mathit{config},r') \}$.
+
+    \item[-] $R(r').\mathit{Tomb} = \{ a \vert \exists o = (\mathit{rem}(a),i,\_,\_), \mathit{map}(i) \in \mathit{vd}(h,\mathit{config},r') \}$.
+    \end{itemize}
+\end{lemma}
+
+\begin {proof}
+By $C_4$, it is easy to see that each $\mathit{add}$ operation generate a new unique time-stamp by induction. The property of $R(r')$ can be also easily proved by induction, since the visibility relation is transitive. $\qed$
+\end {proof}
+
+
+The following lemma states that our $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of rga.
+
+\begin{lemma}
+\label{lemma:P is an invariant of rga}
+$P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of rga.
+\end{lemma}
+
+\begin {proof}
+
+Let us prove that $P$ is a simulation relation. It is obvious that $P(\mathit{config}_0,\epsilon,\emptyset,\emptyset)$ holds.
+
+Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ holds. Here we do not give the detailed value of $\mathit{MsgHB}'$ and $\mathit{MsgDel}'$, since it can be obtained from the definition of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{add},a,b,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).N \cup \{ (a,\mathit{ts}_a,\mathit{ts}_b) \}, R(r).\mathit{Tomb}) ]$ and $T' = T \cup \{ (\mathit{mid},(a,\mathit{ts}_a,\mathit{ts}_b),r) \}$. Here $\mathit{ts}_a = ( \mathit{max} \{ c \vert (\_,(c,\_),\_) \in R(r).N \vee (\_,\_,(c,\_)) \in R(r).N \} +1,r)$, and $\mathit{ts}_b$ is the time-stamp of $b$ in $R(r).N$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{add}$ action.
+
+    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{add}(a,b),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than $\mathit{ts}_a$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
+    \end{itemize}
+
+    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
+
+    By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From the fact that $\mathit{ts}_a$ is unique, the fact that there is no $\mathit{rem}(a)$ in $h$, the construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for rga} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{rem},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).N,R(r).\mathit{Tomb} \cup \{ a \} ) ]$ and $T' = T \cup \{ (\mathit{mid},\{ a \},r) \}$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{rem}$ operation.
+
+    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{rem}(a),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than the time-stamp of operation $i$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
+    \end{itemize}
+
+    By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is easy to see that $\mathit{lin} \uparrow_{\mathit{vd}(h,\mathit{config},r)}$ contains a $\mathit{add}(a,\_)$ operation $o$ and $(o,i) \in h'.\mathit{vis}$. By Lemma \ref{lemma:a property that can be obtained from P for rga}, it is easy to see that $\mathit{lin} \uparrow_{\mathit{vd}(h,\mathit{config},r)}$ does not contain $\mathit{rem}(a)$. Since $i$ does not visible to any operation in $\mathit{vd}(h,\mathit{config},r)$, we can see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization.
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
+
+    It is obvious that $C_4$ holds for message $\mathit{mid}$. By Lemma \ref{lemma:a property that can be obtained from P for rga}, the construction of $R'(r)$, and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{read},l,r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ operation.
+
+    \item[-] $\mathit{lin}'$ is obtained from $\mathit{lin}$ by inserting $(\mathit{rem}(a),i,\mathit{vd}(h,\mathit{config},r))$ after the last operation with time-stamp less or equal than the time-stamp of operation $i$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{list}_s^{\mathit{af}}$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow l_1, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$.
+
+    By Lemma \ref{lemma:a property that can be obtained from P for rga} and RGA implementation, we can see that $l$ and $l_1$ has the same items.
+
+    Given items $a,b$, assume that $a$ is before $b$ in $l$, then, there are two possibilities,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $a$ is a ancestor of $b$ in $R(r).N$,
+
+    \item[-] there exists items $c_1,c_2,c_3$, such that in $R(r).N$, $c_2$ and $c_3$ are sons of $c_1$, $c_2$ is a ancestor of $a$, $c_3$ is a ancestor of $b$, and the time-stamp of $c_2$ is larger than that of $c_3$.
+    \end{itemize}
+
+    If the first possibility holds, then there exists items $d_1,\ldots,d_k$, such that in $R(r).N$, $b$ is a son of $d_1$, $d_1$ is a son of $d_2$, $\ldots$, and $d_k$ is a son of $a$. It is easy to see that $(\mathit{add}(a,\_),\mathit{add}(d_k,a)),(\mathit{add}(d_k,a),\mathit{add}(d_{\mathit{k-1}},d_k)), \ldots, (\mathit{add}(d_1,d_2),\mathit{add}(b,d_1)) \in h.\mathit{vis}$. Since $\mathit{lin}$ is consistent with visibility relation, we know that in $\mathit{lin}$, $\mathit{add}(a,\_)$ is before $\mathit{add}(d_k,a)$, $\mathit{add}(d_k,a)$ is before $\mathit{add}(d_{\mathit{k-1}},d_k)$, $\ldots$, and $\mathit{add}(d_1,d_2)$ is before $\mathit{add}(b,d_1)$. According to $\mathit{list}_s^{\mathit{af}}$, it is easy to see that in $a$ is before $b$ in $l_1$.
+
+    If the second possibility holds, then it is easy to see that $(\mathit{add}(c_2,c_1),\mathit{add}(a,c_2)),$ $(\mathit{add}(c_1,\_),\mathit{add}(c_2,c_1)), (\mathit{add}(c_3,c_1),\mathit{add}(b,c_3)),(\mathit{add}(c_1,\_),\mathit{add}(c_3,c_1)), \in h.\mathit{vis}$. Since $\mathit{lin}$ is consistent with visibility relation and time-stamp, we know that in $\mathit{lin}$, $\mathit{add}(c_3,c_1)$ is before $\mathit{add}(c_2,c_1)$, $\mathit{add}(c_2,c_1)$ is before $\mathit{add}(a,c_2)$, and $\mathit{add}(c_3,c_1)$ is before $\mathit{add}(b,c_3)$. According to $\mathit{list}_s^{\mathit{af}}$, it is easy to see that in $a$ is before $b$ in $l_1$.
+
+    Therefore, $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}_a,\mathit{ts}_b),r') \in T$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: ( R(r).N \cup \{ (a,\mathit{ts}_a,\mathit{ts}_b) \}, R(r).\mathit{Tomb} ) ]$ and $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
+
+    We can see that $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by additionally applying messages $\mathit{mid}$, but possibly in the middle of $\mathit{lin}'$. It is easy to see that $\mathit{map}(\mathit{mid})$ is a $\mathit{add}(a,\_)$ operation. By Lemma \ref{lemma:a property that can be obtained from P for rga}, we can see that there is no $\mathit{add}(a,\_)$ nor $\mathit{rem}(a)$ in $\mathit{vd}(h,\mathit{del},r)$. Thus, for each $\mathit{lin}''$ generated from $\mathit{lin}'$ by postponing message $\mathit{mid}$ to a later position, we can see that $\mathit{apply}(\mathit{lin}'',\mathit{vd}(h',\mathit{del}',r)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},a,r') \in T$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: (R(r).N,R(r).\mathit{Tomb} \cup \{ a \}) ]$ and $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
+
+    We can see that $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by additionally applying messages $\mathit{mid}$, but possibly in the middle of $\mathit{lin}'$.
+
+    It is easy to see that, for each $\mathit{lin}''$ generated from $\mathit{lin}'$ by postponing message $\mathit{mid}$ to a later position, we have $\mathit{apply}(\mathit{lin}'',\mathit{vd}(h',\mathit{del}',r)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+
+
+
+
+
+
+\section{Proofs of Section \ref{sec:compositionality of distributed linearizability}}
+\label{sec:appendix proofs of section compositionality of distributed linearizability}
+
+
+
+
+
+\subsection{Proofs of Lemma \ref{lemma:several t0-specifications}}
+\label{subsec:appendix proofs of Lemma several t0-specifications}
+
+A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
+
+Given two sequences $l_1,l_2$, let $\mathit{diff}(l_1,l_2) = \{ (o_1,o_2) \vert$ the order of $o_1$ and $o_2$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $o_1$ an $o_2$ of $l$, let $\mathit{swap}(l,o_1,o_2)$ be a sequence obtained from $l$ by swapping $o_1$ and $o_2$.
+
+The following lemma states that $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification.
+
+\begin{lemma}
+\label{lemma:or-set is a t0-specification}
+$\mathit{OR}$-$\mathit{set}_s$ is a t0-specification.
+\end{lemma}
+
+\begin {proof}
+Given a distributed linearizable history $h$ and assume that $\mathit{lin}$ is a linearization. It is obvious that $\mathit{lin}$ is consistent with visibility relation. We need to prove that, each such sequence $\mathit{lin}'$ described below is also a linearization of $h$
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\mathit{lin}'$ contains the same set of elements as that of $\mathit{lin}$.
+
+\item[-] $\mathit{lin}'$ is consistent with visibility relation.
+\end{itemize}
+
+We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. Our proof requires the following two properties:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The first property is: Given a linarization $\mathit{lin}$ and a sequence $\mathit{lin}'$ consistent with visibility relation of $h$, if $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$.
+
+    We prove this by contradiction. Assume $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, and for each $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, we have that either $o_1$ and $o_2$ are not concurrent, or $o_1$ and $o_2$ are not adjacent in $\mathit{lin}$.
+
+    Since $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, let $(o,o')$ be a element of $\mathit{diff}(\mathit{lin},\mathit{lin}')$, and the distance of $o_1$ and $o_2$ is minimal in $\{$ the distance between $o_1$ and $o_2 \vert (o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}') \}$. Let us prove that $o$ and $o'$ are adjacent by contradiction: If there exists $o''$ between $o$ and $o'$. Assume that in $\mathit{lin}$, $o$ is before $o''$, and $o''$ is before $o'$. By assumption, the order between $o$ and $o''$, and between $o''$ and $o'$ is the same in $\mathit{lin}$ and in $\mathit{lin}'$. This implies that $o$ is still before $o'$ in $\mathit{lin}'$, which contradicts the fact that $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$.
+
+    Since $o$ and $o'$ are adjacent and $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, by assumption we know that $o$ and $o'$ are not concurrent. Or we can say, $(o,o') \in \mathit{vis} \vee \mathit{o',o} \in \mathit{vis}$. This contradicts that both $\mathit{lin}$ and $\mathit{lin}'$ are consistent with visibility relation. This completes the proof of the first step.
+
+\item[-] The second property is: Given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
+
+    Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{OR}$-$\mathit{set}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$, and $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$, and $\sigma_3$ is obtained from $\sigma_2$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Since $\mathit{id_1} \notin S_2$, we can see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by marking $a_1$ with identifiers of $S_1$ into $\mathit{false}$, and $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, we can see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by marking $a_1$ with identifiers of $S_1$ into $\mathit{false}$, and $\sigma_3$ is obtained from $\sigma_2$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+    \end{itemize}
+\end{itemize}
+
+Based on these two steps, given a linearization $\mathit{lin}$ and a sequence $\mathit{lin}' \neq \mathit{lin}$ which is consistent with visibility relation: We have $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$. Based on the first above property, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$. Based on the second above property, $\mathit{lin}'' = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization. Moreover, it is easy to see that $\mathit{diff}(\mathit{lin},\mathit{lin}') > \mathit{diff}(\mathit{lin}'',\mathit{lin}')$. Therefore, by several times of above process, we finally obtain $\mathit{lin}'$ from $\mathit{lin}$ by swapping pairs of operations, and prove that $\mathit{lin}'$ is also a linearization. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+The following lemma states that $\mathit{set}_s$ is a t0-specification.
+
+\begin{lemma}
+\label{lemma:set is a t0-specification}
+$\mathit{set}_s$ is a t0-specification.
+\end{lemma}
+
+\begin {proof}
+
+We prove this lemma similarly as that of Lemma \ref{lemma:or-set is a t0-specification}. We need to prove that, given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
+
+Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{set}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that, if $(a_1,\_) \in \sigma_1$, then $\sigma_2 = \sigma_1$; else, $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{true})$. We can also see that, if $(a_2,\_) \in \sigma_2$, then $\sigma_3 = \sigma_2$; else, $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{true})$. Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Since $\mathit{vis}^{-1}(o_2) \cdot o_2 \in \mathit{set}_s$, we know that $(a_2,\_) \in \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Since $\mathit{vis}^{-1}(o_1) \cdot o_1 \in \mathit{set}_s$, we know that $(a_1,\_) \in \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+The following lemma states that $\mathit{counter}_s$ is a t0-specification.
+
+\begin{lemma}
+\label{lemma:counter is a t0-specification}
+$\mathit{counter}_s$ is a t0-specification.
+\end{lemma}
+
+
+\begin {proof}
+
+We prove this lemma similarly as that of Lemma \ref{lemma:or-set is a t0-specification}. We need to prove that, given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
+
+Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{counter}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{counter}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, then $\sigma_2 = \mathit{k+1}$ and $\sigma_3 = \mathit{k+2}$. Let $\sigma'_2 = \mathit{k+1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k+1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k+1}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+With Lemma \ref{lemma:or-set is a t0-specification}, Lemma \ref{lemma:set is a t0-specification} and Lemma \ref{lemma:counter is a t0-specification}, we can now prove Lemma \ref{lemma:several t0-specifications}.
+
+
+\SeveralTZeroSpecifications*
+
+\begin {proof}
+This lemma holds obviously from Lemma \ref{lemma:or-set is a t0-specification}, Lemma \ref{lemma:set is a t0-specification} and Lemma \ref{lemma:counter is a t0-specification}. $\qed$
+\end {proof}
+
+
+
+
+
+\subsection{Proofs of Lemma \ref{lemma:several t1-specifications}}
+\label{subsec:appendix proofs of Lemma several t1-specifications}
+
+
+The following lemma states that $\mathit{list}_s^{\mathit{af}}$ is a t1-specification.
+
+\begin{lemma}
+\label{lemma:list-af is a t1-specification}
+$\mathit{list}_s^{\mathit{af}}$ is a t1-specification.
+\end{lemma}
+
+\begin {proof}
+
+Given a distributed linearizable history $h$ and a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, we need to prove that, each strict time-stamp order candidate $\mathit{lin}'$ is a linearization.
+
+We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. Our proof requires the following two properties:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The first property is: Given a linarization $\mathit{lin}$ that is a strict time-stamp order candidate, and a strict time-stamp order candidate $\mathit{lin}'$. If $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, $o_1$ and $o_2$ are adjacent in $\mathit{lin}$, and the time-stamp of $o_1$ in $h$ equals that of $o_2$.
+
+    We prove this by contradiction. Assume $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, and for each $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, we have that either $o_1$ and $o_2$ are not concurrent, or $o_1$ and $o_2$ are not adjacent in $\mathit{lin}$, or the time-stamp of $o_1$ in $h$ is different from that of $o_2$.
+
+    By the definition of strict time-stamp order candidate, it is easy to see that if $o_1$ and $o_2$ have different time-stamp, then their order is the same between $\mathit{lin}$ and $\mathit{lin}'$. Therefore, we know that the time-stamp of $o_1$ in $h$ equals that of $o_2$.
+
+    Since $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, let $(o,o')$ be a element of $\mathit{diff}(\mathit{lin},\mathit{lin}')$, and the distance of $o_1$ and $o_2$ is minimal in $\{$ the distance between $o_1$ and $o_2 \vert (o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}') \}$. Let us prove that $o$ and $o'$ are adjacent by contradiction: If there exists $o''$ between $o$ and $o'$. Assume that in $\mathit{lin}$, $o$ is before $o''$, and $o''$ is before $o'$. By assumption, the order between $o$ and $o''$, and between $o''$ and $o'$ is the same in $\mathit{lin}$ and in $\mathit{lin}'$. This implies that $o$ is still before $o'$ in $\mathit{lin}'$, which contradicts the fact that $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$.
+
+    Since $o$ and $o'$ are adjacent and $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, by assumption we know that $o$ and $o'$ are not concurrent. Or we can say, $(o,o') \in \mathit{vis} \vee \mathit{o',o} \in \mathit{vis}$. This contradicts that both $\mathit{lin}$ and $\mathit{lin}'$ are consistent with visibility relation. This completes the proof of the first step.
+
+\item[-] The second property is: Given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have the same time-stamp in $h$. Then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization and is also a strict time-stamp order candidate. It is obvious that $l$ is still a strict time-stamp order candidate.
+
+    Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{list}_s^{\mathit{af}}$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $o_1 = (\mathit{add}(a_1,b_1),\mathit{id}_1,S_1)$ and $o_2 = (\_,\mathit{id}_2,S_2)$: This case is impossible. We can see that the time-stamp of $a$ is larger than operations in $S_1$, and thus, the time-stamp of $o_1$ is the time-stamp of $a$. Since $\mathit{id}_1 \notin S_2$, we know that the time-stamp of $o_2$ is different from that of $o_1$, contradicts the assumption that $o_1$ and $o_2$ have same time-stamp.
+
+    \item[-] If $o_1 = (\_,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2,b_2),\mathit{id}_2,S_2)$: Similarly, we can prove that this case is impossible.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow \mathit{list}_1,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow \mathit{list}_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow \mathit{list}_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+    \end{itemize}
+\end{itemize}
+
+Based on these two steps, given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and a sequence $\mathit{lin}' \neq \mathit{lin}$ that is a strict time-stamp order candidate: We have $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$. Based on the first above property, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have a same time-stamp. Based on the second above property, $\mathit{lin}'' = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization, and is a strict time-stamp order candidate. Moreover, it is easy to see that $\mathit{diff}(\mathit{lin},\mathit{lin}') > \mathit{diff}(\mathit{lin}'',\mathit{lin}')$. Therefore, by several times of above process, we finally obtain $\mathit{lin}'$ from $\mathit{lin}$ by swapping pairs of operations, and prove that $\mathit{lin}'$ is also a linearization, and is a strict time-stamp order candidate. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+The following lemma states that $\mathit{reg}_s$ is a t1-specification.
+
+\begin{lemma}
+\label{lemma:reg is a t1-specification}
+$\mathit{reg}_s$ is a t1-specification.
+\end{lemma}
+
+\begin {proof}
+
+We prove this lemma similarly as that of Lemma \ref{lemma:list-af is a t1-specification}. We need to prove that, given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have the same time-stamp in $h$. Then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization and is also a strict time-stamp order candidate. It is obvious that $l$ is still a strict time-stamp order candidate.
+
+Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{reg}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o_1 = (\mathit{write}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\_,\mathit{id}_2,S_2)$: This case is impossible. We can see that the time-stamp of $a$ is larger than operations in $S_1$, and thus, the time-stamp of $o_1$ is the time-stamp of $a$. Since $\mathit{id}_1 \notin S_2$, we know that the time-stamp of $o_2$ is different from that of $o_1$, contradicts the assumption that $o_1$ and $o_2$ have same time-stamp.
+
+\item[-] If $o_1 = (\_,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{write}(a_2),\mathit{id}_2,S_2)$: Similarly, we can prove that this case is impossible.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow a_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow a_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+\end{itemize}
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+With Lemma \ref{lemma:list-af is a t1-specification} and Lemma \ref{lemma:reg is a t1-specification}, we can now prove Lemma \ref{lemma:several t1-specifications}.
+
+\SeveralTOneSpecifications*
+
+\begin {proof}
+This lemma holds obviously from Lemma \ref{lemma:list-af is a t1-specification} and Lemma \ref{lemma:reg is a t1-specification}. $\qed$
+\end {proof}
+
+
+
+
+
+
+
+
+
+\subsection{Proof of Lemma \ref{lemma:several t0-specifications can be composed}}
+\label{subsec:appendix proofs of lemma several t0-specifications can be composed}
+
+\composingTZero*
+\begin {proof}
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
+
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
+
+\item[-] We begin a loop as follows: In each round of the loop, we choose an operation $o$ that is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+\end{itemize}
+
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable.
+
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+\end {proof}
+
+
+
+
+
+\subsection{Proof of Lemma \ref{lemma:several t0-specifications and one t1-specification can be composed}}
+\label{subsec:appendix proofs of lemma several t0-specifications and one t1-specification can be composed}
+
+
+\composingTZeroAndOneTOne*
+\begin {proof}
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{obj}_1$ be the only object that uses t1-specification, and let $\mathit{objs}_0$ be the set of other objects. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
+
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
+
+\item[-] We begin a loop as follows: in each round of the loop, we choose an operation $o$ shown below, and then let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] either $o$ is of an operation of $\mathit{objs}_0$ and is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$,
+
+    \item[-] or $o$ is of an operation of $\mathit{obj}_1$, is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, and has the minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
+    \end{itemize}
+\end{itemize}
+
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for operation of $\mathit{obj}_1$, $\mathit{lin}$ is consistent with time-stamp. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
+
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. Let $o_0$ be the operation that is of object $\mathit{obj}_1$ and has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. It is obvious that $o_0 \notin S_1$. Therefore, there exists operations $o_1,\ldots,o_k$, such that $o_1 \in S_1$, $o_1$ is of object $\mathit{obj}_1$, $(o_1,o_2),\ldots,(o_k,o_0) \in \mathit{vis}$. Since the visibility is transitive, we have that $(o_1,o_0) \in \mathit{vis}$. We already know that the time-stamp of $o_0$ is less than that of $o_1$. This contradicts the assumption that time-stamp is consistent with visiblity. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+
+%Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $O'$. Thus, let $o_1 \in S_1$ be the operation that has minimal time-stamp among operations in $S_1$. We can see that there exists $o_2 \in O'$, such that $o_2$ is of object $\mathit{obj}_1$, $o_2 \notin S_1$, and the time-stamp of $o_2$ is less than that of $o_1$. Since $o_2 \notin S_1$, we can see that there exists operation $o_3 \in S_1$, such that $(o_3,o_2) \in \mathit{vis}$. We can see that the time-stamp of $o_1$ is less than that of $o_3$, and thus, the time-stamp of $o_2$ is less than that of $o_3$. Therefore, we found that the time-stamp is not consistent with visibility order for $o_2$ and $o_3$, which contradicts the assumption that time-stamp is consistent with visiblity. $\qed$
+\end {proof}
+
+
+
+
+
+
+\subsection{Proof of Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}}
+\label{subsec:appendix proofs of lemma several t0-specifications and several t1-specification can be composed}
+
+
+\composingTZeroAndTOne*
+\begin {proof}
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{objs}_0$ be the set of objects that use t0-specifications in $h$, and let $\mathit{objs}_1$ be the set of objects that use t1-specifications in $h$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
+
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
+
+\item[-] We begin a loop as follows: in each round of the loop, we choose an operation $o$ shown below, and then let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] either $o$ is of an operation of objects in $\mathit{objs}_0$ and is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$,
+
+    \item[-] or $o$ is of an operation of object $\mathit{obj}_1 \in \mathit{objs}_1$, is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, and has the minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
+    \end{itemize}
+\end{itemize}
+
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for each object $\mathit{ojb}_1 \in \mathit{objs}_1$, $\mathit{lin}$ is consistent with time-stamp of $\mathit{obj}_1$. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}_0$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, for each object $\mathit{obj}_1 \in \mathit{objs}_1$, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
+
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, there exists a object $\mathit{obj}_1 \in \mathit{objs}_1$, such that $o$ is of $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
+
+Let $S_2 = \{ o \vert \exists \mathit{obj}_1 \in \mathit{objs}_1, o$ is of object $\mathit{obj}_1, o$ has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}' \}$. It is easy to see that $\forall o \in S_2$, $o \notin S_1$.
+
+Thus, it is easy to see that, for each operation $o' \in S_2$, there exists an operation $o \in S_1$ and operations $o'_1,\ldots,o'_k$, such that $(o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis}$. Since the visibility relation is transitive, we have that $(o,o') \in \mathit{vis}$.
+
+Let $S_3 = \{ (o,o') \vert o \in S_1, o' \in S_2, \exists o'_1,\ldots,o'_k, (o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis} \}$. Let $S_4 = \{ (\mathit{obj},\mathit{obj}') \vert \exists (o,o') \in S_3$, $o$ is of object $\mathit{obj}$, $o'$ is of object $\mathit{obj}' \}$.
+
+Let us prove that there is a cycle in $S_4$ by contradiction. Given $(\mathit{obj}_2,\mathit{obj}_1) \in S_4$, we know that there is a operation of object of $\mathit{obj}_2$ in $S_1$, and thus, there must exists a operation of object of $\mathit{obj}_2$ in $S_2$. By definition of $S_2$, it is easy to see that there exists $\mathit{obj}_3$, such that $(\mathit{obj}_3,\mathit{obj}_2) \in S_4$. Since $S_4$ has no cycle, we applying this process and finally terminate with $(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1) \in S_4$ and could not found any $\mathit{obj}'$ to make $(\mathit{obj}',\mathit{obk}_k) \in S_4$. However, this implies that there is a operation of $\mathit{obj}_k$ that has minimal time-stamp among operations of $\mathit{obj}_k$ in $\mathit{Op}'$, and is in $S_1$. This contradicts our conclusion that $\forall o \in S_2$, $o \notin S_1$. Therefore, this is a cycle in $S_4$.
+
+Let the cycle in $S_4$ be $(\mathit{obj}_1,\mathit{obj}_k),(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1)$. Then, there exists operations $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}},\ldots, o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$, such that
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}}$ is of object $\mathit{obj}_1$, $\ldots$, $o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$ is of object $\mathit{obj}_k$.
+
+\item[-] $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in S_3$.
+\end{itemize}
+
+Thus, it is easy to see $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},$ $o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in \mathit{vis}$. By definition of $S_2$, we can see that $\mathit{ts}(o^{0}_{\mathit{o1}}) < \mathit{ts}(o^{1}_{\mathit{o1}}), \ldots, \mathit{ts}(o^{0}_{\mathit{ok}}) < \mathit{ts}(o^{1}_{\mathit{ok}})$. This contradicts the definition of causal-time-stamp. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+\end {proof}
+
+
+
+
+
+
+
+
+
+
+\section{For State-based CRDT}
+\label{sec:for state-based CRDT}
+
+\begin{example}[List with add-between interface]
+\label{definition:sequential specification of list with add-after interface}
+Such kind of list is similar as list with add-after interface. One difference is the $\mathit{add}$ method: $\mathit{add}(b,a,c)$ inserts item $b$ into the list at some nondeterministic position between position of $a$ and position of $c$. The other difference is that, we assume that the initial value of list is $(\circ_1,\mathit{true}) \cdot (\circ_2,\mathit{true})$ and these two nodes can not be removed. The sequential specification $\mathit{list}_s^{\mathit{ab}}$ of list is given as follows: Here $\mathit{ab}$ represents add-between. When the context is clear, in $\mathit{read}$ operation, we will omit $\circ_1$ and $\circ_2$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge k < m < l \wedge b \notin \{ a_1, \ldots, a_n \} \}$ $add(b,a_k,a_l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_m,f_m) \cdot (b,\mathit{true}) \cdot (a_{m+1},f_{m+1}) \cdot \ldots \cdot (a_n,f_n) \}$. Here the chosen of $m$ is deterministic.
+\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge S = \{ a \vert (a,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \}$.
+\end{itemize}
+\end{example}
+
+
+
+
+
+
+
+
+
+
+Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a state-based CRDT object}.
+
+\begin{figure}[ht]
+$\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
+
+$\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R}$.
+
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$.
+
+$\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \mathbb{R}) \cup \mathit{send}(\mathbb{MID} \times \mathbb{R}) \cup \mathit{receive}(\mathbb{MID} \times \mathbb{R})$
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b) }
+{ (R,T) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T) }
+\end{array}
+\]
+
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, \mathit{unique}(\mathit{mid}) }
+{ (R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R,T \cup \{ (\mathit{mid},\sigma,r) \}) }
+\end{array}
+\]
+
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{receive}(\sigma,\sigma') = \sigma'',(\mathit{mid},\sigma',r') \in T, r \neq r'}
+{ (R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R[r:\sigma''],T) }
+\end{array}
+\]
+\caption{The definition of semantics of $\llbracket \mathit{obj} \rrbracket_s$}
+\label{fig:the semantics of a state-based CRDT object}
+\end{figure}
+
+A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, and has no message inside. Since $\mathit{obj}$ is a state-based CRDT, each message content is chosen from $\Sigma$.
+
+Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
+
+A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_s$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is in the form of either $\mathit{do}(i,m,a,b,r)$, or $\mathit{send}(i,\mathit{mid},r)$, or $\mathit{receive}(i,\mathit{mid},r)$, where $i \in \mathbb{OID}$ is a unique operation identifier.
+
+
+
+
+
+
+
+
+Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_s$ of state-based CRDT $\mathit{obj}$, we can obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each operation in $\mathit{Op}$ is a tuple $(\ell,i,\mathit{obj})$, such that $i$ is the operation identifier of a $\mathit{do}(m,a,b,r)$ action of $l$.
+
+\item[-] $(o_1,o_2) \in \mathit{ro}$, if they are of same replica, and the index of $o_1$ in $h$ is before that of $o_2$.
+
+\item[-] Let us defines a delivery relation $\mathit{del} \subseteq \mathbb{OP} \times \mathbb{OP}$ as follows: $(o_1,o_2) \in \mathit{del}$, if: $o_1$ and $o_2$ are of different replicas, there exists a $\mathit{send}(\mathit{mid},r)$ action and a $\mathit{receive}(\mathit{mid},r')$ action, $o_1$ and $\mathit{send}(\mathit{mid},r)$ happen on a same replica and $o_1$ happens earlier, $\mathit{receive}(\mathit{mid},r)$ and $o_2$ happen on a same replica and $\mathit{receive}(\mathit{mid},r)$ happens earlier.
+
+\item[-] $\mathit{vis} = (\mathit{ro}+\mathit{del})^*$.
+\end{itemize}
+
+Intuitively, each local state can be considered as the consequence of all updates it receives. Since state-based CRDT sends the modified local state as message, the visibility relation is then the transitive closure of replica order and message delivery relation. Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_s$.
+
+
+
+
+
+
+\subsection{Proof Strategy of State-based CRDT}
+\label{subsec:proof strategy of operation-based CRDT}
+
+Given a state-based CRDT object $\mathit{obj}$ and a sequential specification $\mathit{spec}$, we need to construct a invariant $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\mathit{config}$ is a configuration of $\llbracket \mathit{obj} \rrbracket_s$.
+
+\item[-] $h$ is a history.
+
+\item[-] $h$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}$ is a linearization.
+
+\item[-] $\mathit{del} \subseteq \mathbb{MID} \times \mathbb{R}$ is the message delivery relation.
+
+\item[-] $\mathit{map} \subseteq \mathbb{MID} \times 2^{\mathbb{OID}}$ maps each message $\mathit{mid}$ to a set $S_1$ of operations. Intuitively, $S_1$ is the set of operations whose information are contained in $\mathit{mid}$.
+\end{itemize}
+
+$\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ needs to satisfy the following properties:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The visibility of $h$ is transitive.
+
+\item[-] $\mathit{del}$ preserves causal delivery: If $(o_1,o_2) \in \mathit{vis}$ and $(o_2,r) \in \mathit{del}$, then $(o_1,r) \in \mathit{del}$.
+
+\item[-] $\mathit{map}$ preserves causal delivery: Given $o_1,o_3 \in \mathit{map}(\mathit{mid})$, if $\exists o_2$, such that $(o_1,o_2),(o_2,o_3) \in \mathit{vis}$, then $o_2 \in \mathit{map}(\mathit{mid})$.
+
+\item[-] $\mathit{inv}$ holds initially: $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds, where $\mathit{config}_0$ is the initial configuration of $\llbracket \mathit{obj} \rrbracket_s$.
+
+\item[-] $\mathit{inv}$ is a transition invariant:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}', h \otimes i, \mathit{lin} \cdot i,\mathit{del},\mathit{map})$ holds. Note that here we always put a new operation in the last of linearization.
+
+        Here $i$ is the identifier of the newly-generated $\mathit{do}$ action. Given $h = (\mathit{Op},\mathit{ro},\mathit{vis})$, then, $h \otimes i = (\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ (m(a) \Rightarrow b,i,\mathit{obj}) \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (j,i) \vert j \in \mathit{Op},(j,r) \in \mathit{del} \} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \})^*$.
+
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{send}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h,\mathit{lin},\mathit{del},\mathit{map}')$ holds, where $\mathit{map}' = \mathit{map} \cup (\mathit{mid}, \mathit{vd}(h,\mathit{del},r))$.
+
+
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h,\mathit{lin},\mathit{del}',\mathit{map})$ holds, where $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
+    \end{itemize}
+\end{itemize}
+
+Here $\mathit{vd}(h,\mathit{del},r) = \{ i \vert (i,j) \in h.\mathit{vis}, j$ is of replica $r \} \cup \{ i \vert (i,r) \in \mathit{del} \}$ is the set of operations that are either to some operation of replica $r$, or has been delivered into replica $r$. An invariant $\mathit{inv}$ satisfies above properties is called invariant of state-based CRDT. The following lemma states that the existence of such invariant implies distributed linearizability.
+
+\begin{lemma}
+\label{lemma:invariant of state-based CRDT implies distributed linearizability}
+If there exists a invariant $\mathit{inv}$ of state-based CRDT for object $\mathit{obj}$ and sequential specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ is distributed linearizable w.r.t $\mathit{spec}$.
+\end{lemma}
+
+\begin {proof}
+Given an execution $l=\alpha_1 \cdot \ldots \cdot \alpha_n$, let $\mathit{config}_0 {\xrightarrow{\alpha_1}} \mathit{config}_1 \ldots {\xrightarrow{\alpha_n}} \mathit{config}_n$ be the transitions from initial configuration. We need to prove that, for each $1 \leq k \leq n$, we have $\mathit{inv}(\mathit{config}_k,h_k,\mathit{lin}_k,\mathit{del}_k,\mathit{map}_k)$ holds, where $h_k$ is the history of execution $l_k = \alpha_1 \cdot \ldots \cdot \alpha_k$, $\mathit{lin}_k$ is the linearization of $h_k$, $\mathit{del}_k$ records message delivery relation of $l_k$, and $\mathit{map}_k$ records the operations contained in each message in $l_k$.
+
+Since $\mathit{inv}$ holds initially and is a transition invariant, it is easy to prove above requirements by induction on execution. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+For many state-based CRDT implementations, $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map}) = C_1 \wedge C_2$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+%\item[-] For each update operation $o$ of $h$, define $\mathit{ds}(o)$ which is a local state. %be the local state of replica $r$ at the time point immediately after $o$ is launched. Here $r$ is the replica of $o$.
+
+\item[-] $C_1: \forall (\mathit{mid},\mathit{msg},\_) \in T$, $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
+
+\item[-] $C_2: \forall r$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
+\end{itemize}
+
+The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying ``virtual messages'' of operations in $S$ according to total order $\mathit{lin}$. Here for each update operation $o$ of $h$, we need to define a local state $\mathit{ds}(o)$, which is the ``virtual messages'' of $o$. Note that state-based CRDT send message randomly, instead of each message for a update operation. This is the reason why we need to manually generate virtual message for each update operation.
+
+To give $\mathit{inv}$, it only remains to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-counter} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively.
+
+\begin{example}[virtual messages of state-based PN-counter]
+\label{example:virtual messagess of state-based PN-counter}
+
+For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+
+\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+\end{example}
+
+\begin{example}[virtual messages of state-based Multi-value Register]
+\label{example:virtual messages of state-based multi-value register}
+
+For each update operation $o = (\mathit{write}(a),\_,\_)$ of replica $r$, $\mathit{ds}(o) = (a,V)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+\end{example}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Proof of State-based PN-counter}
+\label{subsec:appendix proof of state-based PN-counter}
+
+The following lemma states that each visibility-closed set is a union of operations visible to a set of operations. Its proof is obvious and omitted here.
+
+\begin{lemma}
+\label{lemma:a transitive-closed set is a union of visibility of several sets}
+Given a set $\mathit{Op}$ of operations and a transitive and acyclic visibility relation $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$, if given a set $S \subseteq \mathit{Op}$, if $S$ satisfies that $\forall o_1,o_2 \in S, o_2 \in S \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in S$, then there exists a set $O \subseteq \mathit{Op}$, such that $S = \cup_{o \in O} \mathit{vis}^{-1}(o)$.
+\end{lemma}
+
+The following lemma states that given two operations $o_1,o_2$, for each replica $r$, either the set of operations of replica $r$ visible to $o_1$ is a subset of that of $o_2$, or the set of operations of replica $r$ visible to $o_2$ is a subset of that of $o_1$. Its proof is obvious and omitted here.
+
+\begin{lemma}
+\label{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}
+Assume that $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds. Let $S_o^r = \{ o' \vert (o',o) \in \mathit{vis}, o'$ is of replica $r \}$. Then for each operations $o_1$ and $o_2$, and for each replica $r$, $S_{\mathit{o1}}^r \subseteq S_{\mathit{o2}}^r \vee S_{\mathit{o2}}^r \subseteq S_{\mathit{o1}}^r$.
+\end{lemma}
+
+
+Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+
+\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+
+The following lemma states that $\mathit{inv}$ is an invariant of state-based PN-counter.
+
+\begin{lemma}
+\label{lemma:inv is an invariant of state-based CRDT for state-based PN-counter}
+$\mathit{inv}$ is an invariant of state-based PN-counter.
+\end{lemma}
+
+\begin {proof}
+
+It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
+
+Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is easy to see that $R' = R[ r: ( R(r).P[r: R(r).P(r)+1 ], R(r).N ) ]$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    Since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$, we know that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$. Therefore, we need to prove that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
+    Since $\mathit{vd}(h,\mathit{del},r)$ satisfies that, $\forall o_1,o_2 \in \mathit{vd}(h,\mathit{del},r), o_2 \in \mathit{vd}(h,\mathit{del},r) \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in \mathit{vd}(h,\mathit{del},r)$, by Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists a set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa} and the construction of $\mathit{ds}$, we can see that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$.
+
+    We already know that $\mathit{ds}(i) = (P'',N'')$, where for each replica $r'$, $P''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Then, it is obvious that $\mathit{merge}(R(r),\mathit{ds}(i)) = \mathit{ds}(i)$. It is also easy to see that $\mathit{ds}(i) = (R(r).P[r: R(r).P(r)+1], R(r).N) = R'(r)$. Therefore, $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{dec},r)}} (R',T')$: Similarly as that of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},k,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot ((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
+
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since the message content of message $\mathit{mid}$ is $R(r)$, and we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+\subsection{Proof of State-based Multi-value Register}
+\label{subsec:appendix proof of state-based multi-value register}
+
+Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (a,V)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+
+The following lemma states that $\mathit{inv}$ is an invariant of state-based multi-value register.
+
+\begin{lemma}
+\label{lemma:inv is an invariant of state-based CRDT for state-based multi-value register}
+$\mathit{inv}$ is an invariant of state-based multi-value register.
+\end{lemma}
+
+\begin {proof}
+
+It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
+
+Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{vis}^{-1}(i))$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = h'.\mathit{vis}^{-1}(i)$. And then, we need to prove that $(a,V') = \mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i))$.
+
+    Recall that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$, from Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. We can prove that, for each $o = \mathit{write}(b)$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) = (b,V_b)$, where $\forall r' \neq r, V_b[r'] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert$, and $V_b[r] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert + 1$.
+
+    It is not hard to prove that the order of merging virtual message is not important, and a virtual message can be applied multiple times. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, we can see that $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. Therefore, we can see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \} \cup \{ \mathit{ds}(i) \}$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, it is not hard to see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{ds}(i)$.
+
+    Then, we need to prove that $(a,V') = \mathit{ds}(i)$. This holds since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$, Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, and the value of $V'$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},S,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read}() \Rightarrow S,i,\mathit{vd}(h,\mathit{del},r) )$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
+
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = h'.\mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$, we can prove that there exists a set $O$, such that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$.
+
+    By the definition of merging, it is same to assume that $O = \mathit{max}_{\mathit{vis}} \mathit{vd}(h,\mathit{del},r)$. Assume that for each operation $o = \mathit{write}(a) \in O$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o))) = (a,V_o)$. Then it is not hard to see that $R(r) = \{ (a,V_o) \vert o = \mathit{write}(a) \in O \}$. Therefore, $S = \{ a \vert o = \mathit{write}(a) \in \mathit{vis}^{-1}(i), \forall o' = \mathit{write}(\_) \in \mathit{vis}^{-1}(i), (o,o') \notin \mathit{vis} \}$. According to sequential specification $\mathit{spec}$, $(\mathit{read} \Rightarrow S,i,\mathit{obj})$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since the message content of message $\mathit{mid}$ is $R(r)$, and we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+}
