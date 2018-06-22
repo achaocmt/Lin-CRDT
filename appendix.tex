@@ -61,8 +61,8 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
 
 
-\subsection{Multi-Value Register Implementation}
-\label{subsec:multi-value register implementation}
+\subsection{The WOOT Algorithm}
+\label{subsec:the woot algorithm}
 
 
 
@@ -85,6 +85,20 @@ captionpos=b,label={lst:operation-based multi-value register}]
 %In this section we give several sequential specifications.
 
 
+\subsection{The Sequential Specification of Counter}
+\label{subsec:the sequential specification of counter}
+
+The sequential specification $\mathit{counter}_s$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows:
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $k \xrightarrow{\alabellong[\mathsf{inc}]{}{}} k+1$
+\item[-] $k \xrightarrow{\alabellong[\mathsf{dec}]{}{}} k-1$
+\item[-] $k \xrightarrow{\alabellong[\mathsf{read}]{}{k}} k$
+\end{itemize} 
+
+Here $inc$ increase the counter by $1$, $dec$ decrease the counter by $1$, and $read$ returns the value of the counter. 
+
+
 
 \subsection{The Sequential Specification of Multi-Value Register}
 \label{subsec:the sequential specification of multi-value register} 
@@ -103,10 +117,54 @@ Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data 
 \item[-] $\abstate \xrightarrow{\alabellong[\mathsf{read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }} \abstate$ 
 \end{itemize} 
 
+Here $readIds$ returns the abstract state, $\alabellong[\mathsf{write}]{a,id,S}{}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state, and $read$ returns the value of multi-value register. 
 
 
 
+\subsection{The Sequential Specification of List with Add-Between Interface}
+\label{subsec:the sequential specification of list with add-between interface} 
 
+
+Assume each item of the list is unique. A list has three methods:
+$\mathit{add}(b,a)$ inserts item $b$ into the list at the position
+immediately after that of item $a$; $\mathit{rem}(a)$ removes item $a$
+from the list; and $\mathit{read}$ returns the list content. We assume
+that the initial value of list is $(\circ,\mathit{true})$ and this
+node can not be removed. We use the word ``add-after'' to emphasize
+the method $\mathit{add}(b,a)$, which is different from the other list
+interface that uses method $\mathit{add}(b,a,c)$.
+
+The sequential specification $\mathit{list}_s^{\mathit{af}}$ of list
+is given as follows: Let $\mathit{state}$ be a sequence, where each
+item is a tuple $(a,\mathit{id},f)$ with data $a$, identifier
+$\mathit{id}$ and flag $f \in \{ \mathit{true},\mathit{false} \}$.
+Here $\mathit{af}$ represents add-after, and we use $l \uparrow_{S}$
+to represent the projection of sequence $l$ into set $S$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge b \notin \{
+  a_1, \ldots, a_n \} \wedge \mathit{id}_k \in S_1 \}$
+  $(add(b,a_k),\mathit{id},S_1)$ $\{ \mathit{state} =
+  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,f_k)
+  \cdot (b,\mathit{id},\mathit{true}) \cdot
+  (a_{k+1},\mathit{id}_{k+1},f_{k+1}) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge \mathit{id}_k
+  \in S_1 \}$ $(rem(a_k),S_1)$ $\{ \mathit{state} =
+  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
+  (a_k,\mathit{id}_k,\mathit{false}) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge S = \{ a \vert
+  (a,\_,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot
+  \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{
+  \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\end{itemize}
+When the context is clear, in $\mathit{read}$ operation, we will omit
+$\circ$.
 
 
 
@@ -243,6 +301,7 @@ visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $
 
 This completes the proof of this lemma. $\qed$ 
 \end {proof}
+
 
 
 
