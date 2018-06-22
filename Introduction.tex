@@ -173,7 +173,7 @@ These are the problems we address in this paper.
 
 Inspired by Linearizability~\cite{HerlihyW90} and the literature of
 shared-memory concurrency we propose a \emph{new consistency criterion
-  for CRDTs}, which we call \emph{\CRDTLin{}} (\CRDTLinshort{}). 
+  for CRDTs}, which we call \emph{\CRDTLin{}} (\CRDTLinshort{}).
 %
 \CRDTLinshort{} both simplifies their specifications, and for which we
 can give correctness proof strategies.
@@ -197,20 +197,20 @@ list should be reachable by considering a sequence where all
 %
 This definition shares some similarities with the one proposed
 in~\cite{PerrinMJ14}, we will address the main differences
-in~\autoref{sec:rel-work}. 
+in~\autoref{sec:rel-work}.
 
 Equipped with this criterion we show how many existing CRDTs can be
-shown to be \CRDTLinshort{}. 
+shown to be \CRDTLinshort{}.
 %
 We provide both, their specification as \CRDTLinshort{} and proofs
-showing that an implementation is faithful to this specification. 
+showing that an implementation is faithful to this specification.
 %
 Encouragingly, most of the the CRDTs discussed in~\cite{ShapiroPBZ11}
 are \CRDTLinshort{}.
 
 Given that our criterion is inspired by Linearizability, it is natural
 to ask whether it preserves the same modularity properties as shown
-in~\cite{HerlihyW90}. 
+in~\cite{HerlihyW90}.
 %
 We shown that this is general not true, but we identify classes of
 CRDT implementations, based on the conflict-resolution strategy that
