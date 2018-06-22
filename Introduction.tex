@@ -3,95 +3,250 @@
 \label{sec:introduction}
 
 Convergent Replicated Data Types (CRDTs)~\cite{ShapiroPBZ11} have
-recently been proposed to address the problem of availability of an
-application under the presence of network partitions.
+recently been proposed to address the problem of availability of a
+distributed application under the presence of network partitions.
 %
-CRDTs represent a methodological approach to address the problem of
-retaining data-Consistency and Availability under network Partitions (CAP),
-famously shown to be impossible to achieve by the CAP
-theorem~\cite{GilbertL02}.
+CRDTs represent a methodological approach to the problem of retaining
+data-Consistency and Availability under network Partitions (CAP),
+famously known to be an impossible combination of requirements by the
+CAP theorem~\cite{GilbertL02}.
 %
-Thus, CRDTs are data types designed to favor availability over
-consistency by replicating the data type instances across multiple
-nodes, and allowing different nodes to temporarily have different
-views of the same instance at times.
+CRDTs are data types designed to favor availability over consistency
+by replicating the data type instances across multiple nodes, and
+allowing different nodes to temporarily have different views of the
+same data type instance.
 %
 However, CRDTs guarantee that the different states of the multiple
 nodes will \emph{eventually} converge to a unique state common to all
 nodes.
 %
 Importantly, this \emph{convergence property} is intrinsic to the data
-type design and in general no synchronization is needed among nodes to
-achieve it.
+type design and in general no synchronization is needed among nodes,
+hence achieving availability.
 
+\paragraph{Availability vs. Consistency}
 To illustrate the problem we will consider the implementation of a
-data type to implement a list-like object (usually used for
-text-editing applications).
+CRDT to implement a list-like object (usually used for text-editing
+applications).
 %
-We will base our discussion on a CRDT definition called the Replicated
-Growing Array (RGA) due to~\cite{RohJKL11}.\footnote{We use the code
-  as shown in~\cite{ShapiroPBZ11} to be consistent with the rest of
-  the paper.}
+We will base our discussion on the Replicated Growing Array (RGA) due
+to~\cite{RohJKL11}.\footnote{We use the code as shown
+  in~\cite{ShapiroPBZ11} to be consistent with the rest of the paper.}
 %
 RGA supports three simple operations:
 \begin{inparaenum}
-\item \lstinline|addAfter(a, b)| which adds the character (the
-  concrete type is inconsequential)
-  \lstinline|b| immediately after the occurrence of the character
-  \lstinline|a| assumed to already be present in the list\footnote{To
-    simplify the exposition we assume elements are unique, which is easily
-    implemented with timestamps.},
+\item \lstinline|addAfter(a, b)| which adds the character
+  \lstinline|b| -- the concrete type is inconsequential here --
+  immediately after the occurrence of the character \lstinline|a|
+  assumed to already be present in the list,\footnote{To simplify the
+    exposition we assume elements are unique, which is easily implemented
+    with timestamps.}
 \item \lstinline|remove(a)| which removes the character \lstinline|a|
   assumed to be present in the list, and
 \item \lstinline|read()| which returns the current contents of the
   list.
 \end{inparaenum}
 
-To make the system available under partitions RGA allows multiple
-nodes to have a copy of the list instance.
+To make the system available under partitions RGA allows each of
+multiple nodes to have a copy of the list instance.
 %
-Then the question is, how do we maintain the consistency of the
+We will call each of the nodes holding a copy of the list a \emph{replica}.
+%
+Then the question is, how can we maintain the consistency of the
 different copies of the list given that the data could be at any point
 in time be modified or read by any of the replicas?
 %
-The naive approach would require to synchronize all the replicas for
-each operation, thus rendering the system unavailable if any one
-replicas becomes off-line.
+The naive approach would require the synchronization of all the
+replicas for each operation, thus maintaining coherence.
 %
-\gpnote*[inline, nomargin]{Continue from here.}
-{
-Instead of the naive approach, RGA ensures that as operations are
-propagated from one replica to another (by sending messages containing
-the data of the operation), there is a single possible list that could
-result for any replica that has observed all operations.
-}
+Alas, this naive approach would render the system unavailable if any
+one replicas goes off-line.
+%
 
+Instead of this naive approach, RGA takes the liberty of allowing any
+of the replicas to modify the local copy of the list immediately --
+and hence return control to the client -- and lazily propagate the
+updates to all the other replicas at later point in time.
+%
+For instance, assuming that we have an initial list containing the
+sequence \lstinline|[a,b,e,f]| and two replicas, $\arep_1$ and
+$\arep_2$, if $\arep_1$ inserts the letter \lstinline|c| after
+\lstinline|b| (by calling \lstinline|addAfter(b, c)|), while $\arep_2$
+concurrently inserts the letter \lstinline|d| after \lstinline|b|
+(\lstinline|addAfter(b, d)|) the replicas will have the states
+\lstinline|[a,b,c,e,f]| and \lstinline|[a,b,d,e,f]|
+respectively.
+%
+We have solved the availability problem, but we have introduced
+inconsistent states across the system.
+%
+This problem is only exacerbated if we consider that any replica could
+serve any operation in this way at any point in time.
 
-Here we introduce the problem of CRDTS:
+\paragraph{Convergence}
+
+To return to a consistent state across the system in the presence of
+concurrent updates CRDTs guarantee that under conflicting operations --
+that is, operations that could lead to different states as shown above
+--, there is a systematic way to \emph{detect conflicts}, and moreover, there
+is a strategy \emph{deterministically solve conflicts} which will be followed
+by all replicas.
+
+In the specific case of RGA, the implementation adds metadata to each
+item added to the list identifying the originating replica as well as
+timestamp of the operation in that replica.\footnote{We will ignore in
+  this section conflicts due to \lstinline|remove| operations.}
+%
+This metadata is enough to detect when conflicts have occurred.
+%
+Generally there are a number of assumptions that are necessary for the
+metadata to detect conflicts (for instance that timestamps increase
+monotonically with time, that replica identifiers are unique, etc.)
+which we shall discuss in the next sections.
+%
+Then, for the case of the RGA data type, whose implementation will be
+presented in the next section, it is enough to know that whenever
+two \lstinline|addAfter| operations have conflicted by simply
+comparing the replica identifiers and their timestamps.
+%
+In such case, the strategy to resolve the conflict will always chose
+to order first in the resulting list the character added with the
+lowest timestamp, and in the particular case where the timestamps
+should be the same, an arbitrary among replicas will be chosen.
+%
+Going back to the example above, and assuming that the character
+\lstinline|c| was added with timestamp $t_1$ and the character
+\lstinline|d| was added with timestamp $t_2$, if we assume that $t_1 \leq
+t_2$ for some order $\leq$ between timestamps, then the list will
+converge to \lstinline|[a,b,c,d,e]|.
+%
+We obtain the same result if $t_1 = t_2$ and, assuming that we have a replica
+order $<_r$, $\arep_1 <_r \arep_2$.
+%
+In any other case we obtain \lstinline|[a,b,d,c,e]|.
+
+At this point we can know that if the effects of all operations are
+delivered to all replicas eventually, the replicas will converge to
+the same state -- assuming a quiescent period of time where no new
+operations are performed.
+%
+We have somehow regained consistency of the data type without
+giving away availability.
+
+\paragraph{Specifications}
+The simplicity of the list data type with the API that we have
+described above allows for a somewhat simple conflict resolution
+strategy.
+%
+Essentially, any strategy ordering conflicting concurrent insertions
+to the list in a deterministic way will work.
+%
+However, this is not true for many other CRDT-imp.
+%
+It is therefore critical to provide the programmer with a clear and
+hopefully formal specification of the allowed behaviors of the data
+type under conflicts.
+%
+Unfortunately this is not an easy task.
+%
+Many times the programmer has no option but to read the implementation
+of the data type to understand how the metadata is used to detect and
+resolve conflicts, for instance reading the algorithms
+in~\cite{ShapiroPBZ11} (an exceptional case where the algorithms are
+particularly well documented).
+%
+Recently Burckhardt et al.~\cite{BurckhardtGYZ14, Burckhardt14} have
+developed a formal framework where CRDTs and other weakly
+consistent systems can be specified.
+%
+However, we consider that reading these specifications is far from
+trivial for the average programmer, let alone writing new
+specifications.
+%
+Evidently, having a formal specification is a necessary step towards
+the verification of the implementations of CRDTs.
+%
+These are the problems we address in this paper.
+
+\paragraph{Contributions}
+
+Inspired by Linearizability~\cite{HerlihyW90} and the literature of
+shared-memory concurrency we propose a \emph{new consistency criterion
+  for CRDTs}, which we call \emph{\CRDTLin{}} (\CRDTLinshort{}), which both simplifies
+their specifications, and for which we can give correctness proof
+strategies.
+%
+To satisfy the \CRDTLinshort{} criterion a data type must be so that
+any execution of a client interacting with an instance of the data
+type
 \begin{inparaenum}
-\item replication,
-\item convergence,
-\item specification.
+\item should result in a state that can be obtained as a sequence (or
+  linearization) of its updates -- where we assume that all updates
+  are executed sequentially--, and
+\item any operation reading the state of the data type instance should
+  be reachable by executing only a sub-sequence of the above mentioned
+  sequence.
 \end{inparaenum}
-To do so we illustrate the problem through RGA. Without much notation
-we show the code of~\cite{ShapiroPBZ11} (RGA) and explain how RGA achieves
-these three goals.
+For instance, for the RGA example shown above, the state of the final
+list should be reachable by considering a sequence where all
+\lstinline|addAfter| operations are executed sequentially.\footnote{We
+  will come back to RGA to add \lstinline|remove|
+  in~\autoref{sec:overview}.}
 %
-We the consider the specification of RGA. Perhaps we will need to
-explain a little of~\cite{BurckhardtGYZ14} to do so.
+This definition shares some similarities with the one proposed
+in~\cite{PerrinMJ14}, we will address the main differences
+in~\autoref{sec:rel-work}. 
+
+Equipped with this criterion we show how many existing CRDTs can be
+shown to be \CRDTLinshort{}. 
 %
-We argue that this process is hard a complicated, and propose
-\emph{informally} our definition of linearizability.
+We provide both, their specification as \CRDTLinshort{} and proofs
+showing that an implementation is faithful to this specification. 
+%
+Encouragingly, most of the the CRDTs discussed in~\cite{ShapiroPBZ11}
+are \CRDTLinshort{}.
 
-We then explain the proof strategy to prove this linearizability, and
-point the reader forward to the verification sections.
+Given that our criterion is inspired by Linearizability, it is natural
+to ask whether it preserves the same modularity properties as shown
+in~\cite{HerlihyW90}. 
+%
+We shown that this is general not true, but we identify classes of
+CRDT implementations, based on the conflict-resolution strategy that
+they implement, for which modularity can be achieved.
 
-We finally shed some light into the compositionality and modularity
-aspects to be discussed at the end of the paper.
+\gpwarning[nomargin, inline]{Don't know if we should say more here.}
 
-\gpnote*{}{By the end of section 1 the reader should know what is a
-  CRDT, the intuition behind our definition of linearizability, and
-  have an idea of the structure of the paper.}
+The paper is structured as follows:
+\begin{inparaitem}
+\item \fxwarning[nomargin, inline]{TODO}
+\end{inparaitem}
+
+
+% Here we introduce the problem of CRDTS:
+% \begin{inparaenum}
+% \item replication,
+% \item convergence,
+% \item specification.
+% \end{inparaenum}
+% To do so we illustrate the problem through RGA. Without much notation
+% we show the code of~\cite{ShapiroPBZ11} (RGA) and explain how RGA achieves
+% these three goals.
+% %
+% We the consider the specification of RGA. Perhaps we will need to
+% explain a little of~\cite{BurckhardtGYZ14} to do so.
+% %
+% We argue that this process is hard a complicated, and propose
+% \emph{informally} our definition of linearizability.
+
+% We then explain the proof strategy to prove this linearizability, and
+% point the reader forward to the verification sections.
+
+% We finally shed some light into the compositionality and modularity
+% aspects to be discussed at the end of the paper.
+
+% \gpnote*{}{By the end of section 1 the reader should know what is a
+%   CRDT, the intuition behind our definition of linearizability, and
+%   have an idea of the structure of the paper.}
 
 %%% Local Variables:
 %%% mode: latex
