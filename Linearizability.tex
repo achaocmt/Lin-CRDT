@@ -99,8 +99,8 @@ We consider a set of method names $\amethod \in \methods$, and that each method 
 number of arguments sampled from a data domain $\datadomain$, and a
 return value also from the data domain.
 We ignore here the issues of typing which should be ensured by the
-underlying programming language. 
-Also, some methods, e.g., the method {\tt addAfter} of the RGA object, generate timestamps from a 
+underlying programming language.
+Also, some methods, e.g., the method {\tt addAfter} of the RGA object, generate timestamps from a
 totally-ordered domain $\timestampdomain$.
 %Hence, a data type $\acrdttyp = (\amethodset, \adomain)$ is given by a
 %set of method names $\amethodset \subseteq \methods$ and a data domain
@@ -264,7 +264,7 @@ set of histories $h$ of an execution $e$ of $\aobj$.
 
 %\ce{Need to talk about read/updates}
 %
-%Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that has no influence on the ``abstract state'' and normally returns an observation of the ``abstract state'' , and $\mathbb{U}$ update methods that has influence on the ``abstract state''. 
+%Without loss of generality we will consider that the methods in $\mathbb{M}$ can be separated in two disjoint sets of methods: $\mathbb{Q}$ query methods that has no influence on the ``abstract state'' and normally returns an observation of the ``abstract state'' , and $\mathbb{U}$ update methods that has influence on the ``abstract state''.
 
 %
 %A sequence $\aexec$ of operation labels is an execution of $\llbracket \aobj \rrbracket$, if there exists a global configuration $\aglobalstate = (\gstates, \avisord, \downstreams)$, such that $\aglobalstate_0 {\xrightarrow{ l }} \aglobalstate$. The history of $\aexec$ is a tuple $(\alabelset, \avisord)$, where $\alabelset$ is the set of labels of $l$. Let $\mathit{history}(\llbracket \aobj \rrbracket)$ be the set of histories of all executions of $\llbracket \aobj \rrbracket$. Then, $\aobj$ is \crdtlinearizable{}, if each of its history is, as stated by the following:
@@ -320,7 +320,7 @@ set of histories $h$ of an execution $e$ of $\aobj$.
 \begin{definition}[Sequential Specification]
   \label{definition:sequential specification} A \emph{sequential
   specification} (specification, for short) $\Spec$ is a set of tuples $(\alabelset, \aseqord)$, where
-  $\alabelset$ is a set of labels and 
+  $\alabelset$ is a set of labels and
   $\aseqord$ is a sequence including all the labels in $\alabelset$.
 \end{definition}
 
@@ -334,7 +334,7 @@ relation \;$\xRightarrow{\alabel}$\; which, given a state and provided
 that the label can be applied into that state, produces a new abstract
 state.
 Hence, we denote by $\abstate \xRightarrow{\alabel}  \abstate'$
-%$\absopsem{\abstate} = \abstate'$ 
+%$\absopsem{\abstate} = \abstate'$
 the fact that
 the resulting state for label $\alabel$ with initial state $\abstate$
 is $\abstate'$.
@@ -351,7 +351,7 @@ A sequential specification then is the set of labels that are accepted
 by the successive application of the transition relation starting from
 some given initial state $\abstate_{0}$.
 
-%A label is called \emph{read-only} if it doesn't change the abstract state, and a \emph{modifier} otherwise. 
+%A label is called \emph{read-only} if it doesn't change the abstract state, and a \emph{modifier} otherwise.
 %The set of labels of a specification $\Spec$ is denoted by $\labelsspec\Spec$. The set of read-only, resp., modifier,
 %labels of a specification $\Spec$ is denoted by $\labelsspecrd\Spec$, resp., $\labelsspecmod\Spec$.
 
@@ -520,7 +520,7 @@ $\circ$.
 \label{subsec:definition of distributed linearizability}
 
 We now provide the definition of \crdtlin{} which characterizes histories of CRDT objects.
-For presentation reasons, we first consider the case where all the labels in the history are 
+For presentation reasons, we first consider the case where all the labels in the history are
 either queries or updates (the case of query-updates is considered later in this section).
 %
 %To simplify the argument we will assume for the time being that all
@@ -543,14 +543,14 @@ either queries or updates (the case of query-updates is considered later in this
 %A label is said to be a query if it is not an update.
 %We will later add an additional case for query/update labels.
 %
-The intuition of our notion of \crdtlin{} is that there is a \emph{global} sequence 
+The intuition of our notion of \crdtlin{} is that there is a \emph{global} sequence
 (or linearization) of the update operations in a history which can
 produce the state of \emph{each} replica when \emph{all} the updates are visible to them.
-In intermediate steps, any replica state should be the result of applying a subsequence of updates 
+In intermediate steps, any replica state should be the result of applying a subsequence of updates
 of this global sequence. This is because our semantical model allows replicas to see a subset of the updates
-performed up to some moment. 
+performed up to some moment.
 %``explains'' the states of each replica,
-%i.e., any state observed by any replica should be the result of applying a subsequence of updates 
+%i.e., any state observed by any replica should be the result of applying a subsequence of updates
 %in this sequence, and eventually, when all the updates are delivered at a replica~\footnote{Their corresponding downstreams are executed on that replica.}, its state is the result of applying this sequence of updates.
 %%for update
 %%operations there is a global linear sequence (or history) which can
@@ -620,46 +620,77 @@ We will make these notions precise in~\autoref{definition:ralinearizability1} be
     $\aseqord\!\downarrow_{\updates} \in \Spec$, where we denote by
     $\aseqord\downarrow_{S}$ the restriction of the order $\aseqord$ to
     the subset $S$, and
-  \item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ itself is admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
+  \item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ is itself admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
     \alabel_{\mathsf{qr}} \in \Spec$.
 \end{enumerate}
-$(\alabelset, \aseqord)$ is called an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.
+In this case we say that $(\alabelset, \aseqord)$ is an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.
 \end{definition}
 
-In a nutshell, this definition requires that for a given 
+In a nutshell, this definition requires that for a given
 history, there exists a specification sequence such
 that
 \begin{inparaenum}
 \item the set of labels are the same and the order in the sequence is
   consistent with the visibility order of the history, that
-\item when restricted to update operations, the sequence belongs to
+\item when restricted to update operations -- that is all the updates --, the sequence belongs to
   the specification, and that
 \item query operations can be justified by the specification based only
   on the updates that precede it in the sequence and that are visible to them.
 \end{inparaenum}
 
-TODO REFER TO AN EXAMPLE FROM THE OVERVIEW
+\fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW}
 
-We now consider the case where histories include query-updates. In such a case, we apply~\autoref{definition:ralinearizability1} on a rewriting of the original history where 
-each query-update is decomposed into a label representing the query part and another label representing the update part. This rewriting may introduce new labels, which do not correspond to original operations of the considered object, but which have to be taken into account by the specification. Also, other (update) operations of the object may be rewritten as well.
-TODO EXPLAIN THE OR-SET CASE.
+We now consider the case where histories include query-updates.
+In such a case, we apply~\autoref{definition:ralinearizability1} on a
+rewriting of the original history where each query-update is
+decomposed into a label representing the query part and another label
+representing the update part.
+\gpnote*{Clarify this sentence. Not clear where the new labels come from}
+{This rewriting may introduce new labels, which do not correspond to
+original operations of the data type, but which have been extended to
+be taken into account by the specification.
+Also, other (update) operations of the object may be rewritten as
+well.}
+\fxwarning[nomargin, inline]{EXPLAIN THE OR-SET CASE.}
 
 TODO MODIFY $\gamma$ BECAUSE IT MAY REWRITE UPDATES AS WELL. DO WE NEED TO REWRITE QUERIES ?
 
-A mapping $\gamma:\labels\rightarrow \labels^{\leq 2}$, where $\labels^{\leq 2}$ is the set of labels and pairs of labels in $\labels$, is called a \emph{query-update rewriting}. 
-%Labels mapped by $\gamma$ to singletons preserve their query or update status 
+A mapping $\gamma:\labels\rightarrow \labels^{\leq 2}$, where $\labels^{\leq 2}$ is the set of labels and pairs of labels in $\labels$, is called a \emph{query-update rewriting}.
+%Labels mapped by $\gamma$ to singletons preserve their query or update status
 We assume that every query or update label is mapped by $\gamma$ to a singleton and that the $\gamma$ image of such a label preserves its status, i.e., $\gamma(\alabel)$ is a query, resp., update, whenever $\alabel$ is a query, resp., update. Also, query-updates labels $\alabel$ are mapped to pairs $\gamma(\alabel)=(\alabel_1,\alabel_2)$ where $\alabel_1$ is a query and $\alabel_2$ is an update. These assumptions are important when applying~\autoref{definition:ralinearizability1} on the rewriting of a history, since this definition relies on a partitioning of the labels in queries and updates.
-%We say that $\gamma$ is \emph{consistent} with $\Spec$ when $\mathsf{image}(\gamma)\subseteq \labelsspec\Spec^{\leq 2}$ and for every label $\alabel$, if $\gamma(\alabel)=(\alabel_1,\alabel_2)$ then $\alabel_1$ is read-only and $\alabel_2$ is a modifier (of $\Spec$). 
-%For $\alabel\in \queryupdates$ and $\gamma(\alabel)=(\alabel_1,\alabel_2)$, the label $\alabel_1$ is considered a query and $\alabel_2$ an update. 
-For a history $h=(\alabelset,\avisord)$, its $\gamma$-rewriting is a history $\gamma(h)=(\alabelset',\avisord')$ where
+%We say that $\gamma$ is \emph{consistent} with $\Spec$ when $\mathsf{image}(\gamma)\subseteq \labelsspec\Spec^{\leq 2}$ and for every label $\alabel$, if $\gamma(\alabel)=(\alabel_1,\alabel_2)$ then $\alabel_1$ is read-only and $\alabel_2$ is a modifier (of $\Spec$).
+%For $\alabel\in \queryupdates$ and $\gamma(\alabel)=(\alabel_1,\alabel_2)$, the label $\alabel_1$ is considered a query and $\alabel_2$ an update.
+For a history $h=(\alabelset,\avisord)$, its $\gamma$-rewriting is a
+history $\gamma(h)=(\alabelset',\avisord')$ where
 \begin{itemize}
-	\item $\alabelset'$ is obtained by replacing each label $\alabel$ in $\alabelset$ with $\gamma(\alabel)$ (a label may be replaced by two labels),
-	\item the query is ordered before the update whenever a (query-update) label is mapped by $\gamma$ to such a pair, i.e., $(\alabel_1,\alabel_2)\in \avisord'$ if there exists $\alabel\in\alabelset$ such that $\gamma(\alabel)=(\alabel_1,\alabel_2)$,
-	\item $\avisord'$ preserves the order between labels which are mapped to singletons, and 
-%whenever two labels are ordered by $\avisord$ and they are mapped by $\gamma$ to singletons, then their $\gamma$-images remain ordered in $\avisord'$. Similarly, 
-for (query-update) labels $\alabel$ mapped to pairs $(\alabel_1,\alabel_2)$, the query $\alabel_1$ sees exactly the same set of operations as $\alabel$ and any operation which saw $\alabel$ must see $\alabel_2$. Formally, $(\secondrep(\gamma(\alabel)), \firstrep(\gamma(\alabel')))\in\avisord'$ if $(\alabel,\alabel')\in\avisord$, where for each label $\alabel$, $\firstrep(\gamma(\alabel))$, resp., $\secondrep(\gamma(\alabel))$, is $\gamma(\alabel)$ when this is a singleton or the first, resp., second, component when $\gamma(\alabel)$ is a pair.
+\item $\alabelset'$ is obtained by replacing each label $\alabel$ in
+  $\alabelset$ with $\gamma(\alabel)$ (a label may be replaced by two
+  labels),
+\item whenever a (query-update) label $\alabel$ is mapped by $\gamma$
+  to a pair $(\alabel_1,\alabel_2)$ (i.e.
+  $\gamma(\alabel)=(\alabel_1,\alabel_2)$), we have that the query is
+  ordered before the update, formally $(\alabel_1,\alabel_2)\in \avisord'$,
+\item $\avisord'$ preserves the order between labels which are
+  mapped to singletons, and
+  % whenever two labels are ordered by $\avisord$ and they are mapped
+  % by $\gamma$ to singletons, then their $\gamma$-images remain
+  % ordered in $\avisord'$. Similarly,
+  for any query-update label $\alabel$ mapped to a pair
+ $(\alabel_1,\alabel_2)$, the query $\alabel_1$ sees exactly the same
+ set of operations as $\alabel$ and any operation which saw $\alabel$
+ must see $\alabel_2$.
+ Formally, whenever $(\alabel,\alabel')\in\avisord$ we have that
+ $(\secondrep(\gamma(\alabel)),
+ \firstrep(\gamma(\alabel')))\in\avisord'$, where for a label $\alabel$,
+ $\firstrep(\gamma(\alabel))$ (resp., $\secondrep(\gamma(\alabel))$), is
+ $\gamma(\alabel)$ when $\gamma(\alabel)$ is a singleton, or its first (resp.,
+ second) projection when $\gamma(\alabel)$ is a pair.
 \end{itemize}
-The following definition extends~\autoref{definition:ralinearizability1} to arbitrary histories using such rewritings.
+The following definition
+extends~\autoref{definition:ralinearizability1} to arbitrary histories
+using the rewriting defined above.
+\gpnote[nomargin, inline]{I'd probably use $\Pi^*_i$ for the i-th
+  projection of a tuple, or the singleton.}
 
 \begin{definition}[\CRDTLin{}]
   \label{definition:distributed linearizability} A history $h =
@@ -670,12 +701,16 @@ The following definition extends~\autoref{definition:ralinearizability1} to arbi
 \end{definition}
 
 
-A set $H$ of histories is called \crdtlinearizable{} w.r.t
-a sequential specification $\Spec$ when each history $h\in H$ is
-\crdtlinearizable{} w.r.t. $\Spec$. An object $\aobj$ is \crdtlinearizable{} w.r.t. $\Spec$ when $\histories(\aobj)$ is linearizable w.r.t. $\Spec$.
-%
+A set $H$ of histories is called \crdtlinearizable{} w.r.t a
+sequential specification $\Spec$ when each history $h\in H$ is
+\crdtlinearizable{} w.r.t.
+$\Spec$.
+A data type implementation is \crdtlinearizable{} w.r.t.
+$\Spec$ if for any object $\aobj$ of the data type, the set
+$\histories(\aobj)$ is linearizable w.r.t. $\Spec$. 
 
-TODO MOVE THE FOLLOWING WHEN WE NEED IT (WHEN WE TALK ABOUT SOME NONDETERMINISTIC SPECIFICATION, E.G., WOOT)
+
+\fxwarning[nomargin, inline]{MOVE THE FOLLOWING WHEN WE NEED IT (WHEN WE TALK ABOUT SOME NONDETERMINISTIC SPECIFICATION, E.G., WOOT)}
 
 An important property of CRDT algorithms is \emph{convergence}.
 Convergence means that all replicas will arrive to the same final
