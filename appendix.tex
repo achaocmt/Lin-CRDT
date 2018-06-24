@@ -24,8 +24,8 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
 \end{lstlisting}
 \end{minipage}
 
-\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$. 
-Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$. 
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
 
 
 \begin{minipage}[t]{1.0\linewidth}
@@ -33,25 +33,25 @@ Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\are
 captionpos=b,label={lst:operation-based multi-value register}]
   payload Set S
   initial S = @|$\emptyset$|@
-  initial seq = @|$\epsilon$|@ 
+  initial seq = @|$\epsilon$|@
 
   write(a) :
-    atSource : 
-      let g = myRep() 
-      let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@  
-      let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@ 
+    atSource :
+      let g = myRep()
+      let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
+      let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
       let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
       //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
     downStream(a, V@|$'$|@) :
-      let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@ 
+      let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
       S = A @|$\cup$|@ B
-      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabellongind[write]{\_,\_}{\bot}{*}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@ 
+      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabellongind[write]{\_,\_}{\bot}{*}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@
 
   read() :
-    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S} 
+    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
     //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
-    return @|$S_1$|@ 
+    return @|$S_1$|@
 \end{lstlisting}
 \end{minipage}
 
@@ -64,14 +64,91 @@ captionpos=b,label={lst:operation-based multi-value register}]
 \subsection{The WOOT Algorithm}
 \label{subsec:the woot algorithm}
 
+The WOOT algorithm of \ref{a} is given in Listing~\ref{lst:woot algorithm}. Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
 
+In local of each replica, WOOT algorithm stores the list as a sequence of W-characters. A W-character $w$ is a five-tuple $<id,v,flag,id_p,id_n>$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list; $id_p$ and $id_n$ is the identifier of the previous and next W-character of $w$, respectively. The previous and the next W-characters of $w$ are the W-characters between which $w$ has been inserted on its generation state. Given $w = (id,v,flag,id_p,id_n)$, let $C_P(w) = id_p$ and $C_N(w) = id_n$ denote the previous and next W-character of $w$, respectively. A identifier $id$ of W-character is a tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
 
+A W-string is an ordered sequence of W-characters $w_b \cdot w_1 \cdot \ldots \cdot w_n \cdot w_e$, where $w_b$ and $w_e$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_b$ and $w_e$ are $\circ_b$ and $\circ_e$, respectively. We define the following function for a W-string $str$:
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\vert str \vert$ returns the length of $str$,
 
+\item[-] $str[p]$ returns the W-character at position $p$ in $str$. Her we assume that the first element of $str$ is at position 0.
 
+\item[-] $pos(str,w)$ returns the position of W-character $w$ in $S$.
 
+\item[-] $insert(str,w,p)$ inserts W-character $w$ into $str$ at position $p$.
 
+\item[-] $subseq(str,w_1,w_2)$ returns the part of $str$ between the W-characters $w_1$ and $w_2$ (excluding $w_1$ and $w_2$).
 
+\item[-] $contains(str,a)$ returns true if there exists a W-character in $str$ with value $a$.
+
+\item[-] $values(str)$ returns the sequence of visible (with $\mathit{true}$ flag) values of $str$.
+
+\item[-] $getWchar(str,a)$ returns the W-character with value $a$ in $str$.
+
+\item[-] $changeFlag(str,pos,f)$ changes the flag of $str[pos]$ into $f$.
+\end{itemize}
+
+%Note that only $values(str)$ distinguish whether a W-character is with flag $\mathit{true}$ or with flag $\mathit{false}$.
+
+A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a sequence $str$ and two elements $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Pseudo-code of WOOT algorithm},
+captionpos=b,label={lst:woot algorithm}]
+  payload int @|$H_s$|@, W-string @|$string_s$|@
+  initial @|$H_s$|@ = 0, @|$string_s$|@ = @|$\epsilon$|@
+  initial seq = @|$\epsilon$|@
+
+  addBetween(a,b,c) :
+    atSource :
+      precondition :  @|$contains(string_s,b) \wedge contains(string_s,c) \wedge pos(string_s,c) - pos(string_s,b) = 1\wedge \neg contains(string_s,a)$|@
+      let g = myRep()
+      let @|$c_p$|@ = @|$getWchar(string_s,b)$|@
+      let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
+      @|$H_s$|@ = @|$H_s$|@ + 1
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[addBetween]{a,b,c}{}{}$|@
+    downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = ((H_s,g),a,\mathit{true},c_p.id,c_n.id)$|@
+      integrateIns(@|$w,c_p,c_n$|@)
+
+  remove(a) :
+    atSource :
+      precondition : @|$contains(string_s,a)$|@
+      let w = @|$getWchar(string_s,a)$|@
+      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[remove]{a}{}{}$|@
+    downStream(w) :
+      let p = @|$pos(string_s,w)$|@
+      @|$changeFlag(string_s,p,\mathit{false})$|@
+
+  read() :
+    let s = @|$values(string_s)$|@
+    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{s}{}$|@
+    return s
+
+  integrateIns(@|$c,c_p,c_n$|@)
+    let @|$S$|@ = @|$string_s$|@
+    let @|$S'$|@ = @|$subseq(S,c_p,c_n)$|@
+    if @|$S' = \epsilon$|@
+      then  @|$insert(S,c,pos(S,c_n))$|@
+    else
+      Let L = @|$c_p \cdot d_0 \cdot \ldots \cdot d_m \cdot c_n$|@, where @|$d_0, \ldots, d_m$|@ are the W-characters in @|$S'$|@
+        such that for each @|$d_i$|@, @|$C_P(d_i) <_S c_p$|@ and @|$c_n <_S C_N(d_i)$|@ 
+      Let i = 1 
+      while (@|$i < \vert L \vert -1 \wedge L[i] <_{id} c$|@) do
+        i = i+1 
+      integrateIns(@|$c,L[i-1],L[i]$|@)  
+\end{lstlisting}
+\end{minipage}
+
+The payload of each replica is a integer value $H_s$ used to generate identifier, and a W-string $string_s$.
+
+To do $addBetween(a,b,c)$, we first ensure that $b$ and $c$ are adjacent in $string_s$ and $a$ is not in $string_s$. Then, we generate a W-character $w$ for value $a$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $b$ and $c$ in $string_s$, respectively. 
+
+$integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $w$ is put after $c_p$. Else, WOOT select a set $L$ of W-characters, such that each W-character of $L$ has a ranger ``wider than the range between $c_p$ and $c_n$''. The W-characters in $L$ are the W-characters that needs to be considered when the range is between $c_p$ and $c_n$. It can be proved that W-characters in $L$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$ to be between $L[i-1]$ and $L[i]$. We can see that the range between $L[i-1]$ and $L[i]$ is strictly shorter than the range between $c_p$ and $c_n$. Since there may be W-characters in the range between $L[i-1]$ and $L[i]$ in $string_s$, we make a recursive call to $integrateIns(c,L[i-1],L[i])$ to compute the position of $c$ in the range between $L[i-1]$ and $L[i]$. 
+
+To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do $read()$, we return $values(string_s)$. 
 
 
 
@@ -94,77 +171,53 @@ The sequential specification $\mathit{counter}_s$ of counter is so that $\abstat
 \item[-] $k \xrightarrow{\alabellong[\mathsf{inc}]{}{}} k+1$
 \item[-] $k \xrightarrow{\alabellong[\mathsf{dec}]{}{}} k-1$
 \item[-] $k \xrightarrow{\alabellong[\mathsf{read}]{}{k}} k$
-\end{itemize} 
+\end{itemize}
 
-Here $inc$ increase the counter by $1$, $dec$ decrease the counter by $1$, and $read$ returns the value of the counter. 
+Here $inc$ increase the counter by $1$, $dec$ decrease the counter by $1$, and $read$ returns the value of the counter.
 
 
 
 \subsection{The Sequential Specification of Multi-Value Register}
-\label{subsec:the sequential specification of multi-value register} 
+\label{subsec:the sequential specification of multi-value register}
 
-The query-update rewriting of multi-value register is as follows: $\gamma( \alabellong[\mathsf{write}]{a}{} ) = ( \alabellong[\mathsf{readIds}]{}{S}, \alabellong[\mathsf{write}]{a,id,S}{})$. 
+The query-update rewriting of multi-value register is as follows: $\gamma( \alabellong[\mathsf{write}]{a}{} ) = ( \alabellong[\mathsf{readIds}]{}{S}, \alabellong[\mathsf{write}]{a,id,S}{})$.
 
 
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{mvreg}_s$ of multi-value register is given with the transitions as follows: 
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{mvreg}_s$ of multi-value register is given with the transitions as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{readIds}]{}{\abstate}} \abstate$ 
+\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{readIds}]{}{\abstate}} \abstate$
 
-\item[-] $\big(\abstate\ |\ (a,id) \notin \abstate \big) \xrightarrow{ \alabellong[\mathsf{write}]{a,id,S}{} }  \abstate \setminus S \cup \{ (a,id) \}$ 
+\item[-] $\big(\abstate\ |\ (a,id) \notin \abstate \big) \xrightarrow{ \alabellong[\mathsf{write}]{a,id,S}{} }  \abstate \setminus S \cup \{ (a,id) \}$
 
-\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }} \abstate$ 
-\end{itemize} 
+\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }} \abstate$
+\end{itemize}
 
-Here $readIds$ returns the abstract state, $\alabellong[\mathsf{write}]{a,id,S}{}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state, and $read$ returns the value of multi-value register. 
+Here $readIds$ returns the abstract state, $\alabellong[\mathsf{write}]{a,id,S}{}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state, and $read$ returns the value of multi-value register.
 
 
 
 \subsection{The Sequential Specification of List with Add-Between Interface}
-\label{subsec:the sequential specification of list with add-between interface} 
+\label{subsec:the sequential specification of list with add-between interface}
 
+Each abstract state $\abstate$ is a sequence of tuples $(a,flag)$, where $a$ is a data and $flag \in \{ \mathit{true},\mathit{false} \}$ is flag. $(a,\mathit{true})$ means that $a$ is in the list, while $(a,\mathit{false})$ means that $a$ has once been added into the list and then removed. The sequential specification $\mathit{listBet}_s$ of list with add-between interface is given with the transitions as follows:
 
-Assume each item of the list is unique. A list has three methods:
-$\mathit{add}(b,a)$ inserts item $b$ into the list at the position
-immediately after that of item $a$; $\mathit{rem}(a)$ removes item $a$
-from the list; and $\mathit{read}$ returns the list content. We assume
-that the initial value of list is $(\circ,\mathit{true})$ and this
-node can not be removed. We use the word ``add-after'' to emphasize
-the method $\mathit{add}(b,a)$, which is different from the other list
-interface that uses method $\mathit{add}(b,a,c)$.
-
-The sequential specification $\mathit{list}_s^{\mathit{af}}$ of list
-is given as follows: Let $\mathit{state}$ be a sequence, where each
-item is a tuple $(a,\mathit{id},f)$ with data $a$, identifier
-$\mathit{id}$ and flag $f \in \{ \mathit{true},\mathit{false} \}$.
-Here $\mathit{af}$ represents add-after, and we use $l \uparrow_{S}$
-to represent the projection of sequence $l$ into set $S$.
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
-  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge b \notin \{
-  a_1, \ldots, a_n \} \wedge \mathit{id}_k \in S_1 \}$
-  $(add(b,a_k),\mathit{id},S_1)$ $\{ \mathit{state} =
-  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,f_k)
-  \cdot (b,\mathit{id},\mathit{true}) \cdot
-  (a_{k+1},\mathit{id}_{k+1},f_{k+1}) \cdot \ldots \cdot
-  (a_n,\mathit{id}_n,f_n) \}$.
-\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
-  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge \mathit{id}_k
-  \in S_1 \}$ $(rem(a_k),S_1)$ $\{ \mathit{state} =
-  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
-  (a_k,\mathit{id}_k,\mathit{false}) \cdot \ldots \cdot
-  (a_n,\mathit{id}_n,f_n) \}$.
-\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
-  \cdot (a_n,\mathit{id}_n,f_n) \wedge S = \{ a \vert
-  (a,\_,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot
-  \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{
-  \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
-  (a_n,\mathit{id}_n,f_n) \}$.
+\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq i \leq k < j \leq n \wedge (a,\_) \notin \abstate \big) \xrightarrow{ \alabellong[\mathsf{addBetween}]{a,a_i,a_j}{} } (a_1,flag_1)\cdot \ldots (a_k,flag_k) \cdot (a,\mathit{true}) \cdot (a_{k+1},flag_{k+1}) \cdot \ldots \cdot (a_n,flag_n)$
+
+\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k \leq n \big) \xrightarrow{ \alabellong[\mathsf{remove}]{a_k}{} } (a_1,flag_1)\cdot \ldots (a_k,\mathit{false}) \cdot \ldots \cdot (a_n,flag_n)$
+
+\item[-] $(a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \xrightarrow{\alabellong[\mathsf{read}]{}{ s }} (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n)$, here $s$ is the projection of $a_1 \cdot \ldots \cdot a_n$ into $\{ a \vert a$ is with flag $\mathit{true} \}$
 \end{itemize}
-When the context is clear, in $\mathit{read}$ operation, we will omit
-$\circ$.
+
+$\alabellong[\mathsf{addBetween}]{a,a_i,a_j}{}$ puts $(a,\mathit{true})$ into a random position between $(a_i,\_)$ and $(a_j,\_)$, and we assume that each value is put into list at most once. $\alabellong[\mathsf{remove}]{a_k}{}$ removes $a_k$ from the list by setting its flag into $\mathit{false}$. $read$ returns the content of list. value of multi-value register.
+
+Assume that the initial value of list is $(\circ_b,\mathit{true}) \cdot (\circ_e,\mathit{true})$, and $\circ_b$ and $\circ_e$ are never removed. When the context is clear, in $\mathit{read}$ operation, we will omit $\circ_b$ and $\circ_2$ in return value.
+
+
+
 
 
 
@@ -173,50 +226,50 @@ $\circ$.
 
 
 \section{Proofs of \crdtimp}
-\label{sec:appendix proofs of crdt implementations} 
+\label{sec:appendix proofs of crdt implementations}
 
 
 
 \subsection{Proof of Operation-Based Multi-Value Register}
-\label{subsec:proof of operation-based multi-value register}  
+\label{subsec:proof of operation-based multi-value register}
 
 Given two sequences $l_1,l_2$  such that $l_2$ is a permutation of $l_1$, let $\mathit{diff}(l_1,l_2) = \{ (a,b) \vert$ the order of $a$ and $b$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $a$ and $b$ of $l$, let $\mathit{swap}(l,a,b)$ be a sequence obtained from $l$ by swapping $a$ and $b$. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
 
 \begin{lemma}
-\label{lemma:given two sequence consistent with visibility order, one can be obtained from the other} 
+\label{lemma:given two sequence consistent with visibility order, one can be obtained from the other}
 Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are both consistent with $\avisord$. If $\aseqord_1 \neq \aseqord_2$, then we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
 First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $l_1$ and $l_2$ are concurrent, and $l_1$ and $l_2$ are adjacent in $\aseqord_1$.
 
-We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$. 
+We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$.
 
-Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alabel')$ be a element of $\mathit{diff}(\aseqord_1,\aseqord_2)$, and the distance of $\alabel$ and $\alabel'$ is minimal in $\{$ the distance between $\alabel_1$ and $\alabel_2 \vert (\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2) \}$. Let us prove that $\alabel$ and $\alabel'$ are adjacent by contradiction: If there exists $\alabel''$ between $\alabel$ and $\alabel'$. Assume that in $\aseqord_1$, $\alabel$ is before $\alabel''$, and $\alabel''$ is before $\alabel'$. By assumption, the order between $\alabel$ and $\alabel''$, and between $\alabel''$ and $\alabel'$ is the same in $\aseqord_1$ and in $\aseqord_2$. This implies that $\alabel$ is still before $\alabel'$ in $\aseqord_2$, which contradicts the fact that $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$. 
+Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alabel')$ be a element of $\mathit{diff}(\aseqord_1,\aseqord_2)$, and the distance of $\alabel$ and $\alabel'$ is minimal in $\{$ the distance between $\alabel_1$ and $\alabel_2 \vert (\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2) \}$. Let us prove that $\alabel$ and $\alabel'$ are adjacent by contradiction: If there exists $\alabel''$ between $\alabel$ and $\alabel'$. Assume that in $\aseqord_1$, $\alabel$ is before $\alabel''$, and $\alabel''$ is before $\alabel'$. By assumption, the order between $\alabel$ and $\alabel''$, and between $\alabel''$ and $\alabel'$ is the same in $\aseqord_1$ and in $\aseqord_2$. This implies that $\alabel$ is still before $\alabel'$ in $\aseqord_2$, which contradicts the fact that $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$.
 
 Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, by assumption we know that $\alabel$ and $\alabel'$ are not concurrent. Or we can say, $(\alabel,\alabel') \in \avisord \vee (\alabel',\alabel) \in \avisord$. This contradicts that both $\aseqord_1$ and $\aseqord_2$ are consistent with visibility relation. This completes the proof of the first part.
 
-Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of operations. This completes the proof of this lemma. $\qed$ 
-\end {proof} 
+Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of operations. This completes the proof of this lemma. $\qed$
+\end {proof}
 
 
-Then, let us prove that the operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$. 
+Then, let us prove that the operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$.
 
 \begin{lemma}
-\label{lemma:multi-value register is correct} 
+\label{lemma:multi-value register is correct}
 The operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$
-\end{lemma} 
+\end{lemma}
 
 
-\begin {proof} 
+\begin {proof}
 
-Let us give two facts: 
+Let us give two facts:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $fact1$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $V_1 < V_2$. 
-\item[-] $fact2$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$. 
+\item[-] $fact1$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $V_1 < V_2$.
+\item[-] $fact2$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
 
 %\item[-] $fact3$: Let $S$ be the payload of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$ is maximal w.r.t $\avisord$ among write operations applied in current replica $\}$.
 \end{itemize}
@@ -224,82 +277,82 @@ Let us give two facts:
 
 \noindent Proof of $fact1$: Assume $\alabel_1$ happens on replica $\arep$. By the {\textred{causal delivery}} assumption, we know that for each replica $\arep' \neq \arep$, $\alabel_2$ see more or equal number of operations happens on replica $\arep'$ than that of $\alabel_1$, and $\alabel_2$ see more number of operations happens on replica $\arep$ than that of $\alabel_1$. By Annotation1, we know that $\forall \arep' \neq \arep$, $V_1[\arep'] \geq V_2[\arep']$, and $V_1[\arep] > V_2[\arep]$. Therefore, $V_1 < V_2$.
 
-\noindent Proof of $fact2$: Let us prove that $\neg (V_1 < V_2 \vee V_2 < V_1)$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $V_1 < V_2$, and assume that $\alabel_1$ happens on replica $\arep_1$. Since $V_1 < V_2$, we know that $V_1[\arep_1] \leq V_2[\arep_1]$. By the {\textred{causal delivery}} assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$. 
+\noindent Proof of $fact2$: Let us prove that $\neg (V_1 < V_2 \vee V_2 < V_1)$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $V_1 < V_2$, and assume that $\alabel_1$ happens on replica $\arep_1$. Since $V_1 < V_2$, we know that $V_1[\arep_1] \leq V_2[\arep_1]$. By the {\textred{causal delivery}} assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
 
-Let us propose Annotation2, which is an annotation of payload and obviously holds in the initial global configuration. 
+Let us propose Annotation2, which is an annotation of payload and obviously holds in the initial global configuration.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Annotation2: Let $S$ be the payload of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$ is maximal w.r.t $\avisord$ among write operations applied in current replica $\}$.
-\end{itemize} 
+\end{itemize}
 
-Our proof of the lemma proceed as follows:  
+Our proof of the lemma proceed as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+\item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. Let $\aseqord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\aseqord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\aseqord_2$ can be obtained from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations. 
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. Let $\aseqord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\aseqord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\aseqord_2$ can be obtained from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
 
 Let us prove that applying downstream of such pair of operations commute, and we only need to consider the case of two concurrent $write$ labels. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream of labels $\alabellongind[write]{a_1,V_1}{\bot}{*}$ and $\alabellongind[write]{a_2,V_2}{\bot}{*}$, respectively. Given a payload $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabellongind[write]{a_1,V_1}{\bot}{*}$ and $\alabellongind[write]{a_2,V_2}{\bot}{*}$ are concurrent, by  $fact_2$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
 
 
 
-\item[-] Let we prove that the Annotation1 and Annotation2 is an inductive invariant. 
+\item[-] Let we prove that the Annotation1 and Annotation2 is an inductive invariant.
 
-We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider $write$ action or downstream: 
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider $write$ action or downstream:
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
     \item[-] For case of a $\alabellongind[write]{a,V'}{\bot}{*}$ action of replica $\arep$: Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously $S' = \{ (a,V') \}$.
-        
-        Since $\alabellongind[write]{a,V'}{\bot}{*}$ is larger than any labels in $S$ w.r.t the visibility relation, Annotation2 still holds in $\aglobalstate'$. 
-        
-        By Annotation2 we know what labels are contained in $S$, by Annotation1 we know the content of these labels. By the {\textred{causal delivery}} assumption we know that if a label $\alabel$ is visible to a label $\alabel'$ of $S$, then $\alabel$ must be already applied in replica $\arep$. let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. Therefore, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of operations happen on replica $\arep'$ and has been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. We can see that, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds in $\aglobalstate'$. 
-    
-    \item[-] For case of applying downstream $(a,V')$: We only need to consider Annotation2. Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
-        
+
+        Since $\alabellongind[write]{a,V'}{\bot}{*}$ is larger than any labels in $S$ w.r.t the visibility relation, Annotation2 still holds in $\aglobalstate'$.
+
+        By Annotation2 we know what labels are contained in $S$, by Annotation1 we know the content of these labels. By the {\textred{causal delivery}} assumption we know that if a label $\alabel$ is visible to a label $\alabel'$ of $S$, then $\alabel$ must be already applied in replica $\arep$. let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. Therefore, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of operations happen on replica $\arep'$ and has been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. We can see that, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds in $\aglobalstate'$.
+
+    \item[-] For case of applying downstream $(a,V')$: We only need to consider Annotation2. Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+
         By the {\textred{causal delivery}} assumption, if $\alabellongind[write]{a,V'}{\bot}{*}$ is visible to a operation $\alabel$, then $\alabel$ does not applied in $\aglobalstate'$ yet. By Annotation2, $fact1$ and $fact2$, we know that, $\forall (b,V) \in S$, we have $\neg(V > V')$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. By $fact1$ and $fact2$, each element in $\{ (b,V) \vert (b,V) \in S \wedge V < V' \}$ is visible to $\alabellongind[write]{a,V'}{\bot}{*}$, and they are not in $S'$. Therefore, Annotation2 still holds in $\aglobalstate'$.
     \end{itemize}
 
-\item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity. 
-    
+\item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity.
+
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For $(a,V')$ and $write(a,V',S_1)$: 
-    
-    Assume we obtain payload $S'$ from $S$ by doing downstream of $(a,V')$, in sequential specification have $\abstate \xrightarrow{write(a,V',S_1)} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$. 
-    
+    \item[-] For $(a,V')$ and $write(a,V',S_1)$:
+
+    Assume we obtain payload $S'$ from $S$ by doing downstream of $(a,V')$, in sequential specification have $\abstate \xrightarrow{write(a,V',S_1)} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
+
     By the {\textred{causal delivery}} assumption, if $(\alabellongind[write]{a,V'}{\bot}{*},\alabel) \in \avisord$, then the downstream of $\alabel$ is not applied yet in the replica of $S$. By Annotation2, $fact1$ and $fact2$, we can see that, $\forall (b,V) \in S$, $\neg(V > V')$. Therefore, according to the implementaiton, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
-    
-    According to Annotation2, we can see that, $S_1 = \{ (b,V) \vert \exists \alabel = \alabellongind[write]{b,V}{\bot}{*}, (b,V)$ is the downstream of $l, l$ is maximal among $write$ operations visible to $\alabellongind[write]{a,V'}{\bot}{*} \}$. We can see that $\abstate' = \abstate \setminus S_1 \cup \{ (a,V') \}$. 
-    
-    Let us prove $S' = \abstate'$ by contradiction. 
-    
+
+    According to Annotation2, we can see that, $S_1 = \{ (b,V) \vert \exists \alabel = \alabellongind[write]{b,V}{\bot}{*}, (b,V)$ is the downstream of $l, l$ is maximal among $write$ operations visible to $\alabellongind[write]{a,V'}{\bot}{*} \}$. We can see that $\abstate' = \abstate \setminus S_1 \cup \{ (a,V') \}$.
+
+    Let us prove $S' = \abstate'$ by contradiction.
+
         \begin{itemize}
         \setlength{\itemsep}{0.5pt}
-        \item[-] If there exists item $(c,V'')$ in $\abstate'$ but not in $S'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_1$, and $(c,V'') \in S_2$. 
-        
-        Since $(c,V'') \notin S_1$, we know that there exists a $write$ operation $\alabel$, such that $(\alabellongind[write]{c,V''}{\bot}{*},\alabel),(\alabel,\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. Since $(c,V'') \in S$, we can see that the downstream $\alabel$ is not applied yet in the replica of $S$, while in $S'$, the downstream of $\alabellongind[write]{a,V'}{\bot}{*}$ is applied. This violates the {\textred{causal delivery}} assumption. 
-        
-        \item[-] If there exists item $(c,V'')$ in $S'$ but not in $S\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$. 
-        
-        Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V)$. Since $(c,V'') \in S_1$, we know that $(\alabellongind[write]{c,V''}{\bot}{*},\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. This contradicts $fact1$ and $fact2$. 
+        \item[-] If there exists item $(c,V'')$ in $\abstate'$ but not in $S'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_1$, and $(c,V'') \in S_2$.
+
+        Since $(c,V'') \notin S_1$, we know that there exists a $write$ operation $\alabel$, such that $(\alabellongind[write]{c,V''}{\bot}{*},\alabel),(\alabel,\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. Since $(c,V'') \in S$, we can see that the downstream $\alabel$ is not applied yet in the replica of $S$, while in $S'$, the downstream of $\alabellongind[write]{a,V'}{\bot}{*}$ is applied. This violates the {\textred{causal delivery}} assumption.
+
+        \item[-] If there exists item $(c,V'')$ in $S'$ but not in $S\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
+
+        Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V)$. Since $(c,V'') \in S_1$, we know that $(\alabellongind[write]{c,V''}{\bot}{*},\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. This contradicts $fact1$ and $fact2$.
         \end{itemize}
-    
-    Therefore, we know that $S' = \abstate'$, and the case of $(a,V')$ and $write(a,V',S_1)$ holds. 
-    
-    \item[-] When the query-update $\alabelshort[write]{a}$ executes {\tt atSource} on a state $S$, then the query $\alabellong[readIds]{}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(S)=\abstate$, which clearly holds because the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$. 
-    
+
+    Therefore, we know that $S' = \abstate'$, and the case of $(a,V')$ and $write(a,V',S_1)$ holds.
+
+    \item[-] When the query-update $\alabelshort[write]{a}$ executes {\tt atSource} on a state $S$, then the query $\alabellong[readIds]{}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(S)=\abstate$, which clearly holds because the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$.
+
     \item[-] Applying the query $\alabelshort[read]{}$ on the payload $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
-    \end{itemize} 
+    \end{itemize}
 
 \item[-] Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute {\tt atSource} clearly implies that $\aseqord$ is consistent with the visibility. Next, the projection of $\aseqord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
 We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\aseqord'\cdot \alabel_{\mathsf{qr}}$ where $\aseqord'$ is the projection of $\aseqord$ on the set of updates
 visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\aseqord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\aseqord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\aseqord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end{itemize}
 
-This completes the proof of this lemma. $\qed$ 
+This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
@@ -316,6 +369,64 @@ This completes the proof of this lemma. $\qed$
 
 
 
+
+\section{\crdtlin{} with Non-Deterministic Sequential Specifications and Its Proof}
+\label{sec:appendix RA-linearizability with non-deterministic sequential specifications and its proof}
+
+
+
+\subsection{\crdtlin{} with Non-Deterministic Sequential Specifications}
+\label{subsec:RA-linearizability with non-deterministic sequential specifications} 
+
+Recall that a sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic. 
+
+Similarly as in Section \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{}. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates. 
+
+\begin{definition}
+\label{definition:ralinearizability1 with non-deterministic specifications} 
+A history $h = (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\cup\updates$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential specification \Spec{}, if there exists a specification sequence $(\alabelset, \aseqord) \in \Spec{}$, called the \emph{\crdtlinearization{}} of $h$, where we remark that the set of labels are identical, such that 
+\begin{enumerate}[(i)]
+\item \aseqord{} is consistent with  \avisord{}, that is: $(\avisord \cup \aseqord)^{+}$ is acyclic,
+
+\item the projection of $\aseqord$ to \emph{updates} is admitted by $\Spec$, i.e. $\aseqord\!\downarrow_{\updates} \in \Spec$, 
+
+\item assume $\abstate_0$ is the initial abstract value of \Spec. For each sub-sequence $s$ of $\aseqord\!\downarrow_{\updates}$ (including $s = \aseqord\!\downarrow_{\updates}$), we fix a abstract state $\abstate_s$ which is obtained by $\abstate_0 \xrightarrow{ s }^* \abstate_s$, whenever such transitions are defined.
+
+    We require that, given two sub-sequences $s_1,s_2$ of $\aseqord\!\downarrow_{\updates}$, if $s_2$ contains more operation than $s_1$, and both $\abstate_{s_1}$ and $\abstate_{s_2}$ are defined, then, $\abstate_{s_1} \xrightarrow{ s_2 - s_1 }^* \abstate_{s_2}$, where $s_2 - s_1$ denotes the sequences obtained from $s_2$ by removing elements of $s_1$. 
+
+
+\item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, let $s = \avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates$. Then, we require that $\abstate_s \xrightarrow{ \alabel_{\mathsf{qr}} }^* \abstate_s$. 
+\end{enumerate}
+In this case we say that $(\alabelset, \aseqord)$ is an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.
+\end{definition} 
+
+Since the sequential specification is non-deterministic, we fix the consequence $\abstate_s$ in sequential specification when applying update operation sequence $s$ from the initial state $\abstate_0$ of sequential specification. We also require that, when $s_1$ is a sub-sequence of $s_2$, the corresponding abstract of $s_1$ is a ``sub-state'' of that of $s_2$. 
+
+The case when histories include query-updates is similarly dealt with as Definition \ref{definition:distributed linearizability}. We do it by rewriting of the original history where each query-update is decomposed into a label representing the query part and another label representing the update part. 
+
+\begin{definition}[\CRDTLin{} with Non-Deterministic Sequential Specifications] 
+\label{definition:distributed linearizability with non-deterministic sequential specifications} 
+A history $h =(\alabelset,\avisord)$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential specification \Spec{}, if there exists a query-update rewriting $\gamma$ such that $\gamma(h)$ is \crdtlinearizable{} w.r.t. \Spec{}.
+\end{definition} 
+
+A set $H$ of histories is called \crdtlinearizable{} w.r.t a non-deterministic sequential specification $\Spec$ when each history $h\in H$ is \crdtlinearizable{} w.r.t. $\Spec$. A data type implementation is \crdtlinearizable{} w.r.t. a non-deterministic sequential specification $\Spec$ if for any object $\aobj$ of the data type, the set $\histories(\aobj)$ is linearizable w.r.t. $\Spec$. 
+
+Let us begin to consider convergence. Given a \crdtlinearizable{} history with two replicas $r_1,r_2$ see the same set of operations. 
+
+According to Definition \ref{definition:ralinearizability1 with non-deterministic specifications} and Definition \ref{definition:distributed linearizability with non-deterministic sequential specifications}, we have already fix the non-deterministic choice. Therefore, it is obvious that we have convergence, as formalized in the following lemma.
+
+\begin{lemma}
+\label{lemma:distributed linarizability implies convergence for non-deterministic sequential specifications}
+If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential specification \Spec, then $h$ is convergent. 
+\end{lemma}
+
+
+
+
+
+
+\subsection{Proof Methodology for \crdtlin{} with Non-Deterministic Sequential Specifications}
+\label{subsec:proof methodology for RA-linearizability with non-deterministic sequential specifications} 
 
 
 
