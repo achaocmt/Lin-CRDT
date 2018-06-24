@@ -97,13 +97,13 @@ TODO STATE WHICH OTHER OBJECTS SUPPORT THE SAME KIND OF PROOF.
 \subsection{Timestamp-Order Linearizations}
 \label{subsec:time-stamp order as linearizabtion} 
 
-For some CRDT implementation, such as RGA, the timestamp plays a important roles in conflict resolution. In such situation, the total-order of execution may not be used as linearization. For example, consider $\alabellongNoret[\mathit{write}]{c}$ and $\alabellongNoret[\mathit{add}]{d}$ actions of \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} for LWW-register. Although $\alabellongNoret[\mathit{add}]{d}$ happens earlier in execution, since the timestamp of $\alabellongNoret[\mathit{write}]{c}$ is smaller than that of $\alabellongNoret[\mathit{write}]{d}$, we should put $\alabellongNoret[\mathit{write}]{c}$ before $\alabellongNoret[\mathit{write}]{d}$ in linearization.
+For some CRDT implementation, such as RGA, the timestamp plays an important role in conflict resolution.
+In such situations, \gpnote*{Meaning?}{the total-order of execution may not be used as linearization}. For example, consider $\alabellongNoret[\mathit{write}]{c}$ and $\alabellongNoret[\mathit{add}]{d}$ actions of \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} for LWW-register. Although $\alabellongNoret[\mathit{add}]{d}$ happens earlier in execution, since the timestamp of $\alabellongNoret[\mathit{write}]{c}$ is smaller than that of $\alabellongNoret[\mathit{write}]{d}$, we should put $\alabellongNoret[\mathit{write}]{c}$ before $\alabellongNoret[\mathit{write}]{d}$ in the linearization.
 
-Some method, such as $\mathit{write}$ of RGA, generates new timestamp; while other methods do not generate new timestamp. Based on this observation, we slightly change the operational semantics as follows: For the method that generate new timestamps, 
-
-
+Some methods, such as $\mathit{write}$ of RGA, generate new timestamps; while other methods do not generate new timestamps. Based on this observation, for the methods that generate new timestamps, we slightly change the operational semantics as follows:
+\gpwarning[nomargin, inline]{synchronize $do$ with what we used before.}
 \[
-  \inferrule[\text{\sc Operation-ts}]
+\inferrule[\text{\sc Operation-ts}]
   {\gstates(r) = (\alabelset, \astate) \\ \mathit{do}(\sigma,\amethod,\argv,\arep) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabellongind{\argv}{\retv}{\ats} \\ \mathit{unique}(\ats) }
   {(\gstates, \avisord, \downstreams) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')],
     \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
@@ -111,6 +111,7 @@ Some method, such as $\mathit{write}$ of RGA, generates new timestamp; while oth
 
 Here we use $\mathit{do}(\sigma,\amethod,\argv,\arep) = (\retv,\effector,\ats)$ to emphasize that $\ats$ is the new-generated timestamp, and by $\alabel = \alabellongind{\argv}{\retv}{\ats}$ we record this timestamp in operation label. 
 
+\gpnote[nomargin, inline]{I don't understand the phrasing: we require any configuration to satisfy conditions ...?}
 We require $P(\mathit{config},\mathit{lin})$ to be a conjunction of conditions $C_1$, $C_2$, $C_3$ and $C_4$, where condition $C_4$ is defined as follows: 
 
 \begin{itemize}
