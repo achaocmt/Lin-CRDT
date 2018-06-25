@@ -358,12 +358,26 @@ Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
 \label{fig:crdt-implementaton of this paper, their correctness, and their interface}
 \end{figure}
 
+\figurename~\ref{fig:how RGA works} gives a example that, if from one state we do concurrent $addAfter(b,c)$ and $addAfter(b,c)$, then it converges. If we then remove $b$, we just add it to tombstone. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/HowRGAWork.pdf}
+\vspace{-10pt}
+  \caption{An example of conflict resolution of RGA, and how we do remove.} 
+  \label{fig:how RGA works}
+\end{figure}
 
 
+\figurename~\ref{fig:an example run of semantics} gives a example of two step of transitions on semantics of RGA. The first step is to do downstream of a $addAfter$, while the second step is to do operation $remove$. Here we can see that, the downstream of $addAfter$ always insert a new node into the Ti-tree $N$, while the downstream of $remove$ always insert a value into $Tomb$. 
 
-
-
-
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9 \textwidth]{figures/ExplainSemantics.pdf}
+\vspace{-10pt}
+  \caption{An example run of semantics.}
+  \label{fig:an example run of semantics}
+\end{figure}
 
 
 
