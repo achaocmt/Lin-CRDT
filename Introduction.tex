@@ -12,9 +12,9 @@ famously known to be an impossible combination of requirements by the
 CAP theorem~\cite{GilbertL02}.
 %
 CRDTs are data types designed to favor availability over consistency
-by replicating the data type instances across multiple nodes, and
-allowing different nodes to temporarily have different views of the
-same data type instance.
+by replicating the data type instances across multiple nodes of a
+network, and allowing different nodes to temporarily have different
+views of the same data type instance.
 %
 However, CRDTs guarantee that the different states of the multiple
 nodes will \emph{eventually} converge to a unique state common to all
@@ -116,7 +116,7 @@ comparing the replica identifiers and their timestamps.
 In such case, the strategy to resolve the conflict will always chose
 to order first in the resulting list the character added with the
 lowest timestamp, and in the particular case where the timestamps
-should be the same, an arbitrary among replicas will be chosen.
+should be the same, an arbitrary order among replicas will be chosen.
 %
 Going back to the example above, and assuming that the character
 \lstinline|c| was added with timestamp $t_1$ and the character
@@ -145,10 +145,10 @@ strategy.
 Essentially, any strategy ordering conflicting concurrent insertions
 to the list in a deterministic way will work.
 %
-However, this is not true for many other CRDT-imp.
+However, this is not true for many other CRDT implementations.
 %
-It is therefore critical to provide the programmer with a clear and
-hopefully formal specification of the allowed behaviors of the data
+It is therefore critical to provide the programmer with a clear, and
+hopefully formal, specification of the allowed behaviors of the data
 type under conflicts.
 %
 Unfortunately this is not an easy task.
@@ -204,7 +204,7 @@ in~\cite{PerrinMJ14}, we will address the main differences
 in~\autoref{sec:rel-work}.
 
 Equipped with this criterion we show how many existing CRDTs can be
-shown to be \CRDTLinshort{}.
+shown to be \crdtlinearizable{}.
 %
 We provide both, their specification as \CRDTLinshort{} and proofs
 showing that an implementation is faithful to this specification.
@@ -212,8 +212,9 @@ showing that an implementation is faithful to this specification.
 Encouragingly, most of the the CRDTs discussed in~\cite{ShapiroPBZ11}
 are \CRDTLinshort{}.
 
-Given that our criterion is inspired by Linearizability, it is natural
-to ask whether it preserves the same modularity properties as shown
+Given that our criterion is inspired by
+linearizability~\cite{HerlihyW90}, it is natural to ask whether it
+preserves the same modularity properties as shown
 in~\cite{HerlihyW90}.
 %
 We shown that this is general not true, but we identify classes of

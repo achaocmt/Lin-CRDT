@@ -2,29 +2,11 @@
 \section{Overview}
 \label{sec:overview}
 
-\textblue{
-Here we introduce:
-\begin{itemize}
-\item a first example of a CRDT implementation: RGA
-\item the notion of history with an example
-\item explain what does it mean that the history is linearizable (show by example that standard linearizability is not enough): we have to talk about specifications (that they are sequential), about linearizing the visibility, the relationship between the visibility and the linearization (say that this linearization is not really the arbitration order in Burkhardt's: the arbitration is for solving conflicts (usually defined by timestamps), our linearization is for explaining the behavior)
-\item a second example: OR-set, talk about the rewriting of labels
-\item talk about compositionality: that it doesn't hold for the original definition, that we define two strengthenings, and how they compose
-\end{itemize}}
-
-\ce{Make the distinction between an operation being \emph{originated} at some replica, and whose downstream is \emph{executed} at some replica}
-
-\gpwarning[nomargin, inline]{I think it would be useful to show a
-  graphical example of linearizations here. Something like the
-  examples in the HW paper would do.}
-
-\emph{Optimistic replication  algorithms} are a type of distributed algorithms where each client contains a copy of data structure; a client operations takes effect instantly at its replica without any synchronization, and then broadcast to other replicas and got applied. Convergent or Commutative Replicated Data Types (CRDTs) is a typical kinds of optimistic replication algorithms. In this section, we will introduce CRDT algorithms and their formation.\footnote{To be exact, there are two kinds of CRDT algorithms: state-based and operation based. The implementations we discussed in this section is operation-based. The state-based CRDT can be similarly formalized and verified, and we discuss state-based CRDT in the discussion section of this paper.}
-
-In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below.
-
-
+\begin{figure}[t]
+  % \centering
 \begin{lstlisting}[caption={Pseudo-code of the Replicated Growable
-    Array (RGA) CRDT (adapted from~\cite{ShapiroPBZ11})}, captionpos=b,label={lst:rga}]
+Array (RGA) CRDT (adapted from~\cite{ShapiroPBZ11})},
+captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
 
@@ -46,55 +28,38 @@ In CRDT, each query operation works locally, while each update operation will in
   read() :
     return traverse(N, Tomb)
 \end{lstlisting}
-%(N == @|$\emptyset$|@)?(1,myID()):(max{c | (_,(_,c),_) @|$\in$|@ N},myID())
-%       let ts@|$_{\mathtt{b}}$|@ = (b == @|$\circ$|@) ? 0 : (timestamp of b in N)
-% ts@|$_{\mathtt{b}}$|@
-%ts@|$_{\mathtt{b}}$|@
+\end{figure}
+
+\gpnote*{TODO}{
+  Section sketch:
+  \begin{itemize}
+  \item Informal explanation of the program model. Multiple replicas,
+    clients connect to any replica. Operations are propagated lazily.
+  \item Explanation of the program model. We explain the code of RGA
+    (\lstinline|atSource|, \lstinline|downStream|). Conflict
+    resolution. Commutativity.
+  \item We give a first intuition about the \CRDTLin{} of RGA. We
+    might explain why standard Linearizability is not good enough.
+  \item We present OR-Set. We explain that the linearization of OR-Set
+    is more complicated without getting too tangled into de details.
+    OR-Set is important because we need to explain that some
+    operations will see a sub-sequence of the global linearization
+    (in contrast to RGA above).
+  \item If needed we can talk about the compositionality problem.
+  \end{itemize}
+}
+
+\ce{Make the distinction between an operation being \emph{originated} at some replica, and whose downstream is \emph{executed} at some replica}
+
+\gpwarning[nomargin, inline]{I think it would be useful to show a
+  graphical example of linearizations here. Something like the
+  examples in the HW paper would do.}
+
+\emph{Optimistic replication  algorithms} are a type of distributed algorithms where each client contains a copy of data structure; a client operations takes effect instantly at its replica without any synchronization, and then broadcast to other replicas and got applied. Convergent or Commutative Replicated Data Types (CRDTs) is a typical kinds of optimistic replication algorithms. In this section, we will introduce CRDT algorithms and their formation.\footnote{To be exact, there are two kinds of CRDT algorithms: state-based and operation based. The implementations we discussed in this section is operation-based. The state-based CRDT can be similarly formalized and verified, and we discuss state-based CRDT in the discussion section of this paper.}
+
+In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below.
 
 \renewcommand{\algorithmcfname}{CRDT Implementation}
-\noindent
-%\begin{minipage}{.5\textwidth}
-\noindent% \begin{algorithm}[H]
-% $\mathit{payload}$ TI-tree N, set $\mathit{Tomb}$; \\
-% $\mathit{initial}$ $\emptyset$,$\emptyset$; \\
-
-% $add(a,b)$ \\
-% \ \ $\mathit{atSource}$: \\
-% \ \ \ \ $\mathit{pre}$: \ $b = \circ \vee$ %( b \neq \circ \wedge (b,\_,\_) \in N \wedge b \notin \mathit{Tomb})$ \\
-
-% % \ \ \ \ \If {$N = \emptyset$}
-% % { \ \ \ \ let \ $ts_a$ = (myID(),1); \\ }
-% % \ \ \ \ \Else
-% % {\ \ \ \ let \ $ts_a$ = (myID(),$\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$); \\ }
-
-% % \ \ \ \ \%If {$b = \circ$}
-% %    { \ \ \ \ let \ $ts_b$ = (0,0); \\ }
-% %\ \ \ \ \Else
-% %    { \ \ \ \ let \ $ts_b$ be time-stamp of $b$ in $N$; \\ }
-
-% \ \ \ \ let \ $ts_a$ = ($N = \emptyset$) ? (1,$\mathit{myID}$()) ! ($\mathit{max}\{ c' \vert (\_,(\_,c'),\_) \in N \} +1$,$\mathit{myID}$()); \\
-% \ \ \ \ let \ $ts_b$ = ($b = \circ$) ? (0,$r_0$) ! (the time-stamp of $b$ in $N$); \\
-
-% \ \ $\mathit{downstream}(a,ts_a,ts_b)$: \\
-% \ \ \ \ $\mathit{pre}$: \ $b = \circ \vee ( b \neq \circ \wedge (b,ts_b,\_) \in N)$ \\
-
-% \ \ \ \ $N = N \cup \{ (a,ts_a,ts_b) \}$.
-
-
-% $rem(a)$ \\
-% \ \ $\mathit{atSource}$: \\
-% \ \ \ \ $\mathit{pre}$: \ $a \neq \circ \wedge (a,\_,\_) \in N \wedge a \notin \mathit{Tomb}$ \\
-
-% \ \ $\mathit{downstream}(a)$: $\mathit{pre}$ \ $a \neq \circ \wedge (a,\_,\_) \in N)$
-
-% \ \ \ \ $\mathit{Tomb} = \mathit{Tomb} \cup \{ a \}$.
-
-% $read()$ \\
-% \ \ \ \ \KwRet $\mathit{trans}(N,\mathit{Tomb})$; \\
-
-% \caption{RGA}
-% \label{Method-rga}
-% \end{algorithm}
 
 \subsection{Example: Replicated Growable Array (RGA)}
 \label{sec:rga}
@@ -204,9 +169,7 @@ In RGA algorithm, a replica store the list as a timestamp insertion tree (TI-tre
 
 Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a position immediately after that of a existing item $b$. Method $\mathit{rem}(a)$ removes $a$ from the list. Method $\mathit{read}$ returns the current list content. When the current replica does $\mathit{add}(a,b)$, it generate a tuple $(a,ts_a,ts_b)$ and put it into $N$. Here $ts_b$ is the time-stamp of $b$, and $ts_a$ is a new time-stamp that is larger than any time stamp in $N$. When the current replica does $\mathit{rem}(a)$, it put $a$ into tombstone. When the current replica does $\mathit{read}$, it uses function $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the current replica, which is a sequences obtained by traversing $N$ in prefix order (children are visited in decreasing time-stamp order) and keeping only items that are not in $\mathit{Tomb}$.
 
-
-\begin{minipage}[t]{1.0\linewidth}
-\begin{lstlisting}[frame=top,caption={Pseudo-code of the or-set CRDT},
+\begin{lstlisting}[caption={Pseudo-code of the or-set CRDT},
 captionpos=b,label={lst:or-set}]
   payload Set S
   initial S = @|$\emptyset$|@
@@ -235,7 +198,6 @@ captionpos=b,label={lst:or-set}]
     //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
     return A
 \end{lstlisting}
-\end{minipage}
 %      precondition : %@|$\exists$|@ k. (a,k) @|$\in$|@ S
 %let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
 %      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
