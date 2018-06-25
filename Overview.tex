@@ -12,11 +12,11 @@ captionpos=b,label={lst:rga}]
 
   addAfter(a,b) :
     atSource :
-      precondition : b = @|$\circ$|@ or (b != @|$\circ$|@ and (b,_,_) @|$\in$|@ N and b @|$\not\in$|@ Tomb)
-      let ts@|$_{\mathtt{a}}$|@ = getTimestamp()
-    downStream(a, ts@|$_{\mathtt{a}}$|@, b) :
-      precondition: b = @|$\circ$|@ or (b != @|$\circ$|@ and (b, ts@|$_{\mathtt{b}}$|@,_) @|$\in$|@ N)
-      N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{a}}$|@, b)}
+      precondition : a = @|$\circ$|@ or (a != @|$\circ$|@ and (a,_,_) @|$\in$|@ N and a @|$\not\in$|@ Tomb)
+      let ts@|$_{\mathtt{b}}$|@ = getTimestamp()
+    downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
+      precondition: a = @|$\circ$|@ or (a != @|$\circ$|@ and (a, ts@|$_{\mathtt{a}}$|@,_) @|$\in$|@ N)
+      N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
 
   remove(a) :
     atSource :
@@ -131,6 +131,112 @@ operations, and perhaps a - \lstinline|remove(_)| and
 \lstinline|addAfter(_, _)| operation. We explain the preconditions,
 their relation to causality, etc.
 }
+
+As it is common to many CRDT implementations, in RGA replicas will use
+a timestamp mechanism to keep track of the causality between updates
+to the list, effectively capturing when two updates are concurrent,
+and moreover, they will keep the information relating the causal order
+in which elements are added to the list.
+%
+Provided with this causality information, the timestamps will be used
+to resolve conflicts in a deterministic way.
+%
+More concretely, each replica will keep what we shall name a
+\emph{Timestamp Tree} (\lstinline|Ti-Tree|) containing in every tree
+node a pair with the element added to the list (for instance the
+character \lstinline|b|), and a timestamp associated to it
+(\lstinline|t|$_{\mathtt{b}}$) which will be used to resolve
+conflicts.
+%
+We will encode the tree as a set containing triples (representing
+nodes) of the form (\lstinline|a|, \lstinline|ts|$_{b}$, \lstinline|b|)
+representing the fact that there is an element \lstinline|b| in the
+tree with timestamp \lstinline|ts|$_{\mathtt{b}}$ and whose parent is the item
+\lstinline|a| also present in the tree.
+%
+The tree-ness property will be ensured by construction.
+
+
+If we look at the \lstinline|atSource| portion of the
+\lstinline|addAfter(a,b)| method we can see that precondition requires
+the \lstinline|a| to exist in the tree before the insertion of
+\lstinline|b| after it.
+%
+We remark at this point that the data structure is initialized with a
+preexisting initial element $\circ$.
+%
+The generator then samples a timestamp \lstinline|t|$_{\mathtt{b}}$
+for \lstinline|b| which is assumed to be larger than any
+timestamp presently occurring in the \lstinline|Ti-Tree|
+\lstinline|N|.
+\gpnote{Add note about uniqueness of TSs (rid).}
+%
+Looking at the \lstinline|downStream| portion of
+\lstinline|addAfter(a,b)| we see that the effect of the operation is
+to add the triple \lstinline|(a, ts|$_{\mathtt{b}}$\lstinline|, b)|
+representing the fact that the element \lstinline|b| is a child of the
+item \lstinline|a| in the tree.
+%
+Then, the tree structure is representative of the causality of the
+tree.
+%
+Notice that a client of the object will only ever attempt to add an
+element after another element which has already seen (mandated by the
+\lstinline|addAfter| operation of the API).
+%
+Hence, the parent node of any node is causally related before it.
+%
+Similarly, nodes that are not related to each other on any path of
+the tree (eg. siblings) are not causally related.
+%
+An example of such a tree is shown in~\ref{fig:rga-tree}.
+\gpwarning*{Example}{Ask Chao for a concrete example.}
+%
+
+Considering a \lstinline|Ti-tree| constructed in this way, we can
+obtain a list by traversing the tree in pre-order fashion, with the
+proviso that siblings are ordered according to their timestamps. 
+%
+\autoref{fig:rga-tree} shows the tree that results from the given
+tree. 
+
+We have so far ignored the \lstinline|remove| operation.
+%
+Consider the case where a client issues an \lstinline|addAfter(a, b)|
+on a replica whereas another client issues a \lstinline|remove(a)|
+operation in another replica. 
+%
+If the effector of \lstinline|remove(a)| reaches every replica after
+the effector of \lstinline|addAfter(a, b)| there is no problem since
+the semantics is obvious (the element \lstinline|a| is removed after
+the element \lstinline|b| has been added). 
+%
+However, if the operations reach some replica in the opposite order
+(recall that these are concurrent operations) we have a problem, since
+the precondition of the effector of \lstinline|addAfter(a, b)|
+requires that the element \lstinline|a| be present in the
+\lstinline|Ti-tree| of the replica.
+
+To avoid this kind of conflict, thus rendering these operations
+commutative (c.f. CRDT), RGA does not really erase elements from the
+\lstinline|Ti-tree|.
+%
+Instead, an additional data structure called a tombstone is used to
+keep track of elements that have been conceptually erased and should
+not be considered when reading the data structure with the
+\lstinline|read| operation. 
+%
+In our case the tombstone is simply a set \lstinline|Tomb| of
+elements. 
+%
+With this explanation the code of the \lstinline|remove| operation
+in~\autoref{lst:rga} should be self-explanatory. 
+
+Finally, the implementation of \lstinline|read| performs the pre-order
+traversal as explained before, where all the elements in the tombstone
+\lstinline|Tomb| are ignored from the output list. 
+
+
 
 \ce{Make the distinction between an operation being \emph{originated} at some replica, and whose downstream is \emph{executed} at some replica}
 
