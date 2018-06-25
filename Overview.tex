@@ -14,6 +14,10 @@ Here we introduce:
 
 \ce{Make the distinction between an operation being \emph{originated} at some replica, and whose downstream is \emph{executed} at some replica}
 
+\gpwarning[nomargin, inline]{I think it would be useful to show a
+  graphical example of linearizations here. Something like the
+  examples in the HW paper would do.}
+
 \emph{Optimistic replication  algorithms} are a type of distributed algorithms where each client contains a copy of data structure; a client operations takes effect instantly at its replica without any synchronization, and then broadcast to other replicas and got applied. Convergent or Commutative Replicated Data Types (CRDTs) is a typical kinds of optimistic replication algorithms. In this section, we will introduce CRDT algorithms and their formation.\footnote{To be exact, there are two kinds of CRDT algorithms: state-based and operation based. The implementations we discussed in this section is operation-based. The state-based CRDT can be similarly formalized and verified, and we discuss state-based CRDT in the discussion section of this paper.}
 
 In CRDT, each query operation works locally, while each update operation will inform other replica about its update. We takes a algorithm, replicated growable array (RGA), as an example of operation-based CRDT and it is shown below.
