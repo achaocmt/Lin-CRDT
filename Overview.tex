@@ -33,7 +33,7 @@ captionpos=b,label={lst:rga}]
 \gpnote*{TODO}{
   Section sketch:
   \begin{itemize}
-  \item Informal explanation of the program model. Multiple replicas,
+  \item Informal explanation of the system model. Multiple replicas,
     clients connect to any replica. Operations are propagated lazily.
   \item Explanation of the program model. We explain the code of RGA
     (\lstinline|atSource|, \lstinline|downStream|). Conflict
@@ -47,6 +47,89 @@ captionpos=b,label={lst:rga}]
     (in contrast to RGA above).
   \item If needed we can talk about the compositionality problem.
   \end{itemize}
+}
+
+\paragraph{System Model.}
+
+We assume that the system is comprised of multiple nodes in a network.
+In this work we will be concerned with the implementation of CRDTs,
+and we will usually concentrate our discussion to the behaviors
+allowed for \emph{an instance} of the data type.
+We will generically call such an instance an \emph{object}.
+As mentioned in~\autoref{sec:introduction} we assume that objects are
+replicated among the participating nodes of the system -- which we
+shall call replicas.
+
+The execution model for an object is as follows:
+\begin{itemize}
+\item clients, which are programs issuing calls to the object, connect
+  to any one replica (node of the system holding a copy of the object)
+  and performs the operation in that replica, we shall call such a
+  replica the origin or \emph{source},
+\item executing an operation is done in two phases. Assuming that the
+  operation requires reading and updating the state of the object, the
+  state of the object in the source replica is read first (we shall sometimes
+  refer to this part of the operation as the generator
+  following~\cite{ShapiroPBZ11}), and then, if the state needs to be changed as part of the operation -- e.g.
+  an \lstinline|addRight| operation of RGA -- an update is
+  generated which shall be executed in all the replicas holding copies
+  of the object (we shall refer to the update as the effector).
+  We assume throughout this paper that effectors are executed immediate
+  in the source replica,
+\item finally, as the system progresses, the effector of the operation
+  will be delivered to each of the replicas holding a copy of the
+  object.
+\end{itemize}
+This model is depicted in~\autoref{fig:system-model}.
+\fxwarning[nomargin, inline]{We need the picture}.
+
+\paragraph{CRDT implementations}
+
+Following the description above~\cite{ShapiroPBZ11} presents the code
+for a number of CRDT implementations.
+%
+Here we consider the code of the RGA algorithm presented
+in~\autoref{lst:rga}.
+%
+Let us first consider the structure of the data type implementation:
+\begin{itemize}
+\item the keyword \lstinline|payload| introduces the state that is
+  used to represent the object. This is akin to the fields of a class
+  file in an object oriented language such as Java. In the specific
+  case of RGA we hate a variable \lstinline|N| of type
+  \lstinline|Ti-Tree| (to be discussed later), and a variable
+  \lstinline|Tomb| of type \lstinline|Set|.
+\item After that we find the definitions of the three operations we
+  discussed in the introduction: \lstinline|addAfter|,
+  \lstinline|remove| and \lstinline|read|.
+\item The effectful operations \lstinline|addAfter| and
+  \lstinline|remove| have two labels marked in red:
+  \lstinline|atSource| and \lstinline|downStream|.
+  These represent the code to be executed as the generator and
+  effector respectively. Hence, the code under the label
+  \lstinline|atSource| is executed only at the source replica and it
+  generates the arguments that the code under \lstinline|downStream|
+  will execute in each of the replicas.
+\item We can also notice that under the labels there are
+  \lstinline|precondition| annotations indicating facts that are
+  assumed about the state of the object upon execution of either of
+  the generator or effector of the operation.
+\end{itemize}
+Reconsidering~\autoref{fig:system-model} we can then say that the
+source of the arrows in each replica represent the execution of an
+\lstinline|atSource| jointly with the \lstinline|downStream| of the
+operation at the source replica.
+%
+The sink of the arrows represents the delivery and execution of the
+generator of the operation in a replica other than the source.
+
+\paragraph{RGA CRDT implementation}
+\gpwarning[nomargin, inline]{
+We explain the \lstinline|Ti-Tree| and the tombstone of RGA. We give
+an example of conflict resolution: - two \lstinline|addAfter(a, _)|
+operations, and perhaps a - \lstinline|remove(_)| and
+\lstinline|addAfter(_, _)| operation. We explain the preconditions,
+their relation to causality, etc.
 }
 
 \ce{Make the distinction between an operation being \emph{originated} at some replica, and whose downstream is \emph{executed} at some replica}
@@ -210,7 +293,7 @@ operation, an tuple $(\argv,\ats)$ will be added to the local state;
 while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$
 operation, a set $S_1$ will be removed from the local state. We call
 such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream.
-The following is the condition $C_2$ for or-set implementation.
+The following is the condition $C_2$ for or-set implementatio.
 
 %%% Local Variables:
 %%% mode: latex
