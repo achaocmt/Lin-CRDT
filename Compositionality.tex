@@ -19,9 +19,9 @@ Also, we should prove that composing two $T0$, resp., $T1$, specs results in a $
 
 
 \subsection{T0-Linearizability and T1-Linearizability}
-\label{subsec:t0-linearizability and t1-linearizability} 
+\label{subsec:t0-linearizability and t1-linearizability}
 
-In this section, our goal is to give a modular verification for \crdtlin. Let us start with how to ensure the compositionality of a history. A history $\ahis$ is compositional, if when we prove that for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is \crdtlinearizable{} w.r.t the corresponding specification $\Spec$, then, we obtain that $\ahis$ is \crdtlinearizable{}. 
+In this section, our goal is to give a modular verification for \crdtlin. Let us start with how to ensure the compositionality of a history. A history $\ahis$ is compositional, if when we prove that for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is \crdtlinearizable{} w.r.t the corresponding specification $\Spec$, then, we obtain that $\ahis$ is \crdtlinearizable{}.
 
 
 In \figurename~\ref{fig:an example of linearization of single objects do not imply a linearization of the whole history} we show an example when \crdtlinearization{} of single objects can not be used to construct the \crdtlinearization{} of the whole history. The history $\ahis$ of \figurename~\ref{fig:an example of linearization of single objects do not imply a linearization of the whole history} contains operations of two or-set objects $\aobj_1$ and $\aobj_2$. To distinguish them, the operations of $\aobj_1$ is drew with unfilled circle while the operations of $\aobj_2$ is drew with filled circle, and we list the object of each operation. We can see that $\mathit{add}(a) \cdot \mathit{add}(b)$ and $\mathit{add}(c) \cdot \mathit{add}(d)$ are \crdtlinearization{} for $\ahis \uparrow_{\aobj_1}$ and $\ahis \uparrow_{\aobj_2}$, respectively. However, since composing these two \crdtlinearization{} brings a cycle, there can not be any \crdtlinearization{} of $\ahis$ consistent with these two \crdtlinearization{} of $\ahis \uparrow_{\aobj_1}$ and $\ahis \uparrow_{\aobj_2}$.
@@ -43,7 +43,7 @@ Although we can not directly compose smaller \crdtlinearization{} into a bigger 
 A single-object history $\ahis$ is \tzerolinearizable{} w.r.t a sequential specification \Spec{}, if $\ahis$ is \crdtlinearizable{} w.r.t \Spec{}, and each specification sequence $(\alabelset, \aseqord)$ consistent with visibility order is a \crdtlinearization{}.
 \end{definition}
 
-We say a specification sequence $(\alabelset, \aseqord)$ be consistent with timestamp order, if the time-stamp of operation $\aobj_1$ being less than the timestamp of $\aobj_2$ implies that $\aobj_1$ being before $\aobj_2$ in $\aseqord$, and if $(\aobj_3,\aobj_4) \in \avisord$, then the timestamp of $\aobj_3$ is less or equal to the timestamp of $\aobj_4$. 
+We say a specification sequence $(\alabelset, \aseqord)$ be consistent with timestamp order, if the time-stamp of operation $\aobj_1$ being less than the timestamp of $\aobj_2$ implies that $\aobj_1$ being before $\aobj_2$ in $\aseqord$, and if $(\aobj_3,\aobj_4) \in \avisord$, then the timestamp of $\aobj_3$ is less or equal to the timestamp of $\aobj_4$.
 
 \begin{definition}[\tonelin{}]
 \label{definition:t1-linearizability}
@@ -58,22 +58,22 @@ A single-object history $\ahis$ is \tonelinearizable{} w.r.t a sequential specif
 \subsection{Composing Histories}
 \label{lemma:composing histories}
 
-In this subsection, we consider the case when we are given a history $\ahis$ where $\ahis \uparrow_{\aobj}$ is \crdtlinearizable{} w.r.t its corresponding sequential specification $\Spec{}$ for each object $\aobj$, then what is the condition needed to ensure $\ahis$ being \crdtlinearizable. 
+In this subsection, we consider the case when we are given a history $\ahis$ where $\ahis \uparrow_{\aobj}$ is \crdtlinearizable{} w.r.t its corresponding sequential specification $\Spec{}$ for each object $\aobj$, then what is the condition needed to ensure $\ahis$ being \crdtlinearizable.
 
 The following lemma states that, if each object is \tzerolinearizable{}, then the whole history is \crdtlinearizable{}. Its proof can be found in Appendix \ref{subsec:appendix proofs of lemma several t0-specifications can be composed}.
 
 \begin{restatable}{lemma}{composingTZero}
 \label{lemma:several t0-specifications can be composed}
 Given a multi-object history $\ahis$. If for each of its object $\aobj$, $\ahis \uparrow_{\aobj}$ is \tzerolinearizable{}, then, $\ahis$ is \crdtlinearizable{}.
-\end{restatable} 
+\end{restatable}
 
-\begin {proof} (Sketch): 
+\begin {proof} (Sketch):
 
-We construct a \crdtlinearization $(\alabelset, \aseqord)$ of $h$ step by step by always choosing an operation that is minimal w.r.t $\avisord$. Since the visibility relation is acyclic, finally all operations of $\ahis$ will be put in $\alabelset$. Since each object use \tzerolin{} and $\aseqord$ is obviously consistent with the visibility relation, we can see that $(\alabelset, \aseqord)$ is a \crdtlinearization of $\ahis$. $\qed$ 
+We construct a \crdtlinearization $(\alabelset, \aseqord)$ of $h$ step by step by always choosing an operation that is minimal w.r.t $\avisord$. Since the visibility relation is acyclic, finally all operations of $\ahis$ will be put in $\alabelset$. Since each object use \tzerolin{} and $\aseqord$ is obviously consistent with the visibility relation, we can see that $(\alabelset, \aseqord)$ is a \crdtlinearization of $\ahis$. $\qed$
 \end {proof}
 
 
-However, %if each object is either \tzerolinearizable{} or \tonelinearizable{}, and 
+However, %if each object is either \tzerolinearizable{} or \tonelinearizable{}, and
 when at least one object is \tonelinearizable{} w.r.t its corresponding sequential specification, then it is possible that the whole history is not \crdtlinearizable. In \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} we show an example when there is one \tonelinearizable{} object and one \tzerolinearizable{} object. The history $\ahis$ of \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} contains operations of a or-set object $\aobj_1$ and a list object $\aobj_2$. Here we assume that $\ats_1 < \ats_2$. We can see that $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ are \crdtlinearizable, and the only possible linearization of $h \uparrow_{\aobj_1}$ and $h \uparrow_{\aobj_2}$ is $\mathit{write}(a) \cdot \mathit{write}(b)$ and $\mathit{write}(c,\circ) \cdot \mathit{write}(d,\circ) \cdot \mathit{read}() \Rightarrow d \cdot c$, respectively. However, the whole history $\ahis$ is not \crdtlinearizable, since there is a cycle in smaller linearizations.
 
 \begin{figure}[t]
@@ -89,13 +89,13 @@ To get rid of such problem, we additionally require the visibility relation to b
 \begin{restatable}{lemma}{composingTZeroAndOneTOne}
 \label{lemma:several t0-specifications and one t1-specification can be composed}
 Given a multi-object history $\ahis$ with transitive visibility relation. If for one object $\aobj$, $\ahis \uparrow_{\aobj}$ is \tonelinearizable{}, and for other object $\aobj'$, $\ahis \uparrow_{\aobj'}$ is \tzerolinearizable{}, then, $\ahis$ is \crdtlinearizable{}.
-\end{restatable} 
+\end{restatable}
 
-\begin {proof} (Sketch): 
+\begin {proof} (Sketch):
 
-We construct a \crdtlinearization $(\alabelset, \aseqord)$ of $h$ step by step by always choosing either an operation of $\aobj'$ that is minimal w.r.t $\avisord$, or an operation of $\aobj$ that is minimal w.r.t $\avisord$ and timestamp order. Once such process terminates with all operations of $\ahis$ put in $\alabelset$, since $\aseqord$ is obviously consistent with the visibility relation, and $\aseqord \uparrow_{\aobj}$ is obviously consistent with the timestamp order, we know that $(\alabelset, \aseqord)$ is a \crdtlinearization of $\ahis$. 
+We construct a \crdtlinearization $(\alabelset, \aseqord)$ of $h$ step by step by always choosing either an operation of $\aobj'$ that is minimal w.r.t $\avisord$, or an operation of $\aobj$ that is minimal w.r.t $\avisord$ and timestamp order. Once such process terminates with all operations of $\ahis$ put in $\alabelset$, since $\aseqord$ is obviously consistent with the visibility relation, and $\aseqord \uparrow_{\aobj}$ is obviously consistent with the timestamp order, we know that $(\alabelset, \aseqord)$ is a \crdtlinearization of $\ahis$.
 
-We proce that such process terminates with all operations of $\ahis$ put in $\alabelset$ by contradiction. Assume such process terminates while a set $S$ of operations is not put into $\alabelset$ yet. It is easy to see that $S$ contains only operation of $\aobj$. Let $\alabel$ be the operation of $S$ with minimal timestamp, then it is easy to see that $\alabel$ is not minimal w.r.t $\avisord$ in $S$. There exists operations $\alabel_1,\ldots,\alabel_k \in S$, such that $\alabel$ is minimal w.r.t $\avisord$ in $S$ but not minimal w.r.t timestamp order, and $(\alabel_1,\alabel_2),\ldots,(\alabel_k,\alabel) \in \avisord$. Since the visibility is transitive, we have that $(\alabel_1,\alabel) \in \avisord$ while the timestamp of $\alabel_1$ is larger than the timestamp of $\alabel$, contradicts the assumption that $\aobj$ being \tonelinearizable{}. $\qed$ 
+We proce that such process terminates with all operations of $\ahis$ put in $\alabelset$ by contradiction. Assume such process terminates while a set $S$ of operations is not put into $\alabelset$ yet. It is easy to see that $S$ contains only operation of $\aobj$. Let $\alabel$ be the operation of $S$ with minimal timestamp, then it is easy to see that $\alabel$ is not minimal w.r.t $\avisord$ in $S$. There exists operations $\alabel_1,\ldots,\alabel_k \in S$, such that $\alabel$ is minimal w.r.t $\avisord$ in $S$ but not minimal w.r.t timestamp order, and $(\alabel_1,\alabel_2),\ldots,(\alabel_k,\alabel) \in \avisord$. Since the visibility is transitive, we have that $(\alabel_1,\alabel) \in \avisord$ while the timestamp of $\alabel_1$ is larger than the timestamp of $\alabel$, contradicts the assumption that $\aobj$ being \tonelinearizable{}. $\qed$
 \end {proof}
 
 
@@ -106,9 +106,9 @@ When there are more than one \tonelinearizable{} objects, transitive visibility 
   \centering
   \includegraphics[width=0.7 \textwidth]{figures/LWWReg-LWWReg-NoSTS.pdf}
 \vspace{-10pt}
-  \caption{A failed example of composing two \tonelinearizable list object $\aobj_1$ and $\aobj_2$, where $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$.} 
+  \caption{A failed example of composing two \tonelinearizable list object $\aobj_1$ and $\aobj_2$, where $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$.}
   \label{fig:a failed example of composing two last-write-win registers}
-\end{figure} 
+\end{figure}
 
 
 %To get rid of such problem, we require a condition called causal-timestamp. Intuitively, causal-timestamp requires multiple objects to ``share timestamp''. Formally, a history $\ahis$ satisfies causal-time-stamp, if for operations $\aop_1,\aop'_1,\ldots,\aop_k,\aop'_k$ of $\ahis$ satisfies the following condition, we have that the timestamp of $\aop'_1$ is less than that of $\aop_1$:
@@ -127,17 +127,17 @@ To get rid of such problem, we additionally require that $(<_{\mathit{ts}} \cup 
 \begin{restatable}{lemma}{composingTZeroAndTOne}
 \label{lemma:several t0-specifications and several t1-specification can be composed}
 Given a multi-object history $\ahis$ satisfies acyclic $(<_{\mathit{ts}} \cup \avisord)^*$. If for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is either \tzerolinearizable{} or \tonelinearizable{}, then, $\ahis$ is \crdtlinearizable{}.
-\end{restatable} 
+\end{restatable}
 
-The proof of this lemma is similar to that of Lemma \ref{lemma:several t0-specifications and one t1-specification can be composed}: We construct a \crdtlinearization of $h$ step by step by always choosing either an operation of a \tzerolin{} object that is minimal w.r.t $\avisord$, or an operation of a \tonelin{} object that is minimal w.r.t $\avisord$ and timestamp order. The condition of $(<_{\mathit{ts}} \cup \avisord)^*$ being acyclic will be used to prove that such process terminates with all operations of $\ahis$ put in the \crdtlinearization. \figurename~\ref{fig:compose two list} shows an successful example of composing two \tonelinearizable list object $\aobj_1$ and $\aobj_2$. As discussed above, in constructing the \crdtlinearization, in the first round, the only candidate is $\aobj_2.\mathit{add}(c,\circ)$; in the second round, the only candidate is $\aobj_1.\mathit{add}(a,\circ)$; in the third round, we could randomly choose $\aobj_1.\mathit{add}(b,\circ)$, and in the last round, we choose $\aobj_2.\mathit{add}(d,\circ)$. It is obvious that  $\aobj_2.\mathit{add}(c,\circ) \cdot \aobj_1.\mathit{add}(a,\circ) \cdot \aobj_1.\mathit{add}(b,\circ) \cdot \aobj_2.\mathit{add}(d,\circ)$ is the \crdtlinearization of the whole history. 
+The proof of this lemma is similar to that of Lemma \ref{lemma:several t0-specifications and one t1-specification can be composed}: We construct a \crdtlinearization of $h$ step by step by always choosing either an operation of a \tzerolin{} object that is minimal w.r.t $\avisord$, or an operation of a \tonelin{} object that is minimal w.r.t $\avisord$ and timestamp order. The condition of $(<_{\mathit{ts}} \cup \avisord)^*$ being acyclic will be used to prove that such process terminates with all operations of $\ahis$ put in the \crdtlinearization. \figurename~\ref{fig:compose two list} shows an successful example of composing two \tonelinearizable list object $\aobj_1$ and $\aobj_2$. As discussed above, in constructing the \crdtlinearization, in the first round, the only candidate is $\aobj_2.\mathit{add}(c,\circ)$; in the second round, the only candidate is $\aobj_1.\mathit{add}(a,\circ)$; in the third round, we could randomly choose $\aobj_1.\mathit{add}(b,\circ)$, and in the last round, we choose $\aobj_2.\mathit{add}(d,\circ)$. It is obvious that  $\aobj_2.\mathit{add}(c,\circ) \cdot \aobj_1.\mathit{add}(a,\circ) \cdot \aobj_1.\mathit{add}(b,\circ) \cdot \aobj_2.\mathit{add}(d,\circ)$ is the \crdtlinearization of the whole history.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.45 \textwidth]{figures/Compose-TwoList.pdf}
 \vspace{-10pt}
   \caption{A successful example of composing two \tonelinearizable list object $\aobj_1$ and $\aobj_2$, where $\mathit{ts}_1 < \mathit{ts}_2$, and $\mathit{ts}'_1 < \mathit{ts}'_2$.}
-  \label{fig:compose two list} 
-\end{figure} 
+  \label{fig:compose two list}
+\end{figure}
 
 %Note that here we permit different \crdtimp{} to use different style of timestamp and order.
 
@@ -150,10 +150,10 @@ The proof of this lemma is similar to that of Lemma \ref{lemma:several t0-specif
 
 Given a set of objects, we may choose some objects which later will be proved to be ``\tzerolinearizable{}'' while other objects will be proved to be ``\tonelinearizable{}''. We may call the former objects and latter objects objects of \tzerolin{} and \tonelin{}, respectively.
 
-To ensure the acyclic $(<_{\mathit{ts}} \cup \avisord)^*$ of Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}, we propose a semantics for multiple objects. %The transitive visibility can be easily satisfied by always choosing a minimum downstream w.r.t visibility relation among objects. To deal with causal-timestamp, 
+To ensure the acyclic $(<_{\mathit{ts}} \cup \avisord)^*$ of Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}, we propose a semantics for multiple objects. %The transitive visibility can be easily satisfied by always choosing a minimum downstream w.r.t visibility relation among objects. To deal with causal-timestamp,
 We introduce a \gts{} shared among objects of \tonelin{}. Objects of \tonelin{} use \gts{}, instead of its inner information, to generate new timestamp; The distributed system is responsible for updating global-timestamp, and we give only abstract restriction for it.
 
-The value of \gts{} is a natural number $c \in \mathbb{N}$. The \gts{} have only one method called $\updategts{}$. $\updategts{}$ updates the value of \gts{} into a random bigger value and returns it. As discussed above, \crdtimp{} of objects of \tonelin{} is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp. As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified. 
+The value of \gts{} is a natural number $c \in \mathbb{N}$. The \gts{} have only one method called $\updategts{}$. $\updategts{}$ updates the value of \gts{} into a random bigger value and returns it. As discussed above, \crdtimp{} of objects of \tonelin{} is modified as follows: When we need to generate a new timestamp, we use method $\updategts{}$ to generate new timestamp. As an example, the modified RGA algorithm is shown in \autoref{lst:modified rga}. We can see that only line $7$ is modified.
 
 \begin{lstlisting}[caption={Pseudo-code of the Modified RGA}, captionpos=b,label={lst:modified rga}]
   payload Ti-Tree N, Set Tomb
@@ -247,7 +247,7 @@ According to Lemma \ref{lemma:several t0-specifications and several t1-specifica
 \item[-] for each object $\aobj$ of \tonelin{}, each history of $\llbracket \{ \aobj \} \rrbracket_g$ is \tonelinearizable{}
 \end{itemize}
 
-Then, each history of $\llbracket \severalobj \rrbracket_g$ is \crdtlinearizable{}. This holds since given a history $\ahis$ of $\llbracket \severalobj \rrbracket_g$ and an object $\aobj \in \severalobj$, $\ahis \uparrow_{\aobj}$ is a history of $\llbracket \aobj \rrbracket$ or $\llbracket \{ \aobj \} \rrbracket_g$. Recall that $\updategts$ increase into a random new value. 
+Then, each history of $\llbracket \severalobj \rrbracket_g$ is \crdtlinearizable{}. This holds since given a history $\ahis$ of $\llbracket \severalobj \rrbracket_g$ and an object $\aobj \in \severalobj$, $\ahis \uparrow_{\aobj}$ is a history of $\llbracket \aobj \rrbracket$ or $\llbracket \{ \aobj \} \rrbracket_g$. Recall that $\updategts$ increase into a random new value.
 
 Although this gives an approach for modular proof, it is complex to prove \tzerolin{} or \tonelin{} for each object. Another problem is that we can not directly reuse our proof with execution-order simulation relation and timestamp-order simulation relation. We solve these problem by considering properties of sequential specifications.
 
@@ -281,9 +281,9 @@ The following lemma shows some sequential specifications are \tonespec{}. Its pr
 $\mathit{list}_s^{\mathit{af}}$ and $\mathit{reg}_s$ are \tonespec{}.
 \end{restatable}
 
-Since the timestamp-order simulation relation uses a \crdtlinearization that consistent with visibility order and and timestamp order, it is obvious that, once we prove that each history of $\llbracket \mobj{\aobj} \rrbracket$ is \crdtlinearizable{} w.r.t a \tonespec{} $\Spec$ by proving timestamp-order simulation relation, then, we know that $\aobj$ is \tonelinearizable w.r.t $\Spec$. 
+Since the timestamp-order simulation relation uses a \crdtlinearization that consistent with visibility order and and timestamp order, it is obvious that, once we prove that each history of $\llbracket \mobj{\aobj} \rrbracket$ is \crdtlinearizable{} w.r.t a \tonespec{} $\Spec$ by proving timestamp-order simulation relation, then, we know that $\aobj$ is \tonelinearizable w.r.t $\Spec$.
 
-Since previously when we prove \crdtimp using timestamp-order simulation relation, our prove does not rely on the detailed value of timestamp, and permit each new timestamp be a random larger timestamp. From our proof for these \crdtimp it is easy to obtain the proof for their modified version with \gts{}, and the proof can be found in Appendix \ref{a}. 
+Since previously when we prove \crdtimp using timestamp-order simulation relation, our prove does not rely on the detailed value of timestamp, and permit each new timestamp be a random larger timestamp. From our proof for these \crdtimp it is easy to obtain the proof for their modified version with \gts{}, and the proof can be found in Appendix \ref{a}.
 
 
 
@@ -314,10 +314,49 @@ Then, each history of $\llbracket \severalobj \rrbracket_g$ is \crdtlinearizable
 
 
 
+\subsection{Tables and Graphs}
+\label{lemma:tables and graphs} 
 
+{\color {red}CW: I put some tables and graphs here.} 
 
+{\color {red}CW: One question: Shapiro uses methods ``assign'' and ``value'' for register, while Burckhardt uses methods ``write'' and ``read''. Similarly, for set, Shapiro uses method ``lookup'' while Burckhardt uses ``read''.} 
 
+\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods).  
 
+\begin{figure}[t]
+  \centering
+
+\begin{tabular}{|l|c|r|}
+\hline
+\crdtimp&Correctness&Interface\\ 
+\hline
+counter~\cite{ShapiroPBZ11}&\tzerolin&$inc$, $dec$\\
+\hline
+PN-counter~\cite{ShapiroPBZ11}&\tzerolin&$inc$, $dec$\\
+\hline
+LWW-register~\cite{?}&\tonelin&$write$, $read$\\
+\hline
+Multi-value register~\cite{?}&\tzerolin&$write$, $read$\\ 
+\hline
+2P-set~\cite{ShapiroPBZ11}&\tzerolin&$add$, $remove$, $read$\\
+\hline
+LWW-set~\cite{ShapiroPBZ11}&\tonelin&$add$, $remove$, $read$\\
+\hline 
+PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
+\hline 
+OR-set~\cite{ShapiroPBZ11}&\tzerolin&$add$, $remove$, $read$\\
+\hline
+RGA~\cite{?}&\tonelin&$addAfter$, $remove$, $read$\\ 
+\hline
+Wooki~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
+\hline 
+Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
+\hline 
+\end{tabular}
+
+\caption{\crdtimp{} of this paper, their correctness, and their interface.}
+\label{fig:crdt-implementaton of this paper, their correctness, and their interface}
+\end{figure}
 
 
 
