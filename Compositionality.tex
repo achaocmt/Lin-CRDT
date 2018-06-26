@@ -404,6 +404,8 @@ Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
 
 \figurename~\ref{fig:how refinement mapping works} shows how refinement mapping works. \figurename~\ref{fig:how refinement mapping works} (a) shows the case of update labels, \figurename~\ref{fig:how refinement mapping works} (b) shows the case of query labels, and \figurename~\ref{fig:how refinement mapping works} (c) shows the case of update-query labels. 
 
+Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a ``gap'' between $\refmap(\sigma)$ and $\refmap(\sigma')$: it may be not the case that $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$. Although $\refmap(\sigma')$ should be obtained from $\refmap(\sigma_0)$ by a sequence of the same set of operations as from $\sigma_0$ to $\sigma'$, the order may be different. Such a transition exists for execution-order linearizations, and may not exist for timestamp-order linearizations. What we require here is only that the existence of $\refmap(\sigma')$.
+
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8 \textwidth]{figures/RefinementMapping.pdf}
@@ -414,11 +416,27 @@ Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
 
 
 
+\figurename~\ref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Note that, there is a gap between $\refmap(\sigma_2)$ and $\refmap(\sigma_3)$. Or we can say that, the tansition $\refmap(\sigma_2)\xRightarrow{addAfter(\circ,a)}\refmap(\sigma_3)$ does not hold. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/RefinementMappingRGA.pdf}
+\vspace{-10pt}
+  \caption{An example of refinement mapping of an execution of RGA.}
+  \label{fig:an example of refinement mapping of an execution of RGA}
+\end{figure}
 
 
 
+\figurename~\ref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set. Note that, there is no gap for OR-set, since it uses execution-order linearizations. 
 
-
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/RefinementMappingORSet.pdf}
+\vspace{-10pt}
+  \caption{An example of refinement mapping of an execution of OR-set.}
+  \label{fig:an example of refinement mapping of an execution of or-set}
+\end{figure}
 
 
 
