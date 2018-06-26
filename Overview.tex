@@ -200,21 +200,21 @@ An example of such a tree is shown in~\ref{fig:rga-tree}.
 
 Considering a \lstinline|Ti-tree| constructed in this way, we can
 obtain a list by traversing the tree in pre-order fashion, with the
-proviso that siblings are ordered according to their timestamps. 
+proviso that siblings are ordered according to their timestamps.
 %
 \autoref{fig:rga-tree} shows the tree that results from the given
-tree. 
+tree.
 
 We have so far ignored the \lstinline|remove| operation.
 %
 Consider the case where a client issues an \lstinline|addAfter(a, b)|
 on a replica whereas another client issues a \lstinline|remove(a)|
-operation in another replica. 
+operation in another replica.
 %
 If the effector of \lstinline|remove(a)| reaches every replica after
 the effector of \lstinline|addAfter(a, b)| there is no problem since
 the semantics is obvious (the element \lstinline|a| is removed after
-the element \lstinline|b| has been added). 
+the element \lstinline|b| has been added).
 %
 However, if the operations reach some replica in the opposite order
 (recall that these are concurrent operations) we have a problem, since
@@ -229,17 +229,17 @@ commutative (c.f. CRDT), RGA does not really erase elements from the
 Instead, an additional data structure called a tombstone is used to
 keep track of elements that have been conceptually erased and should
 not be considered when reading the data structure with the
-\lstinline|read| operation. 
+\lstinline|read| operation.
 %
 In our case the tombstone is simply a set \lstinline|Tomb| of
-elements. 
+elements.
 %
 With this explanation the code of the \lstinline|remove| operation
-in~\autoref{lst:rga} should be self-explanatory. 
+in~\autoref{lst:rga} should be self-explanatory.
 
 Finally, the implementation of \lstinline|read| performs the pre-order
 traversal as explained before, where all the elements in the tombstone
-\lstinline|Tomb| are ignored from the output list. 
+\lstinline|Tomb| are ignored from the output list.
 
 
 % In RGA algorithm, a replica store the list as a timestamp insertion
@@ -256,7 +256,7 @@ traversal as explained before, where all the elements in the tombstone
 % Each element of $N$ should have unique item and time stamp, and the
 % elements of $N$ are required to form a tree by following the parent
 % field. The tombstone $\mathit{Tomb}$ is a set of items and records
-% items been removed from the list. 
+% items been removed from the list.
 
 % \ce{Make the distinction between an operation being
 % \emph{originated} at some replica, and whose downstream is
@@ -266,19 +266,19 @@ traversal as explained before, where all the elements in the tombstone
   graphical example of linearizations here. Something like the
   examples in the HW paper would do.}
 
-\paragraph{OR-Set CRDT Implementation} 
+\paragraph{OR-Set CRDT Implementation}
 
 The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11}
 which implements a set interface with methods: \lstinline|add(a)|,
 \lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
   we could provide an interface with the method \lstinline|lookup(a)|
   returning a boolean with the same consequences as the
-  \lstinline|read()| method we provide.} 
+  \lstinline|read()| method we provide.}
 %
 The meaning of these methods is self-evident from their names.
 %
 However, what is not evident is what are the results of conflicting
-concurrent operations. 
+concurrent operations.
 %
 Consider for example the case where two replicas add a certain element
 \lstinline|a| and then one of them removes that element.
@@ -290,7 +290,7 @@ there are two options depending on the interleaving:
   then the expected set is empty, since the two consecutive
   \lstinline|add(a)| operations are idempotent, and the
   \lstinline|remove| would remove the only occurrence of
-  \lstinline|a|, 
+  \lstinline|a|,
 \item on the other hand, if the operation \lstinline|add(a)| of the
   non-removing process comes last, the final set could contain the
   element \lstinline|a|.
@@ -300,10 +300,10 @@ arrive in one order to one replica and in a different order to another
 replica.
 %
 To guarantee convergence, OR-Set must ensure that regardless of the
-ordering, the resulting set will be the same. 
+ordering, the resulting set will be the same.
 %
 To that end, OR-Set \lstinline|add| operations will tag each added
-element with a unique identifier. 
+element with a unique identifier.
 %
 Then,a remove operation will only remove the elements which has
 already seen.
@@ -314,10 +314,10 @@ replica, since this item as been observed by the \lstinline|remove|
 operating -- and thus its identifier is known to it --. However, the
 concurrent \lstinline|add(a)| operation will have an identifier that
 has not been observed by the \lstinline|remove| (since they are
-concurrent). 
+concurrent).
 %
 Therefore the item will not be removed, even in the case where the two
-adds are performed in a replica before the remove. 
+adds are performed in a replica before the remove.
 
 The code of OR-Set is shown in~\autoref{lst:or-set} where for the time
 being we ignore the lines marked with a comment (\lstinline|\\@|).
@@ -337,14 +337,14 @@ being we ignore the lines marked with a comment (\lstinline|\\@|).
 % $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the
 % current replica, which is a sequences obtained by traversing $N$ in
 % prefix order (children are visited in decreasing time-stamp order) and
-% keeping only items that are not in $\mathit{Tomb}$. 
+% keeping only items that are not in $\mathit{Tomb}$.
 
 \begin{figure}[!t]
   \centering
 \begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT},
-captionpos=b,label={lst:or-set}] 
-  payload Set S 
-  initial S = @|$\emptyset$|@ 
+captionpos=b,label={lst:or-set}]
+  payload Set S
+  initial S = @|$\emptyset$|@
   initial seq = @|$\epsilon$|@
 
   add(a) :
