@@ -440,15 +440,20 @@ Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a 
 
 
 
+The proof of $\mathsf{Refinement}$ relies on a \emph{refinement mapping}~\cite{AbadiL91} between replica states and states of the specification, denoted by $\refmap$. The proof goals require that for any two replica states $\sigma$ and $\sigma'$,
+\begin{enumerate}
+\item If $\sigma'$ is obtained from $\sigma$ by applying a downstream produced by an update $\alabel$: There exists a abstract $\refmap(\sigma')$ that is obtained from $\abstate_0$ by appling the downstreams of the operations in $\alabelset \cup \{ \alabel \}$ in the order defined by $\aseqord$. 
+          
+\item if a query $\alabel$ is applied on a state $\sigma$ or it is introduced by a rewriting of a query-update that executes {\tt atSource} on a state $\sigma$, then $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$. 
+\end{enumerate}
 
+For the case of execution-order linearizations, the first case can be simplified into 
 
+\begin{enumerate}
+\item if $\sigma'$ is obtained from $\sigma$ by applying a downstream $\delta$ produced by an update $\alabel$, then \mbox{$\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$}, where $\xRightarrow{\alabel}$ is the transition function of $\Spec$. 
+\end{enumerate}
 
-
-
-
-
-
-
+This simplification relies on proving concurrent operations commute. 
 
 
 
