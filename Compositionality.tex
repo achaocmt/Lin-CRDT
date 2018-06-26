@@ -315,20 +315,20 @@ Then, each history of $\llbracket \severalobj \rrbracket_g$ is \crdtlinearizable
 
 
 \subsection{Tables and Graphs}
-\label{lemma:tables and graphs} 
+\label{lemma:tables and graphs}
 
-{\color {red}CW: I put some tables and graphs here.} 
+{\color {red}CW: I put some tables and graphs here.}
 
-{\color {red}CW: One question: Shapiro uses methods ``assign'' and ``value'' for register, while Burckhardt uses methods ``write'' and ``read''. Similarly, for set, Shapiro uses method ``lookup'' while Burckhardt uses ``read''.} 
+{\color {red}CW: One question: Shapiro uses methods ``assign'' and ``value'' for register, while Burckhardt uses methods ``write'' and ``read''. Similarly, for set, Shapiro uses method ``lookup'' while Burckhardt uses ``read''.}
 
-\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods).  
+\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods).
 
 \begin{figure}[t]
   \centering
 
 \begin{tabular}{|l|c|r|}
 \hline
-\crdtimp&Correctness&Interface\\ 
+\crdtimp&Correctness&Interface\\
 \hline
 counter~\cite{ShapiroPBZ11}&\tzerolin&$inc$, $dec$\\
 \hline
@@ -336,40 +336,40 @@ PN-counter~\cite{ShapiroPBZ11}&\tzerolin&$inc$, $dec$\\
 \hline
 LWW-register~\cite{?}&\tonelin&$write$, $read$\\
 \hline
-Multi-value register~\cite{?}&\tzerolin&$write$, $read$\\ 
+Multi-value register~\cite{?}&\tzerolin&$write$, $read$\\
 \hline
 2P-set~\cite{ShapiroPBZ11}&\tzerolin&$add$, $remove$, $read$\\
 \hline
 LWW-set~\cite{ShapiroPBZ11}&\tonelin&$add$, $remove$, $read$\\
-\hline 
+\hline
 PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
-\hline 
+\hline
 OR-set~\cite{ShapiroPBZ11}&\tzerolin&$add$, $remove$, $read$\\
 \hline
-RGA~\cite{?}&\tonelin&$addAfter$, $remove$, $read$\\ 
+RGA~\cite{?}&\tonelin&$addAfter$, $remove$, $read$\\
 \hline
 Wooki~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
-\hline 
+\hline
 Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
-\hline 
+\hline
 \end{tabular}
 
 \caption{\crdtimp{} of this paper, their correctness, and their interface.}
 \label{fig:crdt-implementaton of this paper, their correctness, and their interface}
 \end{figure}
 
-\figurename~\ref{fig:how RGA works} gives a example that, if from one state we do concurrent $addAfter(b,c)$ and $addAfter(b,c)$, then it converges. If we then remove $b$, we just add it to tombstone. 
+\figurename~\ref{fig:how RGA works} gives a example that, if from one state we do concurrent $addAfter(b,c)$ and $addAfter(b,c)$, then it converges. If we then remove $b$, we just add it to tombstone.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.85 \textwidth]{figures/HowRGAWork.pdf}
 \vspace{-10pt}
-  \caption{An example of conflict resolution of RGA, and how we do remove.} 
+  \caption{An example of conflict resolution of RGA, and how we do remove.}
   \label{fig:how RGA works}
 \end{figure}
 
 
-\figurename~\ref{fig:an example run of semantics} gives a example of two step of transitions on semantics of RGA. The first step is to do downstream of a $addAfter$, while the second step is to do operation $remove$. Here we can see that, the downstream of $addAfter$ always insert a new node into the Ti-tree $N$, while the downstream of $remove$ always insert a value into $Tomb$. 
+\figurename~\ref{fig:an example run of semantics} gives a example of two step of transitions on semantics of RGA. The first step is to do downstream of a $addAfter$, while the second step is to do operation $remove$. Here we can see that, the downstream of $addAfter$ always insert a new node into the Ti-tree $N$, while the downstream of $remove$ always insert a value into $Tomb$.
 
 \begin{figure}[t]
   \centering
@@ -380,25 +380,63 @@ Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
 \end{figure}
 
 
+\figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its \crdtlinearization{}. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6 \textwidth]{figures/RGAHisandLin.pdf}
+\vspace{-10pt}
+  \caption{A history of RGA and its \crdtlinearization{}.}
+  \label{fig:a history of RGA and its RA-linearization}
+\end{figure}
+
+
+\figurename~\ref{fig:a history of OR-set, its update-query rewriting, and its RA-linearization} gives a history of OR-set, its query-update rewriting, and its \crdtlinearization{}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8 \textwidth]{figures/ORSetHisRewritingandLin.pdf}
+\vspace{-10pt}
+  \caption{A history of OR-set, its update-query rewriting, and its \crdtlinearization{}.}
+  \label{fig:a history of OR-set, its update-query rewriting, and its RA-linearization}
+\end{figure}
+
+
+\figurename~\ref{fig:how refinement mapping works} shows how refinement mapping works. \figurename~\ref{fig:how refinement mapping works} (a) shows the case of update labels, \figurename~\ref{fig:how refinement mapping works} (b) shows the case of query labels, and \figurename~\ref{fig:how refinement mapping works} (c) shows the case of update-query labels. 
+
+Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a ``gap'' between $\refmap(\sigma)$ and $\refmap(\sigma')$: it may be not the case that $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$. Although $\refmap(\sigma')$ should be obtained from $\refmap(\sigma_0)$ by a sequence of the same set of operations as from $\sigma_0$ to $\sigma'$, the order may be different. Such a transition exists for execution-order linearizations, and may not exist for timestamp-order linearizations. What we require here is only that the existence of $\refmap(\sigma')$.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8 \textwidth]{figures/RefinementMapping.pdf}
+\vspace{-10pt}
+  \caption{How refinement mapping works.}
+  \label{fig:how refinement mapping works}
+\end{figure}
 
 
 
+\figurename~\ref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Note that, there is a gap between $\refmap(\sigma_2)$ and $\refmap(\sigma_3)$. Or we can say that, the tansition $\refmap(\sigma_2)\xRightarrow{addAfter(\circ,a)}\refmap(\sigma_3)$ does not hold. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/RefinementMappingRGA.pdf}
+\vspace{-10pt}
+  \caption{An example of refinement mapping of an execution of RGA.}
+  \label{fig:an example of refinement mapping of an execution of RGA}
+\end{figure}
 
 
 
+\figurename~\ref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set. Note that, there is no gap for OR-set, since it uses execution-order linearizations. 
 
-
-
-
-
-
-
-
-
-
-
-
-
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/RefinementMappingORSet.pdf}
+\vspace{-10pt}
+  \caption{An example of refinement mapping of an execution of OR-set.}
+  \label{fig:an example of refinement mapping of an execution of or-set}
+\end{figure}
 
 
 
