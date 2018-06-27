@@ -2,6 +2,10 @@
 \section{Overview}
 \label{sec:overview}
 
+In this section we will firstly describe the system and program model
+we assume, and we will then illustrate our main contribution in two
+interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
+
 \begin{figure}[t]
   % \centering
 \begin{lstlisting}[caption={Pseudo-code of the Replicated Growable
@@ -37,26 +41,27 @@ captionpos=b,label={lst:rga}]
 %       precondition: a = @|$\circ$|@ or (a != @|$\circ$|@ and (a, ts@|$_{\mathtt{a}}$|@,_) @|$\in$|@ N)
 %       precondition : (a,_,_) @|$\in$|@ N
 
-\gpnote*[nomargin]{}{
-  Section sketch:
-  \begin{itemize}
-  \item Informal explanation of the system model. Multiple replicas,
-    clients connect to any replica. Operations are propagated lazily.
-  \item Explanation of the program model. We explain the code of RGA
-    (\lstinline|atSource|, \lstinline|downStream|). Conflict
-    resolution. Commutativity.
-  \item We give a first intuition about the \CRDTLin{} of RGA. We
-    might explain why standard Linearizability is not good enough.
-  \item We present OR-Set. We explain that the linearization of OR-Set
-    is more complicated without getting too tangled into de details.
-    OR-Set is important because we need to explain that some
-    operations will see a sub-sequence of the global linearization
-    (in contrast to RGA above).
-  \item If needed we can talk about the compositionality problem.
-  \end{itemize}
-}
+% \gpnote*[nomargin]{}{
+%   Section sketch:
+%   \begin{itemize}
+%   \item Informal explanation of the system model. Multiple replicas,
+%     clients connect to any replica. Operations are propagated lazily.
+%   \item Explanation of the program model. We explain the code of RGA
+%     (\lstinline|atSource|, \lstinline|downStream|). Conflict
+%     resolution. Commutativity.
+%   \item We give a first intuition about the \CRDTLin{} of RGA. We
+%     might explain why standard Linearizability is not good enough.
+%   \item We present OR-Set. We explain that the linearization of OR-Set
+%     is more complicated without getting too tangled into de details.
+%     OR-Set is important because we need to explain that some
+%     operations will see a sub-sequence of the global linearization
+%     (in contrast to RGA above).
+%   \item If needed we can talk about the compositionality problem.
+%   \end{itemize}
+% }
 
-\paragraph{System Model}
+\subsection{System Model}
+\label{sec:sys-model}
 
 We assume that the system is comprised of multiple nodes in a network.
 In this work we will be concerned with the implementation of CRDTs,
@@ -67,28 +72,44 @@ As mentioned in~\autoref{sec:introduction} we assume that objects are
 replicated among the participating nodes of the system -- which we
 shall call replicas.
 
-The execution model for an object is as follows:
+\begin{figure}[t]
+  \centering
+  \includegraphics[scale=.4]{figures/sys-mod}
+  \caption{CRDT System Model}
+  \label{fig:sys-mod}
+\end{figure}
+
+The execution model for an operation \lstinline|op(v)| on a replicated
+object is depicted in~\autoref{fig:sys-mod} and it proceeds as follows:
 \begin{itemize}
-\item clients, which are programs issuing calls to the object, connect
-  to any one replica (node of the system holding a copy of the object)
+\item A client, which is a program issuing calls to the object, connects
+  to any one replica (a node of the system holding a copy of the object)
   and performs the operation in that replica, we shall call such a
-  replica the origin or \emph{source},
-\item executing an operation is done in two phases. Assuming that the
-  operation requires reading and updating the state of the object, the
-  state of the object in the source replica is read first (we shall sometimes
-  refer to this part of the operation as the generator
-  following~\cite{ShapiroPBZ11}), and then, if the state needs to be changed as part of the operation -- e.g.
-  an \lstinline|addRight| operation of RGA -- an update is
-  generated which shall be executed in all the replicas holding copies
-  of the object (we shall refer to the update as the effector).
-  We assume throughout this paper that effectors are executed immediate
-  in the source replica,
-\item finally, as the system progresses, the effector of the operation
+  replica the origin or \emph{source}. The source of \lstinline|op(v)|
+  in~\autoref{fig:sys-mod} is the replica on the top.
+\item Then, executing an operation is done in two phases.
+  Assuming that the operation requires reading and updating the state
+  of the object, the state of the object in the source replica is read
+  first.
+  We shall sometimes refer to this part of the operation as the
+  generator following~\cite{ShapiroPBZ11}.
+  Then, if the state needs to be changed as part of the operation --
+  e.g. an \lstinline|addRight| operation of RGA -- an update is
+  generated which shall be executed in all the replicas holding copies of the
+  object.
+  We shall refer to the update as the effector.
+  We assume throughout this paper that effectors are executed
+  immediate in the source replica.
+  This is represented by the dot at the source replica
+  in~\autoref{fig:sys-mod}.
+\item Finally, as the system progresses, the effector of the operation
   will be delivered to each of the replicas holding a copy of the
   object.
+  This is represented by the target of the arrows
+  in~\autoref{fig:sys-mod}.
 \end{itemize}
-This model is depicted in~\autoref{fig:system-model}.
-\fxwarning[nomargin, inline]{We need the picture}.
+% This model is depicted in~\autoref{fig:system-model}.
+% \fxwarning[nomargin, inline]{We need the picture}.
 
 \paragraph{CRDT implementations}
 
@@ -100,7 +121,7 @@ in~\autoref{lst:rga}.
 %
 Let us first consider the structure of the data type implementation:
 \begin{itemize}
-\item the keyword \lstinline|payload| introduces the state that is
+\item The keyword \lstinline|payload| introduces the state that is
   used to represent the object. This is akin to the fields of a class
   file in an object oriented language such as Java. In the specific
   case of RGA we have a variable \lstinline|N| of type
@@ -122,7 +143,7 @@ Let us first consider the structure of the data type implementation:
   assumed about the state of the object upon execution of either of
   the generator or effector of the operation.
 \end{itemize}
-Reconsidering~\autoref{fig:system-model} we can then say that the
+Reconsidering~\autoref{fig:sys-mod} we can then say that the
 source of the arrows in each replica represent the execution of an
 \lstinline|atSource| jointly with the \lstinline|downStream| of the
 operation at the source replica.
@@ -132,35 +153,29 @@ generator of the operation in a replica other than the source.
 
 
 In the rest of this section we consider two examples of CRDT
-implementations \gpwarning*{TODO} { and their linearization arguments.
-}
+implementations and their linearization arguments.
 
-\paragraph{RGA CRDT implementation}
-% \gpwarning[nomargin, inline]{
-% We explain the \lstinline|Ti-Tree| and the tombstone of RGA. We give
-% an example of conflict resolution: - two \lstinline|addAfter(a, _)|
-% operations, and perhaps a - \lstinline|remove(_)| and
-% \lstinline|addAfter(_, _)| operation. We explain the preconditions,
-% their relation to causality, etc.
-% }
+\subsection{RGA CRDT Implementation}
+\label{sec:rga-crdt-impl}
 
+% \paragraph{RGA CRDT implementation}
 As it is common to many CRDT implementations, in RGA replicas will use
 a timestamp mechanism to keep track of the causality between updates
 to the list, effectively capturing when two updates are concurrent,
 and moreover, they will keep the information relating the causal order
 in which elements are added to the list.
 %
-Provided with this causality information, the timestamps will be used
-to resolve conflicts in a deterministic way.
+Provided with this causality -- or lack thereof-- information, the
+timestamps will be used to resolve conflicts in a deterministic way.
 %
 More concretely, each replica will keep what we shall name a
 \emph{Timestamp Tree} (\lstinline|Ti-Tree|) containing in every tree
-node a pair with the element added to the list (for instance the
+node a pair with: the element added to the list (for instance the
 character \lstinline|b|), and a timestamp associated to it
 (\lstinline|t|$_{\mathtt{b}}$) which will be used to resolve
 conflicts.
 %
-We will encode the tree as a set containing triples (representing
+We will encode the tree as a set containing triples (corresponding to
 nodes) of the form (\lstinline|a|, \lstinline|ts|$_{\mathtt{b}}$, \lstinline|b|)
 representing the fact that there is an element \lstinline|b| in the
 tree with timestamp \lstinline|ts|$_{\mathtt{b}}$ and whose parent is the item
@@ -186,8 +201,7 @@ timestamp presently occurring in the \lstinline|Ti-Tree|
 Looking at the \lstinline|downStream| portion of
 \lstinline|addAfter(a,b)| we see that the effect of the operation is
 to add the triple \lstinline|(a, ts|$_{\mathtt{b}}$\lstinline|, b)|
-representing the fact that the element \lstinline|b| is a child of the
-item \lstinline|a| in the tree.
+in the replicas own copy of \lstinline|N|.
 %
 Then, the tree structure is consistent with the causality of
 insertions in the data structure.
@@ -206,10 +220,16 @@ the tree (eg. siblings) are not causally related.\footnote{The converse
   the correctness of the algorithm.}
 %
 An example of such a tree is shown in~\ref{fig:rga-tree}.
-\gpwarning*{Example}{Ask Chao for a concrete example.}
-%
 
-\gpnote*{}{
+Considering a \lstinline|Ti-tree| constructed in this way, we can
+obtain a list by traversing the tree in pre-order fashion, with the
+proviso that siblings are ordered according to their timestamps.
+%
+\autoref{fig:rga-tree} shows the tree that results from the given
+tree.
+
+
+\gpnote*{By Chao. Should be elsewhere}{
 \figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
 }
 
@@ -221,12 +241,13 @@ An example of such a tree is shown in~\ref{fig:rga-tree}.
   \label{fig:how RGA works}
 \end{figure}
 
-Considering a \lstinline|Ti-tree| constructed in this way, we can
-obtain a list by traversing the tree in pre-order fashion, with the
-proviso that siblings are ordered according to their timestamps.
-%
-\autoref{fig:rga-tree} shows the tree that results from the given
-tree.
+\begin{figure}[t]
+  \centering
+  \includegraphics[scale=.25]{figures/simple-ti-tree}
+  \caption{RGA Ti-tree example.}
+  \label{fig:rga-tree}
+\end{figure}
+
 
 We have so far ignored the \lstinline|remove| operation.
 %
@@ -264,6 +285,40 @@ Finally, the implementation of \lstinline|read| performs the pre-order
 traversal as explained before, where all the elements in the tombstone
 \lstinline|Tomb| are ignored from the output list.
 
+\paragraph{Intuition of RGA \CRDTLinshort{}}
+Let us consider the problem of showing that an execution of an series
+of operations on an RGA object is linearizable.
+%
+That is, that there exists a total order of the operations such that
+the result of each operation corresponds to the execution of all the
+operations prior to it in the order (c.f.
+linearizability~\cite{HerlihyW90}).
+%
+To simplify the argument which will be made precise in the following
+section we focus here on the linearization of two concurrent
+operations adding an element after a common element. 
+%
+Let us say concurrent \lstinline|addAfter(a,b)| and
+\lstinline|addAfter(a,c)| operations. 
+% 
+Can we show that these operations can always be order one way or
+another such that the result of all subsequent reads will correspond
+to this ordering?
+%
+In fact, from the explanation given above we know that the order
+between \lstinline|b| and \lstinline|c| in the resulting list will be
+determined by their corresponding timestamps
+(\lstinline|t|$_{\mathtt{b}}$ and \lstinline|t|$_{\mathtt{c}}$). 
+%
+Assuming that the ordering is the one given in~\autoref{fig:rga-tree}
+we know that we can order the operations as \lstinline|addAfter(a, c)|
+followed by \lstinline|addAfter(a, b)| which obviously results in
+$\mathtt{a \cdot b \cdot c}$ as shown in the picture. 
+%
+While this is only one case, in~\autoref{sec:proofs} we will show that
+all operations can be order in such a way that they correspond to a
+sequential execution thereof. 
+
 
 % In RGA algorithm, a replica store the list as a timestamp insertion
 % tree (TI-tree) $N$, and stores the deleted items in tombstone
@@ -285,11 +340,12 @@ traversal as explained before, where all the elements in the tombstone
 % \emph{originated} at some replica, and whose downstream is
 % \emph{executed} at some replica}
 
-\gpwarning[nomargin, inline]{I think it would be useful to show a
-  graphical example of linearizations here. Something like the
-  examples in the HW paper would do.}
+% \gpwarning[nomargin, inline]{I think it would be useful to show a
+%   graphical example of linearizations here. Something like the
+%   examples in the HW paper would do.}
 
-\paragraph{OR-Set CRDT Implementation}
+\subsection{OR-Set CRDT Implementation}
+\label{sec:or-set-crdt}
 
 \begin{figure}[!t]
   \centering
@@ -324,8 +380,8 @@ captionpos=b,label={lst:or-set}]
 \end{lstlisting}
 \end{figure}
 
-The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11}
-which implements a set interface with methods: \lstinline|add(a)|,
+The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11},
+this time implementing a Set interface with methods: \lstinline|add(a)|,
 \lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
   we could provide an interface with the method \lstinline|lookup(a)|
   returning a boolean with the same consequences as the
@@ -339,18 +395,20 @@ concurrent operations.
 Consider for example the case where two replicas add a certain element
 \lstinline|a| and then one of them removes that element.
 %
-\gpnote[nomargin, inline]{Add picture.}
- If we consider an interleaving based execution of these operations
+% \gpnote[nomargin, inline]{Add picture.}
+If we consider an interleaving based execution of these operations
 there are two options depending on the interleaving:
 \begin{inparaenum}[i)]
 \item if the \lstinline|remove(a)| operation is the last operation
   then the expected set is empty, since the two consecutive
   \lstinline|add(a)| operations are idempotent, and the
   \lstinline|remove| would remove the only occurrence of
-  \lstinline|a|,
-\item on the other hand, if the operation \lstinline|add(a)| of the
+  \lstinline|a|. This interleaving is the one depicted with solid
+  arrows at the top of~\autoref{fig:or-set-not-lin}.
+\item On the other hand, if the operation \lstinline|add(a)| of the
   non-removing process comes last, the final set could contain the
-  element \lstinline|a|.
+  element \lstinline|a| as depicted with the dashed arrows
+  in~\autoref{fig:or-set-not-lin}.
 \end{inparaenum}
 As we have explained before, in our system model the operations can
 arrive in one order to one replica and in a different order to another
@@ -399,11 +457,16 @@ operations \lstinline|add(b);add(a);remove(b)| and
 %
 Clearly any linearization a la~\citet{HerlihyW90} should end with a
 \lstinline|remove| operation, and therefore the final set should have
-at most one element, contrary to the final set we obtain:
-$\mathtt{\{a, b\}}$.
+at most one element, contrary to that, in the final set we obtain:
+\{\lstinline|a, b|\}.
+%
+In other words, if in any of the replicas a \lstinline|read()|
+operation were to be issued, the result would be the set
+\{\lstinline|a, b|\} .
 
 \begin{figure}[t]
   \centering
+  \includegraphics[width=0.30 \textwidth]{./figures/OR-Set-simple}
   \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
   \includegraphics[width=0.90 \textwidth]{./figures/OR-Set-lk-rem}
   \caption{OR-Set non-linearizable execution.}
@@ -413,23 +476,31 @@ $\mathtt{\{a, b\}}$.
 For our definition of \CRDTLinshort{} we will distinguish between
 \emph{update} and \emph{query} operations.
 %
-We will then require that if we look only at update operations, they
-can be totally ordered (linearized) such that the resulting states of
-the object can be explained by executing the \emph{specification} of
-these updates on the object.
+We will impose two constraints, one on updates and the other on
+queries:
+\begin{itemize}
+\item For updates we require that there exists a total order of all
+  the updates in the execution -- essentially a linearization -- such
+  that the resulting state of the object -- or any intermediate state --
+  can be explained by executing the \emph{specification} of these
+  updates in order.
 %
-Essentially, reachable states of the implementation can be reached by
-a linearization of the updates when considering the specification. 
+  Essentially, reachable states of the implementation are related to
+  specification states that can be reached by a certain linearization of
+  the updates.
 %
-However, this cannot be replicated for query operations, since the
-system model allows for updates to arrive to different replicas in
-different order. 
+  \gpnote{Example?}
+\item Unfortunately, this simple requirement does not suffice for
+  query operations, since the system model allows for updates to arrive
+  to different replicas in different order.
 %
-Hence, for \CRDTLinshort{} we will require that the result of any
-query can be explained by consider a \emph{sub-sequence} of the above
-mentioned global linearization up updates. 
-%
+  Hence, for \CRDTLinshort{} we will require that the result of any
+  query can be explained by consider a \emph{sub-sequence} of the above
+  mentioned global linearization up updates.
+\end{itemize}
+This definition will be made precise in~\autoref{sec:distributed-lin}.
 
+\gpnote{Maybe add a read example first?}
 Coming back to our OR-Set example in~\autoref{fig:or-set-not-lin}, we
 have that the \lstinline|remove| operation behaves as both a query
 (observing a certain number of updates on the element to be removed)
@@ -439,7 +510,7 @@ To cope with such cases, we will consider in our definition that
 query-update operations can be split into a query part, which only
 reads the state -- and hence can see only a sub-sequence of the
 linearization of updates --, and an update part which will use the
-results of the prior query. 
+results of the prior query.
 %
 For instance, \lstinline|remove| will be split into a query part where
 only the elements that are visible at the time of the remove are
@@ -449,18 +520,18 @@ erased.
 Evidently, this requires some mechanism for ``marking'' the adds that
 are concerned.
 %
-We will consider that each add has a unique identifier. 
+We will consider that each add has a unique identifier.
 %
 Then, the query part of a remove returns a set of unique identifiers
-to be removed. 
+to be removed.
 %
 Any identifier not in this set will remain in the set after the update
-part of the remove. 
+part of the remove.
 %
 The second part of~\autoref{fig:or-set-not-lin} shows this rewriting
 where we denote by \lstinline|lk| (for lookup) the query part of
 remove, which returns a set of elements to be removed, and a
-\lstinline|remove| operation taking a set of elements to be removed. 
+\lstinline|remove| operation taking a set of elements to be removed.
 %
 In this case, our definition of linearizability is just as before.
 %
@@ -468,6 +539,9 @@ To linearize this execution, when contemplating only the updates, we
 can chose any order consistent with the order in which operations are
 performed in each replica and the result is consistent with the
 specification of a set.
+%
+We discuss the details of this constructions in the next section.
+
 
 % Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a
 % position immediately after that of a existing item $b$. Method
@@ -497,7 +571,7 @@ specification of a set.
 % such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream.
 % The following is the condition $C_2$ for or-set implementati.
 
-%%% Local %Variables:
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "draft"
 %%% End:
