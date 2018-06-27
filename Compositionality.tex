@@ -319,38 +319,41 @@ Then, each history of $\llbracket \severalobj \rrbracket_g$ is \crdtlinearizable
 
 {\color {red}CW: I put some tables and graphs here.}
 
-{\color {red}CW: One question: Shapiro uses methods ``assign'' and ``value'' for register, while Burckhardt uses methods ``write'' and ``read''. Similarly, for set, Shapiro uses method ``lookup'' while Burckhardt uses ``read''.}
+{\color {red}CW: We should make agreement about the interface.}
 
-\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods).
+\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods). 
 
 \begin{figure}[t]
-  \centering
+%\centering
 
 \begin{tabular}{|l|c|r|}
 \hline
 \crdtimp&Correctness&Interface\\
 \hline
-counter~\cite{ShapiroPBZ11}&\tzerolin&$inc$, $dec$\\
+counter~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[inc]{}$, $\alabelshort[dec]{}$\\
 \hline
-PN-counter~\cite{ShapiroPBZ11}&\tzerolin&$inc$, $dec$\\
+PN-counter~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[inc]{}$, $\alabelshort[dec]{}$\\
 \hline
-LWW-register~\cite{?}&\tonelin&$write$, $read$\\
+LWW-register~\cite{?}&\tonelin&$\alabelshort[write]{value}$, $\alabellong[read]{}{value}{}$\\
 \hline
-Multi-value register~\cite{?}&\tzerolin&$write$, $read$\\
+Multi-value register~\cite{?}&\tzerolin&$\alabelshort[write]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
 \hline
-2P-set~\cite{ShapiroPBZ11}&\tzerolin&$add$, $remove$, $read$\\
+2P-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[add]{value}$, $\alabelshort[remove]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
 \hline
-LWW-set~\cite{ShapiroPBZ11}&\tonelin&$add$, $remove$, $read$\\
+LWW-set~\cite{ShapiroPBZ11}&\tonelin&$\alabelshort[add]{value}$, $\alabelshort[remove]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
 \hline
-PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
+%PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
+%\hline
+OR-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[add]{value}$, $\alabelshort[remove]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
 \hline
-OR-set~\cite{ShapiroPBZ11}&\tzerolin&$add$, $remove$, $read$\\
+RGA~\cite{?}&\tonelin&$\alabelshort[addAfter]{value,value}$, $\alabelshort[remove]{value}$, 
+                \\ & & $\alabellong[read]{}{List \ value}{}$\\
 \hline
-RGA~\cite{?}&\tonelin&$addAfter$, $remove$, $read$\\
+Wooki~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$, 
+                \\ & & $\alabellong[read]{}{List \ value}{}$\\
 \hline
-Wooki~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
-\hline
-Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
+Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$, 
+                \\ & & $\alabellong[read]{}{List \ value}{}$\\
 \hline
 \end{tabular}
 
@@ -358,7 +361,7 @@ Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
 \label{fig:crdt-implementaton of this paper, their correctness, and their interface}
 \end{figure}
 
-\figurename~\ref{fig:how RGA works} gives a example that, if from one state we do concurrent $addAfter(b,c)$ and $addAfter(b,c)$, then it converges. If we then remove $b$, we just add it to tombstone.
+\figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$. 
 
 \begin{figure}[t]
   \centering
@@ -380,7 +383,7 @@ Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
 \end{figure}
 
 
-\figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its \crdtlinearization{}. 
+\figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its \crdtlinearization{}.
 
 \begin{figure}[t]
   \centering
@@ -402,9 +405,9 @@ Tree-Doc~\cite{?}&\tzerolin&$addBetween$, $remove$, $read$\\
 \end{figure}
 
 
-\figurename~\ref{fig:how refinement mapping works} shows how refinement mapping works. \figurename~\ref{fig:how refinement mapping works} (a) shows the case of update labels, \figurename~\ref{fig:how refinement mapping works} (b) shows the case of query labels, and \figurename~\ref{fig:how refinement mapping works} (c) shows the case of update-query labels. 
+\figurename~\ref{fig:how refinement mapping works} shows how refinement mapping works. \figurename~\ref{fig:how refinement mapping works} (a) shows the case of update labels, \figurename~\ref{fig:how refinement mapping works} (b) shows the case of query labels, and \figurename~\ref{fig:how refinement mapping works} (c) shows the case of update-query labels.
 
-Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a ``gap'' between $\refmap(\sigma)$ and $\refmap(\sigma')$: it may be not the case that $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$. Although $\refmap(\sigma')$ should be obtained from $\refmap(\sigma_0)$ by a sequence of the same set of operations as from $\sigma_0$ to $\sigma'$, the order may be different. Such a transition exists for execution-order linearizations, and may not exist for timestamp-order linearizations. What we require here is only that the existence of $\refmap(\sigma')$.
+%Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a ``gap'' between $\refmap(\sigma)$ and $\refmap(\sigma')$: it may be not the case that $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$. Although $\refmap(\sigma')$ should be obtained from $\refmap(\sigma_0)$ by a sequence of the same set of operations as from $\sigma_0$ to $\sigma'$, the order may be different. Such a transition exists for execution-order linearizations, and may not exist for timestamp-order linearizations. What we require here is only that the existence of $\refmap(\sigma')$.
 
 \begin{figure}[t]
   \centering
@@ -416,7 +419,7 @@ Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a 
 
 
 
-\figurename~\ref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Note that, there is a gap between $\refmap(\sigma_2)$ and $\refmap(\sigma_3)$. Or we can say that, the tansition $\refmap(\sigma_2)\xRightarrow{addAfter(\circ,a)}\refmap(\sigma_3)$ does not hold. 
+\figurename~\ref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Here we assume $\ats_a$ and $\ats_b$ is the timestamp of $a$ and $b$ respectively, and the timestamp order be $\ats_a < \ats_b$. Since applying downstream of concurrent operations commute, we take the order of ``increasing timestamp'': $\alabelshort[addAfter]{\circ,a} \cdot \alabelshort[addAfter]{\circ,a} \cdot \alabellong[read]{}{b \cdot a}{}$, and then, according to the refinement mapping, we construct the transitions in sequential specification. 
 
 \begin{figure}[t]
   \centering
@@ -428,7 +431,7 @@ Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a 
 
 
 
-\figurename~\ref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set. Note that, there is no gap for OR-set, since it uses execution-order linearizations. 
+\figurename~\ref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set. 
 
 \begin{figure}[t]
   \centering
@@ -440,15 +443,20 @@ Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a 
 
 
 
+%The proof of $\mathsf{Refinement}$ relies on a \emph{refinement mapping}~\cite{AbadiL91} between replica states and states of the specification, denoted by $\refmap$. The proof goals require that for any two replica states $\sigma$ and $\sigma'$,
+%\begin{enumerate}
+%\item If $\sigma'$ is obtained from $\sigma$ by applying a downstream produced by an update $\alabel$: There exists a abstract $\refmap(\sigma')$ that is obtained from $\abstate_0$ by appling the downstreams of the operations in $\alabelset \cup \{ \alabel \}$ in the order defined by $\aseqord$.
 
+%\item if a query $\alabel$ is applied on a state $\sigma$ or it is introduced by a rewriting of a query-update that executes {\tt atSource} on a state $\sigma$, then $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
+%\end{enumerate}
 
+%For the case of execution-order linearizations, the first case can be simplified into
 
+%\begin{enumerate}
+%\item if $\sigma'$ is obtained from $\sigma$ by applying a downstream $\delta$ produced by an update $\alabel$, then \mbox{$\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$}, where $\xRightarrow{\alabel}$ is the transition function of $\Spec$.
+%\end{enumerate}
 
-
-
-
-
-
+%This simplification relies on proving concurrent operations commute.
 
 
 

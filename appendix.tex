@@ -64,7 +64,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
 \subsection{The Wooki Algorithm}
 \label{subsec:the Wooki algorithm}
 
-The Wooki algorithm of \ref{the paper of Wooki} is given in Listing~\ref{lst:wooki algorithm}. Note that here $integrateIns$ is a recursive method used by $addBetween$ method. 
+The Wooki algorithm of \ref{the paper of Wooki} is given in Listing~\ref{lst:wooki algorithm}. Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
 
 In local of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $<id,v,degree,flag>$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$. We use $degree(w)$ to denote the degree of $w$.
 
@@ -133,9 +133,9 @@ captionpos=b,label={lst:wooki algorithm}]
     if @|$S' = \epsilon$|@
       then  @|$insert(S,c,pos(S,c_n))$|@
     else
-      Let i = 0 
-      Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@ 
-      Let F be the projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@ 
+      Let i = 0
+      Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@
+      Let F be the projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@
       while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} c$|@) do
         i = i+1
       integrateIns(@|$c,F[i-1],F[i]$|@)
@@ -217,6 +217,29 @@ $\alabellong[\mathsf{addBetween}]{a,a_i,a_j}{}$ puts $(a,\mathit{true})$ into a 
 Assume that the initial value of list is $(\circ_b,\mathit{true}) \cdot (\circ_e,\mathit{true})$, and $\circ_b$ and $\circ_e$ are never removed. When the context is clear, in $\mathit{read}$ operation, we will omit $\circ_b$ and $\circ_2$ in return value.
 
 
+
+
+\subsection{The Sequential Specification of OR-Set}
+\label{subsec:the sequential specification of or-set}
+
+The query-update rewriting of OR-set is as follows: $\gamma( \alabellong[\mathsf{remove}]{a}{} ) = ( \alabellong[\mathsf{readIds}]{a}{S}, \alabellong[\mathsf{remove}]{a,S}{})$.
+
+
+
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{ORset}_s$ of OR-set is given with the transitions as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{readIds}]{a}{ \{ (a,id) \vert (a,id) \in \abstate \} }} \abstate$ 
+
+\item[-] $\abstate \xrightarrow{ \alabellong[\mathsf{remove}]{a,S}{} }  \abstate \setminus S$ 
+
+\item[-] $\big(\abstate\ |\ (a,id) \notin \abstate \big) \xrightarrow{ \alabellong[\mathsf{add}]{a,id}{} }  \abstate \cup \{ (a,id) \}$
+
+\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }} \abstate$
+\end{itemize}
+
+Here $readIds(a)$ returns the set of pairs with data $a$, $\alabellong[\mathsf{remove}]{a,S}{}$ removes $S$ from the abstract state, $add(a,id)$ puts $\{ (a,id) \}$ into the abstract state, and $read$ returns the value of or-set.  
 
 
 
@@ -319,7 +342,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For $(a,V')$ and $write(a,V',S_1)$:
+    \item[-] For $(a,V')$ of downstream and $write(a,V',S_1)$ in sequential specification:
 
     Assume we obtain payload $S'$ from $S$ by doing downstream of $(a,V')$, in sequential specification have $\abstate \xrightarrow{write(a,V',S_1)} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
 
@@ -338,8 +361,8 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
         \item[-] If there exists item $(c,V'')$ in $S'$ but not in $S\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
 
         Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V)$. Since $(c,V'') \in S_1$, we know that $(\alabellongind[write]{c,V''}{\bot}{*},\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. This contradicts $fact1$ and $fact2$.
-        \end{itemize}
-
+        \end{itemize} 
+        
     Therefore, we know that $S' = \abstate'$, and the case of $(a,V')$ and $write(a,V',S_1)$ holds.
 
     \item[-] When the query-update $\alabelshort[write]{a}$ executes {\tt atSource} on a state $S$, then the query $\alabellong[readIds]{}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(S)=\abstate$, which clearly holds because the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$.
@@ -428,31 +451,31 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential sp
 \subsection{Proof Methodology for \crdtlin{} with Non-Deterministic Sequential Specifications}
 \label{subsec:proof methodology for RA-linearizability with non-deterministic sequential specifications}
 
-Our proof methodology for \crdtlin{} with non-deterministic sequential specifications are nearly the same as that for deterministic sequential specifications. 
+Our proof methodology for \crdtlin{} with non-deterministic sequential specifications are nearly the same as that for deterministic sequential specifications.
 
-We need to instrument the object semantics with an auxiliary variable $\aseqord$ recording a linearization of the current history. The linearization $\aseqord$ is updated every time an operation executes the {\tt atSource} portion of a method, and should guarantee that the linearization $\aseqord$ is consistent with the visibility relation. We need to prove that $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$ are inductive invariant. We also rely on additional assertions describing the effect of each downstream and then, prove that $\mathsf{Refinement}$ holds. 
+We need to instrument the object semantics with an auxiliary variable $\aseqord$ recording a linearization of the current history. The linearization $\aseqord$ is updated every time an operation executes the {\tt atSource} portion of a method, and should guarantee that the linearization $\aseqord$ is consistent with the visibility relation. We need to prove that $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$ are inductive invariant. We also rely on additional assertions describing the effect of each downstream and then, prove that $\mathsf{Refinement}$ holds.
 
-The only difference is that, since the definition of linearization in Definition \ref{definition:ralinearizability1 with non-deterministic specifications} is more complex than that of Definition \ref{definition:ralinearizability1}, we need to prove more things: We need to prove that, given the global sequence of update operations $s$ and a sub-sequence $s_1$ of $s$ whose transitions has definition in sequential specifications, in sequential specification, the abstract state obtained by executing $s_1$ is a ``sub-state'' of that of $s$. 
+The only difference is that, since the definition of linearization in Definition \ref{definition:ralinearizability1 with non-deterministic specifications} is more complex than that of Definition \ref{definition:ralinearizability1}, we need to prove more things: We need to prove that, given the global sequence of update operations $s$ and a sub-sequence $s_1$ of $s$ whose transitions has definition in sequential specifications, in sequential specification, the abstract state obtained by executing $s_1$ is a ``sub-state'' of that of $s$.
 
-Similar as in the proof of or-set, for Wooki, the linearization $\aseqord$ is defined by the order in which the {\tt atSource} procedures are executed, i.e., every new operation executing {\tt atSource} is added at the end of the current linearization. 
+Similar as in the proof of or-set, for Wooki, the linearization $\aseqord$ is defined by the order in which the {\tt atSource} procedures are executed, i.e., every new operation executing {\tt atSource} is added at the end of the current linearization.
 
 
 
 
 
 \subsection{Proof of Wooki}
-\label{subsec:proof of Wooki} 
+\label{subsec:proof of Wooki}
 
 
 Given a a W-string $s$ and two W-characters $c_1,c_2$, such that $c_1$ and $c_2$ are with degree $i$,  $c_1 <_s c_2$, and there are no W-character with degree $i$ between $c_1$ and $c_2$, we say that $c_1$ and $c_2$ are degree-$i$-adjacent in $s$. The following lemma confirms an intuition of Wooki algorithm: in recursive method $integrateIns$, the W-characters of W-string $F$ are sorted by $<_{id}$ order.
 
 \begin{lemma}
-\label{lemma:in F of Wooki, W-characters are ordered in id-order} 
+\label{lemma:in F of Wooki, W-characters are ordered in id-order}
 Given a W-string $s$ and two W-characters $c_1,c_2$, which are degree-$i$-adjacent. Then, for $W$-characters $c_3$ and $c_4$ with degree $i+1$ and $c_1 <_s \{ c_3,c_4 \} <_s c_2$, we have that, $c_3 <_s c_4$, if and only if $c_3 <_{id} c_4$.
-\end{lemma} 
+\end{lemma}
 
 \begin {proof}
-Let us prove this property by induction. 
+Let us prove this property by induction.
 
 It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for $s$, and does not hold after we do $addBetween(a,b,c)$ to $s$. Let $c_a$ be the W-character of $a$. Let $s'$ be the W-string obtained from $s$ by doing $addBetween(a,b,c)$. Then, we consider all the possibilities:
 
@@ -463,16 +486,16 @@ It is obvious that this property holds initially. Let us prove the induction par
 \item[-] Case 2: There exists degree-$j$-adjacent $c_1$ and $c_2$ of $s$, and there exists W-character $c_3,c_4$, such that (1) $c_a$ is of degree $j$, $c_1 <_{s'} c_a <_{s'} c_2$, (2) $c_3$ and $c_4$ are of degree $j+1$, and we have $c_1 <_{s'} \{c_3,c_4\} <_{s'} c_a$, and (3) it is not the case that $c_3 <_{s'} c_4$ if and only if $c_3 <_{id} c_4$: It is obvious that $c_1 <_s \{ c_3,c_4 \} <_s c_2$, and since $c_3$ and $c_4$ are degree-$j$-adjacent in $s$, by induction assumption we know that $c_3 <_s c_4$ if and only if $c_3 <_{id} c_4$. This obviously also holds in $s'$, and contradicts the assumption that it is not the case that $c_3 <_{s'} c_4$ if and only if $c_3 <_{id} c_4$.
 \end{itemize}
 
-This completes the proof of this lemma. $\qed$ 
+This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
-The following lemma states that, in Wooki algorithm, commute two $addBetween$ operations lead to a same consequence. 
+The following lemma states that, in Wooki algorithm, commute two $addBetween$ operations lead to a same consequence.
 
 \begin{lemma}
 \label{lemma:in Wooki algorithm, commute two addBetween operations lead to a same consequence}
 a
-\end{lemma}  
+\end{lemma}
 
 
 

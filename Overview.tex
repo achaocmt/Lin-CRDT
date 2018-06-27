@@ -9,27 +9,33 @@ Array (RGA) CRDT (adapted from~\cite{ShapiroPBZ11})},
 captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
+  //@ initial lin = @|$\epsilon$|@
 
   addAfter(a,b) :
     atSource :
       precondition : a = @|$\circ$|@ or (a != @|$\circ$|@ and (a,_,_) @|$\in$|@ N and a @|$\not\in$|@ Tomb)
       let ts@|$_{\mathtt{b}}$|@ = getTimestamp()
+      //@ let lin = insert(lin, @|$\alabelshort[{\tt addAfter}]{a,b}$|@, ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
-      precondition: a = @|$\circ$|@ or (a != @|$\circ$|@ and (a, ts@|$_{\mathtt{a}}$|@,_) @|$\in$|@ N)
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
+      //@ N@|$'$|@ = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
 
   remove(a) :
     atSource :
       precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
+      //@ let lin = insert(lin, @|$\alabelshort[{\tt remove}]{a}$|@, @|$\mathsf{max}\, \{\ats(\alabel):\alabel\in \alabelset \}\,$|@)
     downStream(a) :
-      precondition : (a,_,_) @|$\in$|@ N
       Tomb = Tomb @|$\cup$|@ {a}
+      //@ Tomb@|$'$|@ = Tomb @|$\cup$|@ {a}
 
   read() :
-    return traverse(N, Tomb)
+    let ret-list = traverse(N, Tomb)
+    //@ let lin = insert(lin, @|$\alabellongind[{\tt read}]{}{{\tt ret\text{-}list}}{}$|@, @|$\mathsf{max}\, \{\ats(\alabel):\alabel\in \alabelset \}\,$|@)
+    return ret-list
 \end{lstlisting}
 \end{figure}
-
+%       precondition: a = @|$\circ$|@ or (a != @|$\circ$|@ and (a, ts@|$_{\mathtt{a}}$|@,_) @|$\in$|@ N)
+%       precondition : (a,_,_) @|$\in$|@ N
 \gpnote*{TODO}{
   Section sketch:
   \begin{itemize}
@@ -343,14 +349,14 @@ being we ignore the lines marked with a comment (\lstinline|\\@|).
   \centering
 \begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT},
 captionpos=b,label={lst:or-set}]
-  payload Set S
-  initial S = @|$\emptyset$|@
-  initial seq = @|$\epsilon$|@
+  payload Set S 
+  initial S = @|$\emptyset$|@ 
+  //@ initial lin = @|$\epsilon$|@
 
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
+      //@ let lin = lin@|$\,\cdot\,\alabelshort[{\tt add}]{a,k}$|@
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
       //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
@@ -358,16 +364,16 @@ captionpos=b,label={lst:or-set}]
   remove(a) :
     atSource :
       let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
+      //@ let lin = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{a}{R}{}\,\cdot\,\alabelshort[{\tt remove}]{a,R}$|@
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@
-                       @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@
+      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[{\tt add}]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[{\tt remove}]{a,R}) \in \avisord$|@
+                       @|$\land\,\forall\ \alabel' = \alabellongind[{\tt remove}]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[{\tt remove}]{a,R})\}\not\subseteq \avisord\}$|@
       //@ S@|$'$|@ = S @|$\setminus$|@ R
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
+    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{A}{}$|@
     return A
 \end{lstlisting}
 \end{figure}
