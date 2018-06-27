@@ -93,6 +93,10 @@ is a strategy \emph{deterministically solve conflicts} which will be followed
 by all replicas. 
 
 {\color {red}CW: Here ``detect conflict'' may confuse the readers. When we do the downstream, we do not distinguish whether this downstream comes from a concurrent operation or from a visible operation.}
+\gpnote[nomargin, inline]{I don't think it's confusing or inaccurate.
+  The downstream + algorithm already embeds the conflict resolution
+  mechanism (timestamps, vector clocks, etc.). So the conflict
+  detection + resolution is there.}
 
 \ce{To simplify, the RGA uses now timestamps that are simply integers. The following text assumes that timestamps are pairs of replica ids and local clocks.}
 

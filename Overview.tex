@@ -36,7 +36,8 @@ captionpos=b,label={lst:rga}]
 \end{figure}
 %       precondition: a = @|$\circ$|@ or (a != @|$\circ$|@ and (a, ts@|$_{\mathtt{a}}$|@,_) @|$\in$|@ N)
 %       precondition : (a,_,_) @|$\in$|@ N
-\gpnote*{TODO}{
+
+\gpnote*[nomargin]{}{
   Section sketch:
   \begin{itemize}
   \item Informal explanation of the system model. Multiple replicas,
@@ -55,7 +56,7 @@ captionpos=b,label={lst:rga}]
   \end{itemize}
 }
 
-\paragraph{System Model.}
+\paragraph{System Model}
 
 We assume that the system is comprised of multiple nodes in a network.
 In this work we will be concerned with the implementation of CRDTs,
@@ -91,7 +92,7 @@ This model is depicted in~\autoref{fig:system-model}.
 
 \paragraph{CRDT implementations}
 
-Following the description above~\cite{ShapiroPBZ11} presents the code
+Following the description above, \citet{ShapiroPBZ11} presents the code
 for a number of CRDT implementations.
 %
 Here we consider the code of the RGA algorithm presented
@@ -102,7 +103,7 @@ Let us first consider the structure of the data type implementation:
 \item the keyword \lstinline|payload| introduces the state that is
   used to represent the object. This is akin to the fields of a class
   file in an object oriented language such as Java. In the specific
-  case of RGA we hate a variable \lstinline|N| of type
+  case of RGA we have a variable \lstinline|N| of type
   \lstinline|Ti-Tree| (to be discussed later), and a variable
   \lstinline|Tomb| of type \lstinline|Set|.
 \item After that we find the definitions of the three operations we
@@ -160,7 +161,7 @@ character \lstinline|b|), and a timestamp associated to it
 conflicts.
 %
 We will encode the tree as a set containing triples (representing
-nodes) of the form (\lstinline|a|, \lstinline|ts|$_{b}$, \lstinline|b|)
+nodes) of the form (\lstinline|a|, \lstinline|ts|$_{\mathtt{b}}$, \lstinline|b|)
 representing the fact that there is an element \lstinline|b| in the
 tree with timestamp \lstinline|ts|$_{\mathtt{b}}$ and whose parent is the item
 \lstinline|a| also present in the tree.
@@ -174,7 +175,7 @@ the \lstinline|a| to exist in the tree before the insertion of
 \lstinline|b| after it.
 %
 We remark at this point that the data structure is initialized with a
-preexisting initial element $\circ$.
+preexisting initial element denoted by $\circ$.
 %
 The generator then samples a timestamp \lstinline|t|$_{\mathtt{b}}$
 for \lstinline|b| which is assumed to be larger than any
@@ -188,21 +189,37 @@ to add the triple \lstinline|(a, ts|$_{\mathtt{b}}$\lstinline|, b)|
 representing the fact that the element \lstinline|b| is a child of the
 item \lstinline|a| in the tree.
 %
-Then, the tree structure is representative of the causality of the
-tree.
+Then, the tree structure is consistent with the causality of
+insertions in the data structure.
 %
 Notice that a client of the object will only ever attempt to add an
 element after another element which has already seen (mandated by the
-\lstinline|addAfter| operation of the API).
+\lstinline|addAfter| API).
 %
-Hence, the parent node of any node is causally related before it.
+Hence, the parent node of any node was inserted before it, and is
+causally related to it.
 %
 Similarly, nodes that are not related to each other on any path of
-the tree (eg. siblings) are not causally related.
+the tree (eg. siblings) are not causally related.\footnote{The converse
+  is not true. There can be nodes that are linked by ancestry in the
+  tree resulting from concurrent operations, but this does not affect
+  the correctness of the algorithm.}
 %
 An example of such a tree is shown in~\ref{fig:rga-tree}.
 \gpwarning*{Example}{Ask Chao for a concrete example.}
 %
+
+\gpnote*{}{
+\figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
+}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/HowRGAWork.pdf}
+% \vspace{-10pt}
+  \caption{An example of conflict resolution of RGA, and how we do remove.}
+  \label{fig:how RGA works}
+\end{figure}
 
 Considering a \lstinline|Ti-tree| constructed in this way, we can
 obtain a list by traversing the tree in pre-order fashion, with the
@@ -274,83 +291,12 @@ traversal as explained before, where all the elements in the tombstone
 
 \paragraph{OR-Set CRDT Implementation}
 
-The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11}
-which implements a set interface with methods: \lstinline|add(a)|,
-\lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
-  we could provide an interface with the method \lstinline|lookup(a)|
-  returning a boolean with the same consequences as the
-  \lstinline|read()| method we provide.}
-%
-The meaning of these methods is self-evident from their names.
-%
-However, what is not evident is what are the results of conflicting
-concurrent operations.
-%
-Consider for example the case where two replicas add a certain element
-\lstinline|a| and then one of them removes that element.
-%
-If we consider an interleaving based execution of these operations
-there are two options depending on the interleaving:
-\begin{inparaenum}[i)]
-\item if the \lstinline|remove(a)| operation is the last operation
-  then the expected set is empty, since the two consecutive
-  \lstinline|add(a)| operations are idempotent, and the
-  \lstinline|remove| would remove the only occurrence of
-  \lstinline|a|,
-\item on the other hand, if the operation \lstinline|add(a)| of the
-  non-removing process comes last, the final set could contain the
-  element \lstinline|a|.
-\end{inparaenum}
-As we have explained before, in our system model the operations can
-arrive in one order to one replica and in a different order to another
-replica.
-%
-To guarantee convergence, OR-Set must ensure that regardless of the
-ordering, the resulting set will be the same.
-%
-To that end, OR-Set \lstinline|add| operations will tag each added
-element with a unique identifier.
-%
-Then,a remove operation will only remove the elements which has
-already seen.
-%
-For instance, in the example above, the remove of \lstinline|a| will
-only remove the element that has been previously added by in the same
-replica, since this item as been observed by the \lstinline|remove|
-operating -- and thus its identifier is known to it --. However, the
-concurrent \lstinline|add(a)| operation will have an identifier that
-has not been observed by the \lstinline|remove| (since they are
-concurrent).
-%
-Therefore the item will not be removed, even in the case where the two
-adds are performed in a replica before the remove.
-
-The code of OR-Set is shown in~\autoref{lst:or-set} where for the time
-being we ignore the lines marked with a comment (\lstinline|\\@|).
-
-\gpwarning[nomargin, inline]{Add the argument for linearization of
-  OR-Set. This might be a little tricky to explain.}
-
-% Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a
-% position immediately after that of a existing item $b$. Method
-% $\mathit{rem}(a)$ removes $a$ from the list. Method $\mathit{read}$
-% returns the current list content. When the current replica does
-% $\mathit{add}(a,b)$, it generate a tuple $(a,ts_a,ts_b)$ and put it
-% into $N$. Here $ts_b$ is the time-stamp of $b$, and $ts_a$ is a new
-% time-stamp that is larger than any time stamp in $N$. When the current
-% replica does $\mathit{rem}(a)$, it put $a$ into tombstone. When the
-% current replica does $\mathit{read}$, it uses function
-% $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the
-% current replica, which is a sequences obtained by traversing $N$ in
-% prefix order (children are visited in decreasing time-stamp order) and
-% keeping only items that are not in $\mathit{Tomb}$.
-
 \begin{figure}[!t]
   \centering
 \begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT},
 captionpos=b,label={lst:or-set}]
-  payload Set S 
-  initial S = @|$\emptyset$|@ 
+  payload Set S
+  initial S = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
 
   add(a) :
@@ -377,6 +323,166 @@ captionpos=b,label={lst:or-set}]
     return A
 \end{lstlisting}
 \end{figure}
+
+The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11}
+which implements a set interface with methods: \lstinline|add(a)|,
+\lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
+  we could provide an interface with the method \lstinline|lookup(a)|
+  returning a boolean with the same consequences as the
+  \lstinline|read()| method we provide.}
+%
+The meaning of these methods is self-evident from their names.
+%
+However, what is not evident is what are the results of conflicting
+concurrent operations.
+%
+Consider for example the case where two replicas add a certain element
+\lstinline|a| and then one of them removes that element.
+%
+\gpnote[nomargin, inline]{Add picture.}
+ If we consider an interleaving based execution of these operations
+there are two options depending on the interleaving:
+\begin{inparaenum}[i)]
+\item if the \lstinline|remove(a)| operation is the last operation
+  then the expected set is empty, since the two consecutive
+  \lstinline|add(a)| operations are idempotent, and the
+  \lstinline|remove| would remove the only occurrence of
+  \lstinline|a|,
+\item on the other hand, if the operation \lstinline|add(a)| of the
+  non-removing process comes last, the final set could contain the
+  element \lstinline|a|.
+\end{inparaenum}
+As we have explained before, in our system model the operations can
+arrive in one order to one replica and in a different order to another
+replica.
+%
+To guarantee convergence, OR-Set must ensure that regardless of the
+ordering, the resulting set will be the same.
+%
+To that end, OR-Set \lstinline|add| operations will tag each added
+element with a unique identifier.
+%
+Then, a remove operation will only remove the elements which has
+already seen.
+%
+For instance, in the example above, the remove of \lstinline|a| will
+only remove the element that has been previously added by in the same
+replica, since this item as been observed by the \lstinline|remove|
+operation -- and thus its identifier is known to it --. However, the
+concurrent \lstinline|add(a)| operation will have an identifier that
+has not been observed by the \lstinline|remove| (since they are
+concurrent).
+%
+Therefore the item will not be removed, even in the case where the
+effectors of the two adds are performed in a replica before the effector
+of the remove.
+%
+The code of OR-Set is shown in~\autoref{lst:or-set} where for the time
+being we ignore the lines marked with a comment (\lstinline|//@|).
+
+\paragraph{Intuition of OR-Set Linearizability}
+\gpnote{Add reads at the end of the pictures.}
+
+
+It is easy to find examples where the implementation of OR-Set can
+produce executions which cannot be justified by standard definition of
+linearizability (they are not even sequentializable)
+of~\citet{HerlihyW90} assuming a standard set specification.
+%
+\gpwarning{Redraw this picture properly.}
+\autoref{fig:or-set-not-lin} shows one such example.
+%
+For simplicity we assume here that we have two clients, each executing
+in one of two replicas as their source, issuing the sequences of
+operations \lstinline|add(b);add(a);remove(b)| and
+\lstinline|add(a);add(b);remove(a)| respectively.
+%
+Clearly any linearization a la~\citet{HerlihyW90} should end with a
+\lstinline|remove| operation, and therefore the final set should have
+at most one element, contrary to the final set we obtain:
+$\mathtt{\{a, b\}}$.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
+  \includegraphics[width=0.90 \textwidth]{./figures/OR-Set-lk-rem}
+  \caption{OR-Set non-linearizable execution.}
+  \label{fig:or-set-not-lin}
+\end{figure}
+
+For our definition of \CRDTLinshort{} we will distinguish between
+\emph{update} and \emph{query} operations.
+%
+We will then require that if we look only at update operations, they
+can be totally ordered (linearized) such that the resulting states of
+the object can be explained by executing the \emph{specification} of
+these updates on the object.
+%
+Essentially, reachable states of the implementation can be reached by
+a linearization of the updates when considering the specification. 
+%
+However, this cannot be replicated for query operations, since the
+system model allows for updates to arrive to different replicas in
+different order. 
+%
+Hence, for \CRDTLinshort{} we will require that the result of any
+query can be explained by consider a \emph{sub-sequence} of the above
+mentioned global linearization up updates. 
+%
+
+Coming back to our OR-Set example in~\autoref{fig:or-set-not-lin}, we
+have that the \lstinline|remove| operation behaves as both a query
+(observing a certain number of updates on the element to be removed)
+and an update (by removing said updates).
+%
+To cope with such cases, we will consider in our definition that
+query-update operations can be split into a query part, which only
+reads the state -- and hence can see only a sub-sequence of the
+linearization of updates --, and an update part which will use the
+results of the prior query. 
+%
+For instance, \lstinline|remove| will be split into a query part where
+only the elements that are visible at the time of the remove are
+selected, and an update part where only those elements selected are
+erased.
+%
+Evidently, this requires some mechanism for ``marking'' the adds that
+are concerned.
+%
+We will consider that each add has a unique identifier. 
+%
+Then, the query part of a remove returns a set of unique identifiers
+to be removed. 
+%
+Any identifier not in this set will remain in the set after the update
+part of the remove. 
+%
+The second part of~\autoref{fig:or-set-not-lin} shows this rewriting
+where we denote by \lstinline|lk| (for lookup) the query part of
+remove, which returns a set of elements to be removed, and a
+\lstinline|remove| operation taking a set of elements to be removed. 
+%
+In this case, our definition of linearizability is just as before.
+%
+To linearize this execution, when contemplating only the updates, we
+can chose any order consistent with the order in which operations are
+performed in each replica and the result is consistent with the
+specification of a set.
+
+% Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a
+% position immediately after that of a existing item $b$. Method
+% $\mathit{rem}(a)$ removes $a$ from the list. Method $\mathit{read}$
+% returns the current list content. When the current replica does
+% $\mathit{add}(a,b)$, it generate a tuple $(a,ts_a,ts_b)$ and put it
+% into $N$. Here $ts_b$ is the time-stamp of $b$, and $ts_a$ is a new
+% time-stamp that is larger than any time stamp in $N$. When the current
+% replica does $\mathit{rem}(a)$, it put $a$ into tombstone. When the
+% current replica does $\mathit{read}$, it uses function
+% $\mathit{trans}(N,\mathit{Tomb})$ to return the list seen by the
+% current replica, which is a sequences obtained by traversing $N$ in
+% prefix order (children are visited in decreasing time-stamp order) and
+% keeping only items that are not in $\mathit{Tomb}$.
+
 %      precondition : %@|$\exists$|@ k. (a,k) @|$\in$|@ S
 %let @|$\alabel = \alabellongind[remove]{a,R}{\bot}{i}$|@
 %      //@ @|$\alpha(S) \xrightarrow{\alabelshort[add]{a,k}} \alpha(S')$|@
@@ -389,9 +495,9 @@ captionpos=b,label={lst:or-set}]
 % while in the downstream of a $\alabellongNoret[\mathit{add}]{\argv}$
 % operation, a set $S_1$ will be removed from the local state. We call
 % such tuple $(\argv,\ats)$ or set $S_1$ the content of the downstream.
-% The following is the condition $C_2$ for or-set implementatio.
+% The following is the condition $C_2$ for or-set implementati.
 
-%%% Local Variables:
+%%% Local %Variables:
 %%% mode: latex
 %%% TeX-master: "draft"
 %%% End:

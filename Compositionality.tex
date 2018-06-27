@@ -321,7 +321,7 @@ Then, each history of $\llbracket \severalobj \rrbracket_g$ is \crdtlinearizable
 
 {\color {red}CW: We should make agreement about the interface.}
 
-\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods). 
+\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods).
 
 \begin{figure}[t]
 %\centering
@@ -346,29 +346,19 @@ LWW-set~\cite{ShapiroPBZ11}&\tonelin&$\alabelshort[add]{value}$, $\alabelshort[r
 %\hline
 OR-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[add]{value}$, $\alabelshort[remove]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
 \hline
-RGA~\cite{?}&\tonelin&$\alabelshort[addAfter]{value,value}$, $\alabelshort[remove]{value}$, 
+RGA~\cite{?}&\tonelin&$\alabelshort[addAfter]{value,value}$, $\alabelshort[remove]{value}$,
                 \\ & & $\alabellong[read]{}{List \ value}{}$\\
 \hline
-Wooki~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$, 
+Wooki~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$,
                 \\ & & $\alabellong[read]{}{List \ value}{}$\\
 \hline
-Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$, 
+Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$,
                 \\ & & $\alabellong[read]{}{List \ value}{}$\\
 \hline
 \end{tabular}
 
 \caption{\crdtimp{} of this paper, their correctness, and their interface.}
 \label{fig:crdt-implementaton of this paper, their correctness, and their interface}
-\end{figure}
-
-\figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$. 
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.85 \textwidth]{figures/HowRGAWork.pdf}
-\vspace{-10pt}
-  \caption{An example of conflict resolution of RGA, and how we do remove.}
-  \label{fig:how RGA works}
 \end{figure}
 
 
@@ -419,7 +409,7 @@ Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\ala
 
 
 
-\figurename~\ref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Here we assume $\ats_a$ and $\ats_b$ is the timestamp of $a$ and $b$ respectively, and the timestamp order be $\ats_a < \ats_b$. Since applying downstream of concurrent operations commute, we take the order of ``increasing timestamp'': $\alabelshort[addAfter]{\circ,a} \cdot \alabelshort[addAfter]{\circ,a} \cdot \alabellong[read]{}{b \cdot a}{}$, and then, according to the refinement mapping, we construct the transitions in sequential specification. 
+\figurename~\ref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Here we assume $\ats_a$ and $\ats_b$ is the timestamp of $a$ and $b$ respectively, and the timestamp order be $\ats_a < \ats_b$. Since applying downstream of concurrent operations commute, we take the order of ``increasing timestamp'': $\alabelshort[addAfter]{\circ,a} \cdot \alabelshort[addAfter]{\circ,a} \cdot \alabellong[read]{}{b \cdot a}{}$, and then, according to the refinement mapping, we construct the transitions in sequential specification.
 
 \begin{figure}[t]
   \centering
@@ -431,7 +421,7 @@ Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\ala
 
 
 
-\figurename~\ref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set. 
+\figurename~\ref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set.
 
 \begin{figure}[t]
   \centering
