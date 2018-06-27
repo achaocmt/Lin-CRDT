@@ -214,16 +214,18 @@ Hence, the parent node of any node was inserted before it, and is
 causally related to it.
 %
 Similarly, nodes that are not related to each other on any path of
-the tree (eg. siblings) are not causally related.\footnote{The converse
-  is not true. There can be nodes that are linked by ancestry in the
-  tree resulting from concurrent operations, but this does not affect
-  the correctness of the algorithm.}
+the tree (eg. siblings) are not related necessarily causally related.
+% \footnote{The converse
+%   is not true. There can be nodes that are linked by ancestry in the
+%   tree resulting from concurrent operations, but this does not affect
+%   the correctness of the algorithm.}
 %
 An example of such a tree is shown in~\ref{fig:rga-tree}.
 
 Considering a \lstinline|Ti-tree| constructed in this way, we can
 obtain a list by traversing the tree in pre-order fashion, with the
-proviso that siblings are ordered according to their timestamps.
+proviso that siblings are ordered according to their timestamps with
+the highest timestamp traversed first.
 %
 \autoref{fig:rga-tree} shows the tree that results from the given
 tree.
