@@ -384,146 +384,48 @@ and the transitions are given as follows:
 \end{itemize}
 \end{example}
 
-\fxfatal[nomargin, inline]{Complete the others!}
-\begin{example}[sequential specification of multi-value register]
-\label{def:spec-MVR}
-The sequential specification $\mathit{MVReg}_s$ of multi-value
-register is given as follows: Let $\mathit{state}$ be a set and each
-its element $(a,\mathit{id},f)$ is a tuple of a data $a$, an
-identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{
-\mathit{true},\mathit{false} \}$.
+
+{\color {red} CW: The sequential specification of OR-set and list with add-after interface}
+\begin{example}[sequential specification of OR-Set]
+\label{definition:sequential specification of or-set}
+The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$. 
+
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{ORset}_s$ of OR-set is given with the transitions as follows:
+
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = S \}$ $(write(a),\mathit{id},S_1)$ $\{
-  \mathit{state} = S[(b,\mathit{id}_1) \in S_2 : \mathit{false}] \cup
-  \{ (a,id,\mathit{true}) \} \}$. Here $S_2 = \{ (b,\mathit{id}_1)
-  \vert (b,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
-\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert
-  (a,\_,\mathit{true}) \in S \} \}$ $read() \Rightarrow S_1$ $\{
-  \mathit{state} = S \}$.
+\item[-] $\abstate \xRightarrow{\alabellong[{\tt readIds}]{a}{ \{ (a,id) \vert (a,id) \in \abstate \} }{} } \abstate$
+
+\item[-] $\abstate \xRightarrow{ \alabelshort[{\tt remove}]{a,S} }  \abstate \setminus S$
+
+\item[-] $\big(\abstate\ |\ id \ is \ unique \big) \xRightarrow{ \alabelshort[{\tt add}]{a,id} }  \abstate \cup \{ (a,id) \}$
+
+\item[-] $\abstate \xRightarrow{\alabellong[{\tt read}]{a}{ \{ a \vert \exists id, (a,id) \in \abstate \} }{}} \abstate$
 \end{itemize}
-\end{example}
 
-\begin{example}[set and its sequential specification]
-\label{definition:sequential specification of set}
-A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set;
-$\mathit{rem}(a)$ removes $a$ from set; and $\mathit{read}$ returns
-the set content.
-% It implicitly assumes that each item being put into the set only
-% once.
-% Here we assume that when a item is removed, it will never be added
-% again.
-Here we assume that $\mathit{rem}$ will also be checked for
-visibility.
-The sequential specification $\mathit{set}_s$ of set is given as
-follows:  Let $\mathit{state}$ be a set and each its element $(a,f)$
-is a tuple of a data $a$ and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = S \wedge (a,\_) \notin S \}$
-  $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{
-  (a,\mathit{true}) \} \}$.
-\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$
-  $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \}$.
-\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$
-  $(\mathit{rem}(a))$ $\{ \mathit{state} = S[a: \mathit{false} \}$.
-\item[-] $\{ \mathit{state} = S \wedge S_1 = \{a \vert
-  (a,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$
-  $\{ \mathit{state} = S \}$.
-\end{itemize}
-\end{example}
-
-%TODO TO MAKE IT MORE INTERESTING I ASSUME THAT REMOVE HAS A PRECONDITION: THE PAIRS REMOVED BY A REMOVE HAVE BEEN ADDED BEFORE
-
-\begin{example}[OR-set and its sequential specification]
-\label{def:specification-ORS}
-OR-set is essential a multi-set: $\mathit{add}(a)$ inserts an item $a$
-into multi-set; $\mathit{rem}(a)$ cancels only items $a$ that are
-inserted by $\mathit{add}(a)$ operations visible to this remove
-operation; $\mathit{read}$ returns the set of items in multi-set. A
-value can be inserted multiple times.
-
-The sequential specification $\mathit{OR}$-$\mathit{set}_s$ of OR-set
-is given as follows: Let $\mathit{state}$ be a set and each its
-element $(a,\mathit{id},f)$ is a tuple of a data $a$, an identifier
-$\mathit{id}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
-% In $((rem(a),\mathit{id}'),S_1)$, $S_1$ represents the operations
-% visible to this remove operation.
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = S  \wedge (\_,\mathit{id},\_) \notin S
-  \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{
-  (a,\mathit{id},\mathit{true}) \} \}$.
-\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert
-  (a,\_,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow
-  S_1)$ $\{ \mathit{state} = S \}$.
-\item[-] $\{ \mathit{state} = S \wedge (a,\_,\_) \in S\}$
-  $(rem(a),S_1)$ $\{ \mathit{state} = S[(a,\mathit{id}_1) \in S_2 :
-  \mathit{false}] \}$. Here $S_2 = \{ (a,\mathit{id}_1) \vert
-  (a,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
-\end{itemize}
+Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
 \end{example}
 
 
-\begin{example}[register and its sequential specification]
-\label{def:spec-register}
-A register has two methods: $\mathit{write}(a)$ writes $a$ into
-register; $\mathit{read}$ returns the value of register. The
-sequential specification $\mathit{reg}_s$ of register is given as
-follows: Let $\mathit{state} \in \mathbb{D}$ be a value.
+
+\begin{example}[sequential specification of List with add-after interface]
+\label{definition:sequential specification of or-set}
+Each abstract state $\abstate$ is a sequence of tuples $(a,flag)$, where $a$ is a data and $flag \in \{ \mathit{true},\mathit{false} \}$ is flag. $(a,\mathit{true})$ means that $a$ is in the list, while $(a,\mathit{false})$ means that $a$ has once been added into the list and then removed. The sequential specification $\mathit{listAft}_s$ of list with add-after interface is given with the transitions as follows:
+
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = a  \}$ $\mathit{write}(b)$ $\{
-  \mathit{state} = b \}$.
-\item[-] $\{ \mathit{state} = a \}$ $(\mathit{read}() \Rightarrow a)$
-  $\{ \mathit{state} = a \}$.
+\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k < n \wedge (a,\_) \notin \abstate \big) \xRightarrow{ \alabelshort[{\tt addAfter}]{a_k,a} } (a_1,flag_1)\cdot \ldots (a_k,flag_k) \cdot (a,\mathit{true}) \cdot (a_{k+1},flag_{k+1}) \cdot \ldots \cdot (a_n,flag_n)$
+
+\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k \leq n \big) \xRightarrow{ \alabelshort[{\tt remove}]{a_k} } (a_1,flag_1)\cdot \ldots (a_k,\mathit{false}) \cdot \ldots \cdot (a_n,flag_n)$
+
+\item[-] $(a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \xRightarrow{\alabellong[{\tt read}]{}{s}{}} (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n)$, here $s$ is the projection of $a_1 \cdot \ldots \cdot a_n$ into $\{ a \vert a$ is with flag $\mathit{true} \}$
 \end{itemize}
+
+$\alabelshort[{\tt addAfter}]{a_k,a}$ puts $(a,\mathit{true})$ immediately after $(a_k,flag_k)$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ removes $a_k$ from the list by setting its flag into $\mathit{false}$. $\alabellong[{\tt read}]{}{s}{}$ returns the content of list.
+
+Assume that the initial value of list is $(\circ,\mathit{true})$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
 \end{example}
 
-
-\begin{example}[List with add-after interface]
-\label{definition:spec-list-add-after}
-Assume each item of the list is unique. A list has three methods:
-$\mathit{add}(b,a)$ inserts item $b$ into the list at the position
-immediately after that of item $a$; $\mathit{rem}(a)$ removes item $a$
-from the list; and $\mathit{read}$ returns the list content. We assume
-that the initial value of list is $(\circ,\mathit{true})$ and this
-node can not be removed. We use the word ``add-after'' to emphasize
-the method $\mathit{add}(b,a)$, which is different from the other list
-interface that uses method $\mathit{add}(b,a,c)$.
-
-The sequential specification $\mathit{list}_s^{\mathit{af}}$ of list
-is given as follows: Let $\mathit{state}$ be a sequence, where each
-item is a tuple $(a,\mathit{id},f)$ with data $a$, identifier
-$\mathit{id}$ and flag $f \in \{ \mathit{true},\mathit{false} \}$.
-Here $\mathit{af}$ represents add-after, and we use $l \uparrow_{S}$
-to represent the projection of sequence $l$ into set $S$.
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
-  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge b \notin \{
-  a_1, \ldots, a_n \} \wedge \mathit{id}_k \in S_1 \}$
-  $(add(b,a_k),\mathit{id},S_1)$ $\{ \mathit{state} =
-  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,f_k)
-  \cdot (b,\mathit{id},\mathit{true}) \cdot
-  (a_{k+1},\mathit{id}_{k+1},f_{k+1}) \cdot \ldots \cdot
-  (a_n,\mathit{id}_n,f_n) \}$.
-\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
-  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge \mathit{id}_k
-  \in S_1 \}$ $(rem(a_k),S_1)$ $\{ \mathit{state} =
-  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
-  (a_k,\mathit{id}_k,\mathit{false}) \cdot \ldots \cdot
-  (a_n,\mathit{id}_n,f_n) \}$.
-\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
-  \cdot (a_n,\mathit{id}_n,f_n) \wedge S = \{ a \vert
-  (a,\_,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot
-  \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{
-  \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
-  (a_n,\mathit{id}_n,f_n) \}$.
-\end{itemize}
-When the context is clear, in $\mathit{read}$ operation, we will omit
-$\circ$.
-\end{example}
 
 \fxwarning[nomargin, inline]{TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.}
 
@@ -718,7 +620,7 @@ sequential specification $\Spec$ when each history $h\in H$ is
 $\Spec$.
 A data type implementation is \crdtlinearizable{} w.r.t.
 $\Spec$ if for any object $\aobj$ of the data type, the set
-$\histories(\aobj)$ is linearizable w.r.t. $\Spec$. 
+$\histories(\aobj)$ is linearizable w.r.t. $\Spec$.
 
 
 \fxwarning[nomargin, inline]{MOVE THE FOLLOWING WHEN WE NEED IT (WHEN WE TALK ABOUT SOME NONDETERMINISTIC SPECIFICATION, E.G., WOOT)}
@@ -741,6 +643,156 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a deterministic
 sequential specification \Spec, then $h$ is convergent.
 \end{lemma}
 
+
+
+
+
+
+
+
+
+\forget{
+\fxfatal[nomargin, inline]{Complete the others!}
+\begin{example}[sequential specification of multi-value register]
+\label{def:spec-MVR}
+The sequential specification $\mathit{MVReg}_s$ of multi-value
+register is given as follows: Let $\mathit{state}$ be a set and each
+its element $(a,\mathit{id},f)$ is a tuple of a data $a$, an
+identifier $\mathit{id} \in \mathbb{O}$, and a flag $f \in \{
+\mathit{true},\mathit{false} \}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = S \}$ $(write(a),\mathit{id},S_1)$ $\{
+  \mathit{state} = S[(b,\mathit{id}_1) \in S_2 : \mathit{false}] \cup
+  \{ (a,id,\mathit{true}) \} \}$. Here $S_2 = \{ (b,\mathit{id}_1)
+  \vert (b,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert
+  (a,\_,\mathit{true}) \in S \} \}$ $read() \Rightarrow S_1$ $\{
+  \mathit{state} = S \}$.
+\end{itemize}
+\end{example}
+
+\begin{example}[set and its sequential specification]
+\label{definition:sequential specification of set}
+A set has three methods: $\mathit{add}(a)$ inserts item $a$ into set;
+$\mathit{rem}(a)$ removes $a$ from set; and $\mathit{read}$ returns
+the set content.
+% It implicitly assumes that each item being put into the set only
+% once.
+% Here we assume that when a item is removed, it will never be added
+% again.
+Here we assume that $\mathit{rem}$ will also be checked for
+visibility.
+The sequential specification $\mathit{set}_s$ of set is given as
+follows:  Let $\mathit{state}$ be a set and each its element $(a,f)$
+is a tuple of a data $a$ and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \notin S \}$
+  $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{
+  (a,\mathit{true}) \} \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$
+  $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_) \in S \}$
+  $(\mathit{rem}(a))$ $\{ \mathit{state} = S[a: \mathit{false} \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{a \vert
+  (a,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow S_1)$
+  $\{ \mathit{state} = S \}$.
+\end{itemize}
+\end{example}
+
+%TODO TO MAKE IT MORE INTERESTING I ASSUME THAT REMOVE HAS A PRECONDITION: THE PAIRS REMOVED BY A REMOVE HAVE BEEN ADDED BEFORE
+
+\begin{example}[OR-set and its sequential specification]
+\label{def:specification-ORS}
+OR-set is essential a multi-set: $\mathit{add}(a)$ inserts an item $a$
+into multi-set; $\mathit{rem}(a)$ cancels only items $a$ that are
+inserted by $\mathit{add}(a)$ operations visible to this remove
+operation; $\mathit{read}$ returns the set of items in multi-set. A
+value can be inserted multiple times.
+
+The sequential specification $\mathit{OR}$-$\mathit{set}_s$ of OR-set
+is given as follows: Let $\mathit{state}$ be a set and each its
+element $(a,\mathit{id},f)$ is a tuple of a data $a$, an identifier
+$\mathit{id}$, and a flag $f \in \{ \mathit{true},\mathit{false} \}$.
+% In $((rem(a),\mathit{id}'),S_1)$, $S_1$ represents the operations
+% visible to this remove operation.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = S  \wedge (\_,\mathit{id},\_) \notin S
+  \}$ $(\mathit{add}(a),\mathit{id})$ $\{ \mathit{state} = S \cup \{
+  (a,\mathit{id},\mathit{true}) \} \}$.
+\item[-] $\{ \mathit{state} = S \wedge S_1 = \{ a \vert
+  (a,\_,\mathit{true}) \in S \} \}$ $(\mathit{read}() \Rightarrow
+  S_1)$ $\{ \mathit{state} = S \}$.
+\item[-] $\{ \mathit{state} = S \wedge (a,\_,\_) \in S\}$
+  $(rem(a),S_1)$ $\{ \mathit{state} = S[(a,\mathit{id}_1) \in S_2 :
+  \mathit{false}] \}$. Here $S_2 = \{ (a,\mathit{id}_1) \vert
+  (a,\mathit{id}_1,\mathit{true}) \in S \wedge id \in S_1 \}$.
+\end{itemize}
+\end{example}
+
+
+\begin{example}[register and its sequential specification]
+\label{def:spec-register}
+A register has two methods: $\mathit{write}(a)$ writes $a$ into
+register; $\mathit{read}$ returns the value of register. The
+sequential specification $\mathit{reg}_s$ of register is given as
+follows: Let $\mathit{state} \in \mathbb{D}$ be a value.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = a  \}$ $\mathit{write}(b)$ $\{
+  \mathit{state} = b \}$.
+\item[-] $\{ \mathit{state} = a \}$ $(\mathit{read}() \Rightarrow a)$
+  $\{ \mathit{state} = a \}$.
+\end{itemize}
+\end{example}
+
+
+\begin{example}[List with add-after interface]
+\label{definition:spec-list-add-after}
+Assume each item of the list is unique. A list has three methods:
+$\mathit{add}(b,a)$ inserts item $b$ into the list at the position
+immediately after that of item $a$; $\mathit{rem}(a)$ removes item $a$
+from the list; and $\mathit{read}$ returns the list content. We assume
+that the initial value of list is $(\circ,\mathit{true})$ and this
+node can not be removed. We use the word ``add-after'' to emphasize
+the method $\mathit{add}(b,a)$, which is different from the other list
+interface that uses method $\mathit{add}(b,a,c)$.
+
+The sequential specification $\mathit{list}_s^{\mathit{af}}$ of list
+is given as follows: Let $\mathit{state}$ be a sequence, where each
+item is a tuple $(a,\mathit{id},f)$ with data $a$, identifier
+$\mathit{id}$ and flag $f \in \{ \mathit{true},\mathit{false} \}$.
+Here $\mathit{af}$ represents add-after, and we use $l \uparrow_{S}$
+to represent the projection of sequence $l$ into set $S$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge b \notin \{
+  a_1, \ldots, a_n \} \wedge \mathit{id}_k \in S_1 \}$
+  $(add(b,a_k),\mathit{id},S_1)$ $\{ \mathit{state} =
+  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot (a_k,\mathit{id}_k,f_k)
+  \cdot (b,\mathit{id},\mathit{true}) \cdot
+  (a_{k+1},\mathit{id}_{k+1},f_{k+1}) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge k \leq n \wedge \mathit{id}_k
+  \in S_1 \}$ $(rem(a_k),S_1)$ $\{ \mathit{state} =
+  (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
+  (a_k,\mathit{id}_k,\mathit{false}) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\item[-] $\{ \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots
+  \cdot (a_n,\mathit{id}_n,f_n) \wedge S = \{ a \vert
+  (a,\_,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot
+  \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{
+  \mathit{state} = (a_1,\mathit{id}_1,f_1) \cdot \ldots \cdot
+  (a_n,\mathit{id}_n,f_n) \}$.
+\end{itemize}
+When the context is clear, in $\mathit{read}$ operation, we will omit
+$\circ$.
+\end{example}
+}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "draft"
