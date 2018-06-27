@@ -5,7 +5,7 @@
 \textblue{
 Here we define:
 \begin{itemize}
-\item the notations required for labels: $\aobj.\alabellongind{\argv}{\retv}{i,\ts}$ (partition queries/updates)
+\item the notations required for labels: $\aobj.\alabellongind{\argv}{\retv}{i,\ats}$ (partition queries/updates)
 \item the notion of history: $(\alabelset, \avisord)$
 \item the notion of sequential specification: a set of sequences $(\alabelset, \aseqord)$. Talk about per-object specification (and a representation of these specs based on pre/post conditions) and a specification for a set of objects (defined by interleavings)
 \item the notion of \CRDTLin{}: label rewriting + linearization of the visibilities (make it in one shot for both - the intuition should be clear from the overview). Also, in one shot for multiple objects, given that we already defined specifications for multiple objects.
@@ -35,7 +35,7 @@ CRDT implementations assume the following two guarantees of downstream:
     \arep & \in & \reps & \text{Replicas} \\
     \amethod & \in & \methods & \text{Methods}\\
     \argv, \retv & \in & \datadomain & \text{Data Domain} \\
-    \ts & \in & \timestampdomain & \text{Timestamp Domain} \\
+    \ats & \in & \timestampdomain & \text{Timestamp Domain} \\
 %    \acrdttyp & \in & \powerset{\methods} \times \powerset{\adomain} & \text{CRDT definition} \\
 %    \astate & \in & \states & \text{States} \\
 %    \amesg & \in & \messages & \text{Messages} \\
@@ -107,19 +107,21 @@ totally-ordered domain $\timestampdomain$. The order relation on $\timestampdoma
 %set of method names $\amethodset \subseteq \methods$ and a data domain
 %$\adomain \subseteq \datadomain$.
 
-
-An operation label $\alabelobjind{\argv}{\retv}{i,\ts}$ represents the
+%The timestamp of such an operation label $\alabel$
+% We may omit the object $\aobj$ when it is understood from the context.
+An operation label $\alabelobjind{\argv}{\retv}{i,\ats}$ represents the
 call of a method $\amethod \in \methods$ of object $\aobj\in \objs$,
 with argument $\argv \in \datadomain$, resulting in the value $\retv
-\in \datadomain$, and generating the timestamp $\ts$.
-We may omit the object $\aobj$ when it is understood from the context.
-For uniformity, we assume that the set $\labels$ contains a
+\in \datadomain$, and generating the timestamp $\ats$.
+For uniformity, we assume that the set $\timestampdomain$ contains a
 distinguished element $\bot$ which we shall use for operations that do
 not generate a timestamp as the method {\tt remove} of the RGA.
-In that case the meta-variable $\ts$ adopts the value $\bot$. We extend the order
+In that case the meta-variable $\ats$ adopts the value $\bot$. We extend the order
 relation $<$ on timestamps to include $\bot$ as a minimal element.
 The same applies to return values.
-We may omit the timestamp when it is not important.
+The timestamp $\ats$ of an operation label $\alabel=\alabelobjind{\argv}{\retv}{i,\ats}$
+is denoted by $\tsof(\alabel)$.
+We may omit the object $\aobj$ or the timestamp $\ats$ when it is not important.
 %We assume that in a history all labels are unique.
 Since there might be multiple calls to the same method with the same
 arguments and result, labels are tagged with a unique identifier $i$.
@@ -141,8 +143,8 @@ system $\llbracket \aobj \rrbracket =
 global configurations, $\acts$ is the set of transition labels, called \emph{actions}, 
 $\aglobalstate_0$ is the initial configuration, and 
 $\rightarrow\subseteq \globalstates \times \acts\times \globalstates$ is the
-transition relation. For readability, we use $\aglobalstate \xrightarrow{\anact} \aglobalstate'$
-to denote a transition $(\aglobalstate,\anact,\aglobalstate')\in\rightarrow$.
+transition relation. For readability, we use $\aglobalstate \xrightarrow{\aact} \aglobalstate'$
+to denote a transition $(\aglobalstate,\aact,\aglobalstate')\in\rightarrow$.
 
 A global configuration $(\gstates, \avisord, \downstreams)$ is a
 ``snapshot'' of the system that records all the operations that have
@@ -249,7 +251,7 @@ A method $\amethod$ which is not a query or an update is called a
 identity function, and whose effect depends on the local state of the
 replica at which the invocation of $\amethod$ originated).
 We denote by $\queries$, $\updates$, and $\queryupdates$, the sets of
-operation labels $\alabelobjind{\argv}{\retv}{i,\ts}$ where $\amethod$
+operation labels $\alabelobjind{\argv}{\retv}{i,\ats}$ where $\amethod$
 is a query, an update, or query-update respectively.
 We shall name them query, update, and query-update labels,
 respectively.
@@ -258,8 +260,8 @@ respectively.
   PROBABLY DISCUSSED ALREADY ALSO IN THE OVERVIEW.}
 
 %Executions of an object $\aobj$ are defined as usual (as sequences of transitions in $\rightarrow$). 
-An execution of the object $\aobj$ is a sequence of transitions $\aglobalstate_0\xrightarrow{\anact_0}\aglobalstate_1\xrightarrow{\anact_1}\ldots$.
-A \emph{trace} $\atrace$ is the sequence of actions $\anact_0\anact_1\ldots$ labeling the transitions of an execution.
+An execution of the object $\aobj$ is a sequence of transitions $\aglobalstate_0\xrightarrow{\aact_0}\aglobalstate_1\xrightarrow{\aact_1}\ldots$.
+A \emph{trace} $\atrace$ is the sequence of actions $\aact_0\aact_1\ldots$ labeling the transitions of an execution.
 The set of traces of an object $\aobj$ is denoted by $\traces(\aobj)$.
 A \emph{history} is a pair $(\alabelset,\avisord)$ where
 $\avisord\subseteq \alabelset\times\alabelset$ is a strict partial
