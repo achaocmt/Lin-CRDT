@@ -102,7 +102,7 @@ captionpos=b,label={lst:wooki algorithm}]
   initial @|$clock$|@ = 0, @|$string_s$|@ = @|$\epsilon$|@
   initial seq = @|$\epsilon$|@
 
-  addBetween(a,b,c) :
+  addBetween(b,a,c) :
     atSource :
       precondition :  @|$contains(string_s,b) \wedge contains(string_s,c) \wedge pos(string_s,c) - pos(string_s,b) = 1\wedge \neg contains(string_s,a)$|@
       let g = myRep()
@@ -144,7 +144,7 @@ captionpos=b,label={lst:wooki algorithm}]
 
 The payload of each replica is a integer value $clock$ used to generate identifier, and a W-string $string_s$.
 
-To do $addBetween(a,b,c)$, we first ensure that $b$ and $c$ are adjacent in $string_s$ and $a$ is not in $string_s$. Then, we generate a W-character $w$ for value $a$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $b$ and $c$ in $string_s$, respectively.
+To do $addBetween(b,a,c)$, we first ensure that $b$ and $c$ are adjacent in $string_s$ and $a$ is not in $string_s$. Then, we generate a W-character $w$ for value $a$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $b$ and $c$ in $string_s$, respectively.
 
 $integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $w$ is put after $c_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $c_p$ and $c_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$, and recursive call $integrateIns(c,F[i-1],F[i])$. We can see that, the minimal degree of the sub-sequence of $S$ between $F[i-1]$ and $F[i]$ is larger than that of the sub-sequence of $S$ between $c_p$ and $c_n$.
 
@@ -189,7 +189,7 @@ Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data 
 \setlength{\itemsep}{0.5pt}
 \item[-] $\abstate \xrightarrow{\alabellong[\mathsf{readIds}]{}{\abstate}} \abstate$
 
-\item[-] $\big(\abstate\ |\ (a,id) \notin \abstate \big) \xrightarrow{ \alabellong[\mathsf{write}]{a,id,S}{} }  \abstate \setminus S \cup \{ (a,id) \}$
+\item[-] $\big(\abstate\ |\ id \ is \ unique \big) \xrightarrow{ \alabellong[\mathsf{write}]{a,id,S}{} }  \abstate \setminus S \cup \{ (a,id) \}$
 
 \item[-] $\abstate \xrightarrow{\alabellong[\mathsf{read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }} \abstate$
 \end{itemize}
@@ -230,16 +230,16 @@ Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{readIds}]{a}{ \{ (a,id) \vert (a,id) \in \abstate \} }} \abstate$ 
+\item[-] $\abstate \xrightarrow{\alabellong[\mathsf{readIds}]{a}{ \{ (a,id) \vert (a,id) \in \abstate \} }} \abstate$
 
-\item[-] $\abstate \xrightarrow{ \alabellong[\mathsf{remove}]{a,S}{} }  \abstate \setminus S$ 
+\item[-] $\abstate \xrightarrow{ \alabellong[\mathsf{remove}]{a,S}{} }  \abstate \setminus S$
 
-\item[-] $\big(\abstate\ |\ (a,id) \notin \abstate \big) \xrightarrow{ \alabellong[\mathsf{add}]{a,id}{} }  \abstate \cup \{ (a,id) \}$
+\item[-] $\big(\abstate\ |\ id \ is \ unique \big) \xrightarrow{ \alabellong[\mathsf{add}]{a,id}{} }  \abstate \cup \{ (a,id) \}$
 
 \item[-] $\abstate \xrightarrow{\alabellong[\mathsf{read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }} \abstate$
 \end{itemize}
 
-Here $readIds(a)$ returns the set of pairs with data $a$, $\alabellong[\mathsf{remove}]{a,S}{}$ removes $S$ from the abstract state, $add(a,id)$ puts $\{ (a,id) \}$ into the abstract state, and $read$ returns the value of or-set.  
+Here $readIds(a)$ returns the set of pairs with data $a$, $\alabellong[\mathsf{remove}]{a,S}{}$ removes $S$ from the abstract state, $add(a,id)$ puts $\{ (a,id) \}$ into the abstract state, and $read$ returns the value of or-set.
 
 
 
@@ -361,8 +361,8 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
         \item[-] If there exists item $(c,V'')$ in $S'$ but not in $S\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
 
         Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V)$. Since $(c,V'') \in S_1$, we know that $(\alabellongind[write]{c,V''}{\bot}{*},\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. This contradicts $fact1$ and $fact2$.
-        \end{itemize} 
-        
+        \end{itemize}
+
     Therefore, we know that $S' = \abstate'$, and the case of $(a,V')$ and $write(a,V',S_1)$ holds.
 
     \item[-] When the query-update $\alabelshort[write]{a}$ executes {\tt atSource} on a state $S$, then the query $\alabellong[readIds]{}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(S)=\abstate$, which clearly holds because the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$.
@@ -507,143 +507,6 @@ a
 
 \section{Proofs of Section \ref{sec:proving distributed linearizability}}
 \label{sec:appendix proofs of section proving distributed linearizability}
-
-
-
-\subsection{Proof of OR-set Implementation}
-\label{subsec:appendix proofs of or-set implementation}
-
-The following lemma states a property that can be generated from $P(\mathit{config},h,\mathit{lin},\mathit{map})$ for or-set.
-
-\begin{lemma}
-\label{lemma:a property that can be obtained from P for or-set}
-If $P(\mathit{config},h,\mathit{lin},\mathit{map})$ holds for or-set, then each $\mathit{add}$ operation generate a new unique time-stamp. Moreover, for each replica $r'$,
-
-\begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $R(r').S = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{del},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$.
-
-    \item[-] $R(r').\mathit{maxTS} = (0,r')$ if $\mathit{vd}(h,\mathit{config},r') = \emptyset$; otherwise, $R(r').\mathit{maxTS}$ is the maximal time stamp of $\mathit{add}$ operations of $\mathit{vd}(h,\mathit{config},r')$.
-    \end{itemize}
-\end{lemma}
-
-\begin {proof}
-By $C_4$, it is easy to see that each $\mathit{add}$ operation generate a new unique time-stamp by induction. The property of $R(r')$ can be also easily proved by induction, since the visibility relation is transitive. $\qed$
-\end {proof}
-
-
-The following lemma states that our $P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set.
-
-\begin{lemma}
-\label{lemma:P is an invariant of or-set}
-$P(\mathit{config},h,\mathit{lin},\mathit{map})$ is an invariant of or-set.
-\end{lemma}
-
-\begin {proof}
-
-Let us prove that $P$ is a simulation relation. It is obvious that $P(\mathit{config}_0,\epsilon,\emptyset,\emptyset)$ holds.
-
-Assume $P((R,T,\mathit{MsgHB},\mathit{MsgDel}),h,\mathit{lin},\mathit{map})$ holds. Here we do not give the detailed value of $\mathit{MsgHB}'$ and $\mathit{MsgDel}'$, since it can be obtained from the definition of $\llbracket \mathit{obj} \rrbracket_{\mathit{op}}$.
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{add},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{ts}) ]$ and $T' = T \cup \{ (\mathit{mid},(a,\mathit{ts}),r) \}$. Here $\mathit{ts} = ( \mathit{max} \{ c \vert (\_,(c,\_)) \in R(r).S \} +1,r)$.
-
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{add}$ operation.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{add}(a),i,\mathit{vd}(h,\mathit{config},r))$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
-    \end{itemize}
-
-    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
-
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. %Based on $C_4$, it is not hard to prove that,
-
-    %\begin{itemize}
-    %\setlength{\itemsep}{0.5pt}
-    %\item[-] $\mathit{Prop}_1$: Each $\mathit{add}$ operation generate a new unique time-stamp.
-
-    %\item[-] $\mathit{Prop}_2$: for each replica $r'$, $R(r') = \{ (b,\mathit{ts}') \vert b \in D, \exists o' = (\mathit{add}(b),\_,\_,\mathit{ts}'), o' \in \mathit{vd}(h,\mathit{config},r'), \forall o'' = (\mathit{rem}(b),\_,\_,\_), o'' \in \mathit{vd}(h,\mathit{config},r') \Rightarrow (o',o'') \notin h.\mathit{vis} \}$.
-    %\end{itemize}
-
-    By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
-
-
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{rem},a,r,\mathit{mid})}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).S \setminus \{ (a,\mathit{ts}) \in R(r).S \},R(r).\mathit{maxTS}) ]$ and $T' = T \cup \{ (\mathit{mid},\{ (a,\mathit{ts}) \in R(r) \},r) \}$.
-
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{rem}$ operation.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{add}(a),i,\mathit{vd}(h,\mathit{config},r))$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},i) \}$.
-    \end{itemize}
-
-    It is easy to see that $h'$ is still distributed linearizable and $\mathit{lin}'$ is its linearization. We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ and $C_4$ still holds for message $\mathit{mid}$.
-
-    By Lemma \ref{lemma:a property that can be obtained from P for or-set}, it is not hard to see that $C_4$ still holds for message $\mathit{mid}$. From construction of $R'(r)$, Lemma \ref{lemma:a property that can be obtained from P for or-set} and $C_4$ holds for message $\mathit{mid}$, we can see that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.%, and $\mathit{Prop}_1$ and $\mathit{Prop}_2$ also hold for $(\mathit{config}',h',\mathit{lin}',\mathit{map}')$.
-
-
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{do}(\mathit{read},S_1,r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R$ and $T' = T$.
-
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ operation.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read} \Rightarrow S_1,i,\mathit{vd}(h,\mathit{config},r))$.
-
-    \item[-] Let $\mathit{map}'$.
-    \end{itemize}
-
-    We need to prove that $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization. Assume that in $\mathit{OR}$-$\mathit{set}_s$, $\mathit{state}_0 {\xrightarrow{\mathit{lin}}} \mathit{state}$ and $\mathit{state} {\xrightarrow{ (\mathit{read} \Rightarrow S_2, i, \mathit{vd}(h,\mathit{config},r) ) }} \mathit{state}$. Then by definition of $\mathit{OR}$-$\mathit{set}_s$, we can see that, $a \in S_2$, if there exists $(\mathit{add}(a),j,\_) \in \mathit{lin}'$, and for each $(\mathit{rem}(a),\_,S_2) \in \mathit{lin}'$, we have $j \notin S_2$. Lemma \ref{lemma:a property that can be obtained from P for or-set}, we can see that $S_1 = S_2$, and since $h$ is distributed linearizable and $\mathit{lin}$ is a linearization of $h$, we can see $h'$ is distributed linearizable and $\mathit{lin}'$ is a linearization.
-
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},(a,\mathit{ts}),r') \in T$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).S \cup \{ (a,\mathit{ts}) \},\mathit{max} \{ R(r).\mathit{maxTS},\mathit{ts} \} ) ]$ and $T' = T$.
-
-    \item[-] Let $h' = h$.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-
-\item[-] If $(R,T,\mathit{MsgHB},\mathit{MsgDel}) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T',\mathit{MsgHB}',\mathit{MsgDel}')$, where $(\mathit{mid},S_1,r') \in T$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: (R(r).S \setminus S_1, R(r).\mathit{maxTS}) ]$ and $T' = T$.
-
-    \item[-] Let $h' = h$.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    We need to prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-
-    We already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$. Since $R'(r)$ is obtained from $R(r)$ by applying message $\mathit{mid}$, and $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained from $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ by applying message $\mathit{mid}$. Therefore, $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-\end{itemize}
-
-This completes the proof of this lemma. $\qed$
-\end {proof}
 
 
 
