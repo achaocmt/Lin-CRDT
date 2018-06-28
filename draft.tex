@@ -1,5 +1,8 @@
 %% For double-blind review submission, w/o CCS and ACM Reference (max submission space)
-\documentclass[acmsmall,review,anonymous]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+
+% \documentclass[acmsmall,review,anonymous]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+\documentclass[acmsmall,anonymous]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+
 %% For double-blind review submission, w/ CCS and ACM Reference
 %\documentclass[acmsmall,review,anonymous]{acmart}\settopmatter{printfolios=true}
 %% For single-blind review submission, w/o CCS and ACM Reference (max submission space)
@@ -244,34 +247,34 @@
 %  \end{itemize}
 %\end{itemize}
 
-\section{Meta-properties of CRDT-Linearizability}
-\label{sec:meta-prop-lincrdt}
+% \section{Meta-properties of CRDT-Linearizability}
+% \label{sec:meta-prop-lincrdt}
 
-% \subsection{Compositionality}
-% \label{sec:compositionality}
+% % \subsection{Compositionality}
+% % \label{sec:compositionality}
 
-% \gpn{Here we explain the compositionality result a la Herlihy Wing}
+% % \gpn{Here we explain the compositionality result a la Herlihy Wing}
 
+% % \begin{itemize}
+% % \item What are the conditions for compositionality (deterministic
+% %   specs?, conflict?)
+% %   \begin{itemize}
+% %   \item Can we share the same timestamp for different data structures.
+% %   \item Coherent conflict resolution.
+% %   \end{itemize}
+% % \item Should we change the implementations to change the
+% %   conflict-resolution.
+% % \end{itemize}
+
+% \subsection{Abstraction}
+% \label{sec:abstraction}
+
+% \gpn{Here we explain refinement}
 % \begin{itemize}
-% \item What are the conditions for compositionality (deterministic
-%   specs?, conflict?)
-%   \begin{itemize}
-%   \item Can we share the same timestamp for different data structures.
-%   \item Coherent conflict resolution.
-%   \end{itemize}
-% \item Should we change the implementations to change the
-%   conflict-resolution.
+% \item What is the power of the client? Messages, other calls to CRDTs?
+% \item Observational refinement?
+% \item Completeness?
 % \end{itemize}
-
-\subsection{Abstraction}
-\label{sec:abstraction}
-
-\gpn{Here we explain refinement}
-\begin{itemize}
-\item What is the power of the client? Messages, other calls to CRDTs?
-\item Observational refinement?
-\item Completeness?
-\end{itemize}
 
 %% Bibliography
 \bibliography{biblio}
