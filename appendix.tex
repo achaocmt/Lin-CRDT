@@ -433,17 +433,54 @@ A history $h = (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\cup\upd
 
 \item the projection of $\aseqord$ to \emph{updates} is admitted by $\Spec$, i.e. $\aseqord\!\downarrow_{\updates} \in \Spec$,
 
-\item assume $\abstate_0$ is the initial abstract value of \Spec. For each sub-sequence $s$ of $\aseqord\!\downarrow_{\updates}$ (including $s = \aseqord\!\downarrow_{\updates}$), we fix a abstract state $\abstate_s$ which is obtained by $\abstate_0 \xrightarrow{ s }^* \abstate_s$, whenever such transitions are defined.
+\item There exists a function $\gconfres: \labels^* \rightarrow \abstates$ (Here $\gconfres$ is shorten for global conflict resolution). Given sequence $s \in \labels^*$, $\gconfres(s)$ is defined as follows: assume $\abstate_0$ is the initial abstract state of \Spec{}, 
 
-    We require that, given two sub-sequences $s_1,s_2$ of $\aseqord\!\downarrow_{\updates}$, if $s_2$ contains more operation than $s_1$, and both $\abstate_{s_1}$ and $\abstate_{s_2}$ are defined, then, $\abstate_{s_1} \xrightarrow{ s_2 - s_1 }^* \abstate_{s_2}$, where $s_2 - s_1$ denotes the sequences obtained from $s_2$ by removing elements of $s_1$.
+$$ \gconfres(s)=\left\{
+\begin{aligned}
+an \ element \ of \ S &  & If \ S = \{ \abstate \vert \abstate_0 \xrightarrow{ \aseqord\!\downarrow_{s\cap \updates} }^* \abstate \} \neq \emptyset \\
+undefine & & Otherwise  
+\end{aligned}
+\right.
+$$
 
+%$\aseqord\!\downarrow_{s\cap \updates} \in \Spec$
 
-\item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, let $s = \avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates$. Then, we require that $\abstate_s \xrightarrow{ \alabel_{\mathsf{qr}} }^* \abstate_s$.
+Moreover, we require function $\gconfres$ to satisfy the following property: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Given two sub-sequences $s_1,s_2$ of $\aseqord\!\downarrow_{\updates}$, if $s_2$ contains more operations than $s_1$, and both $\gconfres(s_1)$ and $\gconfres(s_2)$ are defined, then, $\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$, where $s_2 - s_1$ denotes the sequences obtained from $s_2$ by removing elements of $s_1$.
+%\item[-] Given two sequences $s_1,s_2$, if they contain same elements and are both consistent with \avisord{}. Then, either both $\gconfres(s_1)$ and $\gconfres(s_2)$ are undefined, or $\gconfres(s_1) = \gconfres(s_2)$.
+\end{itemize}
+
+\item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, let $s = \avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates$. Then, we require that $\gconfres(s) \xrightarrow{ \alabel_{\mathsf{qr}} } \gconfres(s)$.
 \end{enumerate}
 In this case we say that $(\alabelset, \aseqord)$ is an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.
-\end{definition}
+\end{definition} 
 
-Since the sequential specification is non-deterministic, we fix the consequence $\abstate_s$ in sequential specification when applying update operation sequence $s$ from the initial state $\abstate_0$ of sequential specification. We also require that, when $s_1$ is a sub-sequence of $s_2$, the corresponding abstract of $s_1$ is a ``sub-state'' of that of $s_2$.
+Let us explain Definition \ref{definition:ralinearizability1 with non-deterministic specifications} from two aspects: we use $\gconfres(s)$ to remember our choice for operation sequence $s$, and 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Convergence: To obtain $\gconfres(s)$ we only consider $\aseqord\!\downarrow_{s\cap \updates}$, which obviously implies convergence when we consider $\gconfres(s)$ and $\gconfres(s')$ and $s$ is a permutation of $s'$. 
+
+\item[-] Unique Choice in Specification: We should get rid of histories that the history has several operations that use ``Inconsistent non-deterministic choice''. 
+
+An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history. 
+
+To get rid of such histories, we use the condition $\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$, which represents that, a ``bigger state'' follows the same choice in a ``smaller'' state.
+\end{itemize}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/ErrorExecutionofWooki.pdf}
+\vspace{-10pt}
+  \caption{A ``wrong'' history w.r.t $\mathit{listBet}_s$.}
+  \label{fig:a wrong history w.r.t listbets}
+\end{figure}
+
+
+%Since the sequential specification is non-deterministic, for each operation sequence $s$, we fix $\gconfres(s)$ to be the consequence in sequential specification when applying update operations in $s$ according to \aseqord{} order from the initial abstract state $\abstate_0$ of sequential specification. The condition of ¡¤¡¤$\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$¡®¡¯ ensures that, the conflict resolution of bigger state $\gconfres(s_2)$ should also respect the conflict resolution of smaller state $\gconfres(s_1)$. Or we cam say, $\gconfres(s_1)$ is a ``sub-state'' of $\gconfres(s_2)$.
 
 The case when histories include query-updates is similarly dealt with as Definition \ref{definition:distributed linearizability}. We do it by rewriting of the original history where each query-update is decomposed into a label representing the query part and another label representing the update part.
 
@@ -469,37 +506,40 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential sp
 \subsection{Proof Methodology for \crdtlin{} with Non-Deterministic Sequential Specifications}
 \label{subsec:proof methodology for RA-linearizability with non-deterministic sequential specifications}
 
-Our proof methodology for \crdtlin{} with non-deterministic sequential specifications are similar to the methodology for \crdtlin{} with deterministic sequential specifications. 
+Our proof methodology for \crdtlin{} with non-deterministic sequential specifications are similar to the methodology for \crdtlin{} with deterministic sequential specifications.
 
-The similar points are as follows: 
+The similar points are as follows:
 
 \begin{itemize}
-\item[-] We still instrument the object semantics with an auxiliary variable $\alinord$ recording a linearization of the current history. Only the execution of an \lstinline|atSource| portion of an operation engenders the extension of $\alinord$ by adding the current operation at some specific position. To guarantee that the linearization is consistent with the visibility relation, the operation must be inserted in the linearization after all the operations which are visible at the replica executing \lstinline|atSource|. 
-    
-\item[-] We still need to prove the property $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$. 
+\item[-] We still instrument the object semantics with an auxiliary variable $\alinord$ recording a linearization of the current history. %Only the execution of an \lstinline|atSource| portion of an operation engenders the extension of $\alinord$ by adding the current operation at some specific position. To guarantee that the linearization is consistent with the visibility relation, the operation must be inserted in the linearization after all the operations which are visible at the replica executing \lstinline|atSource|.
 
-    \begin{itemize}
-    \item[-] $\mathsf{ReplicaStates}$: requiring that for each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by applying the downstreams of the operations in $\alabelset$ (that have been delivered to $\arep$) in the order defined by $\alinord$, and 
-        
-    \item[-] $\mathsf{\CRDTLinshort{}}$: requiring that the sequence $\alinord$ is an \crdtlinearization{} of the current history (w.r.t. $\Spec{}$).
-    \end{itemize} 
+\item[-] We still need to prove the property $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$.
 
-\item[-] We still rely on additional assertions describing the effect of each downstream. 
+    %\begin{itemize}
+    %\item[-] $\mathsf{ReplicaStates}$: requiring that for each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by applying the downstreams of the operations in $\alabelset$ (that have been delivered to $\arep$) in the order defined by $\alinord$, and
 
-\item[-] We still need to prove $\mathsf{Refinement}$.
-    
-    \begin{itemize}
-    \item[-] $\mathsf{Refinement}$: each downstream produced by an update $\alabel$ and respectively, each query $\alabel$, is simulated by the application of $\alabel$ in the specification $\Spec$.
-    \end{itemize}
-    
-    The proof of $\mathsf{Refinement}$ still relies on a refinement mapping between replica states and states of the specification, denoted by $\refmap$. 
+    %\item[-] $\mathsf{\CRDTLinshort{}}$: requiring that the sequence $\alinord$ is an \crdtlinearization{} of the current history (w.r.t. $\Spec{}$).
+    %\end{itemize}
+
+\item[-] We still rely on additional assertions describing the effect of each downstream.
+
+\item[-] We still need to prove $\mathsf{Refinement}$. The proof of $\mathsf{Refinement}$ still relies on a refinement mapping between replica states and states of the specification, denoted by $\refmap$. 
+
+    %\begin{itemize}
+    %\item[-] $\mathsf{Refinement}$: each downstream produced by an update $\alabel$ and respectively, each query $\alabel$, is simulated by the application of $\alabel$ in the specification $\Spec$.
+    %\end{itemize} 
 \end{itemize}
 
 
-The difference are that, the proof of $\mathsf{\CRDTLinshort{}}$ is more complicated due to Definition \ref{definition:ralinearizability1 with non-deterministic specifications}. To deal with non-deterministic sequential specification, we should define a function $\gconfres: \labels^* \rightarrow \states$, which give the  recording the consequence after applying all the downstreams in the order defined by $\alinord$.
+The difference are as follows: 
 
+\begin{itemize}
+\item[-] We introduce a function $\igconfres: \labels^* \rightarrow \states$ to explicitly record the consequence of applying downstreams. Given a sequence $s$ of dwonstream, $\igconfres(s)$ is the local state obtained by applying $s$. 
 
-a linearization of the current history. Only the execution of an \lstinline|atSource| portion of an operation engenders the extension of $\alinord$ by adding the current operation at some specific position. To guarantee that the linearization is consistent with the visibility relation, the operation must be inserted in the linearization after all the operations which are visible at the replica executing \lstinline|atSource|.
+\item[-] From each $\igconfres(s)$, we generate a abstract state $\gconfres(s)$, and the refinement mapping $\refmap$ maps $\igconfres(s)$ into $\gconfres(s)$. Or we can say, $\refmap{}(\igconfres(s)) = \gconfres(s)$.  
+
+\item[-] Similar as in Section \ref{sec:proofs}, we prove that any two downstreams that correspond to two ``concurrent'' operations commute. 
+\end{itemize}
 
 
 
@@ -511,6 +551,28 @@ Similar as in the proof of or-set, for Wooki, the linearization $\aseqord$ is de
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 
+To prove that this is an inductive invariant we rely on additional
+assertions describing the effect of each downstream (we provide
+examples in the following subsections), and also, a proof that:
+\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+\item[-] $\mathsf{Refinement}$: each downstream produced by an update $\alabel$ and respectively, each query $\alabel$, is simulated by the application of $\alabel$ in the specification $\Spec$.
+\end{itemize}
+The proof of $\mathsf{Refinement}$ relies on a \emph{refinement
+  mapping}~\cite{earlierLamport,AbadiL91} between replica states and states of the
+specification, denoted by $\refmap$. The proof goals require that for
+any two replica states $\sigma$ and $\sigma'$,
+\begin{enumerate}
+        \item if $\sigma'$ is obtained from $\sigma$ by applying a
+          downstream $\delta$ produced by an update $\alabel$, then
+          \mbox{$\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$},
+          where $\xRightarrow{\alabel}$ is the transition function of
+          $\Spec$, and
+        \item if a query $\alabel$ is applied on a state $\sigma$ or
+          it is introduced by a rewriting of a query-update that
+          executes \lstinline|atSource| on a state $\sigma$, then
+          $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
+\end{enumerate}
 
 
 We have applied this methodology to a range of CRDT objects described in~\cite{ShapiroPBZ11}, and we have identified two instances which differ in the way in which the linearization $\alinord$ is extended (when executing \lstinline|atSource|). For the first class of objects that includes the OR-Set in Listing~\ref{lst:or-set}, the linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed, i.e., every new operation executing \lstinline|atSource| is appended to the current linearization (\S~\ref{subsec:time order of execution as linearization}). We say that such objects admit \emph{execution-order linearizations}.
