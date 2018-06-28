@@ -41,7 +41,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
       let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
       let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
       let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
     downStream(a, V@|$'$|@) :
       let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
@@ -50,7 +50,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
   read() :
     let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
+    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
     return @|$S_1$|@
 \end{lstlisting}
 \end{minipage}
@@ -173,7 +173,7 @@ The sequential specification $\mathit{counter}_s$ of counter is so that $\abstat
 \item[-] $k \xRightarrow{\alabellong[{\tt read}]{}{k}{}} k$
 \end{itemize}
 
-Here $\alabelshort[{\tt inc}]{}$ increase the counter by $1$, $\alabelshort[{\tt dec}]{}$ decrease the counter by $1$, and $\alabellong[{\tt read}]{}{k}{}$ returns the value of the counter. 
+Here $\alabelshort[{\tt inc}]{}$ increase the counter by $1$, $\alabelshort[{\tt dec}]{}$ decrease the counter by $1$, and $\alabellong[{\tt read}]{}{k}{}$ returns the value of the counter.
 
 
 \subsection{The Sequential Specification of Multi-Value Register}
@@ -320,16 +320,13 @@ Let us give two facts:
 
 \noindent Proof of $fact1$: Assume $\alabel_1$ happens on replica $\arep$. By the {\textred{causal delivery}} assumption, we know that for each replica $\arep' \neq \arep$, $\alabel_2$ see more or equal number of operations happens on replica $\arep'$ than that of $\alabel_1$, and $\alabel_2$ see more number of operations happens on replica $\arep$ than that of $\alabel_1$. By Annotation1, we know that $\forall \arep' \neq \arep$, $V_1[\arep'] \leq V_2[\arep']$, and $V_1[\arep] < V_2[\arep]$. Therefore, $V_1 < V_2$.
 
-\noindent Proof of $fact2$: Let us prove that $\neg (V_1 < V_2 \vee V_2 < V_1)$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $V_1 < V_2$, and assume that $\alabel_1$ happens on replica $\arep_1$. Since $V_1 < V_2$, we know that for each replica $\arep'$, $V_1[\arep'] \leq V_2[\arep']$. Note that 
-
-
-By the {\textred{causal delivery}} assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
+\noindent Proof of $fact2$: Let us prove that $\neg (V_1 < V_2 \vee V_2 < V_1)$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $V_1 < V_2$, and assume that $\alabel_1$ happens on replica $\arep_1$. Since $V_1 < V_2$, we know that for each replica $\arep'$, $V_1[\arep'] \leq V_2[\arep']$. Especially, $V_1[\arep_1] \leq V_2[\arep_1]$. By the {\textred{causal delivery}} assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
 
 Let us propose Annotation2, which is an annotation of payload and obviously holds in the initial global configuration.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Let $S$ be the payload of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$ is maximal w.r.t $\avisord$ among write operations applied in current replica $\}$.
+\item[-] Annotation2: Let $S$ be the payload of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel = \alabelshort[{\tt write}]{a,V}, \alabel$ is maximal w.r.t $\avisord$ among write operations applied in current replica $\}$.
 \end{itemize}
 
 Our proof of the lemma proceed as follows:
@@ -338,9 +335,9 @@ Our proof of the lemma proceed as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. Let $\aseqord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\aseqord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\aseqord_2$ can be obtained from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations.
 
-Let us prove that applying downstream of such pair of operations commute, and we only need to consider the case of two concurrent $write$ labels. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream of labels $\alabellongind[write]{a_1,V_1}{\bot}{*}$ and $\alabellongind[write]{a_2,V_2}{\bot}{*}$, respectively. Given a payload $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabellongind[write]{a_1,V_1}{\bot}{*}$ and $\alabellongind[write]{a_2,V_2}{\bot}{*}$ are concurrent, by  $fact_2$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
+Let us prove that applying downstream of such pair of operations commute, and we only need to consider the case of two concurrent $write$ labels. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream of labels $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$, respectively. Given a payload $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$ are concurrent, by  $fact_2$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
 
 
 
@@ -350,28 +347,28 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For case of a $\alabellongind[write]{a,V'}{\bot}{*}$ action of replica $\arep$: Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously $S' = \{ (a,V') \}$.
+    \item[-] For case of a $\alabelshort[{\tt write}]{a,V'}$ action of replica $\arep$: Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously $S' = \{ (a,V') \}$.
 
-        Since $\alabellongind[write]{a,V'}{\bot}{*}$ is larger than any labels in $S$ w.r.t the visibility relation, Annotation2 still holds in $\aglobalstate'$.
+        Since $\alabelshort[{\tt write}]{a,V'}$ is larger than any labels in $S$ w.r.t the visibility relation, Annotation2 still holds in $\aglobalstate'$.
 
         By Annotation2 we know what labels are contained in $S$, by Annotation1 we know the content of these labels. By the {\textred{causal delivery}} assumption we know that if a label $\alabel$ is visible to a label $\alabel'$ of $S$, then $\alabel$ must be already applied in replica $\arep$. let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. Therefore, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of operations happen on replica $\arep'$ and has been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. We can see that, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds in $\aglobalstate'$.
 
-    \item[-] For case of applying downstream $(a,V')$: We only need to consider Annotation2. Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+    \item[-] For case of applying downstream $(a,V')$ on replica $\arep$: We only need to consider Annotation2. Let $S$ and $S'$ be the payload of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
-        By the {\textred{causal delivery}} assumption, if $\alabellongind[write]{a,V'}{\bot}{*}$ is visible to a operation $\alabel$, then $\alabel$ does not applied in $\aglobalstate'$ yet. By Annotation2, $fact1$ and $fact2$, we know that, $\forall (b,V) \in S$, we have $\neg(V > V')$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. By $fact1$ and $fact2$, each element in $\{ (b,V) \vert (b,V) \in S \wedge V < V' \}$ is visible to $\alabellongind[write]{a,V'}{\bot}{*}$, and they are not in $S'$. Therefore, Annotation2 still holds in $\aglobalstate'$.
+        By the {\textred{causal delivery}} assumption, if $\alabelshort[{\tt write}]{a,V'}$ is visible to a operation $\alabel$, then $\alabel$ does not applied in $\aglobalstate'$ yet. By Annotation2, $fact1$ and $fact2$, we know that, $\forall (b,V) \in S$, we have $\neg(V > V')$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. By $fact1$ and $fact2$, each element in $\{ (b,V) \vert (b,V) \in S \wedge V < V' \}$ is visible to $\alabelshort[{\tt write}]{a,V'}$, and they are not in $S'$. Therefore, Annotation2 still holds in $\aglobalstate'$.
     \end{itemize}
 
 \item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity.
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For $(a,V')$ of downstream and $write(a,V',S_1)$ in sequential specification:
+    \item[-] For $(a,V')$ of downstream and $\alabelshort[{\tt write}]{a,V',S_1}$ in sequential specification:
 
-    Assume we obtain payload $S'$ from $S$ by doing downstream of $(a,V')$, in sequential specification have $\abstate \xrightarrow{write(a,V',S_1)} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
+    Assume we obtain payload $S'$ from $S$ by doing downstream of $(a,V')$, in sequential specification have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a,V',S_1}} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
 
-    By the {\textred{causal delivery}} assumption, if $(\alabellongind[write]{a,V'}{\bot}{*},\alabel) \in \avisord$, then the downstream of $\alabel$ is not applied yet in the replica of $S$. By Annotation2, $fact1$ and $fact2$, we can see that, $\forall (b,V) \in S$, $\neg(V > V')$. Therefore, according to the implementaiton, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
+    By the {\textred{causal delivery}} assumption, if $(\alabelshort[{\tt write}]{a,V'},\alabel) \in \avisord$, then the downstream of $\alabel$ is not applied yet in the replica of $S$. By Annotation2, $fact1$ and $fact2$, we can see that, $\forall (b,V) \in S$, $\neg(V > V')$. Therefore, according to the implementaiton, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
 
-    According to Annotation2, we can see that, $S_1 = \{ (b,V) \vert \exists \alabel = \alabellongind[write]{b,V}{\bot}{*}, (b,V)$ is the downstream of $\alabel, \alabel$ is maximal among $write$ operations visible to $\alabellongind[write]{a,V'}{\bot}{*} \}$. We can see that $\abstate' = \abstate \setminus S_1 \cup \{ (a,V') \}$.
+    According to Annotation2, we can see that, $S_1 = \{ (b,V) \vert \exists \alabel = \alabelshort[{\tt write}]{b,V}, (b,V)$ is the downstream of $\alabel, \alabel$ is maximal among $write$ operations visible to $\alabelshort[{\tt write}]{a,V'} \}$. We can see that $\abstate' = \abstate \setminus S_1 \cup \{ (a,V') \}$.
 
     Let us prove $S' = \abstate'$ by contradiction.
 
@@ -379,23 +376,23 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
         \setlength{\itemsep}{0.5pt}
         \item[-] If there exists item $(c,V'')$ in $\abstate'$ but not in $S'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_1$, and $(c,V'') \in S_2$.
 
-        Since $(c,V'') \notin S_1$, we know that there exists a $write$ operation $\alabel$, such that $(\alabellongind[write]{c,V''}{\bot}{*},\alabel),(\alabel,\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. Since $(c,V'') \in S$, we can see that the downstream $\alabel$ is not applied yet in the replica of $S$, while in $S'$, the downstream of $\alabellongind[write]{a,V'}{\bot}{*}$ is applied. This violates the {\textred{causal delivery}} assumption.
+        Since $(c,V'') \notin S_1$, we know that there exists a $write$ operation $\alabel$, such that $(\alabelshort[{\tt write}]{c,V''},\alabel)$, $(\alabel,\alabelshort[{\tt write}]{a,V'}) \in \avisord$. Since $(c,V'') \in S$, we can see that the downstream $\alabel$ is not applied yet in the replica of $S$, and also the downstream $\alabel$ is not applied yet in the replica of $S'$, while in $S'$, the downstream of $\alabelshort[{\tt write}]{a,V'}$ is applied. Since $(\alabel,\alabelshort[{\tt write}]{a,V'}) \in \avisord$, we can see that this violates the {\textred{causal delivery}} assumption.
 
-        \item[-] If there exists item $(c,V'')$ in $S'$ but not in $S\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
+        \item[-] If there exists item $(c,V'')$ in $S'$ but not in $\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
 
-        Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V)$. Since $(c,V'') \in S_1$, we know that $(\alabellongind[write]{c,V''}{\bot}{*},\alabellongind[write]{a,V'}{\bot}{*}) \in \avisord$. This contradicts $fact1$ and $fact2$.
+        Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V)$. Since $(c,V'') \in S_1$, we know that $(\alabelshort[{\tt write}]{c,V''},\alabelshort[{\tt write}]{a,V'}) \in \avisord$. This contradicts $fact1$ and $fact2$.
         \end{itemize}
 
     Therefore, we know that $S' = \abstate'$, and the case of $(a,V')$ and $write(a,V',S_1)$ holds.
 
-    \item[-] When the query-update $\alabelshort[write]{a}$ executes {\tt atSource} on a state $S$, then the query $\alabellong[readIds]{}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(S)=\abstate$, which clearly holds because the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$.
+    \item[-] When the query-update $\alabelshort[write]{a}$ executes {\tt atSource} on a state $S$, then the query $\alabellong[readIds]{}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(S)=\abstate = S$, which clearly holds because the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$.
 
     \item[-] Applying the query $\alabelshort[read]{}$ on the payload $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
     \end{itemize}
 
-\item[-] Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute {\tt atSource} clearly implies that $\aseqord$ is consistent with the visibility. Next, the projection of $\aseqord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
-We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\aseqord'\cdot \alabel_{\mathsf{qr}}$ where $\aseqord'$ is the projection of $\aseqord$ on the set of updates
-visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\aseqord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\aseqord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\aseqord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+\item[-] Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute {\tt atSource} clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
+We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -426,7 +423,7 @@ This completes the proof of this lemma. $\qed$
 
 Recall that a sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
-Similarly as in Section \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{}. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates.
+Similarly as in Section \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{} with non-deterministic sequential specifications. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates.
 
 \begin{definition}
 \label{definition:ralinearizability1 with non-deterministic specifications}
@@ -457,9 +454,7 @@ A history $h =(\alabelset,\avisord)$ is \crdtlinearizable{} w.r.t. a non-determi
 
 A set $H$ of histories is called \crdtlinearizable{} w.r.t a non-deterministic sequential specification $\Spec$ when each history $h\in H$ is \crdtlinearizable{} w.r.t. $\Spec$. A data type implementation is \crdtlinearizable{} w.r.t. a non-deterministic sequential specification $\Spec$ if for any object $\aobj$ of the data type, the set $\histories(\aobj)$ is linearizable w.r.t. $\Spec$.
 
-Let us begin to consider convergence. Given a \crdtlinearizable{} history with two replicas $r_1,r_2$ see the same set of operations.
-
-According to Definition \ref{definition:ralinearizability1 with non-deterministic specifications} and Definition \ref{definition:distributed linearizability with non-deterministic sequential specifications}, we have already fix the non-deterministic choice. Therefore, it is obvious that we have convergence, as formalized in the following lemma.
+Let us begin to consider convergence. Given a \crdtlinearizable{} history with two replicas $r_1,r_2$ see the same set of operations. According to Definition \ref{definition:ralinearizability1 with non-deterministic specifications} and Definition \ref{definition:distributed linearizability with non-deterministic sequential specifications}, we have already fix the non-deterministic choice. Therefore, it is obvious that we have convergence, as formalized in the following lemma.
 
 \begin{lemma}
 \label{lemma:distributed linarizability implies convergence for non-deterministic sequential specifications}
@@ -474,13 +469,59 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential sp
 \subsection{Proof Methodology for \crdtlin{} with Non-Deterministic Sequential Specifications}
 \label{subsec:proof methodology for RA-linearizability with non-deterministic sequential specifications}
 
-Our proof methodology for \crdtlin{} with non-deterministic sequential specifications are nearly the same as that for deterministic sequential specifications.
+Our proof methodology for \crdtlin{} with non-deterministic sequential specifications are similar to the methodology for \crdtlin{} with deterministic sequential specifications. 
 
-We need to instrument the object semantics with an auxiliary variable $\aseqord$ recording a linearization of the current history. The linearization $\aseqord$ is updated every time an operation executes the {\tt atSource} portion of a method, and should guarantee that the linearization $\aseqord$ is consistent with the visibility relation. We need to prove that $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$ are inductive invariant. We also rely on additional assertions describing the effect of each downstream and then, prove that $\mathsf{Refinement}$ holds.
+The similar points are as follows: 
+
+\begin{itemize}
+\item[-] We still instrument the object semantics with an auxiliary variable $\alinord$ recording a linearization of the current history. Only the execution of an \lstinline|atSource| portion of an operation engenders the extension of $\alinord$ by adding the current operation at some specific position. To guarantee that the linearization is consistent with the visibility relation, the operation must be inserted in the linearization after all the operations which are visible at the replica executing \lstinline|atSource|. 
+    
+\item[-] We still need to prove the property $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$. 
+
+    \begin{itemize}
+    \item[-] $\mathsf{ReplicaStates}$: requiring that for each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by applying the downstreams of the operations in $\alabelset$ (that have been delivered to $\arep$) in the order defined by $\alinord$, and 
+        
+    \item[-] $\mathsf{\CRDTLinshort{}}$: requiring that the sequence $\alinord$ is an \crdtlinearization{} of the current history (w.r.t. $\Spec{}$).
+    \end{itemize} 
+
+\item[-] We still rely on additional assertions describing the effect of each downstream. 
+
+\item[-] We still need to prove $\mathsf{Refinement}$.
+    
+    \begin{itemize}
+    \item[-] $\mathsf{Refinement}$: each downstream produced by an update $\alabel$ and respectively, each query $\alabel$, is simulated by the application of $\alabel$ in the specification $\Spec$.
+    \end{itemize}
+    
+    The proof of $\mathsf{Refinement}$ still relies on a refinement mapping between replica states and states of the specification, denoted by $\refmap$. 
+\end{itemize}
+
+
+The difference are that, the proof of $\mathsf{\CRDTLinshort{}}$ is more complicated due to Definition \ref{definition:ralinearizability1 with non-deterministic specifications}. To deal with non-deterministic sequential specification, we should define a function $\gconfres: \labels^* \rightarrow \states$, which give the  recording the consequence after applying all the downstreams in the order defined by $\alinord$.
+
+
+a linearization of the current history. Only the execution of an \lstinline|atSource| portion of an operation engenders the extension of $\alinord$ by adding the current operation at some specific position. To guarantee that the linearization is consistent with the visibility relation, the operation must be inserted in the linearization after all the operations which are visible at the replica executing \lstinline|atSource|.
+
+
 
 The only difference is that, since the definition of linearization in Definition \ref{definition:ralinearizability1 with non-deterministic specifications} is more complex than that of Definition \ref{definition:ralinearizability1}, we need to prove more things: We need to prove that, given the global sequence of update operations $s$ and a sub-sequence $s_1$ of $s$ whose transitions has definition in sequential specifications, in sequential specification, the abstract state obtained by executing $s_1$ is a ``sub-state'' of that of $s$.
 
 Similar as in the proof of or-set, for Wooki, the linearization $\aseqord$ is defined by the order in which the {\tt atSource} procedures are executed, i.e., every new operation executing {\tt atSource} is added at the end of the current linearization.
+
+
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+
+
+
+We have applied this methodology to a range of CRDT objects described in~\cite{ShapiroPBZ11}, and we have identified two instances which differ in the way in which the linearization $\alinord$ is extended (when executing \lstinline|atSource|). For the first class of objects that includes the OR-Set in Listing~\ref{lst:or-set}, the linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed, i.e., every new operation executing \lstinline|atSource| is appended to the current linearization (\S~\ref{subsec:time order of execution as linearization}). We say that such objects admit \emph{execution-order linearizations}.
+The second class of objects that includes the RGA object in Listing~\ref{lst:rga}, supports \CRDTLinshort{} proofs in which the linearization is built based on timestamps, e.g., $\alinord$ is consistent with the order between the timestamps generated by operations (\S~\ref{subsec:time-stamp order as linearizabtion}). We say that such objects admit \emph{timestamp-order linearizations}.
+
+\gpnote[nomargin, inline]{I agree with the content. Some rewriting is needed.}
+
+
+
+
+
 
 
 
