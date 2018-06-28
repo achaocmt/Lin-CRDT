@@ -1,0 +1,499 @@
+<?xml version="1.0"?>
+<!DOCTYPE ipe SYSTEM "ipe.dtd">
+<ipe version="70107" creator="Ipe 7.1.7">
+<info created="D:20151003110714" modified="D:20180626234305"/>
+<preamble>\usepackage[version=0.96]{pgf}
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
+\usepackage[latin1]{inputenc}
+\usepackage{verbatim}</preamble>
+<ipestyle name="basic">
+<symbol name="arrow/arc(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/farc(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/ptarc(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/fptarc(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="mark/circle(sx)" transformations="translations">
+<path fill="sym-stroke">
+0.6 0 0 0.6 0 0 e
+0.4 0 0 0.4 0 0 e
+</path>
+</symbol>
+<symbol name="mark/disk(sx)" transformations="translations">
+<path fill="sym-stroke">
+0.6 0 0 0.6 0 0 e
+</path>
+</symbol>
+<symbol name="mark/fdisk(sfx)" transformations="translations">
+<group>
+<path fill="sym-fill">
+0.5 0 0 0.5 0 0 e
+</path>
+<path fill="sym-stroke" fillrule="eofill">
+0.6 0 0 0.6 0 0 e
+0.4 0 0 0.4 0 0 e
+</path>
+</group>
+</symbol>
+<symbol name="mark/box(sx)" transformations="translations">
+<path fill="sym-stroke" fillrule="eofill">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+-0.4 -0.4 m
+0.4 -0.4 l
+0.4 0.4 l
+-0.4 0.4 l
+h
+</path>
+</symbol>
+<symbol name="mark/square(sx)" transformations="translations">
+<path fill="sym-stroke">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+</path>
+</symbol>
+<symbol name="mark/fsquare(sfx)" transformations="translations">
+<group>
+<path fill="sym-fill">
+-0.5 -0.5 m
+0.5 -0.5 l
+0.5 0.5 l
+-0.5 0.5 l
+h
+</path>
+<path fill="sym-stroke" fillrule="eofill">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+-0.4 -0.4 m
+0.4 -0.4 l
+0.4 0.4 l
+-0.4 0.4 l
+h
+</path>
+</group>
+</symbol>
+<symbol name="mark/cross(sx)" transformations="translations">
+<group>
+<path fill="sym-stroke">
+-0.43 -0.57 m
+0.57 0.43 l
+0.43 0.57 l
+-0.57 -0.43 l
+h
+</path>
+<path fill="sym-stroke">
+-0.43 0.57 m
+0.57 -0.43 l
+0.43 -0.57 l
+-0.57 0.43 l
+h
+</path>
+</group>
+</symbol>
+<symbol name="arrow/fnormal(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/pointed(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/fpointed(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/linear(spx)">
+<path stroke="sym-stroke" pen="sym-pen">
+-1 0.333 m
+0 0 l
+-1 -0.333 l
+</path>
+</symbol>
+<symbol name="arrow/fdouble(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+-1 0 m
+-2 0.333 l
+-2 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/double(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+-1 0 m
+-2 0.333 l
+-2 -0.333 l
+h
+</path>
+</symbol>
+<pen name="heavier" value="0.8"/>
+<pen name="fat" value="1.2"/>
+<pen name="ultrafat" value="2"/>
+<symbolsize name="large" value="5"/>
+<symbolsize name="small" value="2"/>
+<symbolsize name="tiny" value="1.1"/>
+<arrowsize name="large" value="10"/>
+<arrowsize name="small" value="5"/>
+<arrowsize name="tiny" value="3"/>
+<color name="red" value="1 0 0"/>
+<color name="green" value="0 1 0"/>
+<color name="blue" value="0 0 1"/>
+<color name="yellow" value="1 1 0"/>
+<color name="orange" value="1 0.647 0"/>
+<color name="gold" value="1 0.843 0"/>
+<color name="purple" value="0.627 0.125 0.941"/>
+<color name="gray" value="0.745"/>
+<color name="brown" value="0.647 0.165 0.165"/>
+<color name="navy" value="0 0 0.502"/>
+<color name="pink" value="1 0.753 0.796"/>
+<color name="seagreen" value="0.18 0.545 0.341"/>
+<color name="turquoise" value="0.251 0.878 0.816"/>
+<color name="violet" value="0.933 0.51 0.933"/>
+<color name="darkblue" value="0 0 0.545"/>
+<color name="darkcyan" value="0 0.545 0.545"/>
+<color name="darkgray" value="0.663"/>
+<color name="darkgreen" value="0 0.392 0"/>
+<color name="darkmagenta" value="0.545 0 0.545"/>
+<color name="darkorange" value="1 0.549 0"/>
+<color name="darkred" value="0.545 0 0"/>
+<color name="lightblue" value="0.678 0.847 0.902"/>
+<color name="lightcyan" value="0.878 1 1"/>
+<color name="lightgray" value="0.827"/>
+<color name="lightgreen" value="0.565 0.933 0.565"/>
+<color name="lightyellow" value="1 1 0.878"/>
+<dashstyle name="dashed" value="[4] 0"/>
+<dashstyle name="dotted" value="[1 3] 0"/>
+<dashstyle name="dash dotted" value="[4 2 1 2] 0"/>
+<dashstyle name="dash dot dotted" value="[4 2 1 2 1 2] 0"/>
+<textsize name="large" value="\large"/>
+<textsize name="small" value="\small"/>
+<textsize name="tiny" value="\tiny"/>
+<textsize name="Large" value="\Large"/>
+<textsize name="LARGE" value="\LARGE"/>
+<textsize name="huge" value="\huge"/>
+<textsize name="Huge" value="\Huge"/>
+<textsize name="footnote" value="\footnotesize"/>
+<textstyle name="center" begin="\begin{center}" end="\end{center}"/>
+<textstyle name="itemize" begin="\begin{itemize}" end="\end{itemize}"/>
+<textstyle name="item" begin="\begin{itemize}\item{}" end="\end{itemize}"/>
+<gridsize name="4 pts" value="4"/>
+<gridsize name="8 pts (~3 mm)" value="8"/>
+<gridsize name="16 pts (~6 mm)" value="16"/>
+<gridsize name="32 pts (~12 mm)" value="32"/>
+<gridsize name="10 pts (~3.5 mm)" value="10"/>
+<gridsize name="20 pts (~7 mm)" value="20"/>
+<gridsize name="14 pts (~5 mm)" value="14"/>
+<gridsize name="28 pts (~10 mm)" value="28"/>
+<gridsize name="56 pts (~20 mm)" value="56"/>
+<anglesize name="90 deg" value="90"/>
+<anglesize name="60 deg" value="60"/>
+<anglesize name="45 deg" value="45"/>
+<anglesize name="30 deg" value="30"/>
+<anglesize name="22.5 deg" value="22.5"/>
+<tiling name="falling" angle="-60" step="4" width="1"/>
+<tiling name="rising" angle="30" step="4" width="1"/>
+</ipestyle>
+<page>
+<layer name="alpha"/>
+<view layers="alpha" active="alpha"/>
+<text layer="alpha" matrix="1 0 0 1 195.205 -384" transformations="translations" pos="64 436" stroke="black" type="label" width="12.024" height="7.473" depth="2.49" valign="baseline">$(b)$</text>
+<use matrix="1 0 0 1 -192 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 -180 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 -40 0" stroke="black" arrow="normal/normal">
+96 208 m
+128 240 l
+</path>
+<path matrix="1 0 0 1 -40 0" stroke="black">
+68 240 m
+80 240 l
+</path>
+<path matrix="1 0 0 1 -40 0" stroke="black">
+68 208 m
+92 208 l
+</path>
+<text matrix="1 0 0 1 -56.795 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
+<text matrix="1 0 0 1 -56.795 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<text matrix="1 0 0 1 -44.795 -240" transformations="translations" pos="64 436" stroke="black" type="label" width="63.5" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,b)}$</text>
+<text matrix="1 0 0 1 -36.795 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="64.491" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,a)}$</text>
+<text matrix="1 0 0 1 35.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="62.83" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,c)}$</text>
+<text matrix="1 0 0 1 31.205 -240" transformations="translations" pos="64 436" stroke="black" type="label" width="63.704" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,d)}$</text>
+<use matrix="1 0 0 1 -100 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 -116 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 -28 0" stroke="black">
+72 240 m
+156 240 l
+</path>
+<path matrix="1 0 0 1 -28 0" stroke="black">
+84 208 m
+140 208 l
+</path>
+<path matrix="1 0 0 1 -28 0" stroke="black">
+148 208 m
+188 208 l
+</path>
+<text matrix="1 0 0 1 -56.795 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="117.777" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{G}}(\ensuremath{\mathtt{r}}_1).\ensuremath{\mathsf{L}}= \{ \ensuremath{addAfter(\circ,a)},$</text>
+<text matrix="1 0 0 1 -44.795 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="135.74" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,b)}, \ensuremath{addAfter(b,c)} \}$</text>
+<text matrix="1 0 0 1 -56.795 -316" transformations="translations" pos="64 436" stroke="black" type="label" width="42.675" height="7.473" depth="2.49" valign="baseline">$G(\ensuremath{\mathtt{r}}_1).N:$</text>
+<path matrix="1 0 0 1 8 -128" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 -8 -104" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 12 -124" stroke="black">
+72 256 m
+56 240 l
+</path>
+<path matrix="1 0 0 1 12 -124" stroke="black">
+72 256 m
+88 240 l
+</path>
+<path matrix="1 0 0 1 -24 -128" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 -8 -164" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 -148 -244" stroke="black">
+216 340 m
+232 324 l
+</path>
+<text matrix="1 0 0 1 -16.795 -388" transformations="translations" pos="64 436" stroke="black" type="label" width="13.015" height="7.473" depth="2.49" valign="baseline">$(a)$</text>
+<text matrix="1 0 0 1 -56.795 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="76.906" height="7.473" depth="2.49" valign="baseline">$G(\ensuremath{\mathtt{r}}_1).Tomb=\emptyset:$</text>
+<text matrix="1 0 0 1 -8.795 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" valign="baseline">$b:\ensuremath{\mathtt{ts}}_b$</text>
+<text matrix="1 0 0 1 27.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" valign="baseline">$a:\ensuremath{\mathtt{ts}}_a$</text>
+<text matrix="1 0 0 1 7.205 -372" transformations="translations" pos="64 436" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" valign="baseline">$c:\ensuremath{\mathtt{ts}}_c$</text>
+<use matrix="1 0 0 1 -16 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 -4 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 136 0" stroke="black" arrow="normal/normal">
+96 208 m
+128 240 l
+</path>
+<path matrix="1 0 0 1 136 0" stroke="black">
+68 240 m
+80 240 l
+</path>
+<path matrix="1 0 0 1 136 0" stroke="black">
+68 208 m
+92 208 l
+</path>
+<text matrix="1 0 0 1 119.205 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
+<text matrix="1 0 0 1 119.205 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<text matrix="1 0 0 1 131.205 -240" transformations="translations" pos="64 436" stroke="black" type="label" width="63.5" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,b)}$</text>
+<text matrix="1 0 0 1 139.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="64.491" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,a)}$</text>
+<text matrix="1 0 0 1 211.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="62.83" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,c)}$</text>
+<text matrix="1 0 0 1 207.205 -240" transformations="translations" pos="64 436" stroke="black" type="label" width="63.704" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,d)}$</text>
+<use matrix="1 0 0 1 76 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 60 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 148 0" stroke="black">
+72 240 m
+156 240 l
+</path>
+<path matrix="1 0 0 1 148 0" stroke="black">
+84 208 m
+140 208 l
+</path>
+<path matrix="1 0 0 1 200 0" stroke="black" arrow="normal/normal">
+96 208 m
+128 240 l
+</path>
+<path stroke="black">
+136 240 m
+160 240 l
+</path>
+<path stroke="black">
+312 240 m
+340 240 l
+</path>
+<path stroke="black">
+296 208 m
+340 208 l
+</path>
+<text matrix="1 0 0 1 119.205 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="182.938" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{G}}(\ensuremath{\mathtt{r}}_1).\ensuremath{\mathsf{L}}= \{ \ensuremath{addAfter(\circ,a)}, \ensuremath{addAfter(\circ,b)}$</text>
+<text matrix="1 0 0 1 131.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="135.944" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,c)}, \ensuremath{addAfter(b,d)} \}$</text>
+<text matrix="1 0 0 1 119.205 -316" transformations="translations" pos="64 436" stroke="black" type="label" width="42.675" height="7.473" depth="2.49" valign="baseline">$G(\ensuremath{\mathtt{r}}_1).N:$</text>
+<path matrix="1 0 0 1 184 -128" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 168 -104" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 188 -124" stroke="black">
+72 256 m
+56 240 l
+</path>
+<path matrix="1 0 0 1 188 -124" stroke="black">
+72 256 m
+88 240 l
+</path>
+<path matrix="1 0 0 1 152 -128" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 168 -164" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 28 -244" stroke="black">
+216 340 m
+232 324 l
+</path>
+<text matrix="1 0 0 1 119.205 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="76.906" height="7.473" depth="2.49" valign="baseline">$G(\ensuremath{\mathtt{r}}_1).Tomb=\emptyset:$</text>
+<text matrix="1 0 0 1 167.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" valign="baseline">$b:\ensuremath{\mathtt{ts}}_b$</text>
+<text matrix="1 0 0 1 203.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" valign="baseline">$a:\ensuremath{\mathtt{ts}}_a$</text>
+<text matrix="1 0 0 1 183.205 -372" transformations="translations" pos="64 436" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" valign="baseline">$c:\ensuremath{\mathtt{ts}}_c$</text>
+<path matrix="1 0 0 1 172 -160" stroke="black">
+72 256 m
+56 240 l
+</path>
+<path matrix="1 0 0 1 136 -164" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<text matrix="1 0 0 1 151.205 -372" transformations="translations" pos="64 436" stroke="black" type="label" width="28.594" height="6.923" depth="1.49" valign="baseline">$d:\ensuremath{\mathtt{ts}}_d$</text>
+<text matrix="1 0 0 1 383.205 -384" transformations="translations" pos="64 436" stroke="black" type="label" width="12.06" height="7.473" depth="2.49" valign="baseline">$(c)$</text>
+<text matrix="1 0 0 1 319.205 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="182.938" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{G}}(\ensuremath{\mathtt{r}}_1).\ensuremath{\mathsf{L}}= \{ \ensuremath{addAfter(\circ,a)}, \ensuremath{addAfter(\circ,b)}$</text>
+<text matrix="1 0 0 1 331.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="185.208" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,c)}, \ensuremath{addAfter(b,d)}, \ensuremath{remove(b)} \}$</text>
+<text matrix="1 0 0 1 319.205 -316" transformations="translations" pos="64 436" stroke="black" type="label" width="42.675" height="7.473" depth="2.49" valign="baseline">$G(\ensuremath{\mathtt{r}}_1).N:$</text>
+<path matrix="1 0 0 1 384 -128" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 368 -104" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 388 -124" stroke="black">
+72 256 m
+56 240 l
+</path>
+<path matrix="1 0 0 1 388 -124" stroke="black">
+72 256 m
+88 240 l
+</path>
+<path matrix="1 0 0 1 352 -128" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 368 -164" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 228 -244" stroke="black">
+216 340 m
+232 324 l
+</path>
+<text matrix="1 0 0 1 319.205 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="80.628" height="7.473" depth="2.49" valign="baseline">$G(\ensuremath{\mathtt{r}}_1).Tomb= \{ b \}$</text>
+<text matrix="1 0 0 1 367.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" valign="baseline">$b:\ensuremath{\mathtt{ts}}_b$</text>
+<text matrix="1 0 0 1 403.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" valign="baseline">$a:\ensuremath{\mathtt{ts}}_a$</text>
+<text matrix="1 0 0 1 383.205 -372" transformations="translations" pos="64 436" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" valign="baseline">$c:\ensuremath{\mathtt{ts}}_c$</text>
+<path matrix="1 0 0 1 372 -160" stroke="black">
+72 256 m
+56 240 l
+</path>
+<path matrix="1 0 0 1 336 -164" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<text matrix="1 0 0 1 351.205 -372" transformations="translations" pos="64 436" stroke="black" type="label" width="28.594" height="6.923" depth="1.49" valign="baseline">$d:\ensuremath{\mathtt{ts}}_d$</text>
+<use matrix="1 0 0 1 184 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 196 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 336 0" stroke="black" arrow="normal/normal">
+96 208 m
+128 240 l
+</path>
+<path matrix="1 0 0 1 336 0" stroke="black">
+68 240 m
+80 240 l
+</path>
+<path matrix="1 0 0 1 336 0" stroke="black">
+68 208 m
+92 208 l
+</path>
+<text matrix="1 0 0 1 319.205 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
+<text matrix="1 0 0 1 319.205 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<text matrix="1 0 0 1 331.205 -240" transformations="translations" pos="64 436" stroke="black" type="label" width="63.5" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,b)}$</text>
+<text matrix="1 0 0 1 339.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="64.491" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,a)}$</text>
+<text matrix="1 0 0 1 411.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="62.83" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,c)}$</text>
+<text matrix="1 0 0 1 407.205 -240" transformations="translations" pos="64 436" stroke="black" type="label" width="63.704" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(b,d)}$</text>
+<use matrix="1 0 0 1 276 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 260 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 348 0" stroke="black">
+72 240 m
+156 240 l
+</path>
+<path matrix="1 0 0 1 348 0" stroke="black">
+84 208 m
+140 208 l
+</path>
+<path matrix="1 0 0 1 400 0" stroke="black" arrow="normal/normal">
+96 208 m
+128 240 l
+</path>
+<text matrix="1 0 0 1 479.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="44.837" height="7.473" depth="2.49" valign="baseline">$\ensuremath{remove(b)}$</text>
+<use matrix="1 0 0 1 328 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 -4 0" stroke="black">
+516 240 m
+560 240 l
+</path>
+<path matrix="1 0 0 1 -4 0" stroke="black">
+568 240 m
+592 240 l
+</path>
+<path matrix="1 0 0 1 -4 0" stroke="black">
+500 208 m
+592 208 l
+</path>
+</page>
+</ipe>
