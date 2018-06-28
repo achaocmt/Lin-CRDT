@@ -200,7 +200,7 @@ $\alabelset$.
 Finally, the visibility relation $\avisord$ is changed to record the
 fact that the downstreams of all operations in $\alabelset$ have been
 applied before $\alabel$.
-\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA}
+\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (b) to \figurename~\ref{fig:an example run of semantics} (c).}
 
 The second rule describes a replica $\arep$ in state $\astate$
 executing the downstream $\effector$ that corresponds to an operation
@@ -220,7 +220,7 @@ $\effector(\sigma)$ and adding $\alabel$ to the set of operations
 whose downstreams have been executed by $\arep$. 
 Remark that these transition rules preserve the fact that $\avisord$ is
 a strict partial order.
-\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA}
+\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (a) to \figurename~\ref{fig:an example run of semantics} (b).}
 
 In the sequel it will be useful to distinguish query (or pure) methods
 which do not modify the state from state modifying methods, which we
@@ -276,7 +276,7 @@ is the history of the execution that corresponds to $\atrace$.
 The set of histories $\histories(\aobj)$ of an object $\aobj$ is the
 set of histories $h$ of an execution $e$ of $\aobj$.
 
-\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.}
+\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.} {\color {red} CW: \figurename~\ref{fig:an example run of semantics} shows two steps of a history of RGA, and we can see how history grow in this example. Do I need to draw another figure start from initial global configuration?}
 
 %\ce{Need to talk about read/updates}
 %
@@ -393,19 +393,19 @@ and the transitions are given as follows:
 {\color {red} CW: The sequential specification of OR-set and list with add-after interface}
 \begin{example}[sequential specification of OR-Set]
 \label{definition:sequential specification of or-set}
-The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$. 
+The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$.
 
 Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{ORset}_s$ of OR-set is given with the transitions as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\abstate \xRightarrow{\alabellong[{\tt readIds}]{a}{ \{ (a,id) \vert (a,id) \in \abstate \} }{} } \abstate$
+\item[-] $\abstate \xRightarrow{\alabellong[{\tt readIds}]{a}{ S }{} } \abstate$, where $S = \{ (a,id) \vert (a,id) \in \abstate \}$ 
 
 \item[-] $\abstate \xRightarrow{ \alabelshort[{\tt remove}]{a,S} }  \abstate \setminus S$
 
 \item[-] $\big(\abstate\ |\ id \ is \ unique \big) \xRightarrow{ \alabelshort[{\tt add}]{a,id} }  \abstate \cup \{ (a,id) \}$
 
-\item[-] $\abstate \xRightarrow{\alabellong[{\tt read}]{a}{ \{ a \vert \exists id, (a,id) \in \abstate \} }{}} \abstate$
+\item[-] $\abstate \xRightarrow{\alabellong[{\tt read}]{a}{ S }{}} \abstate$, where $S = \{ a \vert \exists id, (a,id) \in \abstate \}$ 
 \end{itemize}
 
 Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
@@ -414,21 +414,21 @@ Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$
 
 
 \begin{example}[sequential specification of List with add-after interface]
-\label{definition:sequential specification of or-set}
-Each abstract state $\abstate$ is a sequence of tuples $(a,flag)$, where $a$ is a data and $flag \in \{ \mathit{true},\mathit{false} \}$ is flag. $(a,\mathit{true})$ means that $a$ is in the list, while $(a,\mathit{false})$ means that $a$ has once been added into the list and then removed. The sequential specification $\mathit{listAft}_s$ of list with add-after interface is given with the transitions as follows:
+\label{definition:sequential specification of or-set} 
+Each abstract state $\abstate = (l,T)$ contains a sequence $l$ and a set $T$. $l$ is the list of all input values, no matter already removed or not; while $T$ stores the removed values and is used as tombstone. The sequential specification $\mathit{listAft}_s$ of list with add-after interface is given with the transitions as follows: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k < n \wedge (a,\_) \notin \abstate \big) \xRightarrow{ \alabelshort[{\tt addAfter}]{a_k,a} } (a_1,flag_1)\cdot \ldots (a_k,flag_k) \cdot (a,\mathit{true}) \cdot (a_{k+1},flag_{k+1}) \cdot \ldots \cdot (a_n,flag_n)$
+\item[-] $\big((l,T)\ |\ l = a_1 \cdot \ldots \cdot a_n \wedge k \leq n \wedge a \ is \ unique \big) \xRightarrow{ \alabelshort[{\tt addAfter}]{a_k,a} } (a_1 \cdot \ldots \cdot a_k \cdot a \cdot a_{k+1} \cdot \ldots \cdot a_n,T)$ 
 
-\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k \leq n \big) \xRightarrow{ \alabelshort[{\tt remove}]{a_k} } (a_1,flag_1)\cdot \ldots (a_k,\mathit{false}) \cdot \ldots \cdot (a_n,flag_n)$
+\item[-] $\big((l,T)\ |\ l = a_1\cdot \ldots \cdot a_n \wedge 1 \leq k \leq n \big) \xRightarrow{ \alabelshort[{\tt remove}]{a_k} } (l,T \cup \{ a_k \})$ 
 
-\item[-] $(a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \xRightarrow{\alabellong[{\tt read}]{}{s}{}} (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n)$, here $s$ is the projection of $a_1 \cdot \ldots \cdot a_n$ into $\{ a \vert a$ is with flag $\mathit{true} \}$
+\item[-] $(l,T) \xRightarrow{\alabellong[{\tt read}]{}{s}{}} (l,T)$, here $s$ is obtained from $l$ by removing values in $T$ 
 \end{itemize}
 
-$\alabelshort[{\tt addAfter}]{a_k,a}$ puts $(a,\mathit{true})$ immediately after $(a_k,flag_k)$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ removes $a_k$ from the list by setting its flag into $\mathit{false}$. $\alabellong[{\tt read}]{}{s}{}$ returns the content of list.
+$\alabelshort[{\tt addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$ in $l$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ adds $a_k$ into $T$. $\alabellong[{\tt read}]{}{s}{}$ returns the list content not in $T$. 
 
-Assume that the initial value of list is $(\circ,\mathit{true})$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
+Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
 \end{example}
 
 
@@ -556,7 +556,7 @@ that
   on the updates that precede it in the sequence and that are visible to them.
 \end{inparaenum}
 
-\fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW}
+\fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW} {\color {red}CW: \figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its linearization step by step.}
 
 We now consider the case where histories include query-updates.
 In such a case, we apply~\autoref{definition:ralinearizability1} on a
@@ -569,7 +569,7 @@ original operations of the data type, but which have been extended to
 be taken into account by the specification.
 Also, other (update) operations of the object may be rewritten as
 well.}
-\fxwarning[nomargin, inline]{EXPLAIN THE OR-SET CASE.}
+\fxwarning[nomargin, inline]{EXPLAIN THE OR-SET CASE.} {\color {red}CW: \figurename~\ref{fig:a history of OR-set, its update-query rewriting, and its RA-linearization} gives a history of OR-set, its query-update rewriting, and its \crdtlinearization{}.}
 
 TODO MODIFY $\gamma$ BECAUSE IT MAY REWRITE UPDATES AS WELL. DO WE NEED TO REWRITE QUERIES ?
 

@@ -18,45 +18,63 @@ Our approach for proving \CRDTLin{} (w.r.t. $\Spec{}$) consists in
 instrumenting the object semantics with an auxiliary variable
 $\alinord$ recording a linearization of the current history (recorded
 in the object's global configurations) following the approach
-of~\cite{VafeiadisHHS06,more citations}.
+of~\cite{AbadiL91, VafeiadisHHS06, more citations}.
 
 As explained in Section~\ref{sec:overview} there are two actions in the
 semantics that can modify the state of replicas:
 \begin{inparaenum}
-\item the execution of a new client request which is shown as the
-  \lstinline|atSource| procedure in the data type implementation, or
+\item the execution of a new client request at the source replica,
+  which is shown under the \lstinline|atSource| label -- immediately
+  followed by the \lstinline|downStream| at the source replica
+  --, or
 \item the execution of the downstream of an operation originating in a
-  different replica shown in the \lstinline|downStream| procedure of
+  different replica shown under the \lstinline|downStream| label of
   the implementation.
 \end{inparaenum}
 %
-While the first case (\lstinline|atSource|) represents the arrival of
-a new operation, the latter (\lstinline|downStream|) represents the
+While the execution of an operation at its source replica represents
+the arrival of a new operation, the execution of a
+(\lstinline|downStream|) in a different replica represents the
 propagation of effects of preexisting operations.
 %
-Since the sequence $\alinord$ is a global order over the operations,
-it needs only be updated when a \emph{new} operation arrives,
-therefore only the execution of an \lstinline|atSource| portion of an
-operation engenders the extension of $\alinord$\footnote{For readers
-  familiars with proving classical linearizability for concurrent
-  objects, this is akin to assuming that \lstinline|atSource| is a
-  ``fixed'' linearization point.
+Since the sequence $\alinord$ is a global order over all the
+operations for the object in the system, it needs only be updated when
+a \emph{new} operation arrives, therefore only the execution of an
+\lstinline|atSource| portion of an operation engenders the extension
+of $\alinord$\footnote{For readers familiars with proving classical
+  linearizability for concurrent objects, this is akin to assuming that
+  \lstinline|atSource| is a ``fixed'' linearization point.
   However, differently from the classical case, the operation may not
   be necessarily placed at the end of the current linearization.}
-by adding the current operation at some specific position. To guarantee that the
-linearization is consistent with the visibility relation, the operation must be inserted in
-the linearization after all the operations which are visible at the replica executing \lstinline|atSource|.
+by adding the current operation at some specific position.
+%
+In this paper we only consider CRDTs whose linearizations are
+consistent with the visibility of operations.
+%
+That is, the order of linearization of an execution respects the
+causality of in the execution.\footnote{In fact, we are not aware of
+  \CRDTLinshort{} CRDTs where this is not true.}
+%
+To guarantee that the linearization is consistent with the visibility
+relation, the operation must be inserted in the linearization after
+all the operations which are visible at the replica executing
+\lstinline|atSource|.
 %%
 %\gpnote*{Clarify?}
 %{
 %This guarantees that the linearization $\alinord$ is consistent with
 %the visibility relation.
 %}
-When the object contains query-update operations, the operations are first rewritten according to a query-update rewriting $\gamma$ as in \autoref{definition:distributed linearizability} before being placed in the linearization.
-Then, the objective is to prove that $\alinord$ being an
+When the object contains query-update operations, the operations are
+first rewritten according to a query-update rewriting $\gamma$ as in
+\autoref{definition:distributed linearizability} before being placed
+in the linearization.
+Then, the objective is to prove that whether $\alinord$ is an
 \crdtlinearization{} of the current history (w.r.t. $\Spec{}$) is an
-invariant of the object. This invariant is strengthened with
-additional requirements in order to make it inductive.
+invariant for any execution of the object.
+%
+To prove this invariant, we strengthen it with additional requirements
+in order to make it inductive.
 %
 In the case of the objects we investigated, the inductive invariant is
 defined as the conjunction of two properties:
@@ -76,11 +94,16 @@ defined as the conjunction of two properties:
 \end{itemize}
 To prove that this is an inductive invariant we rely on additional
 assertions describing the effect of each downstream (we provide
-examples in the following subsections), and also, a proof that:
+examples in the following subsections), joint with a proof that:
 \begin{itemize}
 %\setlength{\itemsep}{0.5pt}
-\item[-] $\mathsf{Refinement}$: each downstream produced by an update $\alabel$ and respectively, each query $\alabel$, is simulated by the application of $\alabel$ in the specification $\Spec$.
+\item[-] $\mathsf{Refinement}$: each downstream produced by an update
+  $\alabel$, respectively each query $\alabel$, is simulated by the
+  execution of $\alabel$ in the specification $\Spec$.
 \end{itemize}
+Essentially, this last requirements establishes a strong
+correspondence between the implementation of the algorithm and its
+specification.
 The proof of $\mathsf{Refinement}$ relies on a \emph{refinement
   mapping}~\cite{earlierLamport,AbadiL91} between replica states and states of the
 specification, denoted by $\refmap$. The proof goals require that for
@@ -91,21 +114,49 @@ any two replica states $\sigma$ and $\sigma'$,
           \mbox{$\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$},
           where $\xRightarrow{\alabel}$ is the transition function of
           $\Spec$, and
+          \gpwarning{The match between labels and $\delta$ has to be made more explicit somewhere}
         \item if a query $\alabel$ is applied on a state $\sigma$ or
           it is introduced by a rewriting of a query-update that
           executes \lstinline|atSource| on a state $\sigma$, then
           $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
 \end{enumerate}
-\gpnote*{Explain or remove}{
-Actually, for the CRDT objects presented in Section~\ref{subsec:time order of execution as linearization}, we consider a stronger version of $\mathsf{Refinement}$ which requires that the state $\sigma$ and the downstream $\delta$ satisfy some particular condition (in the context of the first proof goal).
-}
+% \gpnote*{Explain or remove}{
+% Actually, for the CRDT objects presented in Section~\ref{subsec:time order of execution as linearization}, we consider a stronger version of $\mathsf{Refinement}$ which requires that the state $\sigma$ and the downstream $\delta$ satisfy some particular condition (in the context of the first proof goal).
+% }
 
 \gpnote[nomargin, inline]{Forward reference to exec-order, and
   ts-order.}
-We have applied this methodology to a range of CRDT objects described in~\cite{ShapiroPBZ11}, and we have identified two instances which differ in the way in which the linearization $\alinord$ is extended (when executing \lstinline|atSource|). For the first class of objects that includes the OR-Set in Listing~\ref{lst:or-set}, the linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed, i.e., every new operation executing \lstinline|atSource| is appended to the current linearization (\S~\ref{subsec:time order of execution as linearization}). We say that such objects admit \emph{execution-order linearizations}.
-The second class of objects that includes the RGA object in Listing~\ref{lst:rga}, supports \CRDTLinshort{} proofs in which the linearization is built based on timestamps, e.g., $\alinord$ is consistent with the order between the timestamps generated by operations (\S~\ref{subsec:time-stamp order as linearizabtion}). We say that such objects admit \emph{timestamp-order linearizations}.
+We have applied this methodology to a range of CRDT objects described
+in~\cite{ShapiroPBZ11}, and we have identified two general classes of
+CRDT implementations which differ in the way in which the
+linearization $\alinord$ is extended when executing the operations at
+the source replica.
+For the first class of objects, which includes the OR-Set in
+Listing~\ref{lst:or-set}, the linearization $\alinord$ is defined by
+the order in which the operation is executed at their source (that is
+when the pair of labels \lstinline|atSource| and
+\lstinline|downstream| are executed for the first time in the source
+repolica).
+In this case the new operation is immediately appended
+to the current linearization $\alinord$ (\S~\ref{subsec:time order of execution
+  as linearization}).
+We say that such objects admit \emph{execution-order linearizations}.
+The second class of objects, including the RGA CRDTlin in
+Listing~\ref{lst:rga}, supports \CRDTLinshort{} proofs in which the
+linearization is built based on timestamps, e.g., $\alinord$ is
+consistent with the order between the timestamps generated by
+operations (\S~\ref{subsec:time-stamp order as linearizabtion}).
+We say that such objects admit \emph{timestamp-order linearizations}.
 
-\gpnote[nomargin, inline]{I agree with the content. Some rewriting is needed.}
+We will now illustrate these proof strategies through the RGA and
+OR-Set examples.
+%
+We will in each case leave a semi-formal argument for their
+linearizability, and explain the commonalities of all other CRDTs in
+the same class.
+%
+The formal proofs are relegated to~\autoref{sec:appendix proofs of
+  crdt implementations}.
 
 %
 %For some CRDT implementations, when proving its correctness, we can use the total-order of executions as linearization. For such CRDT implementations, our proof approach is as follows:
@@ -144,20 +195,29 @@ In this section, we describe a first instantiation of the methodology described 
 
 %a two-vocabulary formula, the primed, resp., unprimed, variables denoting values after, resp., before, the execution of the procedure.
 
-The annotations included in the \lstinline|atSource| procedures describe the construction of the linearization,
+The annotations included in the \lstinline|atSource| labels describe the construction of the linearization,
 %We describe updates of the linearization using \lstinline|let| constructs that append a set of labels.
-which is is extended by appending operations, possibly rewritten using the query-update rewriting $\gamma$ defined in Example~\ref{}. %, when they execute the \lstinline|atSource| procedure.
-The annotations of the downstreams specify their effect, e.g., relating their effect with the set of operations visible to the replica where this operation has originated (when the downstream has been computed). They are written as two-vocabulary formulas, the primed, resp., unprimed, variables denoting values of variables after, resp., before, the execution of the downstream.
+which is extended by appending operations to the abstract $\alinord$ linearization, after possibly rewriting them through the query-update rewriting $\gamma$ defined in Example~\ref{}. %, when they execute the \lstinline|atSource| procedure.
+The annotations of the downstreams specify their effect, e.g., relating their effect with the set of operations visible to the replica where this operation has originated (when the downstream has been computed). These annotations are written as two-vocabulary formulas, the primed, resp. unprimed, variables denoting values of variables after, resp. before, the execution of the downstream.
 For instance, the downstream corresponding to a {\tt remove} operation removes the set of element-id pairs added by {\tt add} operations visible at the replica $\arep$ where the {\tt remove} originated, and which were not ``canceled'' by other {\tt remove}s visible at $\arep$ ({\tt remove}s that saw those {\tt add} operations).
 
-In the following, we show that $\mathsf{ReplicaStates}$ is an inductive invariant. Since every operation is appended to the linearization when it executes \lstinline|atSource| it clearly follows, in the linearization order, all operations visible to it. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant is the situation where two downstreams correspond to two ``concurrent'' operations (not related by visibility) and their linearization order is different from the order in which they are applied at a given replica. However, as already assumed in some definitions of CRDT objects~\cite{}, such downstreams commute, i.e., applying them in one order or another leads to the same state. The fact that they commute is an easy consequence of the downstream annotations: two {\tt add} or two {\tt remove} downstreams commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} downstream commute when they are concurrent because in this case, the element-id pairs removed by {\tt remove} are different from the pair added by the {\tt add} (since the {\tt add} is not visible to {\tt remove}).
+\gp{red = we have to talk about it before?}
+In the following, we show that the $\mathsf{ReplicaStates}$ property described above is an inductive invariant for OR-Set. Since every operation is appended to the linearization when it executes \lstinline|atSource| it clearly follows, in the linearization order, all operations visible to it. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. 
+The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant occurs in the case when two downstreams corresponding to two concurrent operations (that is, not related by visibility) have to be linearized in an order which does not coincide with the order in which their downstreams might have been applied in one or more of the replicas. It is important to recall at this point that concurrent operations can be applied in different orders in different replicas. 
+% The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant is when two downstreams correspond to two ``concurrent'' operations (not related by visibility) and their linearization order is different from the order in which they are applied at a given replica.
+% \gpnote*{Refine this text.}
+Importantly, a fundamental property of CRDTs~\cite{ShapiroPBZ11} is that the downstreams of concurrent operations should \emph{commute}. In other words, applying them in any order leads to the same state.
+The fact that concurrent downstreams commute is an easy consequence of the downstream annotations: two {\tt add} or two {\tt remove} downstreams commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} downstream commute when they are concurrent because in this case, the element-id pairs removed by {\tt remove} are different from the pair added by the {\tt add} (since the {\tt add} is not visible to {\tt remove}).
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. For instance, applying the downstream produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{In the proof of $\mathsf{Refinement}$, we implicitly assume that whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, then the downstream produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the downstream produced by $\alabel$ must be simulated by the operation $\alabel_2$ in the specification.}   or the $\alabelshort[{\tt add}]{a,k}$ operation of the specification ??? has exactly the same effect. The same holds for the downstream produced by $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases: (1) whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, then the query $\alabellong[{\tt readIds}]{a}{R}{}$ (introduced by the query-update rewriting) should be enabled in state $\refmap(\sigma)=\sigma$, which clearly holds because the computation of $R$ in \lstinline|atSource| and as the result of $\alabelshort[{\tt readIds}]{a}$ in the specification state $\sigma$ are exactly the same, and (2) applying the query $\alabellongind[{\tt read}]{}{A}{}$ on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\sigma$, which again holds trivially.
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. For instance, applying the downstream produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{In the proof of $\mathsf{Refinement}$, we implicitly assume that whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, then the downstream produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the downstream produced by $\alabel$ must be simulated by the operation $\alabel_2$ in the specification. This is true in all of our proofs.} and the $\alabelshort[{\tt add}]{a,k}$ operation of the specification ??? has exactly the same effect. The same holds for the downstream produced by $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases: (1) whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, then the query $\alabellong[{\tt readIds}]{a}{R}{}$ (introduced by the query-update rewriting) 
+\gpnote*{?}{should be enabled in state $\refmap(\sigma)=\sigma$}, which clearly holds because the computation of $R$ in \lstinline|atSource| and as the result of $\alabelshort[{\tt readIds}]{a}$ in the specification state $\sigma$ are exactly the same, and (2) applying the query $\alabellongind[{\tt read}]{}{A}{}$ on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\sigma$, which again holds trivially.
 
-Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
+Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
 %The only thing to show is that the element-id pairs removed by a {\tt remove} have been added by {\tt adds} which precede it in the linearization, and not already removed by other {\tt remove}s that precede it. This is a direct consequence of the fact that the linearization order is consistent with the visibility relation, and the invariant $\mathsf{ReplicaStates}$, which implies that every element-id pair in a the state of a replica $\arep$ has been added by an {\tt add} visible to $\arep$ and not removed by other {\tt remove}s visible to $\arep$. Then,
+\gpnote*{Not sure I understand the sentence}
+{
 We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[{\tt readIds}]{a}{R}{},\alabellongind[{\tt read}]{}{A}{}\}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
-visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification.} First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 
 TODO STATE WHICH OTHER OBJECTS SUPPORT THE SAME KIND OF PROOF.
 
@@ -165,12 +225,15 @@ TODO STATE WHICH OTHER OBJECTS SUPPORT THE SAME KIND OF PROOF.
 \label{subsec:time-stamp order as linearizabtion}
 
 CRDT objects such as RGA, that use timestamps for conflict resolution, may not admit execution-order linearizations. \fxwarning[nomargin, inline]{Example showing why execution-order linearizations are not valid for RGA.}
-To prove that they are \crdtlinearizable{}, we consider an instantiation of the proof methodology described in Section~\ref{ssec:proof-methodology} where the linearization is also consistent with the order of the timestamps generated by the operations.
+To prove that they are \crdtlinearizable{}, we consider an instantiation of the proof methodology described in Section~\ref{ssec:proof-methodology} where the linearization is additionally \emph{consistent with the order of timestamps} generated by the operations.
 We describe this instantiation using the RGA object in Listing~\ref{lst:rga} as an example.
 
-The construction of the linearization ensures that the operations that generate a timestamp, i.e., the invocations of ${\tt addAfter}$, are ordered in the linearization according to the timestamps. More precisely, any two operations $\alabelshort[{\tt addAfter}]{a,b}$ and $\alabelshort[{\tt addAfter}]{c,d}$ that generate two timestamps $\ats_{\tt b}$ and $\ats_{\tt d}$, respectively, are ordered $\alabelshort[{\tt addAfter}]{a,b}$ before $\alabelshort[{\tt addAfter}]{c,d}$ if $\ats_{\tt b}<\ats_{\tt d}$ and $\alabelshort[{\tt addAfter}]{c,d}$ before $\alabelshort[{\tt addAfter}]{a,b}$ if $\ats_{\tt d}<\ats_{\tt b}$. Moreover, for operations $\alabel$ that don't generate a timestamp, i.e., invocations of ${\tt remove}$ and ${\tt read}$, we consider a ``virtual'' timestamp which is defined as the \emph{maximal} timestamp of an operation visible to $\alabel$ (or $\bot$ if no operation is visible to $\alabel$), and then require that the linearization is consistent with the order between both ``real''~\footnote{That is, timestamps generated by the operation itself.} and ''virtual'' timestamps. \fxwarning[nomargin, inline]{Example showing a history and how the linearization evolves}
+\gpnote{I think this example is kinda complicated. Maybe add picture?}
+The construction of the linearization ensures that the operations that generate a timestamp, i.e., the invocations of ${\tt addAfter}$, are ordered in the linearization according to their timestamps. More precisely, for any two operations $\alabelshort[{\tt addAfter}]{a,b}$ and $\alabelshort[{\tt addAfter}]{c,d}$ that generate two timestamps $\ats_{\tt b}$ and $\ats_{\tt d}$, respectively, the linearization should order $\alabelshort[{\tt addAfter}]{a,b}$ before $\alabelshort[{\tt addAfter}]{c,d}$ if $\ats_{\tt b}<\ats_{\tt d}$ and $\alabelshort[{\tt addAfter}]{c,d}$ before $\alabelshort[{\tt addAfter}]{a,b}$ if $\ats_{\tt d}<\ats_{\tt b}$. 
+%
+Moreover, to extend the notion of timestamp ordering to operations $\alabel$ that don't generate timestamps, i.e., invocations of ${\tt remove}$ and ${\tt read}$, we consider a ``virtual'' timestamp which is defined as the \emph{maximal} timestamp of any operation visible to $\alabel$ (or $\bot$ if no operation is visible to $\alabel$), and then require that the linearization is consistent with the order between both ``real''~\footnote{That is, timestamps generated by the operation itself.} and ''virtual'' timestamps. \fxwarning[nomargin, inline]{Example showing a history and how the linearization evolves}
 
-The annotations defining the linearization are included in the \lstinline|atSource| procedures. The function {\tt insert}($\alinord$,$\alabel$,$\ats$) inserts the label $\alabel$ in the linearization $\alinord$ just after the last operation $\alabel'$ in $\alinord$ which has a timestamp (real or virtual) smaller than or equal to $\ats$. The annotations describing the effect of downstreams are quite straightforward in this case, they are logical interpretations of the program statements.
+The annotations defining the linearization are included under the \lstinline|atSource| labels of~\autoref{lst:rga}. The function {\tt insert}($\alinord$,$\alabel$,$\ats$) inserts the label $\alabel$ in the linearization $\alinord$ just after the last operation $\alabel'$ in $\alinord$ which has a timestamp (real or virtual) smaller than or equal to $\ats$. The annotations describing the effect of downstreams are quite straightforward in this case, since they are logical interpretations of the program statements.
 
 The proof of $\mathsf{ReplicaStates}$ is quite similar to the case of OR-Set. Since the order between the timestamps generated by ${\tt addAfter}$ operations is consistent with the visibility relation (see Section~\ref{ssec:semantics}), it easily follows that the linearization order $\alinord$ is also consistent with the visibility relation. Then, as in the case of OR-Set, it remains to prove that any two downstreams that correspond to two ``concurrent'' operations (not related by visibility) commute. This easily follows from the fact that the downstreams apply set union which is obviously commutative. Also, note that by the {\textred{causal delivery}} assumption and the preconditions of ${\tt addAfter}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addAfter}]{a,b}$ operation adding ${\tt b}$ after ${\tt a}$ is concurrent with an operation that adds ${\tt a}$ to the list, i.e., $\alabelshort[{\tt addAfter}]{c,a}$, for some ${\tt c}$, or that an $\alabelshort[{\tt addAfter}]{a,b}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent downstreams doesn't lead to ``invalid'' replica states where for instance, the timestamp tree ${\tt N}$ contains nodes which are not reachable from the root (which would happen if $\alabelshort[{\tt addAfter}]{a,b}$ is delivered before the operation $\alabelshort[{\tt addAfter}]{c,a}$ adding ${\tt a}$), or where the tombstone set ${\tt Tomb}$ contains elements which are not in the tree (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{a,b}$).
 

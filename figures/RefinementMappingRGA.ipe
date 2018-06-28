@@ -1,0 +1,375 @@
+<?xml version="1.0"?>
+<!DOCTYPE ipe SYSTEM "ipe.dtd">
+<ipe version="70107" creator="Ipe 7.1.7">
+<info created="D:20151003110714" modified="D:20180627015719"/>
+<preamble>\usepackage[version=0.96]{pgf}
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
+\usepackage[latin1]{inputenc}
+\usepackage{verbatim}</preamble>
+<ipestyle name="basic">
+<symbol name="arrow/arc(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/farc(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/ptarc(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/fptarc(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="mark/circle(sx)" transformations="translations">
+<path fill="sym-stroke">
+0.6 0 0 0.6 0 0 e
+0.4 0 0 0.4 0 0 e
+</path>
+</symbol>
+<symbol name="mark/disk(sx)" transformations="translations">
+<path fill="sym-stroke">
+0.6 0 0 0.6 0 0 e
+</path>
+</symbol>
+<symbol name="mark/fdisk(sfx)" transformations="translations">
+<group>
+<path fill="sym-fill">
+0.5 0 0 0.5 0 0 e
+</path>
+<path fill="sym-stroke" fillrule="eofill">
+0.6 0 0 0.6 0 0 e
+0.4 0 0 0.4 0 0 e
+</path>
+</group>
+</symbol>
+<symbol name="mark/box(sx)" transformations="translations">
+<path fill="sym-stroke" fillrule="eofill">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+-0.4 -0.4 m
+0.4 -0.4 l
+0.4 0.4 l
+-0.4 0.4 l
+h
+</path>
+</symbol>
+<symbol name="mark/square(sx)" transformations="translations">
+<path fill="sym-stroke">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+</path>
+</symbol>
+<symbol name="mark/fsquare(sfx)" transformations="translations">
+<group>
+<path fill="sym-fill">
+-0.5 -0.5 m
+0.5 -0.5 l
+0.5 0.5 l
+-0.5 0.5 l
+h
+</path>
+<path fill="sym-stroke" fillrule="eofill">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+-0.4 -0.4 m
+0.4 -0.4 l
+0.4 0.4 l
+-0.4 0.4 l
+h
+</path>
+</group>
+</symbol>
+<symbol name="mark/cross(sx)" transformations="translations">
+<group>
+<path fill="sym-stroke">
+-0.43 -0.57 m
+0.57 0.43 l
+0.43 0.57 l
+-0.57 -0.43 l
+h
+</path>
+<path fill="sym-stroke">
+-0.43 0.57 m
+0.57 -0.43 l
+0.43 -0.57 l
+-0.57 0.43 l
+h
+</path>
+</group>
+</symbol>
+<symbol name="arrow/fnormal(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/pointed(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/fpointed(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/linear(spx)">
+<path stroke="sym-stroke" pen="sym-pen">
+-1 0.333 m
+0 0 l
+-1 -0.333 l
+</path>
+</symbol>
+<symbol name="arrow/fdouble(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+-1 0 m
+-2 0.333 l
+-2 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/double(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+-1 0 m
+-2 0.333 l
+-2 -0.333 l
+h
+</path>
+</symbol>
+<pen name="heavier" value="0.8"/>
+<pen name="fat" value="1.2"/>
+<pen name="ultrafat" value="2"/>
+<symbolsize name="large" value="5"/>
+<symbolsize name="small" value="2"/>
+<symbolsize name="tiny" value="1.1"/>
+<arrowsize name="large" value="10"/>
+<arrowsize name="small" value="5"/>
+<arrowsize name="tiny" value="3"/>
+<color name="red" value="1 0 0"/>
+<color name="green" value="0 1 0"/>
+<color name="blue" value="0 0 1"/>
+<color name="yellow" value="1 1 0"/>
+<color name="orange" value="1 0.647 0"/>
+<color name="gold" value="1 0.843 0"/>
+<color name="purple" value="0.627 0.125 0.941"/>
+<color name="gray" value="0.745"/>
+<color name="brown" value="0.647 0.165 0.165"/>
+<color name="navy" value="0 0 0.502"/>
+<color name="pink" value="1 0.753 0.796"/>
+<color name="seagreen" value="0.18 0.545 0.341"/>
+<color name="turquoise" value="0.251 0.878 0.816"/>
+<color name="violet" value="0.933 0.51 0.933"/>
+<color name="darkblue" value="0 0 0.545"/>
+<color name="darkcyan" value="0 0.545 0.545"/>
+<color name="darkgray" value="0.663"/>
+<color name="darkgreen" value="0 0.392 0"/>
+<color name="darkmagenta" value="0.545 0 0.545"/>
+<color name="darkorange" value="1 0.549 0"/>
+<color name="darkred" value="0.545 0 0"/>
+<color name="lightblue" value="0.678 0.847 0.902"/>
+<color name="lightcyan" value="0.878 1 1"/>
+<color name="lightgray" value="0.827"/>
+<color name="lightgreen" value="0.565 0.933 0.565"/>
+<color name="lightyellow" value="1 1 0.878"/>
+<dashstyle name="dashed" value="[4] 0"/>
+<dashstyle name="dotted" value="[1 3] 0"/>
+<dashstyle name="dash dotted" value="[4 2 1 2] 0"/>
+<dashstyle name="dash dot dotted" value="[4 2 1 2 1 2] 0"/>
+<textsize name="large" value="\large"/>
+<textsize name="small" value="\small"/>
+<textsize name="tiny" value="\tiny"/>
+<textsize name="Large" value="\Large"/>
+<textsize name="LARGE" value="\LARGE"/>
+<textsize name="huge" value="\huge"/>
+<textsize name="Huge" value="\Huge"/>
+<textsize name="footnote" value="\footnotesize"/>
+<textstyle name="center" begin="\begin{center}" end="\end{center}"/>
+<textstyle name="itemize" begin="\begin{itemize}" end="\end{itemize}"/>
+<textstyle name="item" begin="\begin{itemize}\item{}" end="\end{itemize}"/>
+<gridsize name="4 pts" value="4"/>
+<gridsize name="8 pts (~3 mm)" value="8"/>
+<gridsize name="16 pts (~6 mm)" value="16"/>
+<gridsize name="32 pts (~12 mm)" value="32"/>
+<gridsize name="10 pts (~3.5 mm)" value="10"/>
+<gridsize name="20 pts (~7 mm)" value="20"/>
+<gridsize name="14 pts (~5 mm)" value="14"/>
+<gridsize name="28 pts (~10 mm)" value="28"/>
+<gridsize name="56 pts (~20 mm)" value="56"/>
+<anglesize name="90 deg" value="90"/>
+<anglesize name="60 deg" value="60"/>
+<anglesize name="45 deg" value="45"/>
+<anglesize name="30 deg" value="30"/>
+<anglesize name="22.5 deg" value="22.5"/>
+<tiling name="falling" angle="-60" step="4" width="1"/>
+<tiling name="rising" angle="30" step="4" width="1"/>
+</ipestyle>
+<page>
+<layer name="alpha"/>
+<view layers="alpha" active="alpha"/>
+<text layer="alpha" matrix="1 0 0 1 31.205 40" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
+<text matrix="1 0 0 1 31.205 8" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<use matrix="1 0 0 1 -80 200" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 55.205 -4" transformations="translations" pos="64 436" stroke="black" type="label" width="63.5" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,b)}$</text>
+<text matrix="1 0 0 1 119.205 48" transformations="translations" pos="64 436" stroke="black" type="label" width="64.491" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,a)}$</text>
+<use matrix="1 0 0 1 -16 232" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 80 108" stroke="black">
+40 336 m
+68 336 l
+</path>
+<path matrix="1 0 0 1 80 108" stroke="black">
+40 368 m
+132 368 l
+</path>
+<path matrix="1 0 0 1 80 108" stroke="black" arrow="normal/normal">
+140 368 m
+172 336 l
+</path>
+<use matrix="1 0 0 1 72 200" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 211.205 -4" transformations="translations" pos="64 436" stroke="black" type="label" width="59.845" height="7.473" depth="2.49" valign="baseline">$\ensuremath{read() \Rightarrow b \cdot a}$</text>
+<path matrix="1 0 0 1 80 108" stroke="black">
+76 336 m
+220 336 l
+</path>
+<path stroke="black">
+220 476 m
+316 476 l
+</path>
+<path stroke="black">
+308 444 m
+316 444 l
+</path>
+<text matrix="1 0 0 1 75.205 -80" transformations="translations" pos="64 436" stroke="black" type="label" width="84.528" height="7.473" depth="2.49" valign="baseline">$N = \{ (a,\ensuremath{\mathtt{ts}}_a,\ensuremath{\mathtt{ts}}_{\circ}) \}$</text>
+<text matrix="1 0 0 1 75.205 -92" transformations="translations" pos="64 436" stroke="black" type="label" width="43.322" height="7.475" depth="0.55" valign="baseline">$Tomb = \emptyset$</text>
+<path matrix="1 0 0 1 8 -32" stroke="black">
+160 356 m
+160 316 l
+</path>
+<text matrix="1 0 0 1 99.205 -104" transformations="translations" pos="64 436" stroke="black" type="label" width="10.162" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\sigma}_2$</text>
+<text matrix="1 0 0 1 67.205 -164" transformations="translations" pos="64 436" stroke="black" type="label" width="81.102" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{abs}}( \ensuremath{\sigma}_2 ) = (a,true)$</text>
+<text matrix="1 0 0 1 11.205 -28" transformations="translations" pos="64 436" stroke="black" type="label" width="266.984" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{DS}}( \ensuremath{addAfter(\circ,b)} ) \cdot \ensuremath{\mathsf{DS}}( \ensuremath{addAfter(\circ,a)} ) \cdot \ensuremath{\mathsf{DS}}( \ensuremath{read() \Rightarrow b \cdot a} ) $ </text>
+<text matrix="1 0 0 1 3.205 -44" transformations="translations" pos="64 436" stroke="black" type="label" width="277.5" height="7.473" depth="2.49" valign="baseline">$\equiv \ensuremath{\mathsf{DS}}( \ensuremath{addAfter(\circ,a)} ) \cdot \ensuremath{\mathsf{DS}}( \ensuremath{addAfter(\circ,b)} ) \cdot \ensuremath{\mathsf{DS}}( \ensuremath{read() \Rightarrow b \cdot a} ) $ </text>
+<text matrix="1 0 0 1 -48.795 -80" transformations="translations" pos="64 436" stroke="black" type="label" width="27.356" height="7.475" depth="0.55" valign="baseline">$N = \emptyset$</text>
+<text matrix="1 0 0 1 -48.795 -92" transformations="translations" pos="64 436" stroke="black" type="label" width="43.322" height="7.475" depth="0.55" valign="baseline">$Tomb = \emptyset$</text>
+<path matrix="1 0 0 1 -24 76" stroke="black">
+36 292 m
+36 264 l
+84 264 l
+84 292 l
+h
+</path>
+<text matrix="1 0 0 1 -36.795 -104" transformations="translations" pos="64 436" stroke="black" type="label" width="10.162" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\sigma}_1$</text>
+<path matrix="1 0 0 1 4 -32" stroke="black">
+32 356 m
+32 316 l
+</path>
+<text matrix="1 0 0 1 -52.795 -164" transformations="translations" pos="64 436" stroke="black" type="label" width="48.992" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{abs}}( \ensuremath{\sigma}_1 ) = \epsilon$</text>
+<text matrix="1 0 0 1 -0.795 -156" transformations="translations" pos="64 436" stroke="black" type="label" width="64.491" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,a)}$</text>
+<text matrix="1 0 0 1 -0.795 -80" transformations="translations" pos="64 436" stroke="black" type="label" width="64.491" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,a)}$</text>
+<path stroke="black" arrow="normal/normal">
+60 352 m
+136 352 l
+</path>
+<path stroke="black" arrow="normal/normal">
+64 276 m
+128 276 l
+</path>
+<text matrix="1 0 0 1 235.205 -80" transformations="translations" pos="64 436" stroke="black" type="label" width="82.315" height="7.473" depth="2.49" valign="baseline">$N = \{ (a,\ensuremath{\mathtt{ts}}_a,\ensuremath{\mathtt{ts}}_{\circ}),$</text>
+<text matrix="1 0 0 1 259.205 -92" transformations="translations" pos="64 436" stroke="black" type="label" width="55.364" height="7.473" depth="2.49" valign="baseline">$(b,\ensuremath{\mathtt{ts}}_b,\ensuremath{\mathtt{ts}}_{\circ}) \}$</text>
+<text matrix="1 0 0 1 235.205 -104" transformations="translations" pos="64 436" stroke="black" type="label" width="43.322" height="7.475" depth="0.55" valign="baseline">$Tomb = \emptyset$</text>
+<path matrix="1 0 0 1 24 -32" stroke="black" arrow="normal/normal">
+200 384 m
+272 384 l
+</path>
+<path matrix="1 0 0 1 24 -32" stroke="black">
+304 348 m
+304 316 l
+</path>
+<text matrix="1 0 0 1 259.205 -116" transformations="translations" pos="64 436" stroke="black" type="label" width="10.162" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\sigma}_3$</text>
+<text matrix="1 0 0 1 163.205 -80" transformations="translations" pos="64 436" stroke="black" type="label" width="63.5" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,b)}$</text>
+<text matrix="1 0 0 1 339.205 -80" transformations="translations" pos="64 436" stroke="black" type="label" width="59.845" height="7.473" depth="2.49" valign="baseline">$read() \Rightarrow b \cdot a$</text>
+<text matrix="1 0 0 1 355.205 -156" transformations="translations" pos="64 436" stroke="black" type="label" width="59.845" height="7.473" depth="2.49" valign="baseline">$read() \Rightarrow b \cdot a$</text>
+<path matrix="1 0 0 1 56 -32" stroke="black" arrow="normal/normal">
+360 308 m
+428 308 l
+</path>
+<text matrix="1 0 0 1 423.205 -164" transformations="translations" pos="64 436" stroke="black" type="label" width="31.665" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{abs}}( \ensuremath{\sigma}_3 ) $</text>
+<text matrix="1 0 0 1 423.205 -84" transformations="translations" pos="64 436" stroke="black" type="label" width="10.162" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\sigma}_3$</text>
+<text matrix="1 0 0 1 227.205 -164" transformations="translations" pos="64 436" stroke="black" type="label" width="123.461" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{abs}}( \ensuremath{\sigma}_3 ) =  (b,true) \cdot (a,true)$</text>
+<path stroke="black">
+136 368 m
+136 340 l
+224 340 l
+224 368 l
+h
+</path>
+<path stroke="black">
+296 368 m
+296 328 l
+384 328 l
+384 368 l
+h
+</path>
+<text matrix="1 0 0 1 155.205 -156" transformations="translations" pos="64 436" stroke="black" type="label" width="63.5" height="7.473" depth="2.49" valign="baseline">$\ensuremath{addAfter(\circ,b)}$</text>
+<path stroke="black" arrow="normal/normal">
+216 276 m
+288 276 l
+</path>
+<path stroke="black" arrow="normal/normal">
+384 352 m
+484 352 l
+</path>
+<path stroke="black">
+492 348 m
+492 284 l
+</path>
+</page>
+</ipe>

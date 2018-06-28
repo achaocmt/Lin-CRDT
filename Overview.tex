@@ -8,9 +8,7 @@ interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
 
 \begin{figure}[t]
   % \centering
-\begin{lstlisting}[caption={Pseudo-code of the Replicated Growable
-Array (RGA) CRDT (adapted from~\cite{ShapiroPBZ11})},
-captionpos=b,label={lst:rga}]
+\begin{lstlisting}[caption={Pseudo-code of the Replicated Growing Array (RGA) CRDT (adapted from~\cite{ShapiroPBZ11})},captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -19,22 +17,22 @@ captionpos=b,label={lst:rga}]
     atSource :
       precondition : a = @|$\circ$|@ or (a != @|$\circ$|@ and (a,_,_) @|$\in$|@ N and a @|$\not\in$|@ Tomb)
       let ts@|$_{\mathtt{b}}$|@ = getTimestamp()
-      //@ let lin = insert(lin, @|$\alabelshort[{\tt addAfter}]{a,b}$|@, ts@|$_{\mathtt{b}}$|@)
+      //@ let lin' = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
-      //@ N@|$'$|@ = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
+      //@ N' = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
 
   remove(a) :
     atSource :
       precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
-      //@ let lin = insert(lin, @|$\alabelshort[{\tt remove}]{a}$|@, @|$\mathsf{max}\, \{\tsof(\alabel):\alabel\in \alabelset \}\,$|@)
+      //@ let lin' = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
-      //@ Tomb@|$'$|@ = Tomb @|$\cup$|@ {a}
+      //@ Tomb' = Tomb @|$\cup$|@ {a}
 
   read() :
     let ret-list = traverse(N, Tomb)
-    //@ let lin = insert(lin, @|$\alabellongind[{\tt read}]{}{{\tt ret\text{-}list}}{}$|@, @|$\mathsf{max}\, \{\tsof(\alabel):\alabel\in \alabelset \}\,$|@)
+    //@ let lin' = insert(lin, read()@|$\Rightarrow$|@ret-list, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     return ret-list
 \end{lstlisting}
 \end{figure}
@@ -74,11 +72,12 @@ shall call replicas.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[scale=.4]{figures/sys-mod}
+  \includegraphics[scale=.3]{figures/sys-mod}
   \caption{CRDT System Model}
   \label{fig:sys-mod}
 \end{figure}
 
+\gpwarning{Redraw pictures.}
 The execution model for an operation \lstinline|op(v)| on a replicated
 object is depicted in~\autoref{fig:sys-mod} and it proceeds as follows:
 \begin{itemize}
@@ -360,27 +359,30 @@ captionpos=b,label={lst:or-set}]
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let lin = lin@|$\,\cdot\,\alabelshort[{\tt add}]{a,k}$|@
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,$|@add(a,k)
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
       //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
 
   remove(a) :
     atSource :
-      let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      //@ let lin = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{a}{R}{}\,\cdot\,\alabelshort[{\tt remove}]{a,R}$|@
+      let R = {(a,k) | (a,k) @|$\in$|@ S}
+      //@ let lin = lin@|$\,\cdot\,$|@readIds(a)@|$\Rightarrow$|@R@|$\,\cdot\,$|@remove(a,R)
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[{\tt add}]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[{\tt remove}]{a,R}) \in \avisord$|@
-                       @|$\land\,\forall\ \alabel' = \alabellongind[{\tt remove}]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[{\tt remove}]{a,R})\}\not\subseteq \avisord\}$|@
-      //@ S@|$'$|@ = S @|$\setminus$|@ R
+      //@ R@|$'$|@ = {(a,k) | @|$\exists\ \alabel$|@ = add(a,k)@|$\Rightarrow$|@, (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
+                             @|$ \forall\ \alabel'$|@ = remove(a,*)@|$\Rightarrow$|@, {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
+      //@ S@|$'$|@ = S @|$\setminus$|@ R@|$'$|@
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{A}{}$|@
+    //@ let lin@|$'$|@ = lin@|$\,\cdot\,$|@read@|$\Rightarrow$|@A
     return A
 \end{lstlisting}
 \end{figure}
+      % //@ R' = @|$\{ (a,k): \exists\ \alabel = \alabellongind[{\tt add}]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[{\tt remove}]{a,R}) \in \avisord$|@
+      %                  @|$\land\,\forall\ \alabel' = \alabellongind[{\tt remove}]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[{\tt remove}]{a,R})\}\not\subseteq \avisord\}$|@
+      % //@ S@|$'$|@ = S @|$\setminus$|@ R
 
 The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11},
 this time implementing a Set interface with methods: \lstinline|add(a)|,
