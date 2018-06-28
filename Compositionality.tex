@@ -16,7 +16,33 @@ Also, we should prove that composing two $T0$, resp., $T1$, specs results in a $
 
 \gpnote*{}{Are there things that are neither T0 nor T1?: Not in our paper}
 
+\subsection{Formalization}
 
+\begin{definition}
+An object $\aobj$ which is \crdtlinearizable{} w.r.t. a specification $\Spec$ admits \emph{execution-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\src{\_}{\alabel_1}$ occurs before $\src{\_}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
+\end{definition}
+
+\begin{lemma}
+Let $\atrace$ be a trace of an object $\aobj$ and $\hist{\atrace}=(\alabelset,\avisord)$ its history. Then, for every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$ (i.e., $(\avisord
+    \cup \alinord)^{+}$ is acyclic), there exists a trace $\atrace'$ of $\aobj$ such that $\src{\_}{\alabel_1}$ occurs before $\src{\_}{\alabel_2}$ in $\atrace'$ iff $\alabel_1$ occurs before $\alabel_2$ in $\alinord$.
+\end{lemma}
+
+\begin{lemma}
+Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$ and admits execution-order linearizations. Then, for every history $\ahist=(\alabelset,\avisord)$ of $\aobj$ and every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$, we have that $(\alabelset,\alinord)$ is an \crdtlinearization{} of $\ahist$ w.r.t. $\Spec$.
+\end{lemma}
+
+For a history $\ahist=(\alabelset,\avisord)$, we define a timestamp mapping $\atsm{\ahist}:\alabelset\rightarrow \timestampdomain$ such that $\atsm{\ahist}(\alabel)=\tsof(\alabel)$ if $\tsof(\alabel)\neq\bot$ and $\atsm{\ahist}(\alabel)=\mathsf{max}\, \{\tsof(\alabel'):(\alabel',\alabel)\in \avisord \}$, otherwise.
+
+
+\begin{definition}
+An object $\aobj$ which is \crdtlinearizable{} w.r.t. a specification $\Spec$ admits \emph{timestamp-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\atsm{\ahist}(\alabel_1) < \atsm{\ahist}(\alabel_2)$ or $\src{\_}{\alabel_1}$ occurs before $\src{\_}{\alabel_2}$ in $\atrace$, otherwise, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
+\end{definition}
+
+For a history $\ahist=(\alabelset,\avisord)$, let $\atsord$ be an order between labels in $\alabelset$ such that $\alabel_1\atsord\alabel_2$ iff $\atsm{\ahist}(\alabel_1) < \atsm{\ahist}(\alabel_2)$
+
+\begin{lemma}
+Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$ and admits timestamp-order linearizations. Then, for every history $\ahist=(\alabelset,\avisord)$ of $\aobj$ and every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$ and $\atsord$, we have that $(\alabelset,\alinord)$ is an \crdtlinearization{} of $\ahist$ w.r.t. $\Spec$.
+\end{lemma}
 
 \subsection{T0-Linearizability and T1-Linearizability}
 \label{subsec:t0-linearizability and t1-linearizability}

@@ -111,14 +111,16 @@
 %%%%%%%%%%%%% CRDTs %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand{\aobj}{\ensuremath{\mathtt{o}}}
+\newcommand{\ahist}{\ensuremath{{h}}}
 \newcommand{\objs}{\ensuremath{\mathbb{O}}}
 \newcommand{\acts}{\ensuremath{\mathbb{A}}}
-\newcommand{\anact}{\ensuremath{a}}
+\newcommand{\aact}{\ensuremath{a}}
 \newcommand{\arep}{\ensuremath{\mathtt{r}}}
 \newcommand{\reps}{\ensuremath{\mathbb{R}}}
 \newcommand{\amethod}{\ensuremath{\mathsf{m}}}
 \newcommand{\ainput}{\ensuremath{\mathsf{a}}}
 \newcommand{\areturn}{\ensuremath{\mathsf{r}}}
+\newcommand{\tsof}{\ensuremath{\mathsf{ts}}}
 \newcommand{\atimestamp}{\ensuremath{\mathsf{t}}}
 \newcommand{\methods}{\ensuremath{\mathbb{M}}}
 \newcommand{\histories}{\ensuremath{\mathbb{H}\mathsf{ist}}}
@@ -152,6 +154,7 @@
     #3}}
 \newcommand{\src}[2]{\ensuremath{\mathsf{src}_{#1}(#2)}}
 \newcommand{\dwn}[2]{\ensuremath{\mathsf{dwn}_{#1}(#2)}}
+\newcommand{\atsm}[1]{\mathsf{tsm}_{#1}}
 
 \newcommand{\alabel}{\ensuremath{\ell}}
 \newcommand{\refmap}{\ensuremath{\mathsf{abs}}}
@@ -164,12 +167,12 @@
 \newcommand{\alabelset}{\ensuremath{\mathsf{L}}}
 \newcommand{\arepord}{\ensuremath{\mathsf{ro}}}
 \newcommand{\avisord}{\ensuremath{\mathsf{vis}}}
+\newcommand{\atsord}{\ensuremath{\prec_{\mathsf{ts}}}}
 \newcommand{\aseqord}{\ensuremath{\mathsf{seq}}}
 \newcommand{\alinord}{\ensuremath{\mathsf{lin}}}
 \newcommand{\absopsemplain}{\ensuremath{\Rightarrow}}
 \newcommand{\absopsem}[2][\alabel]{\ensuremath{\delta_{#1}(#2)}}
 \newcommand{\apre}{\ensuremath{\mathsf{pre}}}
-\newcommand{\ts}{\ensuremath{\mathit{ts}}}
 
 
 \newcommand{\atrace}{\ensuremath{\mathit{tr}}}
@@ -199,7 +202,7 @@
 \newcommand{\alabellongNoArg}[2][\amethod]{\ensuremath{#1 \Rightarrow
     #2}} % m() \Rightarrow b
 
-\newcommand{\ats}{\ensuremath{\mathtt{ts}}} % a timestamp
+\newcommand{\ats}{\ensuremath{ts}} % a timestamp
 \newcommand{\tss}{\ensuremath{\mathbb{T}\mathsf{s}}} % set of timestamps
 \newcommand{\atsource}{\ensuremath{\theta}} % atsource
 \newcommand{\aglobalstate}{\ensuremath{\mathtt{gc}}} % a global state
@@ -222,8 +225,9 @@
 \newcommand{\rupdategts}{\ensuremath{rupdGTs}} % update global-timestamp with a random value
 \newcommand{\funobjtostates}{\ensuremath{\sigma}\ensuremath{s}} % a function from object to lobal states
 \newcommand{\severalobj}{\ensuremath{\mathtt{os}}} % a set of objects
-\newcommand{\mobj}[1]{\ensuremath{\mathsf{modify}(#1)}} % modify a object where use random update timestamp 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\mobj}[1]{\ensuremath{\mathsf{modify}(#1)}} % modify a object where use random update timestamp
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newcommand{\gconfres}{\ensuremath{\mathsf{gcr}}} % a function for global conflict resolution. This is used for non-determnistic sequential specification
 
 
 %%% Local Variables:

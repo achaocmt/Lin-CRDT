@@ -27,14 +27,14 @@ captionpos=b,label={lst:rga}]
   remove(a) :
     atSource :
       precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
-      //@ let lin = insert(lin, @|$\alabelshort[{\tt remove}]{a}$|@, @|$\mathsf{max}\, \{\ats(\alabel):\alabel\in \alabelset \}\,$|@)
+      //@ let lin = insert(lin, @|$\alabelshort[{\tt remove}]{a}$|@, @|$\mathsf{max}\, \{\tsof(\alabel):\alabel\in \alabelset \}\,$|@)
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
       //@ Tomb@|$'$|@ = Tomb @|$\cup$|@ {a}
 
   read() :
     let ret-list = traverse(N, Tomb)
-    //@ let lin = insert(lin, @|$\alabellongind[{\tt read}]{}{{\tt ret\text{-}list}}{}$|@, @|$\mathsf{max}\, \{\ats(\alabel):\alabel\in \alabelset \}\,$|@)
+    //@ let lin = insert(lin, @|$\alabellongind[{\tt read}]{}{{\tt ret\text{-}list}}{}$|@, @|$\mathsf{max}\, \{\tsof(\alabel):\alabel\in \alabelset \}\,$|@)
     return ret-list
 \end{lstlisting}
 \end{figure}
