@@ -67,7 +67,8 @@ CRDT implementations assume the following two guarantees of downstream:
 
 \[
   \inferrule[\text{\sc Operation}]
-  {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) }
+  {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
+  \ats\neq\bot\implies (\,\forall \alabel\in\alabelset.\ \tsof(\alabel)\neq\bot \implies \tsof(\alabel) < \ats\,) }
   {(\gstates, \avisord, \downstreams) \xrightarrow{\src{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], %\alabel
     \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
 \]
