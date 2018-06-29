@@ -287,6 +287,11 @@ Finally, the implementation of \lstinline|read| performs the pre-order
 traversal as explained before, where all the elements in the tombstone
 \lstinline|Tomb| are ignored from the output list.
 
+\fxwarning[nomargin, inline]{It's not clear what we are linearizing. I think we should say that standard linearizability considers the partial order given by real-time while here we consider the visibility relation}
+
+\fxwarning[nomargin, inline]{We should already explain the issue of queries, the fact that RGA is not linearizable in the classical sense.}
+
+
 \paragraph{Intuition of RGA \CRDTLinshort{}}
 Let us consider the problem of showing that an execution of an series
 of operations on an RGA object is linearizable.
@@ -442,6 +447,8 @@ of the remove.
 %
 The code of OR-Set is shown in~\autoref{lst:or-set} where for the time
 being we ignore the lines marked with a comment (\lstinline|//@|).
+
+\fxwarning[nomargin, inline]{If queries are discussed already for RGA, here we should focus more on the rewriting of labels}
 
 \paragraph{Intuition of OR-Set Linearizability}
 \gpnote{Add reads at the end of the pictures.}
