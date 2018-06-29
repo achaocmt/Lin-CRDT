@@ -24,7 +24,7 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
 \end{lstlisting}
 \end{minipage}
 
-\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+$\\$ \cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
 Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
 
 
@@ -66,7 +66,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
 The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
 
-In local of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $<id,v,degree,flag>$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$. We use $degree(w)$ to denote the degree of $w$.
+In local of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$. We use $degree(w)$ to denote the degree of $w$.
 
 A W-string is an ordered sequence of W-characters $w_b \cdot w_1 \cdot \ldots \cdot w_n \cdot w_e$, where $w_b$ and $w_e$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_b$ and $w_e$ are $\circ_b$ and $\circ_e$, respectively. The degree of $w_b$ and $w_e$ are $0$. We define the following function for a W-string $str$:
 
@@ -535,16 +535,16 @@ Additionally, we need the following definitions:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We introduce a function $\igconfres: \labels^* \rightarrow \states$ to explicitly record the consequence of applying downstreams. 
+\item[-] We introduce a function $\igconfres: \labels^* \rightarrow \states$ to explicitly record the consequence of applying downstreams.
 
 Given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, $\igconfres(s)$ is the local state obtained by applying downstreams of $s$ in the order of $s$.
 
 \item[-] From $\igconfres(s)$, we generate a abstract state $\gconfres'(s)$. Latter we will prove that $\gconfres'$ satisfies the requirement of $\gconfres$.
-    
+
     We use a refinement mapping $\refmap$ that maps $\igconfres(s)$ into $\gconfres'(s)$. %Or we can say, $\refmap{}(\igconfres(s)) = \gconfres(s)$.
 \end{itemize}
 
-%$\igconfres(s)$ may be undefined for some sequence $s$, for example, apply the downstream of $\alabelshort[{\tt remove}]{a}$ when no downstream of inserting $a$ has been applied. 
+%$\igconfres(s)$ may be undefined for some sequence $s$, for example, apply the downstream of $\alabelshort[{\tt remove}]{a}$ when no downstream of inserting $a$ has been applied.
 
 Here the name $\igconfres$ is short for global conflict resolution in implementations.
 
@@ -557,39 +557,39 @@ Then, we need to prove the following properties:
 \item[-] We prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ in a way as follows:
 
 \begin{enumerate}
-\item If $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, obviously $\igconfres(s \cdot \alabel)$ is obtained from $\igconfres(s)$ by applying the downstream of $\alabel$. Then, we require that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$. 
-    
-\item if a query $\alabel$ is applied on a state $\igconfres(s)$ or it is introduced by a rewriting of a query-update that executes \lstinline|atSource| on a state $\igconfres(s)$, then $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$. 
+\item If $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, obviously $\igconfres(s \cdot \alabel)$ is obtained from $\igconfres(s)$ by applying the downstream of $\alabel$. Then, we require that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+
+\item if a query $\alabel$ is applied on a state $\igconfres(s)$ or it is introduced by a rewriting of a query-update that executes \lstinline|atSource| on a state $\igconfres(s)$, then $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
 \end{enumerate}
-\end{itemize} 
+\end{itemize}
 
-With above definitions and properties, our proof proceed as follows: 
+With above definitions and properties, our proof proceed as follows:
 
-\noindent {\bf Prove correctness of $\gconfres'$:} We prove that $\gconfres'$ satisfies the requirement of $\gconfres$ as follows: 
+\noindent {\bf Prove correctness of $\gconfres'$:} We prove that $\gconfres'$ satisfies the requirement of $\gconfres$ as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Given sequences $s_1$ and $s_2$, such that both $s_1$ and $s_2$ are consistent with $\avisord$ and are closed under $\avisord^{-1}$, and $s_1$ is a permutation of $s_2$. Then, since any two downstreams that correspond to two ``concurrent'' operations commute, we can see that $\igconfres(s_1)$ = $\igconfres(s_2)$. Since $\mathsf{Refinement}$ holds, we have transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)$ and $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$. Thus, $\gconfres'(s_1) = \gconfres'(s_2)$. 
-    
-    Moreover, let $s_3$ be the projection of $\alinord$ into operations of $s_1$. Similarly, we can prove that $\gconfres'(s_1) = \gconfres'(s_3)$.  
+\item[-] Given sequences $s_1$ and $s_2$, such that both $s_1$ and $s_2$ are consistent with $\avisord$ and are closed under $\avisord^{-1}$, and $s_1$ is a permutation of $s_2$. Then, since any two downstreams that correspond to two ``concurrent'' operations commute, we can see that $\igconfres(s_1)$ = $\igconfres(s_2)$. Since $\mathsf{Refinement}$ holds, we have transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)$ and $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$. Thus, $\gconfres'(s_1) = \gconfres'(s_2)$.
 
-\item[-] $\mathsf{ConsistentChoice}$: Given $s_1$ and $s_2$, such that they are both consistent with $\avisord$ and closed under $\avisord^{-1}$, and $s_1$ is a sub-sequence of $s_2$. Obviously $s_1 \cdot (s_2 - s_1)$ is closed under $\avisord^{-1}$. 
-    
-    We prove that $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$ by contradiction. Assume that $s_1 \cdot (s_2 - s_1)$ is not consistent with $\avisord$. Since $s_1$ and $s_2$ are consistent with $\avisord$, this implies that, there exists $a,b$, such that, $a \in s_1$, $b \in s_2 - s_1$, and $(b,a) \in \avisord$. Or we can say, $(b,a) \in \avisord^{-1}$, $a \in s_1$, $b \notin s_1$. This contradicts the assumption that $s_1$ is closed under $\avisord^{-1}$. Therefore, $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$. 
-    
-    Since $s_2$ and $s_1 \cdot (s_2 - s_1)$ are consistent with $\avisord$ and closed under $\avisord^{-1}$, we know that there exists $\igconfres(s_2)$ and $\igconfres(s_1 \cdot (s_2 - s_1))$. By $\mathsf{Refinement}$, we know that there exist transitions $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$ and transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)\xRightarrow{s_2 - s_1}^*\gconfres'(s_1 \cdot (s_2 - s_1))$. 
-    
-    Obviously, $s_2$ is a permutation of $s_1 \cdot (s_2 - s_1)$. As discussed above, we can see that $\gconfres'(s_2) = \gconfres'(s_1 \cdot (s_2 - s_1))$. 
+    Moreover, let $s_3$ be the projection of $\alinord$ into operations of $s_1$. Similarly, we can prove that $\gconfres'(s_1) = \gconfres'(s_3)$.
+
+\item[-] $\mathsf{ConsistentChoice}$: Given $s_1$ and $s_2$, such that they are both consistent with $\avisord$ and closed under $\avisord^{-1}$, and $s_1$ is a sub-sequence of $s_2$. Obviously $s_1 \cdot (s_2 - s_1)$ is closed under $\avisord^{-1}$.
+
+    We prove that $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$ by contradiction. Assume that $s_1 \cdot (s_2 - s_1)$ is not consistent with $\avisord$. Since $s_1$ and $s_2$ are consistent with $\avisord$, this implies that, there exists $a,b$, such that, $a \in s_1$, $b \in s_2 - s_1$, and $(b,a) \in \avisord$. Or we can say, $(b,a) \in \avisord^{-1}$, $a \in s_1$, $b \notin s_1$. This contradicts the assumption that $s_1$ is closed under $\avisord^{-1}$. Therefore, $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$.
+
+    Since $s_2$ and $s_1 \cdot (s_2 - s_1)$ are consistent with $\avisord$ and closed under $\avisord^{-1}$, we know that there exists $\igconfres(s_2)$ and $\igconfres(s_1 \cdot (s_2 - s_1))$. By $\mathsf{Refinement}$, we know that there exist transitions $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$ and transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)\xRightarrow{s_2 - s_1}^*\gconfres'(s_1 \cdot (s_2 - s_1))$.
+
+    Obviously, $s_2$ is a permutation of $s_1 \cdot (s_2 - s_1)$. As discussed above, we can see that $\gconfres'(s_2) = \gconfres'(s_1 \cdot (s_2 - s_1))$.
 \end{itemize}
 
-\noindent {\bf Prove $\mathsf{ReplicaStates}$:} $\mathsf{ReplicaStates}$ holds since any two downstreams that correspond to two ``concurrent'' operations commute. 
+\noindent {\bf Prove $\mathsf{ReplicaStates}$:} $\mathsf{ReplicaStates}$ holds since any two downstreams that correspond to two ``concurrent'' operations commute.
 
-\noindent {\bf Prove $\mathsf{Refinement}$:} This is specific to implementations. 
+\noindent {\bf Prove $\mathsf{Refinement}$:} This is specific to implementations.
 
-\noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in Section \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$. 
+\noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in Section \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$.
 
 
-We have applied this methodology to Wooki and Tree-Doc. For Wooki and Tree-Doc, we use execution-order linearizations. The linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed. 
+We have applied this methodology to Wooki and Tree-Doc. For Wooki and Tree-Doc, we use execution-order linearizations. The linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed.
 
 
 
@@ -651,373 +651,7 @@ a
 
 
 
-\section{Proofs of Section \ref{sec:compositionality of distributed linearizability}}
-\label{sec:appendix proofs of section compositionality of distributed linearizability}
 
-
-
-
-
-\subsection{Proofs of Lemma \ref{lemma:several t0-specifications}}
-\label{subsec:appendix proofs of Lemma several t0-specifications}
-
-A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
-
-Given two sequences $l_1,l_2$, let $\mathit{diff}(l_1,l_2) = \{ (o_1,o_2) \vert$ the order of $o_1$ and $o_2$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $o_1$ an $o_2$ of $l$, let $\mathit{swap}(l,o_1,o_2)$ be a sequence obtained from $l$ by swapping $o_1$ and $o_2$.
-
-The following lemma states that $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification.
-
-\begin{lemma}
-\label{lemma:or-set is a t0-specification}
-$\mathit{OR}$-$\mathit{set}_s$ is a t0-specification.
-\end{lemma}
-
-\begin {proof}
-Given a distributed linearizable history $h$ and assume that $\mathit{lin}$ is a linearization. It is obvious that $\mathit{lin}$ is consistent with visibility relation. We need to prove that, each such sequence $\mathit{lin}'$ described below is also a linearization of $h$
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\mathit{lin}'$ contains the same set of elements as that of $\mathit{lin}$.
-
-\item[-] $\mathit{lin}'$ is consistent with visibility relation.
-\end{itemize}
-
-We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. Our proof requires the following two properties:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] The first property is: Given a linarization $\mathit{lin}$ and a sequence $\mathit{lin}'$ consistent with visibility relation of $h$, if $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$.
-
-    We prove this by contradiction. Assume $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, and for each $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, we have that either $o_1$ and $o_2$ are not concurrent, or $o_1$ and $o_2$ are not adjacent in $\mathit{lin}$.
-
-    Since $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, let $(o,o')$ be a element of $\mathit{diff}(\mathit{lin},\mathit{lin}')$, and the distance of $o_1$ and $o_2$ is minimal in $\{$ the distance between $o_1$ and $o_2 \vert (o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}') \}$. Let us prove that $o$ and $o'$ are adjacent by contradiction: If there exists $o''$ between $o$ and $o'$. Assume that in $\mathit{lin}$, $o$ is before $o''$, and $o''$ is before $o'$. By assumption, the order between $o$ and $o''$, and between $o''$ and $o'$ is the same in $\mathit{lin}$ and in $\mathit{lin}'$. This implies that $o$ is still before $o'$ in $\mathit{lin}'$, which contradicts the fact that $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$.
-
-    Since $o$ and $o'$ are adjacent and $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, by assumption we know that $o$ and $o'$ are not concurrent. Or we can say, $(o,o') \in \mathit{vis} \vee \mathit{o',o} \in \mathit{vis}$. This contradicts that both $\mathit{lin}$ and $\mathit{lin}'$ are consistent with visibility relation. This completes the proof of the first step.
-
-\item[-] The second property is: Given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
-
-    Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{OR}$-$\mathit{set}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$, and $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$, and $\sigma_3$ is obtained from $\sigma_2$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Since $\mathit{id_1} \notin S_2$, we can see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by marking $a_1$ with identifiers of $S_1$ into $\mathit{false}$, and $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, we can see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by marking $a_1$ with identifiers of $S_1$ into $\mathit{false}$, and $\sigma_3$ is obtained from $\sigma_2$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-    \end{itemize}
-\end{itemize}
-
-Based on these two steps, given a linearization $\mathit{lin}$ and a sequence $\mathit{lin}' \neq \mathit{lin}$ which is consistent with visibility relation: We have $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$. Based on the first above property, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$. Based on the second above property, $\mathit{lin}'' = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization. Moreover, it is easy to see that $\mathit{diff}(\mathit{lin},\mathit{lin}') > \mathit{diff}(\mathit{lin}'',\mathit{lin}')$. Therefore, by several times of above process, we finally obtain $\mathit{lin}'$ from $\mathit{lin}$ by swapping pairs of operations, and prove that $\mathit{lin}'$ is also a linearization. This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-
-The following lemma states that $\mathit{set}_s$ is a t0-specification.
-
-\begin{lemma}
-\label{lemma:set is a t0-specification}
-$\mathit{set}_s$ is a t0-specification.
-\end{lemma}
-
-\begin {proof}
-
-We prove this lemma similarly as that of Lemma \ref{lemma:or-set is a t0-specification}. We need to prove that, given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
-
-Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{set}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that, if $(a_1,\_) \in \sigma_1$, then $\sigma_2 = \sigma_1$; else, $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{true})$. We can also see that, if $(a_2,\_) \in \sigma_2$, then $\sigma_3 = \sigma_2$; else, $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{true})$. Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Since $\mathit{vis}^{-1}(o_2) \cdot o_2 \in \mathit{set}_s$, we know that $(a_2,\_) \in \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Since $\mathit{vis}^{-1}(o_1) \cdot o_1 \in \mathit{set}_s$, we know that $(a_1,\_) \in \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-\end{itemize}
-
-This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-
-
-The following lemma states that $\mathit{counter}_s$ is a t0-specification.
-
-\begin{lemma}
-\label{lemma:counter is a t0-specification}
-$\mathit{counter}_s$ is a t0-specification.
-\end{lemma}
-
-
-\begin {proof}
-
-We prove this lemma similarly as that of Lemma \ref{lemma:or-set is a t0-specification}. We need to prove that, given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
-
-Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{counter}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{counter}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, then $\sigma_2 = \mathit{k+1}$ and $\sigma_3 = \mathit{k+2}$. Let $\sigma'_2 = \mathit{k+1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k+1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k+1}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-\end{itemize}
-
-This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-With Lemma \ref{lemma:or-set is a t0-specification}, Lemma \ref{lemma:set is a t0-specification} and Lemma \ref{lemma:counter is a t0-specification}, we can now prove Lemma \ref{lemma:several t0-specifications}.
-
-
-\SeveralTZeroSpecifications*
-
-\begin {proof}
-This lemma holds obviously from Lemma \ref{lemma:or-set is a t0-specification}, Lemma \ref{lemma:set is a t0-specification} and Lemma \ref{lemma:counter is a t0-specification}. $\qed$
-\end {proof}
-
-
-
-
-
-\subsection{Proofs of Lemma \ref{lemma:several t1-specifications}}
-\label{subsec:appendix proofs of Lemma several t1-specifications}
-
-
-The following lemma states that $\mathit{list}_s^{\mathit{af}}$ is a t1-specification.
-
-\begin{lemma}
-\label{lemma:list-af is a t1-specification}
-$\mathit{list}_s^{\mathit{af}}$ is a t1-specification.
-\end{lemma}
-
-\begin {proof}
-
-Given a distributed linearizable history $h$ and a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, we need to prove that, each strict time-stamp order candidate $\mathit{lin}'$ is a linearization.
-
-We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. Our proof requires the following two properties:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] The first property is: Given a linarization $\mathit{lin}$ that is a strict time-stamp order candidate, and a strict time-stamp order candidate $\mathit{lin}'$. If $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, $o_1$ and $o_2$ are adjacent in $\mathit{lin}$, and the time-stamp of $o_1$ in $h$ equals that of $o_2$.
-
-    We prove this by contradiction. Assume $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, and for each $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, we have that either $o_1$ and $o_2$ are not concurrent, or $o_1$ and $o_2$ are not adjacent in $\mathit{lin}$, or the time-stamp of $o_1$ in $h$ is different from that of $o_2$.
-
-    By the definition of strict time-stamp order candidate, it is easy to see that if $o_1$ and $o_2$ have different time-stamp, then their order is the same between $\mathit{lin}$ and $\mathit{lin}'$. Therefore, we know that the time-stamp of $o_1$ in $h$ equals that of $o_2$.
-
-    Since $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, let $(o,o')$ be a element of $\mathit{diff}(\mathit{lin},\mathit{lin}')$, and the distance of $o_1$ and $o_2$ is minimal in $\{$ the distance between $o_1$ and $o_2 \vert (o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}') \}$. Let us prove that $o$ and $o'$ are adjacent by contradiction: If there exists $o''$ between $o$ and $o'$. Assume that in $\mathit{lin}$, $o$ is before $o''$, and $o''$ is before $o'$. By assumption, the order between $o$ and $o''$, and between $o''$ and $o'$ is the same in $\mathit{lin}$ and in $\mathit{lin}'$. This implies that $o$ is still before $o'$ in $\mathit{lin}'$, which contradicts the fact that $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$.
-
-    Since $o$ and $o'$ are adjacent and $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, by assumption we know that $o$ and $o'$ are not concurrent. Or we can say, $(o,o') \in \mathit{vis} \vee \mathit{o',o} \in \mathit{vis}$. This contradicts that both $\mathit{lin}$ and $\mathit{lin}'$ are consistent with visibility relation. This completes the proof of the first step.
-
-\item[-] The second property is: Given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have the same time-stamp in $h$. Then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization and is also a strict time-stamp order candidate. It is obvious that $l$ is still a strict time-stamp order candidate.
-
-    Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{list}_s^{\mathit{af}}$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] If $o_1 = (\mathit{add}(a_1,b_1),\mathit{id}_1,S_1)$ and $o_2 = (\_,\mathit{id}_2,S_2)$: This case is impossible. We can see that the time-stamp of $a$ is larger than operations in $S_1$, and thus, the time-stamp of $o_1$ is the time-stamp of $a$. Since $\mathit{id}_1 \notin S_2$, we know that the time-stamp of $o_2$ is different from that of $o_1$, contradicts the assumption that $o_1$ and $o_2$ have same time-stamp.
-
-    \item[-] If $o_1 = (\_,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2,b_2),\mathit{id}_2,S_2)$: Similarly, we can prove that this case is impossible.
-
-    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow \mathit{list}_1,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-
-    \item[-] If $o_1 = (\mathit{read}() \Rightarrow \mathit{list}_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow \mathit{list}_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-    \end{itemize}
-\end{itemize}
-
-Based on these two steps, given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and a sequence $\mathit{lin}' \neq \mathit{lin}$ that is a strict time-stamp order candidate: We have $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$. Based on the first above property, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have a same time-stamp. Based on the second above property, $\mathit{lin}'' = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization, and is a strict time-stamp order candidate. Moreover, it is easy to see that $\mathit{diff}(\mathit{lin},\mathit{lin}') > \mathit{diff}(\mathit{lin}'',\mathit{lin}')$. Therefore, by several times of above process, we finally obtain $\mathit{lin}'$ from $\mathit{lin}$ by swapping pairs of operations, and prove that $\mathit{lin}'$ is also a linearization, and is a strict time-stamp order candidate. This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-The following lemma states that $\mathit{reg}_s$ is a t1-specification.
-
-\begin{lemma}
-\label{lemma:reg is a t1-specification}
-$\mathit{reg}_s$ is a t1-specification.
-\end{lemma}
-
-\begin {proof}
-
-We prove this lemma similarly as that of Lemma \ref{lemma:list-af is a t1-specification}. We need to prove that, given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have the same time-stamp in $h$. Then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization and is also a strict time-stamp order candidate. It is obvious that $l$ is still a strict time-stamp order candidate.
-
-Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{reg}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
-
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $o_1 = (\mathit{write}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\_,\mathit{id}_2,S_2)$: This case is impossible. We can see that the time-stamp of $a$ is larger than operations in $S_1$, and thus, the time-stamp of $o_1$ is the time-stamp of $a$. Since $\mathit{id}_1 \notin S_2$, we know that the time-stamp of $o_2$ is different from that of $o_1$, contradicts the assumption that $o_1$ and $o_2$ have same time-stamp.
-
-\item[-] If $o_1 = (\_,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{write}(a_2),\mathit{id}_2,S_2)$: Similarly, we can prove that this case is impossible.
-
-\item[-] If $o_1 = (\mathit{read}() \Rightarrow a_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow a_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
-\end{itemize}
-This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-With Lemma \ref{lemma:list-af is a t1-specification} and Lemma \ref{lemma:reg is a t1-specification}, we can now prove Lemma \ref{lemma:several t1-specifications}.
-
-\SeveralTOneSpecifications*
-
-\begin {proof}
-This lemma holds obviously from Lemma \ref{lemma:list-af is a t1-specification} and Lemma \ref{lemma:reg is a t1-specification}. $\qed$
-\end {proof}
-
-
-
-
-
-
-
-
-
-\subsection{Proof of Lemma \ref{lemma:several t0-specifications can be composed}}
-\label{subsec:appendix proofs of lemma several t0-specifications can be composed}
-
-\composingTZero*
-\begin {proof}
-Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
-
-We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
-
-\item[-] We begin a loop as follows: In each round of the loop, we choose an operation $o$ that is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
-\end{itemize}
-
-If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable.
-
-Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
-\end {proof}
-
-
-
-
-
-\subsection{Proof of Lemma \ref{lemma:several t0-specifications and one t1-specification can be composed}}
-\label{subsec:appendix proofs of lemma several t0-specifications and one t1-specification can be composed}
-
-
-\composingTZeroAndOneTOne*
-\begin {proof}
-Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{obj}_1$ be the only object that uses t1-specification, and let $\mathit{objs}_0$ be the set of other objects. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
-
-We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
-
-\item[-] We begin a loop as follows: in each round of the loop, we choose an operation $o$ shown below, and then let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] either $o$ is of an operation of $\mathit{objs}_0$ and is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$,
-
-    \item[-] or $o$ is of an operation of $\mathit{obj}_1$, is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, and has the minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
-    \end{itemize}
-\end{itemize}
-
-If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for operation of $\mathit{obj}_1$, $\mathit{lin}$ is consistent with time-stamp. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
-
-Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. Let $o_0$ be the operation that is of object $\mathit{obj}_1$ and has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. It is obvious that $o_0 \notin S_1$. Therefore, there exists operations $o_1,\ldots,o_k$, such that $o_1 \in S_1$, $o_1$ is of object $\mathit{obj}_1$, $(o_1,o_2),\ldots,(o_k,o_0) \in \mathit{vis}$. Since the visibility is transitive, we have that $(o_1,o_0) \in \mathit{vis}$. We already know that the time-stamp of $o_0$ is less than that of $o_1$. This contradicts the assumption that time-stamp is consistent with visiblity. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
-
-%Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $O'$. Thus, let $o_1 \in S_1$ be the operation that has minimal time-stamp among operations in $S_1$. We can see that there exists $o_2 \in O'$, such that $o_2$ is of object $\mathit{obj}_1$, $o_2 \notin S_1$, and the time-stamp of $o_2$ is less than that of $o_1$. Since $o_2 \notin S_1$, we can see that there exists operation $o_3 \in S_1$, such that $(o_3,o_2) \in \mathit{vis}$. We can see that the time-stamp of $o_1$ is less than that of $o_3$, and thus, the time-stamp of $o_2$ is less than that of $o_3$. Therefore, we found that the time-stamp is not consistent with visibility order for $o_2$ and $o_3$, which contradicts the assumption that time-stamp is consistent with visiblity. $\qed$
-\end {proof}
-
-
-
-
-
-
-\subsection{Proof of Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}}
-\label{subsec:appendix proofs of lemma several t0-specifications and several t1-specification can be composed}
-
-
-\composingTZeroAndTOne*
-\begin {proof}
-Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{objs}_0$ be the set of objects that use t0-specifications in $h$, and let $\mathit{objs}_1$ be the set of objects that use t1-specifications in $h$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
-
-We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
-
-\item[-] We begin a loop as follows: in each round of the loop, we choose an operation $o$ shown below, and then let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] either $o$ is of an operation of objects in $\mathit{objs}_0$ and is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$,
-
-    \item[-] or $o$ is of an operation of object $\mathit{obj}_1 \in \mathit{objs}_1$, is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, and has the minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
-    \end{itemize}
-\end{itemize}
-
-If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for each object $\mathit{ojb}_1 \in \mathit{objs}_1$, $\mathit{lin}$ is consistent with time-stamp of $\mathit{obj}_1$. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}_0$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, for each object $\mathit{obj}_1 \in \mathit{objs}_1$, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
-
-Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, there exists a object $\mathit{obj}_1 \in \mathit{objs}_1$, such that $o$ is of $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
-
-Let $S_2 = \{ o \vert \exists \mathit{obj}_1 \in \mathit{objs}_1, o$ is of object $\mathit{obj}_1, o$ has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}' \}$. It is easy to see that $\forall o \in S_2$, $o \notin S_1$.
-
-Thus, it is easy to see that, for each operation $o' \in S_2$, there exists an operation $o \in S_1$ and operations $o'_1,\ldots,o'_k$, such that $(o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis}$. Since the visibility relation is transitive, we have that $(o,o') \in \mathit{vis}$.
-
-Let $S_3 = \{ (o,o') \vert o \in S_1, o' \in S_2, \exists o'_1,\ldots,o'_k, (o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis} \}$. Let $S_4 = \{ (\mathit{obj},\mathit{obj}') \vert \exists (o,o') \in S_3$, $o$ is of object $\mathit{obj}$, $o'$ is of object $\mathit{obj}' \}$.
-
-Let us prove that there is a cycle in $S_4$ by contradiction. Given $(\mathit{obj}_2,\mathit{obj}_1) \in S_4$, we know that there is a operation of object of $\mathit{obj}_2$ in $S_1$, and thus, there must exists a operation of object of $\mathit{obj}_2$ in $S_2$. By definition of $S_2$, it is easy to see that there exists $\mathit{obj}_3$, such that $(\mathit{obj}_3,\mathit{obj}_2) \in S_4$. Since $S_4$ has no cycle, we applying this process and finally terminate with $(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1) \in S_4$ and could not found any $\mathit{obj}'$ to make $(\mathit{obj}',\mathit{obk}_k) \in S_4$. However, this implies that there is a operation of $\mathit{obj}_k$ that has minimal time-stamp among operations of $\mathit{obj}_k$ in $\mathit{Op}'$, and is in $S_1$. This contradicts our conclusion that $\forall o \in S_2$, $o \notin S_1$. Therefore, this is a cycle in $S_4$.
-
-Let the cycle in $S_4$ be $(\mathit{obj}_1,\mathit{obj}_k),(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1)$. Then, there exists operations $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}},\ldots, o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$, such that
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}}$ is of object $\mathit{obj}_1$, $\ldots$, $o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$ is of object $\mathit{obj}_k$.
-
-\item[-] $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in S_3$.
-\end{itemize}
-
-Thus, it is easy to see $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},$ $o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in \mathit{vis}$. By definition of $S_2$, we can see that $\mathit{ts}(o^{0}_{\mathit{o1}}) < \mathit{ts}(o^{1}_{\mathit{o1}}), \ldots, \mathit{ts}(o^{0}_{\mathit{ok}}) < \mathit{ts}(o^{1}_{\mathit{ok}})$. This contradicts the definition of causal-time-stamp. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
-\end {proof}
 
 
 
@@ -2895,4 +2529,376 @@ To do $addBetween(a,b,c)$, we first ensure that $b$ and $c$ are adjacent in $str
 $integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $w$ is put after $c_p$. Else, WOOT select a set $L$ of W-characters, such that each W-character of $L$ has a ranger ``wider than the range between $c_p$ and $c_n$''. The W-characters in $L$ are the W-characters that needs to be considered when the range is between $c_p$ and $c_n$. It can be proved that W-characters in $L$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$ to be between $L[i-1]$ and $L[i]$. We can see that the range between $L[i-1]$ and $L[i]$ is strictly shorter than the range between $c_p$ and $c_n$. Since there may be W-characters in the range between $L[i-1]$ and $L[i]$ in $string_s$, we make a recursive call to $integrateIns(c,L[i-1],L[i])$ to compute the position of $c$ in the range between $L[i-1]$ and $L[i]$.
 
 To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do $read()$, we return $values(string_s)$.
+}
+
+
+
+
+\forget
+{
+\section{Proofs of Section \ref{sec:compositionality of distributed linearizability}}
+\label{sec:appendix proofs of section compositionality of distributed linearizability}
+
+
+
+\subsection{Proofs of Lemma \ref{lemma:several t0-specifications}}
+\label{subsec:appendix proofs of Lemma several t0-specifications}
+
+A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
+
+Given two sequences $l_1,l_2$, let $\mathit{diff}(l_1,l_2) = \{ (o_1,o_2) \vert$ the order of $o_1$ and $o_2$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $o_1$ an $o_2$ of $l$, let $\mathit{swap}(l,o_1,o_2)$ be a sequence obtained from $l$ by swapping $o_1$ and $o_2$.
+
+The following lemma states that $\mathit{OR}$-$\mathit{set}_s$ is a t0-specification.
+
+\begin{lemma}
+\label{lemma:or-set is a t0-specification}
+$\mathit{OR}$-$\mathit{set}_s$ is a t0-specification.
+\end{lemma}
+
+\begin {proof}
+Given a distributed linearizable history $h$ and assume that $\mathit{lin}$ is a linearization. It is obvious that $\mathit{lin}$ is consistent with visibility relation. We need to prove that, each such sequence $\mathit{lin}'$ described below is also a linearization of $h$
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\mathit{lin}'$ contains the same set of elements as that of $\mathit{lin}$.
+
+\item[-] $\mathit{lin}'$ is consistent with visibility relation.
+\end{itemize}
+
+We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. Our proof requires the following two properties:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The first property is: Given a linarization $\mathit{lin}$ and a sequence $\mathit{lin}'$ consistent with visibility relation of $h$, if $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$.
+
+    We prove this by contradiction. Assume $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, and for each $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, we have that either $o_1$ and $o_2$ are not concurrent, or $o_1$ and $o_2$ are not adjacent in $\mathit{lin}$.
+
+    Since $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, let $(o,o')$ be a element of $\mathit{diff}(\mathit{lin},\mathit{lin}')$, and the distance of $o_1$ and $o_2$ is minimal in $\{$ the distance between $o_1$ and $o_2 \vert (o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}') \}$. Let us prove that $o$ and $o'$ are adjacent by contradiction: If there exists $o''$ between $o$ and $o'$. Assume that in $\mathit{lin}$, $o$ is before $o''$, and $o''$ is before $o'$. By assumption, the order between $o$ and $o''$, and between $o''$ and $o'$ is the same in $\mathit{lin}$ and in $\mathit{lin}'$. This implies that $o$ is still before $o'$ in $\mathit{lin}'$, which contradicts the fact that $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$.
+
+    Since $o$ and $o'$ are adjacent and $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, by assumption we know that $o$ and $o'$ are not concurrent. Or we can say, $(o,o') \in \mathit{vis} \vee \mathit{o',o} \in \mathit{vis}$. This contradicts that both $\mathit{lin}$ and $\mathit{lin}'$ are consistent with visibility relation. This completes the proof of the first step.
+
+\item[-] The second property is: Given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
+
+    Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{OR}$-$\mathit{set}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$, and $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$, and $\sigma_3$ is obtained from $\sigma_2$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Since $\mathit{id_1} \notin S_2$, we can see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by marking $a_1$ with identifiers of $S_1$ into $\mathit{false}$, and $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_2,\mathit{id}_2,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, we can see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: We can see that $\sigma_2$ is obtained from $\sigma_1$ by marking $a_1$ with identifiers of $S_1$ into $\mathit{false}$, and $\sigma_3$ is obtained from $\sigma_2$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by inserting $(a_1,\mathit{id}_1,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ with identifiers of $S_2$ into $\mathit{false}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+    \end{itemize}
+\end{itemize}
+
+Based on these two steps, given a linearization $\mathit{lin}$ and a sequence $\mathit{lin}' \neq \mathit{lin}$ which is consistent with visibility relation: We have $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$. Based on the first above property, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$. Based on the second above property, $\mathit{lin}'' = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization. Moreover, it is easy to see that $\mathit{diff}(\mathit{lin},\mathit{lin}') > \mathit{diff}(\mathit{lin}'',\mathit{lin}')$. Therefore, by several times of above process, we finally obtain $\mathit{lin}'$ from $\mathit{lin}$ by swapping pairs of operations, and prove that $\mathit{lin}'$ is also a linearization. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+The following lemma states that $\mathit{set}_s$ is a t0-specification.
+
+\begin{lemma}
+\label{lemma:set is a t0-specification}
+$\mathit{set}_s$ is a t0-specification.
+\end{lemma}
+
+\begin {proof}
+
+We prove this lemma similarly as that of Lemma \ref{lemma:or-set is a t0-specification}. We need to prove that, given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
+
+Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{set}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: We can see that, if $(a_1,\_) \in \sigma_1$, then $\sigma_2 = \sigma_1$; else, $\sigma_2$ is obtained from $\sigma_1$ by inserting $(a_1,\mathit{true})$. We can also see that, if $(a_2,\_) \in \sigma_2$, then $\sigma_3 = \sigma_2$; else, $\sigma_3$ is obtained from $\sigma_2$ by inserting $(a_2,\mathit{true})$. Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Since $\mathit{vis}^{-1}(o_2) \cdot o_2 \in \mathit{set}_s$, we know that $(a_2,\_) \in \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{add}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Since $\mathit{vis}^{-1}(o_1) \cdot o_1 \in \mathit{set}_s$, we know that $(a_1,\_) \in \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\_) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by inserting $(a_2,\mathit{true})$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_1),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be: if $(a_2,\mathit{false}) \in \sigma_1$, then $\sigma'_2 = \sigma_1$; else, $\sigma'_2$ is obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow l_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow l_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+The following lemma states that $\mathit{counter}_s$ is a t0-specification.
+
+\begin{lemma}
+\label{lemma:counter is a t0-specification}
+$\mathit{counter}_s$ is a t0-specification.
+\end{lemma}
+
+
+\begin {proof}
+
+We prove this lemma similarly as that of Lemma \ref{lemma:or-set is a t0-specification}. We need to prove that, given a linearization $\mathit{lin}$ and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization.
+
+Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{counter}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{counter}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, then $\sigma_2 = \mathit{k+1}$ and $\sigma_3 = \mathit{k+2}$. Let $\sigma'_2 = \mathit{k+1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{inc},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k+1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{dec},\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{inc},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k+1}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{dec},\mathit{id}_2,S_2)$: Assume that $\sigma_1 = k$, and let $\sigma'_2 = \mathit{k-1}$. Since $\mathit{id}_2 \notin S_1$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow k_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow k_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+With Lemma \ref{lemma:or-set is a t0-specification}, Lemma \ref{lemma:set is a t0-specification} and Lemma \ref{lemma:counter is a t0-specification}, we can now prove Lemma \ref{lemma:several t0-specifications}.
+
+
+\SeveralTZeroSpecifications*
+
+\begin {proof}
+This lemma holds obviously from Lemma \ref{lemma:or-set is a t0-specification}, Lemma \ref{lemma:set is a t0-specification} and Lemma \ref{lemma:counter is a t0-specification}. $\qed$
+\end {proof}
+
+
+
+
+
+\subsection{Proofs of Lemma \ref{lemma:several t1-specifications}}
+\label{subsec:appendix proofs of Lemma several t1-specifications}
+
+
+The following lemma states that $\mathit{list}_s^{\mathit{af}}$ is a t1-specification.
+
+\begin{lemma}
+\label{lemma:list-af is a t1-specification}
+$\mathit{list}_s^{\mathit{af}}$ is a t1-specification.
+\end{lemma}
+
+\begin {proof}
+
+Given a distributed linearizable history $h$ and a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, we need to prove that, each strict time-stamp order candidate $\mathit{lin}'$ is a linearization.
+
+We prove this by showing that each such $\mathit{lin}'$ can be obtained from $\mathit{lin}$ by several times of swapping a pair of adjacent elements. Our proof requires the following two properties:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The first property is: Given a linarization $\mathit{lin}$ that is a strict time-stamp order candidate, and a strict time-stamp order candidate $\mathit{lin}'$. If $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, $o_1$ and $o_2$ are adjacent in $\mathit{lin}$, and the time-stamp of $o_1$ in $h$ equals that of $o_2$.
+
+    We prove this by contradiction. Assume $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, and for each $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, we have that either $o_1$ and $o_2$ are not concurrent, or $o_1$ and $o_2$ are not adjacent in $\mathit{lin}$, or the time-stamp of $o_1$ in $h$ is different from that of $o_2$.
+
+    By the definition of strict time-stamp order candidate, it is easy to see that if $o_1$ and $o_2$ have different time-stamp, then their order is the same between $\mathit{lin}$ and $\mathit{lin}'$. Therefore, we know that the time-stamp of $o_1$ in $h$ equals that of $o_2$.
+
+    Since $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$, let $(o,o')$ be a element of $\mathit{diff}(\mathit{lin},\mathit{lin}')$, and the distance of $o_1$ and $o_2$ is minimal in $\{$ the distance between $o_1$ and $o_2 \vert (o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}') \}$. Let us prove that $o$ and $o'$ are adjacent by contradiction: If there exists $o''$ between $o$ and $o'$. Assume that in $\mathit{lin}$, $o$ is before $o''$, and $o''$ is before $o'$. By assumption, the order between $o$ and $o''$, and between $o''$ and $o'$ is the same in $\mathit{lin}$ and in $\mathit{lin}'$. This implies that $o$ is still before $o'$ in $\mathit{lin}'$, which contradicts the fact that $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$.
+
+    Since $o$ and $o'$ are adjacent and $(o,o') \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, by assumption we know that $o$ and $o'$ are not concurrent. Or we can say, $(o,o') \in \mathit{vis} \vee \mathit{o',o} \in \mathit{vis}$. This contradicts that both $\mathit{lin}$ and $\mathit{lin}'$ are consistent with visibility relation. This completes the proof of the first step.
+
+\item[-] The second property is: Given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have the same time-stamp in $h$. Then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization and is also a strict time-stamp order candidate. It is obvious that $l$ is still a strict time-stamp order candidate.
+
+    Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{list}_s^{\mathit{af}}$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $o_1 = (\mathit{add}(a_1,b_1),\mathit{id}_1,S_1)$ and $o_2 = (\_,\mathit{id}_2,S_2)$: This case is impossible. We can see that the time-stamp of $a$ is larger than operations in $S_1$, and thus, the time-stamp of $o_1$ is the time-stamp of $a$. Since $\mathit{id}_1 \notin S_2$, we know that the time-stamp of $o_2$ is different from that of $o_1$, contradicts the assumption that $o_1$ and $o_2$ have same time-stamp.
+
+    \item[-] If $o_1 = (\_,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{add}(a_2,b_2),\mathit{id}_2,S_2)$: Similarly, we can prove that this case is impossible.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{rem}(a_2),\mathit{id}_2,S_2)$: Let $\sigma'_2$ be obtained from $\sigma_1$ by marking $a_2$ into $\mathit{false}$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{rem}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow \mathit{list}_1,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Since $\mathit{id}_1 \notin S_2$, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+
+    \item[-] If $o_1 = (\mathit{read}() \Rightarrow \mathit{list}_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow \mathit{list}_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+    \end{itemize}
+\end{itemize}
+
+Based on these two steps, given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and a sequence $\mathit{lin}' \neq \mathit{lin}$ that is a strict time-stamp order candidate: We have $\mathit{diff}(\mathit{lin},\mathit{lin}') \neq \emptyset$. Based on the first above property, there exists $(o_1,o_2) \in \mathit{diff}(\mathit{lin},\mathit{lin}')$, such that $o_1$ and $o_2$ are concurrent, and $o_1$ and $o_2$ are adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have a same time-stamp. Based on the second above property, $\mathit{lin}'' = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization, and is a strict time-stamp order candidate. Moreover, it is easy to see that $\mathit{diff}(\mathit{lin},\mathit{lin}') > \mathit{diff}(\mathit{lin}'',\mathit{lin}')$. Therefore, by several times of above process, we finally obtain $\mathit{lin}'$ from $\mathit{lin}$ by swapping pairs of operations, and prove that $\mathit{lin}'$ is also a linearization, and is a strict time-stamp order candidate. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+The following lemma states that $\mathit{reg}_s$ is a t1-specification.
+
+\begin{lemma}
+\label{lemma:reg is a t1-specification}
+$\mathit{reg}_s$ is a t1-specification.
+\end{lemma}
+
+\begin {proof}
+
+We prove this lemma similarly as that of Lemma \ref{lemma:list-af is a t1-specification}. We need to prove that, given a linearization $\mathit{lin}$ that is a strict time-stamp order candidate, and $o_1,o_2 \in \mathit{lin}$, such that $o_1$ and $o_2$ are concurrent and adjacent in $\mathit{lin}$, and $o_1$ and $o_2$ have the same time-stamp in $h$. Then, $l = \mathit{swap}(\mathit{lin},o_1,o_2)$ is also a linearization and is also a strict time-stamp order candidate. It is obvious that $l$ is still a strict time-stamp order candidate.
+
+Let $o_1 = (\ell_1,\mathit{id}_1,S_1)$ and $o_2 = (\ell_2,\mathit{id}_2,S_2)$. Since $o_1$ and $o_2$ are concurrent, we know that $\mathit{id}_1 \notin S_2 \wedge \mathit{id}_2 \notin S_1$. Assume $\mathit{lin} = l_1 \cdot o_1 \cdot o_2 \cdot l_2$. Assume in the abstract state of $\mathit{reg}_s$, we have $\sigma_0 {\xrightarrow{l_1}} \sigma_1 {\xrightarrow{o_1}} \sigma_2 {\xrightarrow{o_2}} \sigma_3 {\xrightarrow{l_2}} \sigma_4$, where $\sigma_0$ is the initial state of $\mathit{OR}$-$\mathit{set}_s$. Then, we need to prove that, there exists $\sigma'_2$, such that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$. We prove this by consider all the possible cases:
+
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $o_1 = (\mathit{write}(a_1),\mathit{id}_1,S_1)$ and $o_2 = (\_,\mathit{id}_2,S_2)$: This case is impossible. We can see that the time-stamp of $a$ is larger than operations in $S_1$, and thus, the time-stamp of $o_1$ is the time-stamp of $a$. Since $\mathit{id}_1 \notin S_2$, we know that the time-stamp of $o_2$ is different from that of $o_1$, contradicts the assumption that $o_1$ and $o_2$ have same time-stamp.
+
+\item[-] If $o_1 = (\_,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{write}(a_2),\mathit{id}_2,S_2)$: Similarly, we can prove that this case is impossible.
+
+\item[-] If $o_1 = (\mathit{read}() \Rightarrow a_1,\mathit{id}_1,S_1)$ and $o_2 = (\mathit{read}() \Rightarrow a_2,\mathit{id}_2,S_2)$: Let $\sigma'_2 = \sigma_1$. Then, it is easy to see that $\sigma_1 {\xrightarrow{o_2}} \sigma'_2 {\xrightarrow{o_1}} \sigma_3$.
+\end{itemize}
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+With Lemma \ref{lemma:list-af is a t1-specification} and Lemma \ref{lemma:reg is a t1-specification}, we can now prove Lemma \ref{lemma:several t1-specifications}.
+
+\SeveralTOneSpecifications*
+
+\begin {proof}
+This lemma holds obviously from Lemma \ref{lemma:list-af is a t1-specification} and Lemma \ref{lemma:reg is a t1-specification}. $\qed$
+\end {proof}
+
+
+
+
+
+
+
+
+
+\subsection{Proof of Lemma \ref{lemma:several t0-specifications can be composed}}
+\label{subsec:appendix proofs of lemma several t0-specifications can be composed}
+
+\composingTZero*
+\begin {proof}
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
+
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
+
+\item[-] We begin a loop as follows: In each round of the loop, we choose an operation $o$ that is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+\end{itemize}
+
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. By the definition of t0-specifications, we know that, for each object $\mathit{obj}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. Therefore, $h$ is distributed linearizable.
+
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$, then it is easy to see that $\mathit{vis}^*$ has cycle, which contradicts the assumption that $\mathit{vis}^*$ is acyclic. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+\end {proof}
+
+
+
+
+
+\subsection{Proof of Lemma \ref{lemma:several t0-specifications and one t1-specification can be composed}}
+\label{subsec:appendix proofs of lemma several t0-specifications and one t1-specification can be composed}
+
+
+\composingTZeroAndOneTOne*
+\begin {proof}
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{obj}_1$ be the only object that uses t1-specification, and let $\mathit{objs}_0$ be the set of other objects. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
+
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
+
+\item[-] We begin a loop as follows: in each round of the loop, we choose an operation $o$ shown below, and then let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] either $o$ is of an operation of $\mathit{objs}_0$ and is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$,
+
+    \item[-] or $o$ is of an operation of $\mathit{obj}_1$, is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, and has the minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
+    \end{itemize}
+\end{itemize}
+
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for operation of $\mathit{obj}_1$, $\mathit{lin}$ is consistent with time-stamp. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
+
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. Let $o_0$ be the operation that is of object $\mathit{obj}_1$ and has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$. It is obvious that $o_0 \notin S_1$. Therefore, there exists operations $o_1,\ldots,o_k$, such that $o_1 \in S_1$, $o_1$ is of object $\mathit{obj}_1$, $(o_1,o_2),\ldots,(o_k,o_0) \in \mathit{vis}$. Since the visibility is transitive, we have that $(o_1,o_0) \in \mathit{vis}$. We already know that the time-stamp of $o_0$ is less than that of $o_1$. This contradicts the assumption that time-stamp is consistent with visiblity. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+
+%Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, $o$ is of object $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $O'$. Thus, let $o_1 \in S_1$ be the operation that has minimal time-stamp among operations in $S_1$. We can see that there exists $o_2 \in O'$, such that $o_2$ is of object $\mathit{obj}_1$, $o_2 \notin S_1$, and the time-stamp of $o_2$ is less than that of $o_1$. Since $o_2 \notin S_1$, we can see that there exists operation $o_3 \in S_1$, such that $(o_3,o_2) \in \mathit{vis}$. We can see that the time-stamp of $o_1$ is less than that of $o_3$, and thus, the time-stamp of $o_2$ is less than that of $o_3$. Therefore, we found that the time-stamp is not consistent with visibility order for $o_2$ and $o_3$, which contradicts the assumption that time-stamp is consistent with visiblity. $\qed$
+\end {proof}
+
+
+
+
+
+
+\subsection{Proof of Lemma \ref{lemma:several t0-specifications and several t1-specification can be composed}}
+\label{subsec:appendix proofs of lemma several t0-specifications and several t1-specification can be composed}
+
+
+\composingTZeroAndTOne*
+\begin {proof}
+Assume that $h = (\mathit{Op},\mathit{ro},\mathit{vis})$. Let $\mathit{objs}_0$ be the set of objects that use t0-specifications in $h$, and let $\mathit{objs}_1$ be the set of objects that use t1-specifications in $h$. We need to prove that, if $h \uparrow_{\mathit{obj}}$ is distributed linearizable for each object $\mathit{obj}$ of $h$, then $h$ is distributed linearizable.
+
+We construct a linearization $\mathit{lin}$ of $h$ in a process as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Initially a set $\mathit{Op}' = \mathit{Op}$ and $\mathit{lin} = \epsilon$.
+
+\item[-] We begin a loop as follows: in each round of the loop, we choose an operation $o$ shown below, and then let $\mathit{Op}' = \mathit{Op}' \setminus \{ o \}$, and let $\mathit{lin} = \mathit{lin} \cdot o$.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] either $o$ is of an operation of objects in $\mathit{objs}_0$ and is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$,
+
+    \item[-] or $o$ is of an operation of object $\mathit{obj}_1 \in \mathit{objs}_1$, is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$, and has the minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
+    \end{itemize}
+\end{itemize}
+
+If this process terminates with $\mathit{Op}' = \emptyset$: Then it is easy to see that $\mathit{lin}$ is consistent with $\mathit{vis}$, and thus, for each object $\mathit{obj}$, it is easy to see that $\mathit{lin} \uparrow_{\mathit{obj}}$ is consistent with $\mathit{vis} \uparrow_{\mathit{obj}}$. It is also easy to see that for each object $\mathit{ojb}_1 \in \mathit{objs}_1$, $\mathit{lin}$ is consistent with time-stamp of $\mathit{obj}_1$. By the definition of t0-specifications, we know that, for each object $\mathit{obj} \in \mathit{objs}_0$, $\mathit{lin} \uparrow_{\mathit{obj}}$ is a linearization of $h \uparrow_{\mathit{obj}}$. By the definition of t1-specifications, we know that, for each object $\mathit{obj}_1 \in \mathit{objs}_1$, $\mathit{lin} \uparrow_{\mathit{obj}_1}$ is a linearization of $h \uparrow_{\mathit{obj}_1}$. Therefore, $h$ is distributed linearizable.
+
+Let us prove that this process terminates with $\mathit{Op}' = \emptyset$ by contradiction: Assume this process terminates with $\mathit{Op}' \neq \emptyset$. Let set $S_1 = \{ o' \vert o'$ is minimal w.r.t $\mathit{vis}$ in $\mathit{Op}'$ $\}$. Then, we can see that, for each operation $o \in S_1$, there exists a object $\mathit{obj}_1 \in \mathit{objs}_1$, such that $o$ is of $\mathit{obj}_1$, and $o$ does not have minimal time-stamps among operations of $\mathit{obj}_1$ in $\mathit{Op}'$.
+
+Let $S_2 = \{ o \vert \exists \mathit{obj}_1 \in \mathit{objs}_1, o$ is of object $\mathit{obj}_1, o$ has minimal time-stamp among operations of $\mathit{obj}_1$ in $\mathit{Op}' \}$. It is easy to see that $\forall o \in S_2$, $o \notin S_1$.
+
+Thus, it is easy to see that, for each operation $o' \in S_2$, there exists an operation $o \in S_1$ and operations $o'_1,\ldots,o'_k$, such that $(o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis}$. Since the visibility relation is transitive, we have that $(o,o') \in \mathit{vis}$.
+
+Let $S_3 = \{ (o,o') \vert o \in S_1, o' \in S_2, \exists o'_1,\ldots,o'_k, (o,o'_1),(o'_1,o'_2),\ldots,(o'_k,o') \in \mathit{vis} \}$. Let $S_4 = \{ (\mathit{obj},\mathit{obj}') \vert \exists (o,o') \in S_3$, $o$ is of object $\mathit{obj}$, $o'$ is of object $\mathit{obj}' \}$.
+
+Let us prove that there is a cycle in $S_4$ by contradiction. Given $(\mathit{obj}_2,\mathit{obj}_1) \in S_4$, we know that there is a operation of object of $\mathit{obj}_2$ in $S_1$, and thus, there must exists a operation of object of $\mathit{obj}_2$ in $S_2$. By definition of $S_2$, it is easy to see that there exists $\mathit{obj}_3$, such that $(\mathit{obj}_3,\mathit{obj}_2) \in S_4$. Since $S_4$ has no cycle, we applying this process and finally terminate with $(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1) \in S_4$ and could not found any $\mathit{obj}'$ to make $(\mathit{obj}',\mathit{obk}_k) \in S_4$. However, this implies that there is a operation of $\mathit{obj}_k$ that has minimal time-stamp among operations of $\mathit{obj}_k$ in $\mathit{Op}'$, and is in $S_1$. This contradicts our conclusion that $\forall o \in S_2$, $o \notin S_1$. Therefore, this is a cycle in $S_4$.
+
+Let the cycle in $S_4$ be $(\mathit{obj}_1,\mathit{obj}_k),(\mathit{obj}_k,\mathit{obj}_{\mathit{k-1}}),\ldots,(\mathit{obj}_2,\mathit{obj}_1)$. Then, there exists operations $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}},\ldots, o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$, such that
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $o^{0}_{\mathit{o1}}, o^{1}_{\mathit{o1}}$ is of object $\mathit{obj}_1$, $\ldots$, $o^{0}_{\mathit{ok}}, o^{1}_{\mathit{ok}}$ is of object $\mathit{obj}_k$.
+
+\item[-] $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in S_3$.
+\end{itemize}
+
+Thus, it is easy to see $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},$ $o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in \mathit{vis}$. By definition of $S_2$, we can see that $\mathit{ts}(o^{0}_{\mathit{o1}}) < \mathit{ts}(o^{1}_{\mathit{o1}}), \ldots, \mathit{ts}(o^{0}_{\mathit{ok}}) < \mathit{ts}(o^{1}_{\mathit{ok}})$. This contradicts the definition of causal-time-stamp. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+\end {proof}
 }
