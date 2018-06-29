@@ -370,7 +370,7 @@ captionpos=b,label={lst:or-set}]
       //@ let lin = lin@|$\,\cdot\,$|@readIds(a)@|$\Rightarrow$|@R@|$\,\cdot\,$|@remove(a,R)
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ R@|$'$|@ = {(a,k) | @|$\exists\ \alabel$|@ = add(a,k)@|$\Rightarrow$|@, (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
+      //@ R = {(a,k) | @|$\exists\ \alabel$|@ = add(a,k)@|$\Rightarrow$|@, (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
                              @|$ \forall\ \alabel'$|@ = remove(a,*)@|$\Rightarrow$|@, {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
       //@ S@|$'$|@ = S @|$\setminus$|@ R@|$'$|@
 
