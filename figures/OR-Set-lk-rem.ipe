@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180629103737" modified="D:20180629103737"/>
+<info created="D:20180629103737" modified="D:20180629105153"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -335,7 +335,7 @@ h
 <text matrix="1 0 0 1 -47 -10.7" transformations="translations" pos="144 800" stroke="black" type="label" width="32.873" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{add(a_2)}</text>
 <text matrix="1 0 0 1 116 -77.8" transformations="translations" pos="144 800" stroke="black" type="label" width="58.527" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{remove(\{a_3\})}</text>
 <text matrix="1 0 0 1 78 -10.8" transformations="translations" pos="144 800" stroke="black" type="label" width="58.527" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{remove(\{b_1\})}</text>
-<text matrix="1 0 0 1 -51 -26" transformations="translations" pos="144 800" stroke="black" type="label" width="19.396" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{b_1}\}</text>
+<text matrix="1 0 0 1 -55 -26" transformations="translations" pos="144 800" stroke="black" type="label" width="19.396" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{b_1}\}</text>
 <text matrix="1 0 0 1 157 -60" transformations="translations" pos="144 800" stroke="black" type="label" width="33.257" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{b_1, b_4}\}</text>
 <text matrix="1 0 0 1 -58 -59" transformations="translations" pos="144 800" stroke="black" type="label" width="19.396" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{a_3}\}</text>
 <text matrix="1 0 0 1 120 -26" transformations="translations" pos="144 800" stroke="black" type="label" width="33.257" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{a_2, a_3}\}</text>
