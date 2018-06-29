@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180627013826"/>
+<info created="D:20151003110714" modified="D:20180629142212"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -300,36 +300,6 @@ h
 <path stroke="black">
 92 312 m
 144 312 l
-</path>
-<text matrix="1 0 0 1 299.205 -100" transformations="translations" pos="64 436" stroke="black" type="label" width="78.746" height="6.926" depth="1.93" valign="baseline">$\ensuremath{\ell} \in \ensuremath{\mathsf{Query}}$-$\ensuremath{\mathsf{Updates}}$</text>
-<text matrix="1 0 0 1 299.205 -112" transformations="translations" pos="64 436" stroke="black" type="label" width="60.312" height="7.473" depth="2.49" valign="baseline">$\gamma(\ensuremath{\ell}) = ( \ensuremath{\ell}_1, \ensuremath{\ell}_2 )$</text>
-<text matrix="1 0 0 1 399.205 -76" transformations="translations" pos="64 436" stroke="black" type="label" width="27.553" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{abs}}( \ensuremath{\sigma} )$</text>
-<path matrix="1 0 0 1 -28 0" stroke="black" arrow="normal/normal">
-504 356 m
-504 320 l
-</path>
-<text matrix="1 0 0 1 415.205 -100" transformations="translations" pos="64 436" stroke="black" type="label" width="8.62" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell_1}$</text>
-<text matrix="1 0 0 1 399.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="27.553" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathsf{abs}}( \ensuremath{\sigma} )$</text>
-<path matrix="1 0 0 1 -28 -48" stroke="black" arrow="normal/normal">
-504 356 m
-504 320 l
-</path>
-<text matrix="1 0 0 1 415.205 -148" transformations="translations" pos="64 436" stroke="black" type="label" width="8.62" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell_2}$</text>
-<text matrix="1 0 0 1 399.205 -172" transformations="translations" pos="64 436" stroke="black" type="label" width="39.204" height="7.49" depth="2.49" valign="baseline">$\exists$ $\ensuremath{\mathsf{abs}}( \ensuremath{\sigma}&apos; )$</text>
-<path matrix="1 0 0 1 -24 0" stroke="black" arrow="normal/normal">
-384 356 m
-384 272 l
-</path>
-<text matrix="1 0 0 1 295.205 -76" transformations="translations" pos="64 436" stroke="black" type="label" width="6.05" height="4.289" depth="0" valign="baseline">$\ensuremath{\sigma}$</text>
-<text matrix="1 0 0 1 295.205 -172" transformations="translations" pos="64 436" stroke="black" type="label" width="8.845" height="7.49" depth="0" valign="baseline">$\ensuremath{\sigma&apos;}$</text>
-<path matrix="1 0 0 1 -24 0" stroke="black">
-392 364 m
-484 364 l
-</path>
-<text matrix="1 0 0 1 343.205 -192" transformations="translations" pos="64 436" stroke="black" type="label" width="12.06" height="7.473" depth="2.49" valign="baseline">$(c)$</text>
-<path stroke="black">
-372 268 m
-460 268 l
 </path>
 </page>
 </ipe>
