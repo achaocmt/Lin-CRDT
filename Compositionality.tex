@@ -1,35 +1,102 @@
 %!TEX root = draft.tex
 %\newcommand{\seqPQ}{\mathsf{SeqPQ}}
 
-\section{Compositionality of Distributed Linearizability}
-\label{sec:compositionality of distributed linearizability}
+\section{Compositionality of \CRDTLin{}}
+\label{sec:compositionality}
 
-\textblue{
-This section should give three results of the form: if $o_1$ is linearizable w.r.t. $S_1$ and $o_2$ is linearizable w.r.t. $S_2$, and ???, then $o_1 \otimes o_2$ is linearizable w.r.t. $S_1\times S_2$ (the 2-object spec defined by interleavings). ??? may be an additional condition, while $\otimes$ is an "operator" for composing two CRDT implementations. Every result will have a different $\otimes$ operator.
-\begin{itemize}
-\item \gpnote*{}{Start with some counter-examples of compositionality (Check with the intro)}
-\item T0 + T0: ??? = $S_1$ and $S_2$ are $T0$-specs, and $\otimes$ is the trivial composition (the "unsynchronized" product)
-\item T1 + T1: ??? = $S_1$ and $S_2$ are $T1$-specs, and $\otimes$ is the "shared counter" composition (the "unsynchronized" product with a restriction on the set of generated histories)
-\item T0 + T1: ??? = $S_1$ is a $T_0$ spec, and $S_2$ is a $T1$-spec, and $\otimes$ is the "global causal delivery" composition (the "unsynchronized" product with a restriction on the set of generated histories)
-\end{itemize}
-Also, we should prove that composing two $T0$, resp., $T1$, specs results in a $T0$, resp., $T1$ spec, and composing a $T0$ with $T1$ results in a $T1$. With this, the extension to sets of objects is straightforward:  compose all $T0$ and independently, all $T1$, then compose the two resulting objects.}
+%\textblue{
+%This section should give three results of the form: if $o_1$ is linearizable w.r.t. $S_1$ and $o_2$ is linearizable w.r.t. $S_2$, and ???, then $o_1 \otimes o_2$ is linearizable w.r.t. $S_1\times S_2$ (the 2-object spec defined by interleavings). ??? may be an additional condition, while $\otimes$ is an "operator" for composing two CRDT implementations. Every result will have a different $\otimes$ operator.
+%\begin{itemize}
+%\item \gpnote*{}{Start with some counter-examples of compositionality (Check with the intro)}
+%\item T0 + T0: ??? = $S_1$ and $S_2$ are $T0$-specs, and $\otimes$ is the trivial composition (the "unsynchronized" product)
+%\item T1 + T1: ??? = $S_1$ and $S_2$ are $T1$-specs, and $\otimes$ is the "shared counter" composition (the "unsynchronized" product with a restriction on the set of generated histories)
+%\item T0 + T1: ??? = $S_1$ is a $T_0$ spec, and $S_2$ is a $T1$-spec, and $\otimes$ is the "global causal delivery" composition (the "unsynchronized" product with a restriction on the set of generated histories)
+%\end{itemize}
+%Also, we should prove that composing two $T0$, resp., $T1$, specs results in a $T0$, resp., $T1$ spec, and composing a $T0$ with $T1$ results in a $T1$. With this, the extension to sets of objects is straightforward:  compose all $T0$ and independently, all $T1$, then compose the two resulting objects.}
 
-\gpnote*{}{Are there things that are neither T0 nor T1?: Not in our paper}
+%\gpnote*{}{Are there things that are neither T0 nor T1?: Not in our paper}
 
-\subsection{Formalization}
+%\fxwarning[nomargin, inline]{introduce this section}
+
+In this section we investigate the issue of whether the composition of a set of objects satisfying RA-linearizability is also \crdtlinearizable{}. While we show that this is not true in general, we identify a set of correctness conditions which imply RA-linearizability and a set of requirements on the composition of the objects which ensure that the composition is \crdtlinearizable{} (under the assumption that the objects satisfy those correctness conditions). The correctness conditions are exactly those proved in Section~\ref{sec:proofs}, i.e., admitting execution-order or timestamp-order linearizations, and the requirements on the object composition refer to sharing the same network (for sending downstreams) or sharing the same timestamp generator.
+
+\subsection{Object Compositions and \CRDTLin{}}
+
+Given two objects $\aobj_1$ and $\aobj_2$, the semantics of their composition $\aobj_1\comp \aobj_2$ is defined as the product of the LTSs corresponding to $\aobj_1$ and $\aobj_2$, respectively. Formally, given $\llbracket \aobj_1 \rrbracket =(\globalstates_1,\acts_1,\aglobalstate_0^1,\rightarrow_1)$ and $\llbracket \aobj_2 \rrbracket =(\globalstates_2,\acts_2,\aglobalstate_0^2,\rightarrow_2)$, we define $\llbracket \aobj_1\comp \aobj_2 \rrbracket =(\globalstates_1\times \globalstates_2,\acts_1\cup \acts_2,(\aglobalstate_0^1,\aglobalstate_0^2),\rightarrow_{1,2})$ where 
+\begin{align*}
+\rightarrow_{1,2} = & \{ ((\aglobalstate_1,\aglobalstate_2),\aact_1,(\aglobalstate_1',\aglobalstate_2)): (\aglobalstate_1,\aact_1,\aglobalstate_1')\in\rightarrow_1\} \\
+& \cup\ \{ ((\aglobalstate_1,\aglobalstate_2),\aact_2,(\aglobalstate_1,\aglobalstate_2')): (\aglobalstate_2,\aact_2,\aglobalstate_2')\in\rightarrow_2\}
+\end{align*}
+Given an execution $e$ of $\llbracket \aobj_1\comp \aobj_2 \rrbracket$ ending in a global configuration $((\gstates_1,
+\avisord_1, \downstreams_1),(\gstates_2,\avisord_2, \downstreams_2))$, the \emph{history} of $e$, denoted by $\hist{e}$, is the pair
+$(\labeldom{\avisord_1\cup \avisord_2}, \avisord_1\cup\avisord_2)$. Note that $\avisord_1\cup\avisord_2$ may not be a partial order in general.
+Also, the history of a trace $\atrace$ of $\llbracket \aobj_1\comp \aobj_2 \rrbracket$, denoted by $\hist{\atrace}$, is the history of the execution that corresponds to $\atrace$.
+Given two specifications $\Spec_1$ and $\Spec_2$ of two objects $\aobj_1$ and $\aobj_2$, respectively, their composition $\Spec_1\comp \Spec_2$ is defined as the set of sequences $(\alabelset,\aseqord)$ such that their projection on labels of $\aobj_1$, resp., $\aobj_2$, is admitted by $\Spec_1$, resp., $\Spec_2$. Given two objects  $\aobj_1$ and $\aobj_2$ with specifications $\Spec_1$ and $\Spec_2$, respectively, we say that their composition $\aobj_1\comp \aobj_2$ is \emph{\crdtlinearizable{}} if every history of $\aobj_1\comp \aobj_2$ is \crdtlinearizable{} w.r.t. $\Spec_1\comp \Spec_2$. The extension of implementation and specification composition to a set of objects is defined as usual. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.35 \textwidth]{figures/TwoSubLin-NotaGlobalLin.pdf}
+%\vspace{-5pt}
+  \caption{An example of a history with two OR-Set objects showing that per-object \crdtlinearization{s} cannot be combined to a global \crdtlinearization{}. Every operation is delivered only to the origin replica and therefore, the visibility relation is defined by the horizontal lines (read from left to right).}
+  \label{fig:negative_composition}
+\end{figure}
+
+The standard notion of linearizability~\cite{HerlihyW90} ensures that the composition of a set of linearizable objects is also linearizable. More precisely, it ensures that for every history, any per-object linearizations, concerning the operations of a single object, can be combined into a global linearization, concerning all the operations in the history. By combining linearizations, we mean constructing a global linearization whose projections on the operations of a single object are exactly the per-object linearizations considered in the beginning.
+However, this is not true for our notion of RA-linearizability. An example of a history showing this fact is given in Figure~\ref{fig:negative_composition}. This history contains operations of two OR-Set objects $\aobj_1$ and $\aobj_2$, the operations of $\aobj_1$ being represented using blank circles and the operations of $\aobj_2$ using filled circles. The operations of $\aobj_1$ can be linearized to $\aobj_1.\alabelshort[{\tt add}]{c}\cdot \aobj_1.\alabelshort[{\tt add}]{d}$ (this is a valid \crdtlinearization{} since any sequence of ${\tt add}$ operations is admitted by $\Spec_{???}$) while the operations of $\aobj_2$ to $\aobj_2.\alabelshort[{\tt add}]{a}\cdot \aobj_2.\alabelshort[{\tt add}]{b}$. There is no \crdtlinearization{} of this history whose projections on each of the two objects correspond to these per-object linearizations: trying to construct a linearization where $\aobj_2.\alabelshort[{\tt add}]{a}$ occurs before $\aobj_2.\alabelshort[{\tt add}]{b}$ will imply that $\aobj_1.\alabelshort[{\tt add}]{d}$ must occur before $\aobj_1.\alabelshort[{\tt add}]{c}$ (since it must be consistent with the visibility relation), which contradicts the linearization of $\aobj_1$, and similarly for the other case, when trying to construct a global linearization consistent with the linearization of $\aobj_2$'s operations. An experienced reader may notice that this discrepancy between standard linearizability and RA-linearizability comes from the fact that the partial order defining a history in the case of standard linearizability is actually an interval order~\footnote{A partial order $R$ is an interval-order if $\{(a,b), (c,d)\} \subseteq R$ implies that $(a,d) \in R$ or $(c,b) \in R$, for every $a,b,c,d$.}, while in the case of RA-linearizability is an arbitrary partial order.
+
+\subsection{Composing Objects That Admit Execution-Order Linearizations}
+
+Although not all per-object \crdtlinearization{s} can be combined into global \crdtlinearization{s}, this may still be true in particular cases. For instance, let us consider again the history in Figure~\ref{fig:negative_composition}. The operations of $\aobj_1$ can also be linearized to $\aobj_1.\alabelshort[{\tt add}]{d}\cdot \aobj_1.\alabelshort[{\tt add}]{c}$ which enables a global \crdtlinearization{} $\aobj_1.\alabelshort[{\tt add}]{d}\cdot \aobj_2.\alabelshort[{\tt add}]{a}\cdot \aobj_2.\alabelshort[{\tt add}]{b}\cdot \aobj_1.\alabelshort[{\tt add}]{c}$ whose projection on individual objects is consistent with the per-object linearizations (for $\aobj_2$, we consider the same linearization $\aobj_2.\alabelshort[{\tt add}]{a}\cdot \aobj_2.\alabelshort[{\tt add}]{b}$ as above).
+
+Next, we consider a class of \crdtlinearizable{} objects for which there always exist per-object \crdtlinearization{s} that can be combined into global \crdtlinearization{s}, which implies that their composition is \crdtlinearizable{}. Actually, this class of objects are exactly those that admit execution-order linearizations and the proof methodology described in Section~\ref{subsec:time order of execution as linearization}. While Section~\ref{subsec:time order of execution as linearization} presented execution-order linearizations in an informal way, we give hereafter a formal definition. Intuitively, an object $\aobj$ admits execution-order linearizations when the history of every trace (execution) can be linearized in the order in which operations are executed at the origin replica.
 
 \begin{definition}
-An object $\aobj$ which is \crdtlinearizable{} w.r.t. a specification $\Spec$ admits \emph{execution-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\src{\_}{\alabel_1}$ occurs before $\src{\_}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
+Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$. We say that $\aobj$ admits \emph{execution-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
 \end{definition}
 
-\begin{lemma}
-Let $\atrace$ be a trace of an object $\aobj$ and $\hist{\atrace}=(\alabelset,\avisord)$ its history. Then, for every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$ (i.e., $(\avisord
-    \cup \alinord)^{+}$ is acyclic), there exists a trace $\atrace'$ of $\aobj$ such that $\src{\_}{\alabel_1}$ occurs before $\src{\_}{\alabel_2}$ in $\atrace'$ iff $\alabel_1$ occurs before $\alabel_2$ in $\alinord$.
-\end{lemma}
+In the following, we show that the composition of a set of \crdtlinearizable{} objects that admit execution-order linearizations is also \crdtlinearizable{} and moreover, it also admits execution-order linearizations. A first preliminary result states that the order in which ``concurrent'' operations are executed at the origin replica can be permuted arbitrarily while still leading to a valid trace. More precisely, for every linearization $\alinord$ of the visibility relation in the history of a trace, there exists another valid trace where operations are executed at the origin replica in the order defined by $\alinord$.
 
-\begin{lemma}
+\begin{lemma}\label{lem:trace_closure}
+Let $\atrace$ be a trace of an object $\aobj$ and $\hist{\atrace}=(\alabelset,\avisord)$ its history. Then, for every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$ (i.e., $(\avisord
+    \cup \alinord)^{+}$ is acyclic), there exists a trace $\atrace'$ of $\aobj$ such that $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$ in $\atrace'$ iff $\alabel_1$ occurs before $\alabel_2$ in $\alinord$.
+\end{lemma}
+\begin{proof}(Skech)
+TODO
+\end{proof}
+
+Lemma~\ref{lem:trace_closure} implies that given an \crdtlinearizable{} object, if it admits execution-order linearizations, then every linearization of a history of $\aobj$ is a valid \crdtlinearization{}.
+
+\begin{lemma}\label{lem:t0_lin}
 Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$ and admits execution-order linearizations. Then, for every history $\ahist=(\alabelset,\avisord)$ of $\aobj$ and every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$, we have that $(\alabelset,\alinord)$ is an \crdtlinearization{} of $\ahist$ w.r.t. $\Spec$.
 \end{lemma}
+\begin{proof}(Skech)
+TODO
+\end{proof}
+
+Lemma~\ref{lem:t0_lin} is the essential ingredient for proving that the composition of a set of \crdtlinearizable{} objects that admit execution-order linearizations is also \crdtlinearizable{}. Intuitively, given a history $\ahist$ with multiple such objects, any linearization of $\ahist$ is a valid \crdtlinearization{} since each of its projections on the set of operations of a single object is a linearization of the per-object visibility relation and thus, a valid \crdtlinearization{} of that object.
+
+\begin{theorem}
+The composition of a set of \crdtlinearizable{} objects that admit execution-order linearizations is \crdtlinearizable{}. Moreover, the composition admits execution-order linearizations.
+\end{theorem}
+\begin{proof}(Skech)
+TODO
+\end{proof}
+
+%\begin{definition}[\tzerolin{}]
+%\label{definition:t0-linearizability}
+%A single-object history $\ahis$ is \tzerolinearizable{} w.r.t a sequential specification \Spec{}, if $\ahis$ is \crdtlinearizable{} w.r.t \Spec{}, and each specification sequence $(\alabelset, \aseqord)$ consistent with visibility order is a \crdtlinearization{}.
+%\end{definition}
+
+\subsection{Composing Objects That Admit Timestamp-Order Linearizations}
+
+%We say a specification sequence $(\alabelset, \aseqord)$ be consistent with timestamp order, if the time-stamp of operation $\aobj_1$ being less than the timestamp of $\aobj_2$ implies that $\aobj_1$ being before $\aobj_2$ in $\aseqord$, and if $(\aobj_3,\aobj_4) \in \avisord$, then the timestamp of $\aobj_3$ is less or equal to the timestamp of $\aobj_4$.
+%
+%\begin{definition}[\tonelin{}]
+%\label{definition:t1-linearizability}
+%A single-object history $\ahis$ is \tonelinearizable{} w.r.t a sequential specification \Spec{}, if $\ahis$ is \crdtlinearizable{} w.r.t \Spec{}, and each specification sequence $(\alabelset, \aseqord)$ consistent with visibility order and timestamp order is a \crdtlinearization{}.
+%\end{definition}
+
+
 
 For a history $\ahist=(\alabelset,\avisord)$, we define a timestamp mapping $\atsm{\ahist}:\alabelset\rightarrow \timestampdomain$ such that $\atsm{\ahist}(\alabel)=\tsof(\alabel)$ if $\tsof(\alabel)\neq\bot$ and $\atsm{\ahist}(\alabel)=\mathsf{max}\, \{\tsof(\alabel'):(\alabel',\alabel)\in \avisord \}$, otherwise.
 
@@ -43,40 +110,6 @@ For a history $\ahist=(\alabelset,\avisord)$, let $\atsord$ be an order between 
 \begin{lemma}
 Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$ and admits timestamp-order linearizations. Then, for every history $\ahist=(\alabelset,\avisord)$ of $\aobj$ and every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$ and $\atsord$, we have that $(\alabelset,\alinord)$ is an \crdtlinearization{} of $\ahist$ w.r.t. $\Spec$.
 \end{lemma}
-
-\subsection{T0-Linearizability and T1-Linearizability}
-\label{subsec:t0-linearizability and t1-linearizability}
-
-In this section, our goal is to give a modular verification for \crdtlin. Let us start with how to ensure the compositionality of a history. A history $\ahis$ is compositional, if when we prove that for each object $\aobj$, $\ahis \uparrow_{\aobj}$ is \crdtlinearizable{} w.r.t the corresponding specification $\Spec$, then, we obtain that $\ahis$ is \crdtlinearizable{}.
-
-
-In \figurename~\ref{fig:an example of linearization of single objects do not imply a linearization of the whole history} we show an example when \crdtlinearization{} of single objects can not be used to construct the \crdtlinearization{} of the whole history. The history $\ahis$ of \figurename~\ref{fig:an example of linearization of single objects do not imply a linearization of the whole history} contains operations of two or-set objects $\aobj_1$ and $\aobj_2$. To distinguish them, the operations of $\aobj_1$ is drew with unfilled circle while the operations of $\aobj_2$ is drew with filled circle, and we list the object of each operation. We can see that $\mathit{add}(a) \cdot \mathit{add}(b)$ and $\mathit{add}(c) \cdot \mathit{add}(d)$ are \crdtlinearization{} for $\ahis \uparrow_{\aobj_1}$ and $\ahis \uparrow_{\aobj_2}$, respectively. However, since composing these two \crdtlinearization{} brings a cycle, there can not be any \crdtlinearization{} of $\ahis$ consistent with these two \crdtlinearization{} of $\ahis \uparrow_{\aobj_1}$ and $\ahis \uparrow_{\aobj_2}$.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.35 \textwidth]{figures/TwoSubLin-NotaGlobalLin.pdf}
-\vspace{-10pt}
-  \caption{An example where \crdtlinearization{} of single objects, $\mathit{add}(a) \cdot \mathit{add}(b)$ and $\mathit{add}(c) \cdot \mathit{add}(d)$, can not be used to generate \crdtlinearization{} of the whole history.}
-  \label{fig:an example of linearization of single objects do not imply a linearization of the whole history}
-\end{figure}
-
-A order $R$ is a interval-order, if $(\aop_1,\aop_2), (\aop_3,\aop_4) \in R$ implies that $(o_1,o_4) \in R \vee (o_3,o_2) \in R$. There is a difference between \crdtlin{} and the linearizability of \cite{HerlihyW90}: the visibility relation of \crdtlin{} is not a interval-order, while the happen-before relation in \cite{HerlihyW90} is a interval-order. The compositionality proof of \cite{HerlihyW90} proves that we can compose linearization of projection of each object into a linearization of the whole history, and such proof relies on the property of interval-order.
-
-Although we can not directly compose smaller \crdtlinearization{} into a bigger \crdtlinearization{} directly, we can do this work by using some permutations of smaller \crdtlinearization{}. For example, for the history $\ahis$ of \figurename~\ref{fig:an example of linearization of single objects do not imply a linearization of the whole history}, we can see that $\mathit{write}(d) \cdot \mathit{write}(c)$, a permutation of \crdtlinearization{} $\mathit{write}(c) \cdot \mathit{write}(d)$ that preserves visibility relation, is also a \crdtlinearization{} of operations of $\aobj_2$, and $\ahis$ has a \crdtlinearization{} $\mathit{write}(d) \cdot \mathit{write}(a) \cdot \mathit{write}(b) \cdot \mathit{write}(c)$, which is consistent with both $\mathit{write}(a) \cdot \mathit{write}(b)$ and $\mathit{write}(d) \cdot \mathit{write}(c)$. Based on above intuition, we propose \tzerolin{} and \tonelin{}. Both of them are sub-class of \crdtlin{} and require that certain permutation of a \crdtlinearization{} is still a \crdtlinearization{}.
-
-\begin{definition}[\tzerolin{}]
-\label{definition:t0-linearizability}
-A single-object history $\ahis$ is \tzerolinearizable{} w.r.t a sequential specification \Spec{}, if $\ahis$ is \crdtlinearizable{} w.r.t \Spec{}, and each specification sequence $(\alabelset, \aseqord)$ consistent with visibility order is a \crdtlinearization{}.
-\end{definition}
-
-We say a specification sequence $(\alabelset, \aseqord)$ be consistent with timestamp order, if the time-stamp of operation $\aobj_1$ being less than the timestamp of $\aobj_2$ implies that $\aobj_1$ being before $\aobj_2$ in $\aseqord$, and if $(\aobj_3,\aobj_4) \in \avisord$, then the timestamp of $\aobj_3$ is less or equal to the timestamp of $\aobj_4$.
-
-\begin{definition}[\tonelin{}]
-\label{definition:t1-linearizability}
-A single-object history $\ahis$ is \tonelinearizable{} w.r.t a sequential specification \Spec{}, if $\ahis$ is \crdtlinearizable{} w.r.t \Spec{}, and each specification sequence $(\alabelset, \aseqord)$ consistent with visibility order and timestamp order is a \crdtlinearization{}.
-\end{definition}
-
-
 
 
 
