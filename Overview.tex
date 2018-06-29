@@ -61,6 +61,15 @@ interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
 \subsection{System Model}
 \label{sec:sys-model}
 
+
+\begin{wrapfigure}{r}{0.55\textwidth}
+% \begin{figure}[t]
+  \centering
+  \includegraphics[scale=1]{figures/sys-mod}
+  \caption{CRDT System Model}
+  \label{fig:sys-mod}
+% \end{figure}
+\end{wrapfigure}
 We assume that the system is comprised of multiple nodes in a network.
 In this work we will be concerned with the implementation of CRDTs,
 and we will usually concentrate our discussion to the behaviors
@@ -69,13 +78,6 @@ We will generically call such an instance an \emph{object}.
 As mentioned in~\autoref{sec:introduction} we assume that objects are
 replicated among the participating nodes of the system -- which we
 shall call replicas.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[scale=.3]{figures/sys-mod}
-  \caption{CRDT System Model}
-  \label{fig:sys-mod}
-\end{figure}
 
 \gpwarning{Redraw pictures.}
 The execution model for an operation \lstinline|op(v)| on a replicated
@@ -183,6 +185,12 @@ tree with timestamp \lstinline|ts|$_{\mathtt{b}}$ and whose parent is the item
 The tree-ness property will be ensured by construction.
 
 
+\begin{wrapfigure}{l}{.3\textwidth}
+  \centering
+  \includegraphics[scale=.9]{figures/simple-ti-tree}
+  \caption{RGA Ti-tree example.}
+  \label{fig:rga-tree}
+\end{wrapfigure} 
 If we look at the \lstinline|atSource| portion of the
 \lstinline|addAfter(a,b)| method we can see that precondition requires
 the \lstinline|a| to exist in the tree before the insertion of
@@ -219,9 +227,9 @@ the tree (eg. siblings) are not related necessarily causally related.
 %   tree resulting from concurrent operations, but this does not affect
 %   the correctness of the algorithm.}
 %
-An example of such a tree is shown in~\ref{fig:rga-tree}.
+An example of such a tree is shown in~\autoref{fig:rga-tree}.
 
-Considering a \lstinline|Ti-tree| constructed in this way, we can
+ Considering a \lstinline|Ti-tree| constructed in this way, we can
 obtain a list by traversing the tree in pre-order fashion, with the
 proviso that siblings are ordered according to their timestamps with
 the highest timestamp traversed first.
@@ -229,10 +237,6 @@ the highest timestamp traversed first.
 \autoref{fig:rga-tree} shows the tree that results from the given
 tree.
 
-
-\gpnote*{By Chao. Should be elsewhere}{
-\figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
-}
 
 \begin{figure}[t]
   \centering
@@ -242,13 +246,10 @@ tree.
   \label{fig:how RGA works}
 \end{figure}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[scale=.25]{figures/simple-ti-tree}
-  \caption{RGA Ti-tree example.}
-  \label{fig:rga-tree}
-\end{figure}
 
+\gpnote*{By Chao. Should be elsewhere}{
+\figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
+}
 
 We have so far ignored the \lstinline|remove| operation.
 %
@@ -370,7 +371,7 @@ captionpos=b,label={lst:or-set}]
       //@ let lin = lin@|$\,\cdot\,$|@readIds(a)@|$\Rightarrow$|@R@|$\,\cdot\,$|@remove(a,R)
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ R = {(a,k) | @|$\exists\ \alabel$|@ = add(a,k)@|$\Rightarrow$|@, (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
+      //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k)@|$\Rightarrow$|@, (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
                              @|$ \forall\ \alabel'$|@ = remove(a,*)@|$\Rightarrow$|@, {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
       //@ S@|$'$|@ = S @|$\setminus$|@ R@|$'$|@
 
@@ -470,7 +471,7 @@ operation were to be issued, the result would be the set
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.30 \textwidth]{./figures/OR-Set-simple}
+  \includegraphics[width=0.40 \textwidth]{./figures/OR-Set-simple}
   \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
   \includegraphics[width=0.90 \textwidth]{./figures/OR-Set-lk-rem}
   \caption{OR-Set non-linearizable execution.}
