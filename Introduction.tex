@@ -9,16 +9,16 @@ distributed application under the presence of network partitions.
 CRDTs represent a methodological approach to the problem of retaining
 data-Consistency and Availability under network Partitions (CAP),
 famously known to be an impossible combination of requirements by the
-CAP theorem~\cite{GilbertL02}.
+CAP theorem of~\citet{GilbertL02}.
 %
 CRDTs are data types designed to favor availability over consistency
-by replicating the data type instances across multiple nodes of a
+by replicating the type instances across multiple nodes of a
 network, and allowing different nodes to temporarily have different
-views of the same data type instance.
+views of the same instance.
 %
 However, CRDTs guarantee that the different states of the multiple
 nodes will \emph{eventually} converge to a unique state common to all
-nodes.
+nodes~\cite{Burckhardt14}.
 %
 Importantly, this \emph{convergence property} is intrinsic to the data
 type design and in general no synchronization is needed among nodes,
@@ -26,12 +26,13 @@ hence achieving availability.
 
 \paragraph{Availability vs. Consistency}
 To illustrate the problem we will consider the implementation of a
-CRDT to implement a list-like object (usually used for text-editing
+CRDT to implement a List-like object (usually used for text-editing
 applications).
 %
 We will base our discussion on the Replicated Growing Array (RGA) due
-to~\cite{RohJKL11}.\footnote{We use the code as shown
-  in~\cite{ShapiroPBZ11} to be consistent with the rest of the paper.}
+to~\cite{RohJKL11}.\footnote{We use a variation of code extracted
+  from~\cite{ShapiroPBZ11} to be consistent with the rest of the
+  paper.}
 %
 RGA supports three simple operations:
 \begin{inparaenum}
@@ -60,24 +61,27 @@ The naive approach would require the synchronization of all the
 replicas for each operation, thus maintaining coherence.
 %
 Alas, this naive approach would render the system unavailable if any
-one replicas goes off-line.
+one replica goes off-line.
 %
 
 Instead of this naive approach, RGA takes the liberty of allowing any
-of the replicas to modify the local copy of the list immediately --
+of the replicas to modify the \emph{local} copy of the list immediately --
 and hence return control to the client -- and lazily propagate the
 updates to all the other replicas at later point in time.
 %
 For instance, assuming that we have an initial list containing the
-sequence \lstinline|[a,b,e,f]| and two replicas, $\arep_1$ and
-$\arep_2$, if $\arep_1$ inserts the letter \lstinline|c| after
-\lstinline|b| (by calling \lstinline|addAfter(b, c)|), while $\arep_2$
-concurrently inserts the letter \lstinline|d| after \lstinline|b|
-(\lstinline|addAfter(b, d)|) the replicas will have the states
-\lstinline|[a,b,c,e,f]| and \lstinline|[a,b,d,e,f]|
+sequence $\mathtt{a \cdot b \cdot e \cdot f}$\footnote{We will use
+  $s_0 \cdot s_1$ to denote the composition of sequences $s_0$ and
+  $s_1$ throughout the paper.}
+and two replicas, $\arep_1$ and $\arep_2$, if $\arep_1$ inserts the
+letter \lstinline|c| after \lstinline|b| (by calling
+\lstinline|addAfter(b, c)|), while $\arep_2$ concurrently inserts the
+letter \lstinline|d| after \lstinline|b| (\lstinline|addAfter(b, d)|)
+the replicas will have the states $\mathtt{a \cdot b \cdot c \cdot e
+  \cdot f}$ and $\mathtt{a \cdot b \cdot d \cdot e \cdot f}$
 respectively.
 %
-We have solved the availability problem, but we have introduced
+We have solved the availability problem but we have introduced
 inconsistent states across the system.
 %
 This problem is only exacerbated if we consider that any replica could
@@ -86,21 +90,21 @@ serve any operation in this way at any point in time.
 \paragraph{Convergence}
 
 To return to a consistent state across the system in the presence of
-concurrent updates CRDTs guarantee that under conflicting operations --
+concurrent updates, CRDTs guarantee that under conflicting operations --
 that is, operations that could lead to different states as shown above
 --, there is a systematic way to \emph{detect conflicts}, and moreover, there
-is a strategy \emph{deterministically solve conflicts} which will be followed
+is a strategy to \emph{deterministically solve conflicts} which will be followed
 by all replicas. 
 
-{\color {red}CW: Here ``detect conflict'' may confuse the readers. When we do the downstream, we do not distinguish whether this downstream comes from a concurrent operation or from a visible operation.}
-\gpnote[nomargin, inline]{I don't think it's confusing or inaccurate.
-  The downstream + algorithm already embeds the conflict resolution
-  mechanism (timestamps, vector clocks, etc.). So the conflict
-  detection + resolution is there.}
+% {\color {red}CW: Here ``detect conflict'' may confuse the readers. When we do the downstream, we do not distinguish whether this downstream comes from a concurrent operation or from a visible operation.}
+% \gpnote[nomargin, inline]{I don't think it's confusing or inaccurate.
+%   The downstream + algorithm already embeds the conflict resolution
+%   mechanism (timestamps, vector clocks, etc.). So the conflict
+%   detection + resolution is there.}
 
 \ce{To simplify, the RGA uses now timestamps that are simply integers. The following text assumes that timestamps are pairs of replica ids and local clocks.}
 
-\ce{I would say that for RGA, two \lstinline|addAfter| operations conflict only if they try to add something after exactly the same element (like in the example given above). And this conflict is solved looking at the timestamps. The next paragraph uses a more general notion of conflict.}
+% \ce{I would say that for RGA, two \lstinline|addAfter| operations conflict only if they try to add something after exactly the same element (like in the example given above). And this conflict is solved looking at the timestamps. The next paragraph uses a more general notion of conflict.}
 
 In the specific case of RGA, the implementation adds metadata to each
 item added to the list identifying the originating replica as well as
@@ -119,21 +123,26 @@ presented in the next section, it is enough to know that whenever
 two \lstinline|addAfter| operations have conflicted by simply
 comparing the replica identifiers and their timestamps.
 %
+In fact, this is a sound over-approximation of conflict since two
+concurrent \lstinline|addAfter| operations have a real conflict only
+if their first arguments are the same (eg. the element \lstinline|a|
+in the example aforementioned).
+%
 In such case, the strategy to resolve the conflict will always chose
 to order first in the resulting list the character added with the
-lowest timestamp, and in the particular case where the timestamps
-should be the same, an arbitrary order among replicas will be chosen.
+highest timestamp, and in the particular case where the timestamps
+should be the same, an arbitrary order among replicas will be used.
 %
 Going back to the example above, and assuming that the character
 \lstinline|c| was added with timestamp $t_1$ and the character
 \lstinline|d| was added with timestamp $t_2$, if we assume that $t_1 \leq
 t_2$ for some order $\leq$ between timestamps, then the list will
-converge to \lstinline|[a,b,c,d,e]|.
+converge to $\mathtt{a \cdot b \cdot c \cdot d \cdot e}$.
 %
 We obtain the same result if $t_1 = t_2$ and, assuming that we have a replica
-order $<_r$, $\arep_1 <_r \arep_2$.
+order $<_r$, we have $\arep_1 <_r \arep_2$.
 %
-In any other case we obtain \lstinline|[a,b,d,c,e]|.
+In any other case we obtain $\mathtt{a \cdot b \cdot d \cdot c \cdot e}$.
 
 At this point we can know that if the effects of all operations are
 delivered to all replicas eventually, the replicas will converge to
@@ -161,7 +170,7 @@ Unfortunately this is not an easy task.
 %
 Many times the programmer has no option but to read the implementation
 of the data type to understand how the metadata is used to detect and
-resolve conflicts, for instance reading the algorithms
+resolve conflicts, for instance by reading the algorithms
 in~\cite{ShapiroPBZ11} (an exceptional case where the algorithms are
 particularly well documented).
 %
@@ -185,8 +194,8 @@ Inspired by Linearizability~\cite{HerlihyW90} and the literature of
 shared-memory concurrency we propose a \emph{new consistency criterion
   for CRDTs}, which we call \emph{\CRDTLin{}} (\CRDTLinshort{}).
 %
-\CRDTLinshort{} both simplifies their specifications, and for which we
-can give correctness proof strategies.
+\CRDTLinshort{} both simplifies CRDT specifications, and allows us to
+give correctness proof strategies for these specifications.
 %
 To satisfy the \CRDTLinshort{} criterion a data type must be so that
 any execution of a client interacting with an instance of the data
@@ -196,8 +205,8 @@ type
   linearization) of its updates -- where we assume that all updates
   are executed sequentially--, and}
 \item any operation reading the state of the data type instance should
-  be reachable by executing only a sub-sequence of the above mentioned
-  sequence.
+  be reachable by executing only a \emph{sub-sequence} of the above
+  mentioned sequence.
 \end{inparaenum}
 For instance, for the RGA example shown above, the state of the final
 list should be reachable by considering a sequence where all
@@ -206,28 +215,28 @@ list should be reachable by considering a sequence where all
   in~\autoref{sec:overview}.}
 %
 This definition shares some similarities with the one proposed
-in~\cite{PerrinMJ14}, we will address the main differences
+in~\cite{PerrinMJ14}. We will address the main differences
 in~\autoref{sec:rel-work}.
 
 Equipped with this criterion we show how many existing CRDTs can be
 shown to be \crdtlinearizable{}.
 %
-We provide both, their specification as \CRDTLinshort{} and proofs
+We provide both, their specification as \CRDTLinshort{}, and proofs
 showing that an implementation is faithful to this specification.
 %
-Encouragingly, most of the the CRDTs discussed in~\cite{ShapiroPBZ11}
+Encouragingly, most of the the CRDTs discussed by~\citet{ShapiroPBZ11}
 are \CRDTLinshort{}.
 
 Given that our criterion is inspired by
-linearizability~\cite{HerlihyW90}, it is natural to ask whether it
+linearizability~\cite{HerlihyW90} it is natural to ask whether it
 preserves the same modularity properties as shown
-in~\cite{HerlihyW90}.
+by~\citet{HerlihyW90}.
 %
 We shown that this is general not true, but we identify classes of
 CRDT implementations, based on the conflict-resolution strategy that
 they implement, for which modularity can be achieved.
 
-\gpwarning[nomargin, inline]{Don't know if we should say more here.}
+% \gpwarning[nomargin, inline]{Don't know if we should say more here.}
 
 The paper is structured as follows:
 \begin{inparaitem}
