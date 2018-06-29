@@ -539,7 +539,7 @@ Additionally, we need the following definitions:
 
 Given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, $\igconfres(s)$ is the local state obtained by applying downstreams of $s$ in the order of $s$.
 
-\item[-] From $\igconfres(s)$, we generate a abstract state $\gconfres'(s)$. Latter we will prove that $\gconfres'(s)$ satisfies the requirement of $\gconfres$.
+\item[-] From $\igconfres(s)$, we generate a abstract state $\gconfres'(s)$. Latter we will prove that $\gconfres'$ satisfies the requirement of $\gconfres$.
     
     We use a refinement mapping $\refmap$ that maps $\igconfres(s)$ into $\gconfres'(s)$. %Or we can say, $\refmap{}(\igconfres(s)) = \gconfres(s)$.
 \end{itemize}
@@ -565,21 +565,31 @@ Then, we need to prove the following properties:
 
 With above definitions and properties, our proof proceed as follows: 
 
-\noindent {\bf Correctness of $\gconfres'$:} Given sequences $s_1$ and $s_2$, such that both $s_1$ and $s_2$ are consistent with $\avisord$ and are closed under $\avisord^{-1}$, and $s_1$ is a permutation of $s_2$. Then, since any two downstreams that correspond to two ``concurrent'' operations commute, we can see that $\igconfres(s_1)$ = $\igconfres(s_2)$. Since $\mathsf{Refinement}$ holds, we have transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)$ and $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$. Thus, $\gconfres'(s_1) = \gconfres'(s_2)$. 
+\noindent {\bf Prove correctness of $\gconfres'$:} We prove that $\gconfres'$ satisfies the requirement of $\gconfres$ as follows: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Given sequences $s_1$ and $s_2$, such that both $s_1$ and $s_2$ are consistent with $\avisord$ and are closed under $\avisord^{-1}$, and $s_1$ is a permutation of $s_2$. Then, since any two downstreams that correspond to two ``concurrent'' operations commute, we can see that $\igconfres(s_1)$ = $\igconfres(s_2)$. Since $\mathsf{Refinement}$ holds, we have transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)$ and $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$. Thus, $\gconfres'(s_1) = \gconfres'(s_2)$. 
+    
+    Moreover, let $s_3$ be the projection of $\alinord$ into operations of $s_1$. Similarly, we can prove that $\gconfres'(s_1) = \gconfres'(s_3)$.  
+
+\item[-] $\mathsf{ConsistentChoice}$: Given $s_1$ and $s_2$, such that they are both consistent with $\avisord$ and closed under $\avisord^{-1}$, and $s_1$ is a sub-sequence of $s_2$. Obviously $s_1 \cdot (s_2 - s_1)$ is closed under $\avisord^{-1}$. 
+    
+    We prove that $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$ by contradiction. Assume that $s_1 \cdot (s_2 - s_1)$ is not consistent with $\avisord$. Since $s_1$ and $s_2$ are consistent with $\avisord$, this implies that, there exists $a,b$, such that, $a \in s_1$, $b \in s_2 - s_1$, and $(b,a) \in \avisord$. Or we can say, $(b,a) \in \avisord^{-1}$, $a \in s_1$, $b \notin s_1$. This contradicts the assumption that $s_1$ is closed under $\avisord^{-1}$. Therefore, $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$. 
+    
+    Since $s_2$ and $s_1 \cdot (s_2 - s_1)$ are consistent with $\avisord$ and closed under $\avisord^{-1}$, we know that there exists $\igconfres(s_2)$ and $\igconfres(s_1 \cdot (s_2 - s_1))$. By $\mathsf{Refinement}$, we know that there exist transitions $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$ and transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)\xRightarrow{s_2 - s_1}^*\gconfres'(s_1 \cdot (s_2 - s_1))$. 
+    
+    Obviously, $s_2$ is a permutation of $s_1 \cdot (s_2 - s_1)$. As discussed above, we can see that $\gconfres'(s_2) = \gconfres'(s_1 \cdot (s_2 - s_1))$. 
+\end{itemize}
+
+\noindent {\bf Prove $\mathsf{ReplicaStates}$:} $\mathsf{ReplicaStates}$ holds since any two downstreams that correspond to two ``concurrent'' operations commute. 
+
+\noindent {\bf Prove $\mathsf{Refinement}$:} This is specific to implementations. 
+
+\noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in Section \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$. 
 
 
-
-
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
-
-
-
-
-We have applied this methodology to a range of CRDT objects described in~\cite{ShapiroPBZ11}, and we have identified two instances which differ in the way in which the linearization $\alinord$ is extended (when executing \lstinline|atSource|). For the first class of objects that includes the OR-Set in Listing~\ref{lst:or-set}, the linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed, i.e., every new operation executing \lstinline|atSource| is appended to the current linearization (\S~\ref{subsec:time order of execution as linearization}). We say that such objects admit \emph{execution-order linearizations}.
-The second class of objects that includes the RGA object in Listing~\ref{lst:rga}, supports \CRDTLinshort{} proofs in which the linearization is built based on timestamps, e.g., $\alinord$ is consistent with the order between the timestamps generated by operations (\S~\ref{subsec:time-stamp order as linearizabtion}). We say that such objects admit \emph{timestamp-order linearizations}.
-
-\gpnote[nomargin, inline]{I agree with the content. Some rewriting is needed.}
+We have applied this methodology to Wooki and Tree-Doc. For Wooki and Tree-Doc, we use execution-order linearizations. The linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed. 
 
 
 
