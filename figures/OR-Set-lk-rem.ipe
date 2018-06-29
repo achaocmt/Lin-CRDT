@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180629103737" modified="D:20180629105153"/>
+<info created="D:20180629103737" modified="D:20180629114414"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -256,7 +256,7 @@ h
 <view layers="alpha" active="alpha"/>
 <path layer="alpha" stroke="black">
 48 784 m
-448 784 l
+464 784 l
 </path>
 <use matrix="1 0 0 1 -152 540" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
 <path matrix="1 0 0 1 -80 16" stroke="black">
@@ -271,7 +271,7 @@ h
 <text matrix="1 0 0 1 -83 -8" transformations="translations" pos="144 800" stroke="black" type="label" width="32.873" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{add(b_1)}</text>
 <path stroke="black">
 64 736 m
-448 736 l
+464 736 l
 </path>
 <text matrix="1 0 0 1 -4.695 348" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" halign="right" valign="baseline" style="math">\ensuremath{\mathtt{r}}_1:</text>
 <text matrix="1 0 0 1 -4.695 300" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" halign="right" valign="baseline" style="math">\ensuremath{\mathtt{r}}_2:</text>
@@ -364,5 +364,15 @@ h
 272 736 l
 </path>
 <text matrix="1 0 0 1 53 -77.8" transformations="translations" pos="144 800" stroke="black" type="label" width="55.012" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{lk(a)\!\Rightarrow\!\{a_3\}}</text>
+<use matrix="1 0 0 1 216 540" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 208 16" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 208 16" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 208 16" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 232 492" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 224 -32" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 224 -32" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 224 -32" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<text matrix="1 0 0 1 270 -12.8" transformations="translations" pos="144 800" stroke="black" type="label" width="65.698" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{read()\!\Rightarrow\!\{a, b\}}</text>
+<text matrix="1 0 0 1 286 -77.8" transformations="translations" pos="144 800" stroke="black" type="label" width="65.698" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{read()\!\Rightarrow\!\{a, b\}}</text>
 </page>
 </ipe>

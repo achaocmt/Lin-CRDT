@@ -232,10 +232,11 @@ An example of such a tree is shown in~\autoref{fig:rga-tree}.
  Considering a \lstinline|Ti-tree| constructed in this way, we can
 obtain a list by traversing the tree in pre-order fashion, with the
 proviso that siblings are ordered according to their timestamps with
-the highest timestamp traversed first.
+the \emph{highest timestamp visited first}.
 %
-\autoref{fig:rga-tree} shows the tree that results from the given
-tree.
+\autoref{fig:rga-tree} shows a tree that results in the list
+$\mathtt{a \cdot b \cdot c}$ assuming that the timestamp order is $\mathtt{ts_a
+  < ts_c < ts_b}$. 
 
 
 \begin{figure}[t]
@@ -390,6 +391,12 @@ captionpos=b,label={lst:or-set}]
       %                  @|$\land\,\forall\ \alabel' = \alabellongind[{\tt remove}]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[{\tt remove}]{a,R})\}\not\subseteq \avisord\}$|@
       % //@ S@|$'$|@ = S @|$\setminus$|@ R
 
+\begin{wrapfigure}[7]{r}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.45 \textwidth]{./figures/OR-Set-simple}
+  \caption{Interleaving-based set}
+  \label{fig:or-set-simple}
+\end{wrapfigure}
 The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11},
 this time implementing a Set interface with methods: \lstinline|add(a)|,
 \lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
@@ -405,7 +412,6 @@ concurrent operations.
 Consider for example the case where two replicas add a certain element
 \lstinline|a| and then one of them removes that element.
 %
-% \gpnote[nomargin, inline]{Add picture.}
 If we consider an interleaving based execution of these operations
 there are two options depending on the interleaving:
 \begin{inparaenum}[i)]
@@ -414,11 +420,11 @@ there are two options depending on the interleaving:
   \lstinline|add(a)| operations are idempotent, and the
   \lstinline|remove| would remove the only occurrence of
   \lstinline|a|. This interleaving is the one depicted with solid
-  arrows at the top of~\autoref{fig:or-set-not-lin}.
+  arrows in~\autoref{fig:or-set-simple}.
 \item On the other hand, if the operation \lstinline|add(a)| of the
   non-removing process comes last, the final set could contain the
   element \lstinline|a| as depicted with the dashed arrows
-  in~\autoref{fig:or-set-not-lin}.
+  in~\autoref{fig:or-set-simple}.
 \end{inparaenum}
 As we have explained before, in our system model the operations can
 arrive in one order to one replica and in a different order to another
@@ -451,21 +457,42 @@ being we ignore the lines marked with a comment (\lstinline|//@|).
 \fxwarning[nomargin, inline]{If queries are discussed already for RGA, here we should focus more on the rewriting of labels}
 
 \paragraph{Intuition of OR-Set Linearizability}
-\gpnote{Add reads at the end of the pictures.}
+% \gpnote{Add reads at the end of the pictures.}
 
+\begin{figure}[t]
+  \begin{subfigure}{1.0\linewidth}
+    \centering
+    \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
+    \caption{OR-Set non-linearizable execution.}
+    \label{fig:or-set-not-lin}
+  \end{subfigure}
+  \bigskip
+  \bigskip
+
+  \begin{subfigure}{1.0\linewidth}
+    \centering
+    \includegraphics[width=0.95 \textwidth]{./figures/OR-Set-lk-rem}
+    \caption{Label rewriting of an OR-Set execution.}
+    \label{fig:or-set-lk-rem}
+  \end{subfigure}
+  \caption{OR-Set Linearizability vs. \CRDTLinshort{}}
+\end{figure}
 
 It is easy to find examples where the implementation of OR-Set can
 produce executions which cannot be justified by standard definition of
 linearizability (they are not even sequentializable)
 of~\citet{HerlihyW90} assuming a standard set specification.
 %
-\gpwarning{Redraw this picture properly.}
+% \gpwarning{Redraw this picture properly.}
 \autoref{fig:or-set-not-lin} shows one such example.
 %
 For simplicity we assume here that we have two clients, each executing
 in one of two replicas as their source, issuing the sequences of
-operations \lstinline|add(b);add(a);remove(b)| and
-\lstinline|add(a);add(b);remove(a)| respectively.
+operations \lstinline|add(b);add(a);remove(b);read()| and
+\lstinline|add(a);add(b);remove(a);read()| respectively.
+%
+The final reads are added only to exhibit the state as perceived by
+each replica through the API of the object. 
 %
 Clearly any linearization a la~\citet{HerlihyW90} should end with a
 \lstinline|remove| operation, and therefore the final set should have
@@ -475,15 +502,6 @@ at most one element, contrary to that, in the final set we obtain:
 In other words, if in any of the replicas a \lstinline|read()|
 operation were to be issued, the result would be the set
 \{\lstinline|a, b|\} .
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.40 \textwidth]{./figures/OR-Set-simple}
-  \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
-  \includegraphics[width=0.90 \textwidth]{./figures/OR-Set-lk-rem}
-  \caption{OR-Set non-linearizable execution.}
-  \label{fig:or-set-not-lin}
-\end{figure}
 
 For our definition of \CRDTLinshort{} we will distinguish between
 \emph{update} and \emph{query} operations.
@@ -540,7 +558,7 @@ to be removed.
 Any identifier not in this set will remain in the set after the update
 part of the remove.
 %
-The second part of~\autoref{fig:or-set-not-lin} shows this rewriting
+\autoref{fig:or-set-lk-rem} shows this rewriting
 where we denote by \lstinline|lk| (for lookup) the query part of
 remove, which returns a set of elements to be removed, and a
 \lstinline|remove| operation taking a set of elements to be removed.

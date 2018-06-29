@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180629100742" modified="D:20180629104258"/>
+<info created="D:20180629100742" modified="D:20180629114207"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -344,5 +344,15 @@ h
 <text matrix="1 0 0 1 154 -11" transformations="translations" pos="144 800" stroke="black" type="label" width="24.851" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{a, b}\}</text>
 <text matrix="1 0 0 1 118 -43" transformations="translations" pos="144 800" stroke="black" type="label" width="24.851" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{a, b}\}</text>
 <text matrix="1 0 0 1 166 -43" transformations="translations" pos="144 800" stroke="black" type="label" width="24.851" height="7.473" depth="2.49" valign="baseline" style="math">\{\mathtt{a, b}\}</text>
+<use matrix="1 0 0 1 104 556" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 96 32" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 96 32" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 96 32" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 120 508" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 112 -16" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 112 -16" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 112 -16" name="mark/disk(sx)" pos="240 768" size="normal" stroke="black"/>
+<text matrix="1 0 0 1 170 5.2" transformations="translations" pos="144 800" stroke="black" type="label" width="65.698" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{read()\!\Rightarrow\!\{a, b\}}</text>
+<text matrix="1 0 0 1 174 -61.8" transformations="translations" pos="144 800" stroke="black" type="label" width="65.698" height="7.473" depth="2.49" valign="bottom" style="math">\mathtt{read()\!\Rightarrow\!\{a, b\}}</text>
 </page>
 </ipe>
