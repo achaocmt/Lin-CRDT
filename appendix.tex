@@ -64,7 +64,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
 \subsection{The Wooki Algorithm}
 \label{subsec:the Wooki algorithm}
 
-The Wooki algorithm of \ref{the paper of Wooki} is given in Listing~\ref{lst:wooki algorithm}. Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
+The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
 
 In local of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $<id,v,degree,flag>$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$. We use $degree(w)$ to denote the degree of $w$.
 
@@ -423,7 +423,7 @@ This completes the proof of this lemma. $\qed$
 
 Recall that a sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
-Similarly as in Section \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{} with non-deterministic sequential specifications. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates. We say a sequence $s$ is closed under a relation $R$, if when $a$ is in $s$ and $(a,b) \in R$, we have $b$ also in $s$. 
+Similarly as in Section \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{} with non-deterministic sequential specifications. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates. We say a sequence $s$ is closed under a relation $R$, if when $a$ is in $s$ and $(a,b) \in R$, we have $b$ also in $s$.
 
 \begin{definition}
 \label{definition:ralinearizability1 with non-deterministic specifications}
@@ -433,7 +433,7 @@ A history $h = (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\cup\upd
 
 \item the projection of $\aseqord$ to \emph{updates} is admitted by $\Spec$, i.e. $\aseqord\!\downarrow_{\updates} \in \Spec$,
 
-\item There exists a function $\gconfres: \labels^* \rightarrow \abstates$ (Here the name $\gconfres$ is short for global conflict resolution). Given sequence $s \in \labels^*$, $\gconfres(s)$ is defined as follows: assume $\abstate_0$ is the initial abstract state of \Spec{},
+\item There exists a function $\gconfres: \labels^* \rightarrow \abstates$ (Here the name $\gconfres$ is short for global conflict resolution). Given sequence $s \in \labels^*$, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, $\gconfres(s)$ is defined as follows: assume $\abstate_0$ is the initial abstract state of \Spec{},
 
 $$ \gconfres(s)=\left\{
 \begin{aligned}
@@ -449,8 +449,8 @@ Moreover, we require function $\gconfres$ to satisfy a property called $\mathsf{
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\mathsf{ConsistentChoice}$: Given two sub-sequences $s_1,s_2$, such that $s_1$ and $s_2$ are both consistent with $\avisord{}$, and $s_1$ and $s_2$ are both closed under $\avisord{}^{-1}$. Then, $\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$, where $s_2 - s_1$ denotes the sequences obtained from $s_2$ by removing elements of $s_1$. 
-        
+\item[-] $\mathsf{ConsistentChoice}$: Given two sub-sequences $s_1,s_2$, such that $s_1$ and $s_2$ are both consistent with $\avisord{}$, $s_1$ and $s_2$ are both closed under $\avisord{}^{-1}$, and $s_1$ is a sub-sequence of $s_2$. Then, $\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$, where $s_2 - s_1$ denotes the sequences obtained from $s_2$ by removing elements of $s_1$.
+
 %$\mathsf{ConsistentChoice}$: Given two sub-sequences $s_1,s_2$ of $\aseqord\!\downarrow_{\updates}$, if $s_2$ contains more operations than $s_1$, and both $\gconfres(s_1)$ and $\gconfres(s_2)$ are defined, then, $\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$, where $s_2 - s_1$ denotes the sequences obtained from $s_2$ by removing elements of $s_1$.
 \end{itemize}
 
@@ -459,7 +459,7 @@ Moreover, we require function $\gconfres$ to satisfy a property called $\mathsf{
 In this case we say that $(\alabelset, \aseqord)$ is an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.
 \end{definition}
 
-Let us explain Definition \ref{definition:ralinearizability1 with non-deterministic specifications}. Although $\Spec{}$ is non-deterministic, we use $\gconfres(s)$ to remember our choice for operation sequence $s$. Our definition need to concern two aspects: 
+Let us explain Definition \ref{definition:ralinearizability1 with non-deterministic specifications}. Although $\Spec{}$ is non-deterministic, we use $\gconfres(s)$ to remember our choice for operation sequence $s$. Our definition need to concern two aspects:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -467,9 +467,9 @@ Let us explain Definition \ref{definition:ralinearizability1 with non-determinis
 
 \item[-] Unique Choice in Specification: We should get rid of histories that have several operations that use ``Inconsistent non-deterministic choice''.
 
-An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history. 
+An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history.
 
-Since $\alabellong[{\tt read}]{}{c \cdot b}{}$ and $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ see different operations, our convergence requirement is not enough to rule them out. Instead, the $\mathsf{ConsistentChoice}$ condition is able to rule them out. $\mathsf{ConsistentChoice}$ essentially represents that, a ``bigger state'' follows the same choice in a ``smaller'' state. 
+Since $\alabellong[{\tt read}]{}{c \cdot b}{}$ and $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ see different operations, our convergence requirement is not enough to rule them out. Instead, the $\mathsf{ConsistentChoice}$ condition is able to rule them out. $\mathsf{ConsistentChoice}$ essentially represents that, a ``bigger state'' follows the same choice in a ``smaller'' state.
 \end{itemize}
 
 \begin{figure}[t]
@@ -505,9 +505,9 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential sp
 
 
 \subsection{Proof Methodology for \crdtlin{} w.r.t Non-Deterministic Sequential Specifications}
-\label{subsec:proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications} 
+\label{subsec:proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}
 
-In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-deterministic sequential specifications. Our methodology is similar for proving \crdtlin{} w.r.t deterministic sequential specifications in Section \ref{ssec:proof-methodology}. 
+In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-deterministic sequential specifications. Our methodology is similar for proving \crdtlin{} w.r.t deterministic sequential specifications in Section \ref{ssec:proof-methodology}.
 
 %The similar points are as follows:
 
@@ -531,67 +531,49 @@ In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-
     %\end{itemize}
 %\end{itemize}
 
-We do the following constructions: 
+Additionally, we need the following definitions:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We introduce a function $\igconfres: \labels^* \rightarrow \states$ to explicitly record the consequence of applying downstreams. Given a sequence $s$ of dwonstream consistent with visibility relation, $\igconfres(s)$ is the local state obtained by applying downstreams of $s$ in the order of $s$. 
+\item[-] We introduce a function $\igconfres: \labels^* \rightarrow \states$ to explicitly record the consequence of applying downstreams. 
 
-\item[-] For each local state $\igconfres(s)$, we generate a abstract state $\gconfres(s)$, and the refinement mapping $\refmap$ maps $\igconfres(s)$ into $\gconfres(s)$. Or we can say, $\refmap{}(\igconfres(s)) = \gconfres(s)$. 
+Given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, $\igconfres(s)$ is the local state obtained by applying downstreams of $s$ in the order of $s$.
+
+\item[-] From $\igconfres(s)$, we generate a abstract state $\gconfres'(s)$. Latter we will prove that $\gconfres'(s)$ satisfies the requirement of $\gconfres$.
+    
+    We use a refinement mapping $\refmap$ that maps $\igconfres(s)$ into $\gconfres'(s)$. %Or we can say, $\refmap{}(\igconfres(s)) = \gconfres(s)$.
 \end{itemize}
 
-$\igconfres(s)$ may be undefined for some sequence $s$, for example, apply the downstream of $\alabelshort[{\tt remove}]{a}$ when no downstream of inserting $a$ has been applied. Here the name $\igconfres$ is short for global conflict resolution in implementations.
+%$\igconfres(s)$ may be undefined for some sequence $s$, for example, apply the downstream of $\alabelshort[{\tt remove}]{a}$ when no downstream of inserting $a$ has been applied. 
 
-Then, we need to prove the following properties: 
+Here the name $\igconfres$ is short for global conflict resolution in implementations.
+
+Then, we need to prove the following properties:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We prove that any two downstreams that correspond to two ``concurrent'' operations commute. 
+\item[-] We prove that any two downstreams that correspond to two ``concurrent'' operations commute.
 
-\item[-] We prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres(s)$ in a way as follows:  
+\item[-] We prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ in a way as follows:
 
 \begin{enumerate}
-\item If both $\igconfres(s)$ and $\igconfres(s \cdot \alabel)$ has definition, and both $s$ and $s \cdot \alabel$ are consistent with the visibility relation. Then, $\gconfres(s)\xRightarrow{\alabel}\gconfres(s \cdot \alabel)$, where $\xRightarrow{\alabel}$ is the transition function of $\Spec$, and 
-
-\item if a query $\alabel$ is applied on a state $\igconfres(s)$ or it is introduced by a rewriting of a query-update that executes \lstinline|atSource| on a state $\igconfres(s)$, then $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
+\item If $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, obviously $\igconfres(s \cdot \alabel)$ is obtained from $\igconfres(s)$ by applying the downstream of $\alabel$. Then, we require that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$. 
+    
+\item if a query $\alabel$ is applied on a state $\igconfres(s)$ or it is introduced by a rewriting of a query-update that executes \lstinline|atSource| on a state $\igconfres(s)$, then $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$. 
 \end{enumerate}
-\end{itemize}
+\end{itemize} 
 
-From each local state $\igconfres(s)$, we generate a abstract state $\gconfres(s)$, and the refinement mapping $\refmap$ maps $\igconfres(s)$ into $\gconfres(s)$. Or we can say, $\refmap{}(\igconfres(s)) = \gconfres(s)$.
+With above definitions and properties, our proof proceed as follows: 
+
+\noindent {\bf Correctness of $\gconfres'$:} Given sequences $s_1$ and $s_2$, such that both $s_1$ and $s_2$ are consistent with $\avisord$ and are closed under $\avisord^{-1}$, and $s_1$ is a permutation of $s_2$. Then, since any two downstreams that correspond to two ``concurrent'' operations commute, we can see that $\igconfres(s_1)$ = $\igconfres(s_2)$. Since $\mathsf{Refinement}$ holds, we have transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)$ and $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$. Thus, $\gconfres'(s_1) = \gconfres'(s_2)$. 
 
 
-In our proof of  Similar as in Section \ref{sec:proofs}, we prove that any two downstreams that correspond to two ``concurrent'' operations commute.
-
-The only difference is that, since the definition of linearization in Definition \ref{definition:ralinearizability1 with non-deterministic specifications} is more complex than that of Definition \ref{definition:ralinearizability1}, we need to prove more things: We need to prove that, given the global sequence of update operations $s$ and a sub-sequence $s_1$ of $s$ whose transitions has definition in sequential specifications, in sequential specification, the abstract state obtained by executing $s_1$ is a ``sub-state'' of that of $s$.
-
-Similar as in the proof of or-set, for Wooki, the linearization $\aseqord$ is defined by the order in which the {\tt atSource} procedures are executed, i.e., every new operation executing {\tt atSource} is added at the end of the current linearization.
 
 
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 
-To prove that this is an inductive invariant we rely on additional
-assertions describing the effect of each downstream (we provide
-examples in the following subsections), and also, a proof that:
-\begin{itemize}
-%\setlength{\itemsep}{0.5pt}
-\item[-] $\mathsf{Refinement}$: each downstream produced by an update $\alabel$ and respectively, each query $\alabel$, is simulated by the application of $\alabel$ in the specification $\Spec$.
-\end{itemize}
-The proof of $\mathsf{Refinement}$ relies on a \emph{refinement
-  mapping}~\cite{earlierLamport,AbadiL91} between replica states and states of the
-specification, denoted by $\refmap$. The proof goals require that for
-any two replica states $\sigma$ and $\sigma'$,
-\begin{enumerate}
-        \item if $\sigma'$ is obtained from $\sigma$ by applying a
-          downstream $\delta$ produced by an update $\alabel$, then
-          \mbox{$\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$},
-          where $\xRightarrow{\alabel}$ is the transition function of
-          $\Spec$, and
-        \item if a query $\alabel$ is applied on a state $\sigma$ or
-          it is introduced by a rewriting of a query-update that
-          executes \lstinline|atSource| on a state $\sigma$, then
-          $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
-\end{enumerate}
+
 
 
 We have applied this methodology to a range of CRDT objects described in~\cite{ShapiroPBZ11}, and we have identified two instances which differ in the way in which the linearization $\alinord$ is extended (when executing \lstinline|atSource|). For the first class of objects that includes the OR-Set in Listing~\ref{lst:or-set}, the linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed, i.e., every new operation executing \lstinline|atSource| is appended to the current linearization (\S~\ref{subsec:time order of execution as linearization}). We say that such objects admit \emph{execution-order linearizations}.
