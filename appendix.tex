@@ -24,7 +24,9 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
 \end{lstlisting}
 \end{minipage}
 
-$\\$ \cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+$\\$ $\\$
+
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
 Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
 
 
@@ -64,9 +66,11 @@ captionpos=b,label={lst:operation-based multi-value register}]
 \subsection{The Wooki Algorithm}
 \label{subsec:the Wooki algorithm}
 
-The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
+The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. %Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
+Wooki algorithm is an optimized version of Woot \cite{DBLP:conf/cscw/OsterUMI06}. To make our introduction more clear, we borrow the notion of W-character and W-string from Woot algorithm.
 
-In local of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$. We use $degree(w)$ to denote the degree of $w$.
+In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
+We use $degree(w)$ to denote the degree of $w$.
 
 A W-string is an ordered sequence of W-characters $w_b \cdot w_1 \cdot \ldots \cdot w_n \cdot w_e$, where $w_b$ and $w_e$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_b$ and $w_e$ are $\circ_b$ and $\circ_e$, respectively. The degree of $w_b$ and $w_e$ are $0$. We define the following function for a W-string $str$:
 
@@ -93,41 +97,42 @@ A W-string is an ordered sequence of W-characters $w_b \cdot w_1 \cdot \ldots \c
 
 %Note that only $values(str)$ distinguish whether a W-character is with flag $\mathit{true}$ or with flag $\mathit{false}$.
 
-A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
+A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
+
+%A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
 
 \begin{minipage}[t]{1.0\linewidth}
 \begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
 captionpos=b,label={lst:wooki algorithm}]
-  payload int @|$clock$|@, W-string @|$string_s$|@
-  initial @|$clock$|@ = 0, @|$string_s$|@ = @|$\epsilon$|@
+  payload W-string @|$string_s$|@
+  initial @|$string_s$|@ = @|$\epsilon$|@
   initial seq = @|$\epsilon$|@
 
   addBetween(b,a,c) :
     atSource :
       precondition :  @|$contains(string_s,b) \wedge contains(string_s,c) \wedge pos(string_s,c) - pos(string_s,b) = 1\wedge \neg contains(string_s,a)$|@
-      let g = myRep()
+      let ts = getTimestamp()
       let @|$c_p$|@ = @|$getWchar(string_s,b)$|@
       let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
-      @|$clock$|@ = @|$clock$|@ + 1
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[addBetween]{a,b,c}{}{}$|@
-    downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = ((clock,g), a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
-      integrateIns(@|$w,c_p,c_n$|@)
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{b,a,c}$|@
+    downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
+      integrateIns(@|$c_p,w,c_n$|@)
 
   remove(a) :
     atSource :
       precondition : @|$contains(string_s,a)$|@
       let w = @|$getWchar(string_s,a)$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[remove]{a}{}{}$|@
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
     downStream(w) :
       let p = @|$pos(string_s,w)$|@
       @|$changeFlag(string_s,p,\mathit{false})$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{s}{}$|@
+    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
     return s
 
-  integrateIns(@|$c,c_p,c_n$|@)
+  integrateIns(@|$c_p,c,c_n$|@)
     let @|$S$|@ = @|$string_s$|@
     let @|$S'$|@ = @|$subseq(S,c_p,c_n)$|@
     if @|$S' = \epsilon$|@
@@ -142,7 +147,9 @@ captionpos=b,label={lst:wooki algorithm}]
 \end{lstlisting}
 \end{minipage}
 
-The payload of each replica is a integer value $clock$ used to generate identifier, and a W-string $string_s$.
+$\\$ $\\$
+
+The payload of each replica is a W-string $string_s$.
 
 To do $addBetween(b,a,c)$, we first ensure that $b$ and $c$ are adjacent in $string_s$ and $a$ is not in $string_s$. Then, we generate a W-character $w$ for value $a$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $b$ and $c$ in $string_s$, respectively.
 
@@ -151,6 +158,13 @@ $integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there a
 To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do $read()$, we return $values(string_s)$.
 
 
+
+
+
+\subsection{The Tree-Doc Algorithm}
+\label{subsec:the Tree-Doc algorithm}
+
+The TreeDoc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. 
 
 
 
@@ -190,7 +204,7 @@ Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data 
 
 \item[-] $\big(\abstate\ |\ id \ is \ unique \big) \xRightarrow{ \alabelshort[{\tt write}]{a,id,S} }  \abstate \setminus S \cup \{ (a,id) \}$
 
-\item[-] $\abstate \xRightarrow{\alabellong[{\tt read}]{}{ \{ a \vert \exists id, (a,id) \in \abstate \} }{}} \abstate$
+\item[-] $\abstate \xRightarrow{\alabellong[{\tt read}]{}{ S }{}} \abstate$, where $S = \{ a \vert \exists id, (a,id) \in \abstate \}$.
 \end{itemize}
 
 Here $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state, $\alabelshort[{\tt write}]{a,id,S}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of multi-value register.
@@ -200,20 +214,18 @@ Here $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state, $\alabelsho
 \subsection{The Sequential Specification of List with Add-Between Interface}
 \label{subsec:the sequential specification of list with add-between interface}
 
-Each abstract state $\abstate$ is a sequence of tuples $(a,flag)$, where $a$ is a data and $flag \in \{ \mathit{true},\mathit{false} \}$ is flag. $(a,\mathit{true})$ means that $a$ is in the list, while $(a,\mathit{false})$ means that $a$ has once been added into the list and then removed. The sequential specification $\mathit{listBet}_s$ of list with add-between interface is given with the transitions as follows:
-
+Each abstract state $\abstate = (l,T)$ contains a sequence $l$ and a set $T$. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as tombstone. The sequential specification $\mathit{listBet}_s$ of list with add-between interface is given with the transitions as follows:
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq i \leq k < j \leq n \wedge (a,\_) \notin \abstate \big) \xRightarrow{ \alabelshort[{\tt addBetween}]{a_i,a,a_j} } (a_1,flag_1)\cdot \ldots (a_k,flag_k) \cdot (a,\mathit{true}) \cdot (a_{k+1},flag_{k+1}) \cdot \ldots \cdot (a_n,flag_n)$
-
-\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k \leq n \big) \xRightarrow{ \alabelshort[{\tt remove}]{a_k} } (a_1,flag_1)\cdot \ldots (a_k,\mathit{false}) \cdot \ldots \cdot (a_n,flag_n)$
-
-\item[-] $(a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \xRightarrow{\alabellong[{\tt read}]{}{s}{}} (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n)$, here $s$ is the projection of $a_1 \cdot \ldots \cdot a_n$ into $\{ a \vert a$ is with flag $\mathit{true} \}$
+\item[-] $\big((a_1 \cdot \ldots \cdot a_n,T)\ |\ 1 \leq i \leq k <j \leq n \wedge a \ is \ unique \big) \xrightharpoonup{ \alabelshort[{\tt addAfter}]{a_i,a,a_j} } (a_1 \cdot \ldots \cdot a_k \cdot a \cdot a_{k+1} \cdot \ldots \cdot a_n,T)$
+\item[-] $\big((a_1\cdot \ldots \cdot a_n,T)\ |\ 1 \leq k \leq n \big) \xrightharpoonup{ \alabelshort[{\tt remove}]{a_k} } (l,T \cup \{ a_k \})$
+\item[-] $(l,T) \xrightharpoonup{\alabellong[{\tt read}]{}{s}{}} (l,T)$, here $s$ is obtained from $l$ by removing values in $T$
 \end{itemize}
 
-$\alabelshort[{\tt addBetween}]{a_i,a,a_j}$ puts $(a,\mathit{true})$ into a random position between $(a_i,flag_i)$ and $(a_j,flag_j)$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ removes $a_k$ from the list by setting its flag into $\mathit{false}$. $\alabellong[{\tt read}]{}{s}{}$ returns the content of list.
+Method $\alabelshort[{\tt addBetween}]{a_k,a}$ puts $a$ into a random position between $a_i$ and $a_j$ in $l$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ adds $a_k$ into $T$. $\alabellong[{\tt read}]{}{s}{}$ returns the list content not in $T$.
 
-Assume that the initial value of list is $(\circ_b,\mathit{true}) \cdot (\circ_e,\mathit{true})$, and $\circ_b$ and $\circ_e$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_b$ and $\circ_e$ in return value.
+Assume that the initial value of list is $(\circ_b \cdot \circ_e,\emptyset)$, and $\circ_b$ and $\circ_e$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_b$ and $\circ_e$ in return value.
+
 
 
 
@@ -223,19 +235,16 @@ Assume that the initial value of list is $(\circ_b,\mathit{true}) \cdot (\circ_e
 
 The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$.
 
-
-
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{ORset}_s$ of OR-set is given with the transitions as follows:
-
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{OR-Set}_s$ of OR-Set is given by the transitions:
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\abstate \xRightarrow{\alabellong[{\tt readIds}]{a}{ \{ (a,id) \vert (a,id) \in \abstate \} }{} } \abstate$
+\item[-] $\abstate \xrightharpoonup{\alabellong[{\tt readIds}]{a}{ S }{} } \abstate$, where $S = \{ (a,id) \vert (a,id) \in \abstate \}$
 
-\item[-] $\abstate \xRightarrow{ \alabelshort[{\tt remove}]{a,S} }  \abstate \setminus S$
+\item[-] $\abstate \xrightharpoonup{ \alabelshort[{\tt remove}]{a,S} }  \abstate \setminus S$
 
-\item[-] $\big(\abstate\ |\ id \ is \ unique \big) \xRightarrow{ \alabelshort[{\tt add}]{a,id} }  \abstate \cup \{ (a,id) \}$
+\item[-] $\big(\abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\big) \xrightharpoonup{ \alabelshort[{\tt add}]{a,id} }  \abstate \cup \{ (a,\mathtt{id}) \}$
 
-\item[-] $\abstate \xRightarrow{\alabellong[{\tt read}]{a}{ \{ a \vert \exists id, (a,id) \in \abstate \} }{}} \abstate$
+\item[-] $\abstate \xrightharpoonup{\alabellong[{\tt read}]{a}{ S }{}} \abstate$, where $S = \{ a \vert \exists \mathtt{id}, (a,\mathtt{id}) \in \abstate \}$
 \end{itemize}
 
 Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
@@ -246,20 +255,20 @@ Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$
 \subsection{The Sequential Specification of List with Add-After Interface}
 \label{subsec:the sequential specification of list with add-after interface}
 
-Each abstract state $\abstate$ is a sequence of tuples $(a,flag)$, where $a$ is a data and $flag \in \{ \mathit{true},\mathit{false} \}$ is flag. $(a,\mathit{true})$ means that $a$ is in the list, while $(a,\mathit{false})$ means that $a$ has once been added into the list and then removed. The sequential specification $\mathit{listAft}_s$ of list with add-after interface is given with the transitions as follows:
-
+Each abstract state $\abstate = (l,T)$ contains a sequence $l$ and a set $T$. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as tombstone. The sequential specification {$\mathit{listAft}_s$} of list with add-after interface is given with the transitions as follows:
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k < n \wedge (a,\_) \notin \abstate \big) \xRightarrow{ \alabelshort[{\tt addAfter}]{a_k,a} } (a_1,flag_1)\cdot \ldots (a_k,flag_k) \cdot (a,\mathit{true}) \cdot (a_{k+1},flag_{k+1}) \cdot \ldots \cdot (a_n,flag_n)$
-
-\item[-] $\big(\abstate\ |\ \abstate = (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \wedge 1 \leq k \leq n \big) \xRightarrow{ \alabelshort[{\tt remove}]{a_k} } (a_1,flag_1)\cdot \ldots (a_k,\mathit{false}) \cdot \ldots \cdot (a_n,flag_n)$
-
-\item[-] $(a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n) \xRightarrow{\alabellong[{\tt read}]{}{s}{}} (a_1,flag_1)\cdot \ldots \cdot (a_n,flag_n)$, here $s$ is the projection of $a_1 \cdot \ldots \cdot a_n$ into $\{ a \vert a$ is with flag $\mathit{true} \}$
+\item[-] $\big((a_1 \cdot \ldots \cdot a_n,T)\ |\ k \leq n \wedge a \ is \ unique \big) \xrightharpoonup{ \alabelshort[{\tt addAfter}]{a_k,a} } (a_1 \cdot \ldots \cdot a_k \cdot a \cdot a_{k+1} \cdot \ldots \cdot a_n,T)$
+\item[-] $\big((a_1\cdot \ldots \cdot a_n,T)\ |\ 1 \leq k \leq n \big) \xrightharpoonup{ \alabelshort[{\tt remove}]{a_k} } (l,T \cup \{ a_k \})$
+\item[-] $(l,T) \xrightharpoonup{\alabellong[{\tt read}]{}{s}{}} (l,T)$, here $s$ is obtained from $l$ by removing values in $T$
 \end{itemize}
 
-$\alabelshort[{\tt addAfter}]{a_k,a}$ puts $(a,\mathit{true})$ immediately after $(a_k,flag_k)$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ removes $a_k$ from the list by setting its flag into $\mathit{false}$. $\alabellong[{\tt read}]{}{s}{}$ returns the content of list.
+Method $\alabelshort[{\tt addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$ in $l$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ adds $a_k$ into $T$. $\alabellong[{\tt read}]{}{s}{}$ returns the list content not in $T$.
 
-Assume that the initial value of list is $(\circ,\mathit{true})$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
+Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
+
+
+
 
 
 
@@ -335,7 +344,7 @@ Our proof of the lemma proceed as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations.
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations.
 
 Let us prove that applying downstream of such pair of operations commute, and we only need to consider the case of two concurrent $write$ labels. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream of labels $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$, respectively. Given a payload $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$ are concurrent, by  $fact_2$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
 
@@ -392,7 +401,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
 \item[-] Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute {\tt atSource} clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
 We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[readIds]{}{R}{},\alabellongind[read]{}{A}{}\}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
-visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstream of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -419,7 +428,7 @@ This completes the proof of this lemma. $\qed$
 
 
 \subsection{\crdtlin{} with Non-Deterministic Sequential Specifications}
-\label{subsec:RA-linearizability with non-deterministic sequential specifications}
+\label{subsec:appendix RA-linearizability with non-deterministic sequential specifications}
 
 Recall that a sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
@@ -469,7 +478,7 @@ Let us explain Definition \ref{definition:ralinearizability1 with non-determinis
 
 An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history.
 
-Since $\alabellong[{\tt read}]{}{c \cdot b}{}$ and $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ see different operations, our convergence requirement is not enough to rule them out. Instead, the $\mathsf{ConsistentChoice}$ condition is able to rule them out. $\mathsf{ConsistentChoice}$ essentially represents that, a ``bigger state'' follows the same choice in a ``smaller'' state.
+Since the set of operations visible to $\alabellong[{\tt read}]{}{c \cdot b}{}$ and the set of operations visible to $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ are different, our convergence requirement is not enough to rule them out. Instead, the $\mathsf{ConsistentChoice}$ condition is able to rule them out. $\mathsf{ConsistentChoice}$ essentially represents that, a ``bigger state'' follows the same choice in a ``smaller'' state.
 \end{itemize}
 
 \begin{figure}[t]
@@ -486,13 +495,13 @@ Since $\alabellong[{\tt read}]{}{c \cdot b}{}$ and $\alabellong[{\tt read}]{}{a 
 The case when histories include query-updates is similarly dealt with as Definition \ref{definition:distributed linearizability}. We do it by rewriting of the original history where each query-update is decomposed into a label representing the query part and another label representing the update part.
 
 \begin{definition}[\CRDTLin{} with Non-Deterministic Sequential Specifications]
-\label{definition:distributed linearizability with non-deterministic sequential specifications}
+\label{definition:ralinearizability with non-deterministic sequential specifications and rewritting}
 A history $h =(\alabelset,\avisord)$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential specification \Spec{}, if there exists a query-update rewriting $\gamma$ such that $\gamma(h)$ is \crdtlinearizable{} w.r.t. \Spec{}.
 \end{definition}
 
 A set $H$ of histories is called \crdtlinearizable{} w.r.t a non-deterministic sequential specification $\Spec$ when each history $h\in H$ is \crdtlinearizable{} w.r.t. $\Spec$. A data type implementation is \crdtlinearizable{} w.r.t. a non-deterministic sequential specification $\Spec$ if for any object $\aobj$ of the data type, the set $\histories(\aobj)$ is linearizable w.r.t. $\Spec$.
 
-Let us begin to consider convergence. Given a \crdtlinearizable{} history with two replicas $r_1,r_2$ see the same set of operations. According to Definition \ref{definition:ralinearizability1 with non-deterministic specifications} and Definition \ref{definition:distributed linearizability with non-deterministic sequential specifications}, we have already fix the non-deterministic choice. Therefore, it is obvious that we have convergence, as formalized in the following lemma.
+Let us begin to consider convergence. Given a \crdtlinearizable{} history with two replicas $r_1,r_2$ see the same set of operations. According to Definition \ref{definition:ralinearizability1 with non-deterministic specifications} and Definition \ref{definition:ralinearizability with non-deterministic sequential specifications and rewritting}, to obtain $\gconfres(s)$, we only consider $\aseqord\!\downarrow_{s\cap \updates}$, which obviously implies convergence, as formalized in the following lemma.
 
 \begin{lemma}
 \label{lemma:distributed linarizability implies convergence for non-deterministic sequential specifications}
@@ -505,7 +514,7 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential sp
 
 
 \subsection{Proof Methodology for \crdtlin{} w.r.t Non-Deterministic Sequential Specifications}
-\label{subsec:proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}
+\label{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}
 
 In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-deterministic sequential specifications. Our methodology is similar for proving \crdtlin{} w.r.t deterministic sequential specifications in Section \ref{ssec:proof-methodology}.
 
@@ -535,9 +544,9 @@ Additionally, we need the following definitions:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We introduce a function $\igconfres: \labels^* \rightarrow \states$ to explicitly record the consequence of applying downstreams.
+\item[-] We introduce a function $\igconfres: \labels^* \rightarrow \states$ to explicitly record the consequence of applying downstream.
 
-Given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, $\igconfres(s)$ is the local state obtained by applying downstreams of $s$ in the order of $s$.
+Given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, $\igconfres(s)$ is the local state obtained by applying downstream of $s$ in the order of $s$.
 
 \item[-] From $\igconfres(s)$, we generate a abstract state $\gconfres'(s)$. Latter we will prove that $\gconfres'$ satisfies the requirement of $\gconfres$.
 
@@ -552,14 +561,14 @@ Then, we need to prove the following properties:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We prove that any two downstreams that correspond to two ``concurrent'' operations commute.
+\item[-] We prove that any two downstream that correspond to two ``concurrent'' operations commute.
 
 \item[-] We prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ in a way as follows:
 
 \begin{enumerate}
-\item If $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, obviously $\igconfres(s \cdot \alabel)$ is obtained from $\igconfres(s)$ by applying the downstream of $\alabel$. Then, we require that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+\item Given an update operation $\alabel$, if $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, obviously $\igconfres(s \cdot \alabel)$ is obtained from $\igconfres(s)$ by applying the downstream of $\alabel$. Then, we require that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
 
-\item if a query $\alabel$ is applied on a state $\igconfres(s)$ or it is introduced by a rewriting of a query-update that executes \lstinline|atSource| on a state $\igconfres(s)$, then $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
+\item If a query $\alabel$ is applied on a state $\igconfres(s)$ or it is introduced by a rewriting of a query-update that executes \lstinline|atSource| on a state $\igconfres(s)$, then $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
 \end{enumerate}
 \end{itemize}
 
@@ -569,7 +578,7 @@ With above definitions and properties, our proof proceed as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Given sequences $s_1$ and $s_2$, such that both $s_1$ and $s_2$ are consistent with $\avisord$ and are closed under $\avisord^{-1}$, and $s_1$ is a permutation of $s_2$. Then, since any two downstreams that correspond to two ``concurrent'' operations commute, we can see that $\igconfres(s_1)$ = $\igconfres(s_2)$. Since $\mathsf{Refinement}$ holds, we have transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)$ and $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$. Thus, $\gconfres'(s_1) = \gconfres'(s_2)$.
+\item[-] Given sequences $s_1$ and $s_2$, such that both $s_1$ and $s_2$ are consistent with $\avisord$ and are closed under $\avisord^{-1}$, and $s_1$ is a permutation of $s_2$. Then, since any two downstream that correspond to two ``concurrent'' operations commute, we can see that $\igconfres(s_1)$ = $\igconfres(s_2)$. Since $\mathsf{Refinement}$ holds, we have transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)$ and $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$. Thus, $\gconfres'(s_1) = \gconfres'(s_2)$.
 
     Moreover, let $s_3$ be the projection of $\alinord$ into operations of $s_1$. Similarly, we can prove that $\gconfres'(s_1) = \gconfres'(s_3)$.
 
@@ -577,14 +586,16 @@ With above definitions and properties, our proof proceed as follows:
 
     We prove that $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$ by contradiction. Assume that $s_1 \cdot (s_2 - s_1)$ is not consistent with $\avisord$. Since $s_1$ and $s_2$ are consistent with $\avisord$, this implies that, there exists $a,b$, such that, $a \in s_1$, $b \in s_2 - s_1$, and $(b,a) \in \avisord$. Or we can say, $(b,a) \in \avisord^{-1}$, $a \in s_1$, $b \notin s_1$. This contradicts the assumption that $s_1$ is closed under $\avisord^{-1}$. Therefore, $s_1 \cdot (s_2 - s_1)$ is consistent with $\avisord$.
 
-    Since $s_2$ and $s_1 \cdot (s_2 - s_1)$ are consistent with $\avisord$ and closed under $\avisord^{-1}$, we know that there exists $\igconfres(s_2)$ and $\igconfres(s_1 \cdot (s_2 - s_1))$. By $\mathsf{Refinement}$, we know that there exist transitions $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$ and transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)\xRightarrow{s_2 - s_1}^*\gconfres'(s_1 \cdot (s_2 - s_1))$.
+    Since $s_2$ and $s_1 \cdot (s_2 - s_1)$ are consistent with $\avisord$ and closed under $\avisord^{-1}$, we know that there exists $\igconfres(s_2)$ and $\igconfres(s_1 \cdot (s_2 - s_1))$, and transitions from $\igconfres(\epsilon)$ to $\igconfres(s_2)$, and transitions from $\igconfres(\epsilon)$ to $\igconfres(s_1 \cdot (s_2 - s_1))$. By $\mathsf{Refinement}$, we know that there exist transitions $\gconfres'(\epsilon)\xRightarrow{s_2}^*\gconfres'(s_2)$ and transitions $\gconfres'(\epsilon)\xRightarrow{s_1}^*\gconfres'(s_1)\xRightarrow{s_2 - s_1}^*\gconfres'(s_1 \cdot (s_2 - s_1))$.
 
     Obviously, $s_2$ is a permutation of $s_1 \cdot (s_2 - s_1)$. As discussed above, we can see that $\gconfres'(s_2) = \gconfres'(s_1 \cdot (s_2 - s_1))$.
 \end{itemize}
 
-\noindent {\bf Prove $\mathsf{ReplicaStates}$:} $\mathsf{ReplicaStates}$ holds since any two downstreams that correspond to two ``concurrent'' operations commute.
+\noindent {\bf Prove $\mathsf{ReplicaStates}$:} $\mathsf{ReplicaStates}$ holds since any two downstream that correspond to two ``concurrent'' operations commute.
 
 \noindent {\bf Prove $\mathsf{Refinement}$:} This is specific to implementations.
+
+\noindent {\bf Prove Annotations:} If above proof relies on annotations of the downstream or local state, then we should also prove that the annotation of downstream holds for new downstream, and the annotation of local state holds for new local state.
 
 \noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in Section \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$.
 
@@ -604,7 +615,7 @@ We have applied this methodology to Wooki and Tree-Doc. For Wooki and Tree-Doc, 
 \label{subsec:proof of Wooki}
 
 
-Given a a W-string $s$ and two W-characters $c_1,c_2$, such that $c_1$ and $c_2$ are with degree $i$,  $c_1 <_s c_2$, and there are no W-character with degree $i$ between $c_1$ and $c_2$, we say that $c_1$ and $c_2$ are degree-$i$-adjacent in $s$. The following lemma confirms an intuition of Wooki algorithm: in recursive method $integrateIns$, the W-characters of W-string $F$ are sorted by $<_{id}$ order.
+Given a a W-string $s$ and two W-characters $c_1,c_2$, we say that $c_1$ and $c_2$ are degree-$i$-adjacent in $s$, if there exists W-characters $c_3,c_4$, such that $c_3$ and $c_4$ are with degree $i-1$, there are no W-character with degree $i-1$ between $c_3$ and $c_4$ in $s$, $c_1$ and $c_2$ are with degree $i$, there are no W-character with degree $i$ between $c_1$ and $c_2$ in $s$, and we have $c_3 <_s \{ c_1,c_2 \} <_s c_4$. The following lemma confirms an intuition of Wooki algorithm: in recursive method $integrateIns$, the W-characters of W-string $F$ are sorted by $<_{id}$ order.
 
 \begin{lemma}
 \label{lemma:in F of Wooki, W-characters are ordered in id-order}
@@ -614,37 +625,127 @@ Given a W-string $s$ and two W-characters $c_1,c_2$, which are degree-$i$-adjace
 \begin {proof}
 Let us prove this property by induction.
 
-It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for $s$, and does not hold after we do $addBetween(a,b,c)$ to $s$. Let $c_a$ be the W-character of $a$. Let $s'$ be the W-string obtained from $s$ by doing $addBetween(a,b,c)$. Then, we consider all the possibilities:
+It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for W-string $s$, let $s'$ be the W-string obtained from $s$ by doing $\alabelshort[{\tt addBetween}]{a,b,c}$, and this property does not hold for $s'$. $c_b$ be the W-character of $b$. Assume the degree of $c_b$ is $j$.
+
+Obviously, the W-characters that are not degree-$j$-adjacent with $c_b$ are still the same in $s'$ as that in $s$.
+
+Assume three exists W-character $c_3$ of $s$, such that $c_3$ and $c_b$ are degree-$j$-adjacent, $c_3 <_{s'} c_b$, and $c_b <_{s'} c_3$. Then, there exists W-character $c_1,c_2$, such that $c_1$ and $c_2$ are with degree $j-1$, there are no W-character with degree $j-1$ between $c_1$ and $c_2$ in $s'$, and $c_1 <_{s'} c_b <_{s'} c_3 <_{s'} c_2$.
+
+Note that $c_b$ and $c_3$ are between $c_1$ and $c_2$ in $s'$, $c_1$ is the rightmost W-character with degree $j-1$ that are before $c_b$ and $c_3$ in $s'$, and $c_2$ is the leftmost W-character with degree $j-1$ that are after $c_b$ and $c_3$ in $s'$. According to Wooki algorithm, in the process of $\alabelshort[{\tt addBetween}]{a,b,c}$, the recursive method $\alabelshort[{\tt integrateIns}]{c_1,c_2,c_b}$ will be called and then, $c_3$ and $c_b$ are sorted according to $<_{id}$ order, contradicts the assumption that $c_3 <_{s'} c_b$ and $c_b <_{s'} c_3$. Therefore, such $c_3$ does not exists in $s'$. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+The following lemma states that, the order of $\{$values of $\sigma \} \cup \{ b \}$ in the following two cases are the same: either we insert $b$ into $\sigma$, or first insert another item $e$ and then insert $b$. Or we can say, this lemma states that, inserting a value is ``independent'' from inserting another value.
+
+\begin{lemma}
+\label{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}
+Assume from a local state $\sigma$, we obtain $\sigma_b$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, and obtain $\sigma_{eb}$ by first applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ and then applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$. Then, the order of $\{$values of $\sigma \} \cup \{ b \}$ is the same for $\sigma_b$ and $\sigma_{eb}$.
+\end{lemma}
+
+\begin {proof}
+Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $a,b,c,d,e,f$, respectively. Assume $\sigma_e$ is obtained from $\sigma$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$. Let us use case $1$ to mention the process of $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma$. Let us use case $2$ to mention the process of $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma_e$. Let $j_e$ be the degree of $c_e$.
+
+We need to prove that, for each degree $i$, the order of $\{$values of degree $i$ in $\sigma \} \cup \{ b \}$ is the same for case $1$ and case $2$. We prove this by considering all possible degrees.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Case 1: There exists degree-$j$-adjacent $c_1$ and $c_2$ of $s$, and there exists W-character $c_3$, such that $c_a$ and $c_3$ are of degree $j+1$, $c_1 <_{s'} \{ c_a,c_3 \} <_{s'} c_2$, and it is not the case that $c_3 <_{s'} c_a$ if and only if $c_3 <_{id} c_a$: According to Wooki algorithm, since $c_1$ and $c_2$ are degree-$j$-adjacent and $c_1 <_{s'} c_a <_{s'} c_2$, in some time of recursive call of $integrateIns$ of $addBetween(a,b,c)$, we must call $integrateIns(c_a,c_1,c_2)$. By induction assumption we know that in $s$, all W-characters $S$ of degree $j+1$ between $c_1$ and $c_2$ (including $c_3$) are sorted by $<_{id}$. By Wooki algorithm, $c_a$ will be sorted with $S$. This implies that $c_3 <_{s'} c_a$ if and only if $c_3 <_{id} c_a$, contradicts the assumption that it is not the case that $c_3 <_{s'} c_a$ if and only if $c_3 <_{id} c_a$.
+\item[-] It is obvious that, for degree $i < j_e$, case $1$ and case $2$ both calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$, and they work in the same way.
 
-\item[-] Case 2: There exists degree-$j$-adjacent $c_1$ and $c_2$ of $s$, and there exists W-character $c_3,c_4$, such that (1) $c_a$ is of degree $j$, $c_1 <_{s'} c_a <_{s'} c_2$, (2) $c_3$ and $c_4$ are of degree $j+1$, and we have $c_1 <_{s'} \{c_3,c_4\} <_{s'} c_a$, and (3) it is not the case that $c_3 <_{s'} c_4$ if and only if $c_3 <_{id} c_4$: It is obvious that $c_1 <_s \{ c_3,c_4 \} <_s c_2$, and since $c_3$ and $c_4$ are degree-$j$-adjacent in $s$, by induction assumption we know that $c_3 <_s c_4$ if and only if $c_3 <_{id} c_4$. This obviously also holds in $s'$, and contradicts the assumption that it is not the case that $c_3 <_{s'} c_4$ if and only if $c_3 <_{id} c_4$.
+\item[-] For degree $j_e$, case $1$ and case $2$ both calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$.
+
+    Let $c'_1,\ldots,c'_n$ be the W-characters with degree $j_e +1$ between $c_1$ and $c_2$ in $\sigma$. Assume that $c'_1 <_{\sigma} \ldots <_{\sigma} c'_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are ordered in id-order}, we know that, $c'_1 <_{id} \ldots <_{id} c'_n$. Assume $c'_k <_{\sigma_e} c_e <_{\sigma_e} c'_{k+1}$. By Wooki algorithm, in inserting $c_e$, we will call $\alabelshort[{\tt integrateIns}]{c_1,c_e,c_2}$, and then, $c'_k <_{id} c_e <_{id} c'_{k+1}$. Thus, we have $c'_1 <_{id} \ldots <_{id} c'_k <_{id} c_e <_{id} c'_{k+1} <_{id} \ldots <_{id} c'_n$ and $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_k <_{\sigma_e} c_e <_{\sigma_e} c'_{k+1} <_{\sigma_e} \ldots <_{\sigma_e} c'_n$.
+
+    If $c_b <_{id} c'_k$ or $c'_{k+1} <_{id} c_b$, assume $c'_m <_{id} c_b <_{id} c'_{m+1}$, then both case $1$ and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c'_{m+1}}$, and $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. Moreover, from now on, case $2$ will work in the same way as case $1$.
+
+    Else, we know that $c'_k <_{id} c_b <_{id} c'_{k+1}$. Assume that $c'_k <_{id} c_b <_{id} c_e <_{id} c'_{k+1}$. Then, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c'_{k+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c_e}$. We can see in both case $1$ and case $2$, $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. The situation of $c'_k <_{id} c_2 <_{id} c_b <_{id} c'_{k+1}$ can be similarly proved.
+
+    We can see that, if case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c_e}$, then we have $c_b <_{id} c_e$; if case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_{k+1}}$, then we have $c_e <_{id} c_b$.
+
+\item[-] Inductively, for a degree $k > j_e$, assume that case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Let $c'_1,\ldots,c'_n$ be the W-characters with degree $k+1$ between $c_1$ and $c_e$ in $\sigma_e$. Assume that $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_n$. Let $c'_{m+1},\ldots,c'_n$ be the W-characters with degree $k+1$ between $c_e$ and $c_2$ in $\sigma_e$. Assume that $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_n$.
+
+    By Lemma \ref{lemma:in F of Wooki, W-characters are ordered in id-order}, we can see that $c'_1 <_{id} \ldots <_{id} c'_n$. By Wooki algorithm, in inserting $c_e$, we will call $\alabelshort[{\tt integrateIns}]{c_1,c_e,c_2}$, and then, we can see that $c'_m <_{id} c_e <_{id} c'_{m+1}$.
+
+    If $c_b <_{id} c'_m$, assume $c'_l <_{id} c_b <_{id} c'_{l+1}$, then both case $1$ and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_l,c_b,c'_{l+1}}$, and $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. Moreover, from now on, case $2$ will work in the same way as case $1$.
+
+    Else, we know that $c'_m <_{id} c_b$. Since case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$, we know that $c_b <_{id} c_e <_{id} c'_{m+1}$. Then, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c'_{m+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c_e}$. We can see in both case $1$ and case $2$, $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
-The following lemma states that, in Wooki algorithm, commute two $addBetween$ operations lead to a same consequence.
+
+The following lemma states that, in Wooki algorithm, two downstream that correspond to two ``concurrent'' {\tt addBetween} operations commute.
 
 \begin{lemma}
-\label{lemma:in Wooki algorithm, commute two addBetween operations lead to a same consequence}
-a
+\label{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}
+Assume from a local state $\sigma$, we obtain $\sigma_b$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma$, and obtain $\sigma_{be}$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ to $\sigma_b$. Assume we obtain $\sigma_e$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ to $\sigma$, and obtain $\sigma_{eb}$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$. Then, $\sigma_{be} = \sigma_{eb}$.
 \end{lemma}
 
+\begin {proof}
+We prove by contradiction. Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $a,b,c,d,e,f$, respectively. Assume that $c_b <_{\sigma_{eb}} c_e$ and $c_e <_{\sigma_{be}} c_b$.
+
+By Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we know that the order between W-characters of $\sigma$ and $\{ c_b,c_e \}$ are the same in $\sigma_{be}$ and $\sigma_{eb}$.
+
+Therefore, the only possibility is that in $\sigma_{eb}$, $c_b$ and $c_e$ are adjacent, and there are no W-character between $c_b$ and $c_e$. Let $c_1$ be the right-most W-character that are before $c_b$ in $\sigma_{eb}$. According to Wooki algorithm, in the process of applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$, the last time of calling recursive method ${\tt integrateIns}$ must be $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Otherwise, since there is no W-character (except $c_b$) between $c_1$ and $c_e$, we can see that $c_b$ is not between $c_1$ and $c_e$ in $\sigma_{eb}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can see that $c_b <_{id} c_e$. 
+
+For the case of $\sigma_{be}$, similarly, we can prove that $c_e <_{id} c_b$. This implies that $c_b <_{id} c_e \wedge c_e <_{id} c_b$, which is a contradiction. $\qed$ 
+\end {proof}
 
 
 
+Then, let us prove that Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$. 
 
+\begin{lemma}
+\label{lemma:Wooki is correct}
+Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$. 
+\end{lemma}
 
+\begin {proof} 
 
+We prove following the prove methodology of Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.  
 
+We define abstract state $\gconfres'(s)$ as follows: given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, assume $\igconfres(s) = c_1 \dot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $\gconfres'(s) = (v_1 \cdot \ldots \cdot v_n,T)$, where $T = \{ v_i \vert flag_i = \mathit{false} \}$. 
 
+Then, let us prove the downstream of concurrent operations commute and the $\mathsf{Refinement}$ property, 
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the downstream of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the downstream of concurrent {\tt remove} operations commute, since they both put some value into tombstone; A {\tt addBetween} and a {\tt remove} downstream commute when they are concurrent because in this case, the W-character removed by {\tt remove} are different from the pair added by the {\tt addBetween}. 
+\item[-] Let us prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ as follows: 
 
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Given an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$. 
+        
+        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_a = (\_,a,\_,\_)$ and $c_c = (\_,c,\_,\_)$ in $str_1$, such that $c_a$ is before $c_c$ in $str_1$, there is no W-character of value $b$ in $str_1$, and $str_2$ is obtained from $str_1$ by inserting a W-character $c_b = (\_,b,\_,\mathit{true})$ at some position between $c_a$ and $c_c$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+    
+    \item[-] Given an operation $\alabel = \alabelshort[{\tt remove}]{b}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
 
+        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_b = (\_,b,\_,\_)$ in $str_1$, and $str_2$ is obtained from $str_1$ by setting the flag of $c_b$ into $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$. 
+    
+    \item[-] Given an operation $\alabel = \alabellong[{\tt read}]{}{s_1}{}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. Assume that $\alabel$ is applied on the state $\igconfres(s)$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$. 
+
+        Assume that $\igconfres(s)=c_1 \cdot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $s_1$ is obtained from $v_1 \cdot \ldots \cdot v_n$ by removing values with flag $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
+    \end{itemize} 
+    
+\end{itemize}
+
+Then, our proof proceeds as follows: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}. 
+
+\item[-] {\bf Prove $\mathsf{ReplicaStates}$:} Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute. 
+
+\item[-] {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
+We also have to argue that for each query $\alabel_{\mathsf{qr}} = \alabellongind[read]{}{s_1}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstream of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\gconfres'(\epsilon)\xRightarrow{\alinord'}^*\gconfres'(\alinord')$. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\gconfres'(\alinord')\xRightarrow{\alabel_{\mathsf{qr}}}\gconfres'(\alinord')$. These two facts imply that $\gconfres'(\epsilon)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}^*\gconfres'(\alinord')$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+\end{itemize} 
+
+This completes the proof of this lemma. $\qed$ 
+\end {proof}
 
 
 
