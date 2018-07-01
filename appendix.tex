@@ -35,7 +35,7 @@ Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\are
 captionpos=b,label={lst:operation-based multi-value register}]
   payload Set S
   initial S = @|$\emptyset$|@
-  initial seq = @|$\epsilon$|@
+  initial lin = @|$\epsilon$|@
 
   write(a) :
     atSource :
@@ -106,7 +106,7 @@ A total order $<_{id}$ is given for identifiers of W-characters for conflict res
 captionpos=b,label={lst:wooki algorithm}]
   payload W-string @|$string_s$|@
   initial @|$string_s$|@ = @|$\epsilon$|@
-  initial seq = @|$\epsilon$|@
+  initial lin = @|$\epsilon$|@
 
   addBetween(b,a,c) :
     atSource :
