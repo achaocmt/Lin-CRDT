@@ -22,7 +22,7 @@ In this section we investigate the issue of whether the composition of a set of 
 
 \subsection{Object Compositions and \CRDTLin{}}\label{ssec:comp_intro}
 
-Given two objects $\aobj_1$ and $\aobj_2$, the semantics of their composition $\aobj_1\comp \aobj_2$ is the product of the LTSs corresponding to $\aobj_1$ and $\aobj_2$, respectively. Formally, given $\llbracket \aobj_1 \rrbracket =(\globalstates_1,\acts_1,\aglobalstate_0^1,\rightarrow_1)$ and $\llbracket \aobj_2 \rrbracket =(\globalstates_2,\acts_2,\aglobalstate_0^2,\rightarrow_2)$, we define $\llbracket \aobj_1\comp \aobj_2 \rrbracket =(\globalstates_1\times \globalstates_2,\acts_1\cup \acts_2,(\aglobalstate_0^1,\aglobalstate_0^2,\emptyset),\rightarrow_{1,2})$ where 
+Given two objects $\aobj_1$ and $\aobj_2$, the semantics of their composition $\aobj_1\comp \aobj_2$ is the product of the LTSs corresponding to $\aobj_1$ and $\aobj_2$, respectively. Formally, given $\llbracket \aobj_1 \rrbracket =(\globalstates_1,\acts_1,\aglobalstate_0^1,\rightarrow_1)$ and $\llbracket \aobj_2 \rrbracket =(\globalstates_2,\acts_2,\aglobalstate_0^2,\rightarrow_2)$, we define $\llbracket \aobj_1\comp \aobj_2 \rrbracket =(\globalstates_1\times \globalstates_2,\acts_1\cup \acts_2,(\aglobalstate_0^1,\aglobalstate_0^2,\emptyset),\rightarrow_{1,2})$ where
 \begin{align*}
 \rightarrow_{1,2} = & \{ ((\aglobalstate_1,\aglobalstate_2),\aact_1,(\aglobalstate_1',\aglobalstate_2)): (\aglobalstate_1,\aact_1,\aglobalstate_1')\in\rightarrow_1\} \\
 & \cup\ \{ ((\aglobalstate_1,\aglobalstate_2),\aact_2,(\aglobalstate_1,\aglobalstate_2')): (\aglobalstate_2,\aact_2,\aglobalstate_2')\in\rightarrow_2\}
@@ -108,7 +108,7 @@ TODO
 \end{figure}
 
 
-The positive result in Theorem~\ref{th:t0} doesn't apply directly to objects that admit timestamp-order linearizations (and the proof methodology described in Section~\ref{subsec:time-stamp order as linearizabtion}). The main reason is that the unrestricted object composition $\otimes$ defined above allows different objects to generate timestamps independently, and in ``conflicting'' orders along some execution. For instance, Figure~\ref{fig:negative_ts_composition} shows a history with two RGA objects $\aobj_1$ and $\aobj_2$. We assume that $\ats_1 < \ats_2 < \ats_3$ and $\ats'_1 < \ats'_2$ (the orderings between unprimed and primed timestamps are not important). The operations of $\aobj_1$ can be linearized to 
+The positive result in Theorem~\ref{th:t0} doesn't apply directly to objects that admit timestamp-order linearizations (and the proof methodology described in Section~\ref{subsec:time-stamp order as linearizabtion}). The main reason is that the unrestricted object composition $\otimes$ defined above allows different objects to generate timestamps independently, and in ``conflicting'' orders along some execution. For instance, Figure~\ref{fig:negative_ts_composition} shows a history with two RGA objects $\aobj_1$ and $\aobj_2$. We assume that $\ats_1 < \ats_2 < \ats_3$ and $\ats'_1 < \ats'_2$ (the orderings between unprimed and primed timestamps are not important). The operations of $\aobj_1$ can be linearized to
 \begin{align*}
 \aobj_1.\alabelshort[{\tt addAfter}]{\circ,a}\cdot \aobj_1.\alabelshort[{\tt addAfter}]{\circ,b}\cdot \aobj_1.\alabellongind[{\tt read}]{}{b\cdot a}{}
 \end{align*}
@@ -151,7 +151,7 @@ We define a restriction $\otimes_{\tsof}$ of the object composition operator $\o
 The following theorem shows that composing \crdtlinearizable{} objects that admit execution-order or timestamp-order linearizations, i.e., they can be proved \crdtlinearizable{} using the methodologies described in Section~\ref{subsec:time order of execution as linearization} and Section~\ref{subsec:time-stamp order as linearizabtion}, is \crdtlinearizable{}, provided that all the objects share the same timestamp generator.
 
 \begin{theorem}\label{th:t0}
-The shared timestamp generator composition of a set of \crdtlinearizable{} objects that admit execution-order or timestamp-order linearizations is \crdtlinearizable{}. 
+The shared timestamp generator composition of a set of \crdtlinearizable{} objects that admit execution-order or timestamp-order linearizations is \crdtlinearizable{}.
 \end{theorem}
 \begin{proof}(Sketch)
 TODO

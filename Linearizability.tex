@@ -33,7 +33,7 @@ properties of the propagation of downstreams:
   after the downstream of $\aop_1$ has already been applied.
 \end{itemize}
 These constraints are commonly guaranteed by network systems
-implementing \emph{causal delivery}~\cite{}. 
+implementing \emph{causal delivery}~\cite{}.
 
 \begin{figure}
 \[
@@ -41,7 +41,7 @@ implementing \emph{causal delivery}~\cite{}.
   {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
   \ats\neq\bot\implies (\,\forall \alabel\in\alabelset.\ \tsof(\alabel)\neq\bot \implies \tsof(\alabel) < \ats\,) }
   {(\gstates, \avisord, \downstreams) \xrightarrow{\src{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], %\alabel
-    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \rightarrow \effector])}
+    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \leftarrow \effector])}
 \]
 
 
@@ -52,8 +52,16 @@ implementing \emph{causal delivery}~\cite{}.
   {(\gstates, \avisord, \downstreams) \xrightarrow{\dwn{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
 \]
 
-  \caption{Operational Semantics of CRDTs. We use $[A\rightarrow B]$ to denote the set of total functions from $A$ to $B$. Also, $\mathit{unique}(i)$ ensures that $i$ is a unique identifier, and $\labeldom{\avisord}=\{\alabel: \exists \alabel'.\ (\alabel,\alabel')\in \avisord \lor (\alabel',\alabel)\in \avisord\}$.}
-  \label{fig:crdt-opsem}
+\caption{
+  Operational Semantics of CRDTs.
+  We use $[A\rightarrow B]$ to denote the set of total functions from
+  $A$ to $B$; $C[a \leftarrow b]$ to denote the in-place update of
+  element $a$ of the domain of $C$ with value $b$;
+  $\mathit{unique}(i)$ to ensure that $i$ is a unique identifier;
+  and $\labeldom{\avisord}=\{\alabel: \exists \alabel'.\
+  (\alabel,\alabel')\in \avisord \lor (\alabel',\alabel)\in \avisord\}$.
+}
+\label{fig:crdt-opsem}
 \end{figure}
 
 
@@ -68,6 +76,7 @@ $\reps$.
 We assume that both objects and replicas are uniquely identified, and
 therefore we will equate an object with its identifier, with the same
 convention applying to replicas.
+
 \begin{wrapfigure}{r}{0.5\linewidth}
   \centering
   \(
@@ -99,10 +108,10 @@ $\datadomain$, and a return value also from the data domain.
 %
 We assume the existence of a special value $\bot \in \datadomain$
 which we shall use to represent the absence of a value (for instance
-the return type of procedures). 
+the return type of procedures).
 %
-We will generally omit writing this value in labels and operations
-since this value is of no importance.
+We will generally omit writing this value since this value is of no
+importance.
 %
 Furthermore, we ignore here the issues of typing which should be
 addressed by an underlying programming language.
@@ -127,7 +136,7 @@ In that case the meta-variable $\ats$ adopts the value $\bot$. We extend the ord
 relation $<$ on timestamps to include $\bot$ as a minimal element.
 The timestamp $\ats$ of an operation label $\alabel=\alabelobjind{\argv}{\retv}{i,\ats}$
 is denoted by $\tsof(\alabel)$.
-We may omit the object $\aobj$, the timestamp $\ats$ or the return
+We may omit the object $\aobj$, the timestamp $\ats$, or the return
 value when these are not important.
 %We assume that in a history all labels are unique.
 Since there might be multiple calls to the same method with the same
@@ -141,17 +150,17 @@ The set of all operation labels is denoted by $\labels$.
 % the transitions are labeled by operation labels in $\labels$,
 %\times \labels
 
-\gpnote[inline, nomargin]{I would probably state it as a function
-  directly.}
+% \gpnote[inline, nomargin]{I would probably state it as a function
+%   directly.}
 Given a CRDT object $\aobj$, its semantics is defined as a labeled transition
 system (LTS) $\llbracket \aobj \rrbracket =
 (\globalstates,\acts,\aglobalstate_0,\rightarrow)$ as shown in
 \figurename~\ref{fig:crdt-opsem}, where $\globalstates$ is a set of
-global configurations, $\acts$ is the set of transition labels called \emph{actions}, 
-$\aglobalstate_0$ is the initial configuration, and 
+global configurations, $\acts$ is the set of transition labels called \emph{actions},
+$\aglobalstate_0$ is the initial configuration, and
 $\rightarrow\subseteq \globalstates \times \acts\times \globalstates$ is the
 transition relation. For readability, we use $\aglobalstate \xrightarrow{\aact} \aglobalstate'$
-to denote a transition $(\aglobalstate,\aact,\aglobalstate')\in\rightarrow$.
+to denote a transition $(\aglobalstate,\aact,\aglobalstate')\in\,\rightarrow$.
 
 A global configuration $(\gstates, \avisord, \downstreams)$ is a
 ``snapshot'' of the system that records all the operations that have
@@ -176,27 +185,29 @@ As it will be clear from the definition of the transition relation,
 $\avisord$ is a \emph{strict partial order} (i.e.
 irreflexive and transitive).
 Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to
-each operation a downstream $\effector\in [\states \rightarrow
-\states]$, which is a transformer of replica states.
+each operation label $\alabel \in \alabelset$ a downstream
+$\effector\in [\states \rightarrow \states]$, which is the replica
+state transformer generated when the operation was executed at the
+source replica.
 
 For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
 
 %\fxwarning[nomargin, inline]{ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.}
 
 The transition relation between global configurations is defined in
-\figurename~\ref{fig:crdt-opsem}. 
+\figurename~\ref{fig:crdt-opsem}.
 The first rule describes a replica $\arep$ in state $\astate$
 executing an invocation of method $\amethod$ with argument $\argv$.
 This transition first applies the {\tt atSource} function $\atsource$
-in the state of the originating replica, and as a result it outputs a
+in the state of the source replica, and as a result it outputs a
 return value $\retv$, a downstream state transformer $\effector$
 to be applied on all replicas, and possibly, a timestamp $\ats$.
 As mentioned above, $\ats=\bot$ for methods that don't generate
 timestamps. This transition is labeled by an action $\src{\arep}{\alabel}$ where
 $\alabel$ is the label of this invocation. We may ignore the index $\arep$ when it is not important.
-We assume that timestamps are consistent with the visibility relation 
+We assume that timestamps are consistent with the visibility relation
 $\avisord$, i.e., the timestamp $\ats$ generated by $\atsource$ is strictly bigger than
-all the timestamps of operations visible to $\arep$. Formally, if $\ats\neq\bot$ then $\ats' < \ats$ for all timestamps 
+all the timestamps of operations visible to $\arep$. Formally, if $\ats\neq\bot$ then $\ats' < \ats$ for all timestamps
 $\ats'\neq\bot$ of operations in $\alabelset$.
 The association between the label $\alabel$ corresponding to this
 invocation and the downstream $\effector$ is recorded in the
@@ -225,7 +236,7 @@ $\alabel'\not\in \alabelset$ such that $(\alabel',\alabel)\in
 \avisord$.
 This transition, labeled by the action $\dwn{\arep}{\alabel}$ (we may ignore the index $\arep$ when it is not important), results in modifying the state of $\arep$ to
 $\effector(\sigma)$ and adding $\alabel$ to the set of operations
-whose downstreams have been executed by $\arep$. 
+whose downstreams have been executed by $\arep$.
 Remark that these transition rules preserve the fact that $\avisord$ is
 a strict partial order.
 \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (a) to \figurename~\ref{fig:an example run of semantics} (b).}
@@ -243,7 +254,7 @@ $\sigma$).\footnote{While we could have defined a semantics in which a
   the current version for uniformity.}
 We shall call an \emph{update} to any method $\amethod$ which is not a
 query -- that is, whose effectors are not the identity function -- and
-whose resulting downstream and return value do not ``depend'' on the
+whose resulting downstream and return value do not depend on the
 initial state $\astate$ of the origin replica.
 That is, it's behavior is fully determined by its arguments.
 More formally, assuming a functional equivalence relation $\equiv$
@@ -267,7 +278,7 @@ respectively.
   QUERY-UPDATES.
   PROBABLY DISCUSSED ALREADY ALSO IN THE OVERVIEW.}
 
-%Executions of an object $\aobj$ are defined as usual (as sequences of transitions in $\rightarrow$). 
+%Executions of an object $\aobj$ are defined as usual (as sequences of transitions in $\rightarrow$).
 An execution of the object $\aobj$ is a sequence of transitions $\aglobalstate_0\xrightarrow{\aact_0}\aglobalstate_1\xrightarrow{\aact_1}\ldots$.
 A \emph{trace} $\atrace$ is the sequence of actions $\aact_0\aact_1\ldots$ labeling the transitions of an execution.
 The set of traces of an object $\aobj$ is denoted by $\traces(\aobj)$.
@@ -277,7 +288,7 @@ $\avisord\subseteq \alabelset\times\alabelset$ is an acyclic relation over the s
 %order over the set of labels $\alabelset$.
 Given an execution $e$ ending in a global configuration $(\gstates,
 \avisord, \downstreams)$, the \emph{history} of $e$, denoted by $\hist{e}$, is the pair
-$(\labeldom{\avisord}, \avisord)$. Note that the relation $\avisord$ is a strict partial order in this case. 
+$(\labeldom{\avisord}, \avisord)$. Note that the relation $\avisord$ is a strict partial order in this case.
 We will later allow a more general notion of history in order to deal
 with object compositions (see Section~\ref{sec:compositionality}).
 Also, the history of a trace $\atrace$, denoted by $\hist{\atrace}$,
@@ -361,9 +372,8 @@ that the label can be applied into that state, produces a new abstract
 state.
 Hence, we denote by $\abstate \xrightharpoonup{\alabel}  \abstate'$
 %$\absopsem{\abstate} = \abstate'$
-the fact that
-the resulting state for label $\alabel$ with initial state $\abstate$
-is $\abstate'$.
+the fact that the resulting state for label $\alabel$ with initial
+abstract state $\abstate$ is $\abstate'$.
 %
 %To simplify our descriptions, we will use a shortcut notation for
 %$\absopsem{\abstate} = \abstate'$ and will write it as:
@@ -381,27 +391,81 @@ some given initial state $\abstate_{0}$.
 %The set of labels of a specification $\Spec$ is denoted by $\labelsspec\Spec$. The set of read-only, resp., modifier,
 %labels of a specification $\Spec$ is denoted by $\labelsspecrd\Spec$, resp., $\labelsspecmod\Spec$.
 
-\fxwarning[nomargin, inline]{REWORK THESE EXAMPLES. DON'T WE NEED JUST
-  TWO EXAMPLES, RGA AND OR-SET ?}
-\gpnote[nomargin, inline]{Yes, I think so. Though it might be nice to
-  show more specs, since it kinda proves that they are easy to
-  read/write/understand.}
+% \fxwarning[nomargin, inline]{REWORK THESE EXAMPLES. DON'T WE NEED JUST
+%   TWO EXAMPLES, RGA AND OR-SET ?}
+% \gpnote[nomargin, inline]{Yes, I think so. Though it might be nice to
+%   show more specs, since it kinda proves that they are easy to
+%   read/write/understand.}
 
 \gpwarning{Lots of rewriting to do here.}
+
+Let us consider the specification of a very counter object, and then
+the specifications of the RGA and OR-Set objects described above.
 
 \begin{example}[Sequential Specification of a Counter]
 \label{definition:sequential specification of counter}
 The sequential specification $\mathit{counter}_s$ of counter is so
 that $\abstates = \mathbb{Z}$, that is the state will be an integer,
 and the transitions are given as follows:
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $k \xrightharpoonup{\alabellong[\mathsf{inc}]{}{}} k+1$
-\item[-] $k \xrightharpoonup{\alabellong[\mathsf{dec}]{}{}} k-1$
-\item[-] $k \xrightharpoonup{\alabellong[\mathsf{read}]{}{k}} k$
-\end{itemize}
+\[
+  \begin{array}[rcl]{rcl}
+    k & \xrightharpoonup{\alabellong[\mathsf{inc}]{}{}} & k+1\\
+    k & \xrightharpoonup{\alabellong[\mathsf{dec}]{}{}} & k-1\\
+    k & \xrightharpoonup{\alabellong[\mathsf{read}]{}{k}} & k
+  \end{array}
+\]
+% \begin{itemize}
+% \setlength{\itemsep}{0.5pt}
+% \item[-] $k \xrightharpoonup{\alabellong[\mathsf{inc}]{}{}} k+1$
+% \item[-] $k \xrightharpoonup{\alabellong[\mathsf{dec}]{}{}} k-1$
+% \item[-] $k \xrightharpoonup{\alabellong[\mathsf{read}]{}{k}} k$
+% \end{itemize}
 \end{example}
 
+
+\begin{example}[Sequential Specification of RGA-like List
+  (with $\mathtt{addAfter}$ method)]
+  \label{definition:sequential specification of or-set} 
+  Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of
+  elements of a given type and a set $T$ of elements appearing in the
+  list.
+  The element $l$ is the list of all input values, whether already
+  removed or not; while $T$ stores the removed values and is used as
+  \emph{tombstone}.
+  The sequential specification \gpnote*{Is this name used
+    anywhere?}{$\mathit{listAft}_s$} of list with add-after interface is
+  given with the transitions as follows:
+  \[
+    \begin{array}{rcl}
+      \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
+      & \xrightharpoonup{\alabelshort[\mathtt{addAfter}]{a_k,a}} 
+      & (l_1 \cdot a_k \cdot a \cdot l_2,T)\\
+      \big(\ (l,T)\ |\ a_k\ \text{occurs in}\ l\ \big)
+      & \xrightharpoonup{\alabelshort[\mathtt{remove}]{a_k}}
+      & (l,T \cup \{a_k\})\\
+      (l,T)
+      & \xrightharpoonup{\alabellong[\mathtt{read}]{}{s}{}}
+      & (l,T)\
+        \left[\begin{array}{c}
+                 \text{with $s$ is obtained from $l$}\\
+                 \text{by removing the values in $T$} 
+        \end{array}\right]
+ \end{array}
+  \]
+  
+  Method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately
+  after $a_k$ in $l$, assuming that each value is put into list at
+  most once.
+  Method $\alabelshort[\mathtt{remove}]{a_k}$ adds $a_k$ into $T$,
+  hence removing $a_k$ from the list for subsequent calls to the
+  $\mathtt{read}$ method.
+  Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content
+  excluding any element appearing in $T$.
+  Assume that the initial value of list is $(\circ,\emptyset)$, and
+  $\circ$ is never removed.
+  When the context is clear, in $\ensuremath{\tt read}$ operation, we
+  will omit $\circ$ in return value.
+\end{example}
 
 {\color {red} CW: The sequential specification of OR-set and list with add-after interface}
 \begin{example}[Sequential Specification of OR-Set]
@@ -413,41 +477,31 @@ The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt r
 Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$
 is a data and $id$ is a identifier. The sequential specification
 $\mathit{OR-Set}_s$ of OR-Set is given by the transitions:
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\abstate \xrightharpoonup{\alabellong[{\tt readIds}]{a}{ S }{} } \abstate$, where $S = \{ (a,id) \vert (a,id) \in \abstate \}$ 
-
-\item[-] $\abstate \xrightharpoonup{ \alabelshort[{\tt remove}]{a,S} }  \abstate \setminus S$
-
-\item[-] $\big(\abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\big) \xrightharpoonup{ \alabelshort[{\tt add}]{a,id} }  \abstate \cup \{ (a,\mathtt{id}) \}$
-
-\item[-] $\abstate \xrightharpoonup{\alabellong[{\tt read}]{a}{ S }{}} \abstate$, where $S = \{ a \vert \exists \mathtt{id}, (a,\mathtt{id}) \in \abstate \}$ 
-\end{itemize}
+\[
+  \begin{array}{rcl}
+    \abstate 
+    & \xrightharpoonup{\alabellong[\mathtt{readIds}]{a}{S}{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = \{ (a,id)\ \vert\ (a,id) \in \abstate\}]
+      \end{array}\\
+    \abstate & 
+               \xrightharpoonup{\alabelshort[\mathtt{remove}]{a,S}}
+    & \abstate \setminus S \\
+    \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
+             & \xrightharpoonup{ \alabelshort[{\tt add}]{a,id} }
+    & \abstate \cup \{ (a,\mathtt{id}) \}\\
+    \abstate
+    & \xrightharpoonup{\alabellong[\mathtt{read}]{a}{ S }{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
+      \end{array}
+  \end{array}
+\]
 
 Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
 \end{example}
-
-\begin{example}[Sequential Specification of List ($\mathtt{addAfter}$)]
-  \label{definition:sequential specification of or-set} 
-  Each abstract state $\abstate = (l,T)$ contains a sequence $l$ and a
-  set $T$.
-  The element $l$ is the list of all input values, whether already
-  removed or not; while $T$ stores the removed values and is used as
-  tombstone.
-  The sequential specification \gpnote*{Is this name used
-    anywhere?}{$\mathit{listAft}_s$} of list with add-after interface is
-  given with the transitions as follows:
-  \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-  \item[-] $\big((a_1 \cdot \ldots \cdot a_n,T)\ |\ k \leq n \wedge a \ is \ unique \big) \xrightharpoonup{ \alabelshort[{\tt addAfter}]{a_k,a} } (a_1 \cdot \ldots \cdot a_k \cdot a \cdot a_{k+1} \cdot \ldots \cdot a_n,T)$
-  \item[-] $\big((a_1\cdot \ldots \cdot a_n,T)\ |\ 1 \leq k \leq n \big) \xrightharpoonup{ \alabelshort[{\tt remove}]{a_k} } (l,T \cup \{ a_k \})$ 
-  \item[-] $(l,T) \xrightharpoonup{\alabellong[{\tt read}]{}{s}{}} (l,T)$, here $s$ is obtained from $l$ by removing values in $T$ 
-  \end{itemize}
-  Method $\alabelshort[{\tt addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$ in $l$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ adds $a_k$ into $T$. $\alabellong[{\tt read}]{}{s}{}$ returns the list content not in $T$. 
-  
-  Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
-\end{example}
-
 
 \fxwarning[nomargin, inline]{TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.}
 
@@ -537,7 +591,7 @@ To be precise:
 %
 \begin{definition}
   \label{definition:ralinearizability1} A history $h =
-  (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\cup\updates$ is \crdtlinearizable{} w.r.t. a
+  (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\uplus\updates$ is \crdtlinearizable{} w.r.t. a
    sequential specification
 %\gpnote*{First mention?}{deterministic}
   \Spec{}, if there exists a specification sequence
@@ -552,7 +606,7 @@ To be precise:
     admitted by $\Spec$, i.e.
     $\aseqord\!\downarrow_{\updates} \in \Spec$, where we denote by
     $\aseqord\downarrow_{S}$ the restriction of the order $\aseqord$ to
-    the subset $S$, and
+    the set $S$, and
   \item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ is itself admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
     \alabel_{\mathsf{qr}} \in \Spec$.
 \end{enumerate}
@@ -567,8 +621,9 @@ that
   consistent with the visibility order of the history, that
 \item when restricted to update operations -- that is all the updates --, the sequence belongs to
   the specification, and that
-\item query operations can be justified by the specification based only
-  on the updates that precede it in the sequence and that are visible to them.
+\item every query operations can be justified by the specification based only
+  on the updates that precede it in the sequence and that are visible
+  to it.
 \end{inparaenum}
 
 \fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW} {\color {red}CW: \figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its linearization step by step.}
@@ -622,8 +677,8 @@ history $\gamma(h)=(\alabelset',\avisord')$ where
 The following definition
 extends~\autoref{definition:ralinearizability1} to arbitrary histories
 using the rewriting defined above.
-\gpnote[nomargin, inline]{I'd probably use $\Pi^*_i$ for the i-th
-  projection of a tuple, or the singleton.}
+% \gpnote[nomargin, inline]{I'd probably use $\Pi^*_i$ for the i-th
+%   projection of a tuple, or the singleton.}
 
 \begin{definition}[\CRDTLin{}]
   \label{definition:distributed linearizability} A history $h =
