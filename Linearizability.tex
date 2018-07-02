@@ -219,7 +219,24 @@ $\alabelset$.
 Finally, the visibility relation $\avisord$ is changed to record the
 fact that the downstreams of all operations in $\alabelset$ have been
 applied before $\alabel$.
-\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (b) to \figurename~\ref{fig:an example run of semantics} (c).}
+%
+\autoref{fig:rga-sem} shows how some components of the semantics
+progress according to the rules of~\autoref{fig:crdt-opsem} for the
+RGA data type.
+%
+In particular we shown: the local labels of replica $\arep_1$
+($\gstates(\arep_1).\alabelset$); its state, where we remove the
+$\astate$ for succinctness (then $\gstates(\arep_1).\astate.\mathsf{N}$
+becomes $\gstates(\arep_1).\mathsf{N}$); and the global visibility
+relation $\gstates.\mathtt{vis}$.
+%
+The transition from~\autoref{fig:rga-sem-2} to~\autoref{fig:rga-sem-3}
+shows an {\sc Operation} transition where the operation
+$\mathtt{remove}(b)$ is executed by replica $\arep_1$.
+%
+Notice in particular how the global visibility relation is extended.
+
+% \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (b) to \figurename~\ref{fig:an example run of semantics} (c).}
 
 The second rule describes a replica $\arep$ in state $\astate$
 executing the downstream $\effector$ that corresponds to an operation
@@ -234,12 +251,49 @@ moreover, that it is a minimal one with respect to the order
 $\avisord$ among such downstreams, i.e., there exists no
 $\alabel'\not\in \alabelset$ such that $(\alabel',\alabel)\in
 \avisord$.
-This transition, labeled by the action $\dwn{\arep}{\alabel}$ (we may ignore the index $\arep$ when it is not important), results in modifying the state of $\arep$ to
-$\effector(\sigma)$ and adding $\alabel$ to the set of operations
-whose downstreams have been executed by $\arep$.
-Remark that these transition rules preserve the fact that $\avisord$ is
-a strict partial order.
-\fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (a) to \figurename~\ref{fig:an example run of semantics} (b).}
+This transition, labeled by the action $\dwn{\arep}{\alabel}$ (we may
+ignore the index $\arep$ when it is not important), results in
+modifying the state of $\arep$ to $\effector(\sigma)$ and adding
+$\alabel$ to the set of operations whose downstreams have been
+executed by $\arep$.
+Remark that these transition rules preserve the fact that $\avisord$
+is a strict partial order.
+%
+In~\autoref{fig:rga-sem}, the transition from~\autoref{fig:rga-sem-1}
+to~\autoref{fig:rga-sem-2} corresponds to a {\sc DownStream}
+transition which extends the visibility of the operation
+$\mathtt{addAfter}(b, d)$ to $\arep_1$.
+%
+Notice that this is reflected in the $\gstates(\arep_1).\alabelset$
+component.
+%
+The relation $\gstates.\mathtt{vis}$ does not change since this
+relation only changes when a new operation is executed at the source
+replica.
+
+
+% \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (a) to \figurename~\ref{fig:an example run of semantics} (b).}
+
+\begin{figure}[t]
+  % \centering
+  \begin{subfigure}[!t]{.3\linewidth}
+    \includegraphics[scale=.7]{figures/LinRGA-1}
+    \caption{}
+    \label{fig:rga-sem-1}
+  \end{subfigure}
+  \begin{subfigure}[!t]{.3\linewidth}
+    \includegraphics[scale=.7]{figures/LinRGA-2}
+    \caption{}
+    \label{fig:rga-sem-2}
+  \end{subfigure}
+  \begin{subfigure}[!t]{.3\linewidth}
+    \includegraphics[scale=.7]{figures/LinRGA-3}
+    \caption{}
+    \label{fig:rga-sem-3}
+  \end{subfigure}
+  \caption{Example of the semantics of RGA }
+  \label{fig:rga-sem}
+\end{figure}
 
 In the sequel it will be useful to distinguish query (or pure) methods
 which do not modify the state from state-modifying methods, which we
@@ -425,7 +479,7 @@ and the transitions are given as follows:
 
 \begin{example}[Sequential Specification of RGA-like List
   (with $\mathtt{addAfter}$ method)]
-  \label{definition:sequential specification of or-set} 
+  \label{definition:sequential specification of or-set}
   Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of
   elements of a given type and a set $T$ of elements appearing in the
   list.
@@ -438,7 +492,7 @@ and the transitions are given as follows:
   \[
     \begin{array}{rcl}
       \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
-      & \xrightharpoonup{\alabelshort[\mathtt{addAfter}]{a_k,a}} 
+      & \xrightharpoonup{\alabelshort[\mathtt{addAfter}]{a_k,a}}
       & (l_1 \cdot a_k \cdot a \cdot l_2,T)\\
       \big(\ (l,T)\ |\ a_k\ \text{occurs in}\ l\ \big)
       & \xrightharpoonup{\alabelshort[\mathtt{remove}]{a_k}}
@@ -448,11 +502,11 @@ and the transitions are given as follows:
       & (l,T)\
         \left[\begin{array}{c}
                  \text{with $s$ is obtained from $l$}\\
-                 \text{by removing the values in $T$} 
+                 \text{by removing the values in $T$}
         \end{array}\right]
  \end{array}
   \]
-  
+
   Method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately
   after $a_k$ in $l$, assuming that each value is put into list at
   most once.
@@ -479,13 +533,13 @@ is a data and $id$ is a identifier. The sequential specification
 $\mathit{OR-Set}_s$ of OR-Set is given by the transitions:
 \[
   \begin{array}{rcl}
-    \abstate 
+    \abstate
     & \xrightharpoonup{\alabellong[\mathtt{readIds}]{a}{S}{}}
     & \abstate\
       \begin{array}{c}
         [\text{with}\ S = \{ (a,id)\ \vert\ (a,id) \in \abstate\}]
       \end{array}\\
-    \abstate & 
+    \abstate &
                \xrightharpoonup{\alabelshort[\mathtt{remove}]{a,S}}
     & \abstate \setminus S \\
     \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
