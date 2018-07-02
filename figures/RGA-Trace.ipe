@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180702124632" modified="D:20180702131244"/>
+<info created="D:20180702124632" modified="D:20180702163104"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -465,11 +465,11 @@ h
 272 656 l
 h
 </path>
-<path matrix="1 0 0 1 17 0" stroke="black">
-159.536 544.468 m
-160 496 l
-272 496 l
-271.536 544.468 l
+<path stroke="black">
+176.536 544.468 m
+176.51 495.88 l
+288.54 495.95 l
+288.536 544.468 l
 h
 </path>
 <text matrix="1 0 0 1 -94.4637 -127.532" transformations="translations" pos="272 656" stroke="black" type="label" width="111.235" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt; ts_e \Rightarrow}</text>
@@ -577,5 +577,12 @@ h
 <text matrix="1 0 0 1 388.841 -27.979" transformations="translations" pos="96 624" stroke="black" type="label" width="33.707" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{T = \{d\}}</text>
 <text matrix="0.797719 0.603029 -0.603029 0.797719 184.392 -52.1904" transformations="translations" pos="320 544" stroke="black" type="label" width="62.97" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{addAfter}(c, e)</text>
 <text matrix="0.797719 0.603029 -0.603029 0.797719 506.812 54.1545" transformations="translations" pos="320 544" stroke="black" type="label" width="44.316" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{remove}(d)</text>
+<path stroke="black">
+176 544 m
+176 544 l
+176 544 l
+176 544 l
+h
+</path>
 </page>
 </ipe>

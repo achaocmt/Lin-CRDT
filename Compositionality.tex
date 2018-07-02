@@ -53,7 +53,7 @@ Although not all per-object \crdtlinearization{s} can be combined into global \c
 Next, we consider a class of \crdtlinearizable{} objects for which there always exist per-object \crdtlinearization{s} that can be combined into global \crdtlinearization{s}, which implies that their composition is \crdtlinearizable{}. Actually, this class of objects are exactly those that admit execution-order linearizations and the proof methodology described in Section~\ref{subsec:time order of execution as linearization}. While Section~\ref{subsec:time order of execution as linearization} presented execution-order linearizations in an informal way, we give hereafter a formal definition. Intuitively, an object $\aobj$ admits execution-order linearizations when the history of every trace (execution) can be linearized in the order in which operations are executed at the origin replica.
 
 \begin{definition}
-Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$. We say that $\aobj$ admits \emph{execution-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff \gpnote*{Shouldn't this be the downstream?}{$\src{}{\alabel_1}$} occurs before $\src{}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
+  Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$. We say that $\aobj$ admits \emph{execution-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
 \end{definition}
 
 In the following, we show that the composition of a set of \crdtlinearizable{} objects that admit execution-order linearizations is also \crdtlinearizable{} and moreover, it also admits execution-order linearizations. A first preliminary result states that the order in which ``concurrent'' operations are executed at the origin replica can be permuted arbitrarily while still leading to a valid trace. More precisely, for every linearization $\alinord$ of the visibility relation in the history of a trace, there exists another valid trace where operations are executed at the origin replica in the order defined by $\alinord$.
@@ -208,15 +208,15 @@ Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\ala
 \end{figure}
 
 
-\figurename~\ref{fig:an example run of semantics} gives a example of two step of transitions on semantics of RGA. The first step is to do downstream of a $addAfter$, while the second step is to do operation $remove$. Here we can see that, the downstream of $addAfter$ always insert a new node into the Ti-tree $N$, while the downstream of $remove$ always insert a value into $Tomb$.
+% \figurename~\ref{fig:an example run of semantics} gives a example of two step of transitions on semantics of RGA. The first step is to do downstream of a $addAfter$, while the second step is to do operation $remove$. Here we can see that, the downstream of $addAfter$ always insert a new node into the Ti-tree $N$, while the downstream of $remove$ always insert a value into $Tomb$.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=1 \textwidth]{figures/ExplainSemantics.pdf}
-\vspace{-10pt}
-  \caption{An example run of semantics.}
-  \label{fig:an example run of semantics}
-\end{figure}
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=1 \textwidth]{figures/ExplainSemantics.pdf}
+% \vspace{-10pt}
+%   \caption{An example run of semantics.}
+%   \label{fig:an example run of semantics}
+% \end{figure}
 
 
 \figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its \crdtlinearization{}.
