@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180627123622"/>
+<info created="D:20151003110714" modified="D:20180702164750"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -255,64 +255,69 @@ h
 <page>
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
-<text layer="alpha" matrix="1 0 0 1 -28.795 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
-<text matrix="1 0 0 1 -28.795 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
-<text matrix="1 0 0 1 -8.795 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="96.803" height="10.677" depth="2.49" valign="baseline">$\ensuremath{\ell}_2$=${\tt addAfter}(\circ$,$b)\stackrel{ \ensuremath{\mathtt{ts}}_b }{\Longrightarrow}$</text>
-<use matrix="1 0 0 1 -124 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<use matrix="1 0 0 1 -72 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<path matrix="1 0 0 1 44 0" stroke="black" arrow="normal/normal">
+<text layer="alpha" matrix="1 0 0 1 -48.795 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="135.464" height="6.918" depth="0" valign="baseline">execution-order linearizations: </text>
+<text matrix="1 0 0 1 39.205 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
+<text matrix="1 0 0 1 39.205 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<text matrix="1 0 0 1 59.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="96.803" height="10.677" depth="2.49" valign="baseline">$\ensuremath{\ell}_2$=${\tt addAfter}(\circ$,$b)\stackrel{ \ensuremath{\mathtt{ts}}_b }{\Longrightarrow}$</text>
+<use matrix="1 0 0 1 -56 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 -4 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 112 0" stroke="black" arrow="normal/normal">
 120 240 m
 192 208 l
 </path>
-<use matrix="1 0 0 1 36 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<use matrix="1 0 0 1 84 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 219.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="77.274" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\ell}_4$=${\tt read}()\Rightarrow b \cdot  a$</text>
-<path stroke="black">
+<use matrix="1 0 0 1 104 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 152 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 287.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="77.274" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\ell}_4$=${\tt read}()\Rightarrow b \cdot  a$</text>
+<path matrix="1 0 0 1 68 0" stroke="black">
 56 208 m
 104 208 l
 </path>
-<path stroke="black">
+<path matrix="1 0 0 1 68 0" stroke="black">
 112 208 m
 312 208 l
 </path>
-<path stroke="black">
+<path matrix="1 0 0 1 68 0" stroke="black">
 56 240 m
 156 240 l
 </path>
-<path stroke="black">
+<path matrix="1 0 0 1 68 0" stroke="black">
 164 240 m
 264 240 l
 </path>
-<path stroke="black">
+<path matrix="1 0 0 1 68 0" stroke="black">
 272 240 m
 344 240 l
 </path>
-<path stroke="black">
+<path matrix="1 0 0 1 68 0" stroke="black">
 320 208 m
 344 208 l
 </path>
-<text matrix="1 0 0 1 35.205 -288" transformations="translations" pos="64 436" stroke="black" type="label" width="8.62" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_2$</text>
-<path matrix="1 0 0 1 -4 0" stroke="black" dash="dashed">
+<path matrix="1 0 0 1 64 0" stroke="black" dash="dashed">
 120 260 m
 120 144 l
 </path>
-<path matrix="1 0 0 1 48 0" stroke="black" dash="dashed">
+<path matrix="1 0 0 1 116 0" stroke="black" dash="dashed">
 120 260 m
 120 144 l
 </path>
-<text matrix="1 0 0 1 75.205 -288" transformations="translations" pos="64 436" stroke="black" type="label" width="24.436" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_1 \cdot \ensuremath{\ell}_2$</text>
-<text matrix="1 0 0 1 47.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="97.794" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\ell}_1$=${\tt addAfter}(\circ$,$a)\stackrel{ \ensuremath{\mathtt{ts}}_a }{\Longrightarrow}$</text>
-<text matrix="1 0 0 1 159.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="96.133" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\ell}_3$=${\tt addAfter}(b$,$c)\stackrel{ \ensuremath{\mathtt{ts}}_c }{\Longrightarrow}$</text>
-<path matrix="1 0 0 1 156 0" stroke="black" dash="dashed">
+<text matrix="1 0 0 1 115.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="97.794" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\ell}_1$=${\tt addAfter}(\circ$,$a)\stackrel{ \ensuremath{\mathtt{ts}}_a }{\Longrightarrow}$</text>
+<text matrix="1 0 0 1 227.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="96.133" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\ell}_3$=${\tt addAfter}(b$,$c)\stackrel{ \ensuremath{\mathtt{ts}}_c }{\Longrightarrow}$</text>
+<path matrix="1 0 0 1 224 0" stroke="black" dash="dashed">
 120 260 m
 120 144 l
 </path>
-<text matrix="1 0 0 1 167.205 -288" transformations="translations" pos="64 436" stroke="black" type="label" width="40.252" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_1 \cdot \ensuremath{\ell}_2 \cdot \ensuremath{\ell}_3$</text>
-<text matrix="1 0 0 1 219.205 -288" transformations="translations" pos="64 436" stroke="black" type="label" width="56.067" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_1 \cdot \ensuremath{\ell}_2 \cdot \ensuremath{\ell}_4 \cdot \ensuremath{\ell}_3$</text>
-<path matrix="1 0 0 1 220 0" stroke="black" dash="dashed">
+<path matrix="1 0 0 1 288 0" stroke="black" dash="dashed">
 120 260 m
 120 144 l
 </path>
-<text matrix="1 0 0 1 -48.795 -288" transformations="translations" pos="64 436" stroke="black" type="label" width="79.037" height="6.918" depth="0" valign="baseline">RA-linearization: </text>
+<text matrix="1 0 0 1 -48.795 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="143.545" height="6.926" depth="1.93" valign="baseline">timestamp-order linearizations : </text>
+<text matrix="1 0 0 1 103.205 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="8.62" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_2$</text>
+<text matrix="1 0 0 1 143.205 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="24.436" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_1 \cdot \ensuremath{\ell}_2$</text>
+<text matrix="1 0 0 1 235.205 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="40.252" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_1 \cdot \ensuremath{\ell}_2 \cdot \ensuremath{\ell}_3$</text>
+<text matrix="1 0 0 1 287.205 -292" transformations="translations" pos="64 436" stroke="black" type="label" width="56.067" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_1 \cdot \ensuremath{\ell}_2 \cdot \ensuremath{\ell}_4 \cdot \ensuremath{\ell}_3$</text>
+<text matrix="1 0 0 1 103.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="8.62" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_2$</text>
+<text matrix="1 0 0 1 143.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="24.436" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_2 \cdot \ensuremath{\ell}_1$</text>
+<text matrix="1 0 0 1 235.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="40.252" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_2 \cdot \ensuremath{\ell}_1 \cdot \ensuremath{\ell}_3$</text>
+<text matrix="1 0 0 1 287.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="56.067" height="6.923" depth="1.49" valign="baseline">$\ensuremath{\ell}_2 \cdot \ensuremath{\ell}_1 \cdot \ensuremath{\ell}_3 \cdot \ensuremath{\ell}_4$</text>
 </page>
 </ipe>
