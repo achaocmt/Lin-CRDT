@@ -187,12 +187,12 @@ tree with timestamp \lstinline|ts|$_{\mathtt{b}}$ and whose parent is the item
 The tree-ness property will be ensured by construction.
 
 
-\begin{wrapfigure}{l}{.3\textwidth}
-  \centering
-  \includegraphics[scale=.9]{figures/simple-ti-tree}
-  \caption{RGA Ti-tree example.}
-  \label{fig:rga-tree}
-\end{wrapfigure}
+% \begin{wrapfigure}{l}{.3\textwidth}
+%   \centering
+%   \includegraphics[scale=.9]{figures/simple-ti-tree}
+%   \caption{RGA Ti-tree example.}
+%   \label{fig:rga-tree}
+% \end{wrapfigure}
 If we look at the \lstinline|atSource| portion of the
 \lstinline|addAfter(a,b)| method we can see that precondition requires
 the element \lstinline|a| to exist in the tree before the insertion of
@@ -229,33 +229,54 @@ the tree (eg. siblings) are not related causally related.
 %   tree resulting from concurrent operations, but this does not affect
 %   the correctness of the algorithm.}
 %
-An example of such a tree is shown in~\autoref{fig:rga-tree} where the
+An example of such a tree is shown in the left most box
+of~\autoref{fig:rga-trace}, where we can see that 
 elements \lstinline|c| and \lstinline|b| were concurrently added after
 \lstinline|a|, and \lstinline|a| was added first after the
 initialization element $\circ$.
 
- Considering a \lstinline|Ti-tree| constructed in this way, we can
+Considering a \lstinline|Ti-tree| constructed in this way, we can
 obtain a list by traversing the tree in pre-order fashion, with the
 proviso that siblings are ordered according to their timestamps with
 the \emph{highest timestamp visited first}.
 %
-\autoref{fig:rga-tree} shows a tree that results in the list
-$\mathtt{a \cdot b \cdot c}$ assuming that the timestamp order is $\mathtt{ts_a
-  < ts_c < ts_b}$.
-
+Again, the leftmost box in~\autoref{fig:rga-trace} shows a tree that
+results in the list $\mathtt{a \cdot b \cdot c}$ assuming that the
+timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.85 \textwidth]{figures/HowRGAWork.pdf}
+  \includegraphics[width=1\textwidth]{figures/RGA-Trace}
 % \vspace{-10pt}
-  \caption{An example of conflict resolution of RGA, and how we do remove.}
-  \label{fig:how RGA works}
+  \caption{Example of RGA conflict resolution.}
+  \label{fig:rga-trace}
 \end{figure}
 
+Let us now consider the case of two concurrent operations:
+\lstinline|addAfter(c,d)| and \lstinline|addAfter(c,e)| executing in
+two different replicas.
+%
+Following the code in~\autoref{lst:rga} we obtain the trees in the
+second column of~\autoref{fig:rga-trace} where we assume that the
+top tree is the result of \lstinline|addAfter(c,d)| in one of the
+replicas, and the bottom tree is the result of executing
+\lstinline|addAfter(c,e)| in the other replica.
+%
+As it can be seen, the two trees result in different lists in each
+replicas before the operations are propagated respectively. 
+%
+In the third column of~\autoref{fig:rga-trace} we obtain the
+result of propagating the operations between the replicas -- indeed
+the propagation of any of the operations to any of the replicas
+engenders this tree, since the result would be the same (c.f. CRDT).
+%
+It is clear now that the result of the list is $\mathtt{a \cdot b
+  \cdot c \cdot d \cdot e}$. 
 
-\gpnote*{By Chao. Should be elsewhere}{
-\figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
-}
+
+% \gpnote*{By Chao. Should be elsewhere}{
+% \figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
+% }
 
 We have so far ignored the \lstinline|remove| operation.
 %
@@ -288,10 +309,17 @@ elements.
 %
 With this explanation the code of the \lstinline|remove| operation
 in~\autoref{lst:rga} should be self-explanatory.
+%
+The last column of~\autoref{fig:rga-trace} shows the result of
+removing item $\mathtt{d}$ from the list. 
 
 Finally, the implementation of \lstinline|read| performs the pre-order
 traversal as explained before, where all the elements in the tombstone
 \lstinline|Tomb| are ignored from the output list.
+%
+In each of the boxes of~\autoref{fig:rga-trace} the list shown
+represents the result of a \lstinline|read| operation in the state
+depicted. 
 
 \fxwarning[nomargin, inline]{It's not clear what we are linearizing. I think we should say that standard linearizability considers the partial order given by real-time while here we consider the visibility relation}
 
@@ -396,11 +424,8 @@ captionpos=b,label={lst:or-set}]
     return A
 \end{lstlisting}
 \end{figure}
-      % //@ R' = @|$\{ (a,k): \exists\ \alabel = \alabellongind[{\tt add}]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[{\tt remove}]{a,R}) \in \avisord$|@
-      %                  @|$\land\,\forall\ \alabel' = \alabellongind[{\tt remove}]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[{\tt remove}]{a,R})\}\not\subseteq \avisord\}$|@
-      % //@ S@|$'$|@ = S @|$\setminus$|@ R
 
-\begin{wrapfigure}[7]{r}{.5\textwidth}
+\begin{wrapfigure}{r}{.5\textwidth}
   \centering
   \includegraphics[width=0.45 \textwidth]{./figures/OR-Set-simple}
   \caption{Interleaving-based Set}
@@ -413,6 +438,7 @@ this time implementing a Set interface with methods: \lstinline|add(a)|,
   returning a boolean with the same consequences as the
   \lstinline|read()|. This choice is of no consequence to our results.}
 %
+
 The meaning of these methods is self-evident from their names.
 %
 However, what is not evident is what are the results of conflicting

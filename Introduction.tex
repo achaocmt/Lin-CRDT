@@ -102,7 +102,7 @@ by all replicas.
 %   mechanism (timestamps, vector clocks, etc.). So the conflict
 %   detection + resolution is there.}
 
-\ce{To simplify, the RGA uses now timestamps that are simply integers. The following text assumes that timestamps are pairs of replica ids and local clocks.}
+% \ce{To simplify, the RGA uses now timestamps that are simply integers. The following text assumes that timestamps are pairs of replica ids and local clocks.}
 
 % \ce{I would say that for RGA, two \lstinline|addAfter| operations conflict only if they try to add something after exactly the same element (like in the example given above). And this conflict is solved looking at the timestamps. The next paragraph uses a more general notion of conflict.}
 
@@ -143,6 +143,13 @@ We obtain the same result if $t_1 = t_2$ and, assuming that we have a replica
 order $<_r$, we have $\arep_1 <_r \arep_2$.
 %
 In any other case we obtain $\mathtt{a \cdot b \cdot d \cdot c \cdot e}$.
+%
+The idea of using an arbitrary order among replica identifiers is
+often used in CRDT implementations to break ties among elements that
+are equal according to the timestamps.
+%
+For this reason in the rest of the paper we will assume that metadata
+provides a strict ordering relation to abstract this detail away.
 
 At this point we can know that if the effects of all operations are
 delivered to all replicas eventually, the replicas will converge to
