@@ -515,7 +515,7 @@ captionpos=b,label={lst:or-set}]
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,$|@add(a,k)
+      //@ let lin = lin@|$\,\cdot\,$|@add(a,k)
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
       //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
@@ -523,16 +523,16 @@ captionpos=b,label={lst:or-set}]
   remove(a) :
     atSource :
       let R = {(a,k) | (a,k) @|$\in$|@ S}
-      //@ let lin = lin@|$\,\cdot\,$|@readIds(a)@|$\Rightarrow$|@R@|$\,\cdot\,$|@remove(a,R)
+      //@ let lin = lin@|$\,\cdot\,( $|@readIds(a)@|$\,\Rightarrow\,$|@R@|$ )\,\cdot\,$|@remove(a,R)
     downStream(R) :
       S = S @|$\setminus$|@ R
-      //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k)@|$\Rightarrow$|@, (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
-                             @|$ \forall\ \alabel'$|@ = remove(a,*)@|$\Rightarrow$|@, {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
-      //@ S@|$'$|@ = S @|$\setminus$|@ R@|$'$|@
+      //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k). (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
+                              @|$ \forall\ \alabel'$|@ = remove(a,_). {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
+      //@ S@|$'$|@ = S @|$\setminus$|@ R
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,$|@read@|$\Rightarrow$|@A
+    //@ let lin = lin@|$\,\cdot\,$|@read@|$\,\Rightarrow\,$|@A
     return A
 \end{lstlisting}
 \end{figure}

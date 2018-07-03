@@ -533,7 +533,7 @@ The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt r
 % \gpwarning{I still don't like the pairs for OR-Set}
 Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$
 is a data and $id$ is a identifier. The sequential specification
-$\mathit{OR-Set}_s$ of OR-Set is given by the transitions:
+$\specOrSet$ of OR-Set is given by the transitions:
 \[
   \begin{array}{rcl}
     \abstate
@@ -664,7 +664,7 @@ To be precise:
     $\aseqord\!\downarrow_{\updates} \in \Spec$, where we denote by
     $\aseqord\downarrow_{S}$ the restriction of the order $\aseqord$ to
     the set $S$, and
-  \item for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ is itself admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
+  \item\label{it:query} for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ is itself admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
     \alabel_{\mathsf{qr}} \in \Spec$.
 \end{enumerate}
 In this case we say that $(\alabelset, \aseqord)$ is an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.

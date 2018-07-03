@@ -80,7 +80,8 @@ defined as the conjunction of two properties:
   $\arep$ with local configuration $(\alabelset,\astate)$, the state
   $\sigma$ is obtained by applying the effectors of the operations
   in $\alabelset$ (that have been delivered to $\arep$) \emph{in the order
-  defined by $\alinord$}, and
+  defined by $\alinord$} (that is, for any two effectors $\effector_1$ and $\effector_2$ produced by two operations $\alabel_1$ and $\alabel_2$,  
+  $\effector_1$ is applied  before $\effector_2$ if $\alabel_1$ is linearized before $\alabel_2$), and
 \item[-] $\mathsf{\CRDTLinshort{}}$: requiring that the sequence
   $\alinord$ is an \crdtlinearization{} of the current history (w.r.t.
   $\Spec{}$).
@@ -119,49 +120,90 @@ any two replica states $\sigma$ and $\sigma'$,
           $\Spec$, or \mbox{$\refmap(\sigma)\xrightharpoonup{\secondrep(\gamma(\alabel))}\refmap(\sigma')$} 
           when a query-update rewriting $\gamma$ is used,
           and
-          \gpwarning{The match between labels and $\delta$ has to be made more explicit somewhere}
         \item if a query $\alabel$ is applied on a state $\sigma$ or
           it is introduced by a rewriting of a query-update that
           executes \lstinline|atSource| on a state $\sigma$, then
-          $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma)$.
+          $\refmap(\sigma)\xrightharpoonup{\alabel}\refmap(\sigma)$.
 \end{enumerate}
 % \gpnote*{Explain or remove}{
 % Actually, for the CRDT objects presented in Section~\ref{subsec:time order of execution as linearization}, we consider a stronger version of $\mathsf{Refinement}$ which requires that the state $\sigma$ and the downstream $\delta$ satisfy some particular condition (in the context of the first proof goal).
 % }
 
-\gpnote[nomargin, inline]{Forward reference to exec-order, and
-  ts-order.}
-We have applied this methodology to a range of CRDT objects described
-in~\cite{ShapiroPBZ11}, and we have identified two general classes of
+%\gpnote[nomargin, inline]{Forward reference to exec-order, and
+%  ts-order.}
+
+\begin{figure}[t]
+%\centering
+{\footnotesize
+\begin{tabular}{|l|c|r|}
+\hline
+{\bf CRDT} & {\bf Interface} & {\bf Linearization strategy}\\
+\hhline{|===|}
+counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$ & execution-order \\
+\hline
+PN-counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$ & execution-order \\
+\hline
+LWW-register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{value}{}$ & timestamp-order\\
+\hline
+Multi-value register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+\hline
+2P-set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+\hline
+LWW-set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & timestamp-order\\
+\hline
+%PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
+%\hline
+OR-set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+\hline
+RGA~\cite{?}&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$, &
+                \\ & $\alabellong[{\tt read}]{}{list\_of\_values}{}$ & timestamp-order\\
+\hline
+Wooki~\cite{?}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$, & 
+                \\ & $\alabellong[{\tt read}]{}{list\_of\_values}{}$ & execution-order \\
+\hline
+Tree-Doc~\cite{?}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$, &
+                \\ & $\alabellong[{\tt read}]{}{list\_of\_values}{}$ & execution-order\\
+\hline
+\end{tabular}
+}
+\caption{CRDTs proved RA-linearizable and the linearization strategy used in each case.}
+\label{fig:crdt-implementaton of this paper, their correctness, and their interface}
+\end{figure}
+
+We have applied this methodology to a range of CRDTs listed in Figure~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface},
+including different implementations of counters, registers, sets, and lists. With each CRDT we give its interface which should be self-explanatory
+({\tt addBetween} adds a value in between two other values).
+We have identified two general classes of
 CRDT implementations which differ in the way in which the
-linearization $\alinord$ is extended when executing the operations at
-the source replica.
+linearization $\alinord$ is extended when executing operations at
+the origin replica.
 For the first class of objects, which includes the OR-Set in
 Listing~\ref{lst:or-set}, the linearization $\alinord$ is defined by
-the order in which the operation is executed at their source (that is
-when the pair of labels \lstinline|atSource| and
-\lstinline|downstream| are executed for the first time in the source
-repolica).
-In this case the new operation is immediately appended
+the order in which the operations are executed at their origin replica (that is
+when \lstinline|atSource| is executed).
+In this case a new operation is immediately appended
 to the current linearization $\alinord$ (\S~\ref{subsec:time order of execution
   as linearization}).
 We say that such objects admit \emph{execution-order linearizations}.
-The second class of objects, including the RGA CRDTlin in
-Listing~\ref{lst:rga}, supports \CRDTLinshort{} proofs in which the
+The second class of objects, including the RGA in
+Listing~\ref{lst:rga}, supports RA-linearizability proofs in which the
 linearization is built based on timestamps, e.g., $\alinord$ is
 consistent with the order between the timestamps generated by
 operations (\S~\ref{subsec:time-stamp order as linearizabtion}).
 We say that such objects admit \emph{timestamp-order linearizations}.
-
-We will now illustrate these proof strategies through the RGA and
-OR-Set examples.
+The last column in Figure~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}
+shows the type of linearizations admitted by each of the CRDTs we considered. 
+In order to focus on the RA-linearizability proofs we delay the formal definition 
+of an object admitting execution-order or timestamp-order linearizations until Section~\ref{sec:compositionality}.
+We will now illustrate these proof strategies using Or-Set and RGA as examples,
 %
-We will in each case leave a semi-formal argument for their
-linearizability, and explain the commonalities of all other CRDTs in
+%We will in each case leave a semi-formal argument for their
+%linearizability, 
+and explain the commonalities of all other CRDTs in
 the same class.
-%
-The formal proofs are relegated to~\autoref{sec:appendix proofs of
-  crdt implementations}.
+%%
+%The formal proofs are relegated to~\autoref{sec:appendix proofs of
+%  crdt implementations}.
 
 %
 %For some CRDT implementations, when proving its correctness, we can use the total-order of executions as linearization. For such CRDT implementations, our proof approach is as follows:
@@ -196,33 +238,37 @@ The formal proofs are relegated to~\autoref{sec:appendix proofs of
 %
 %It is easy to see that, execution-order simulation relation implies a \crdtlinearizable{} relation proof with the execution as linearization.
 
-In this section, we describe a first instantiation of the methodology described above using as example the OR-Set object in Listing~\ref{lst:or-set}. The proof that this object satisfies \crdtlin{} w.r.t. the specification defined in Example~\ref{} relies on several annotations which are given on the lines starting with {\tt //@} in Listing~\ref{lst:or-set} and that we describe hereafter.
+In this section, we describe a first instantiation of the methodology described above using as example the OR-Set in Listing~\ref{lst:or-set}. The proof that this CRDT satisfies \crdtlin{} w.r.t. the specification defined in Example~\ref{definition:sequential specification of or-set} relies on several annotations which are given on the lines starting with {\tt //@} in Listing~\ref{lst:or-set} and that we describe hereafter.
 
 %a two-vocabulary formula, the primed, resp., unprimed, variables denoting values after, resp., before, the execution of the procedure.
 
-The annotations included in the \lstinline|atSource| labels describe the construction of the linearization,
+The annotations included under the \lstinline|atSource| labels describe the construction of the linearization,
 %We describe updates of the linearization using \lstinline|let| constructs that append a set of labels.
-which is extended by appending operations to the abstract $\alinord$ linearization, after possibly rewriting them through the query-update rewriting $\gamma$ defined in Example~\ref{}. %, when they execute the \lstinline|atSource| procedure.
-The annotations of the downstreams specify their effect, e.g., relating their effect with the set of operations visible to the replica where this operation has originated (when the downstream has been computed). These annotations are written as two-vocabulary formulas, the primed, resp. unprimed, variables denoting values of variables after, resp. before, the execution of the downstream.
-For instance, the downstream corresponding to a {\tt remove} operation removes the set of element-id pairs added by {\tt add} operations visible at the replica $\arep$ where the {\tt remove} originated, and which were not ``canceled'' by other {\tt remove}s visible at $\arep$ ({\tt remove}s that saw those {\tt add} operations).
+which is extended by appending operations, after possibly rewriting them through the query-update rewriting $\gamma$ defined in Example~\ref{}. %, when they execute the \lstinline|atSource| procedure.
+The annotations under \lstinline|downStream| specify the behavior of the effectors, e.g., characterizing the result of applying them based on the set of operations visible to the replica where they were generated
+% at the moment of applying the corresponding generator 
+%this operation has originated 
+(at the time when the corresponding generator has been executed). These annotations are written as two-vocabulary formulas, the primed, resp. unprimed, variables denoting values of variables after, resp. before, the execution of the effector. Concretely, the characterization of the effectors corresponding to an {\tt add} operation is self-explanatory (just a logical interpretation of the code under the specific \lstinline|downStream| label) while the characterization of {\tt remove} effectors is more involved. The latter is expressing the fact that 
+a {\tt remove} effector removes the set of element-id pairs added by {\tt add} operations visible at the replica $\arep$ where the {\tt remove} originated, and which were not ``canceled'' by other {\tt remove}s visible at $\arep$ ({\tt remove}s that saw those {\tt add} operations)~\footnote{This characterization of the set of element-id pairs removed by a {\tt remove} effector is written on the first annotation line under \lstinline|downStream(R)|.}.
 
-\gp{red = we have to talk about it before?}
-In the following, we show that the $\mathsf{ReplicaStates}$ property described above is an inductive invariant for OR-Set. Since every operation is appended to the linearization when it executes \lstinline|atSource| it clearly follows, in the linearization order, all operations visible to it. Then, by the {\textred{causal delivery}} assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. 
-The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant occurs in the case when two downstreams corresponding to two concurrent operations (that is, not related by visibility) have to be linearized in an order which does not coincide with the order in which their downstreams might have been applied in one or more of the replicas. It is important to recall at this point that concurrent operations can be applied in different orders in different replicas. 
+In the following, we show that the $\mathsf{ReplicaStates}$ property described above is an inductive invariant for OR-Set. Since every operation is appended to the linearization when it executes \lstinline|atSource| it clearly follows, in the linearization order, all operations visible to it. Then, by the causal delivery assumption, the order in which downstreams are applied at a given replica is also consistent with the visibility order. 
+Therefore, showing that $\mathsf{ReplicaStates}$ is an inductive invariant only requires dealing with the situation where two effectors corresponding to two concurrent operations $\alabel_1$ and $\alabel_2$ (i.e., $\alabel_1$ and $\alabel_2$ are not related by visibility) are applied at some replica in an order that doesn't coincide with the linearization order between $\alabel_1$ and $\alabel_2$. 
+%have to be linearized in an order which does not coincide with the order in which their downstreams might have been applied in one or more of the replicas. 
+It is important to recall at this point that concurrent operations can be applied in different orders in different replicas. 
 % The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant is when two downstreams correspond to two ``concurrent'' operations (not related by visibility) and their linearization order is different from the order in which they are applied at a given replica.
 % \gpnote*{Refine this text.}
-Importantly, a fundamental property of CRDTs~\cite{ShapiroPBZ11} is that the downstreams of concurrent operations should \emph{commute}. In other words, applying them in any order leads to the same state.
-The fact that concurrent downstreams commute is an easy consequence of the downstream annotations: two {\tt add} or two {\tt remove} downstreams commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} downstream commute when they are concurrent because in this case, the element-id pairs removed by {\tt remove} are different from the pair added by the {\tt add} (since the {\tt add} is not visible to {\tt remove}).
+Importantly, a fundamental property of CRDTs~\cite{ShapiroPBZ11} is that the effectors of concurrent operations should \emph{commute}. In other words, applying them in any order leads to the same state.
+The fact that concurrent effectors commute is an easy consequence of the annotations under \lstinline|downStream|: two {\tt add} or two {\tt remove} effectors commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} effector commute when they are concurrent because in this case, the element-id pairs removed by the {\tt remove} effector are different from the pair added by the {\tt add} effector (since the {\tt add} is not visible to {\tt remove}).
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. For instance, applying the downstream produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{In the proof of $\mathsf{Refinement}$, we implicitly assume that whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, then the downstream produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the downstream produced by $\alabel$ must be simulated by the operation $\alabel_2$ in the specification. This is true in all of our proofs.} and the $\alabelshort[{\tt add}]{a,k}$ operation of the specification ??? has exactly the same effect. The same holds for the downstream produced by $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases: (1) whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, then the query $\alabellong[{\tt readIds}]{a}{R}{}$ (introduced by the query-update rewriting) 
-\gpnote*{?}{should be enabled in state $\refmap(\sigma)=\sigma$}, which clearly holds because the computation of $R$ in \lstinline|atSource| and as the result of $\alabelshort[{\tt readIds}]{a}$ in the specification state $\sigma$ are exactly the same, and (2) applying the query $\alabellongind[{\tt read}]{}{A}{}$ on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\sigma$, which again holds trivially.
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. For instance, the effector produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{As we mentioned in Section~\ref{ssec:proof-methodology}, whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, then the effector produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the effector produced by $\alabel$ must be simulated by the operation $\alabel_2$ in the specification.} and the $\alabelshort[{\tt add}]{a,k}$ operation of the specification $\specOrSet$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases. First, whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, the query $\alabellong[{\tt readIds}]{a}{R}{}$ introduced by the query-update rewriting should be enabled in the specification state $\refmap(\sigma)=\sigma$. This clearly holds because the output ${\tt R}$ of ${\tt readIds(a)}$ in the specification is computed exactly as the variable ${\tt R}$ in \lstinline|atSource|.
+% the computation of $R$ in \lstinline|atSource| and as the output of $\alabelshort[{\tt readIds}]{a}$ in the specification state $\sigma$ are exactly the same, and (2) 
+Second, applying the query $\alabellongind[{\tt read}]{}{A}{}$ on the replica state $\sigma$ should result in the same return value ${\tt A}$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma$, which again holds trivially.
 
 Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
 %The only thing to show is that the element-id pairs removed by a {\tt remove} have been added by {\tt adds} which precede it in the linearization, and not already removed by other {\tt remove}s that precede it. This is a direct consequence of the fact that the linearization order is consistent with the visibility relation, and the invariant $\mathsf{ReplicaStates}$, which implies that every element-id pair in a the state of a replica $\arep$ has been added by an {\tt add} visible to $\arep$ and not removed by other {\tt remove}s visible to $\arep$. Then,
-\gpnote*{Not sure I understand the sentence}
-{
-We also have to argue that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[{\tt readIds}]{a}{R}{},\alabellongind[{\tt read}]{}{A}{}\}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
-visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification.} First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstreams of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xRightarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xRightarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order (the item~(\ref{it:query}) in  Definition~\ref{definition:ralinearizability1}).
+More precisely, we have to show that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[{\tt readIds}]{a}{R}{},\alabellongind[{\tt read}]{}{A}{}\}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xrightharpoonup{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xrightharpoonup{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xrightharpoonup{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 
 TODO STATE WHICH OTHER OBJECTS SUPPORT THE SAME KIND OF PROOF.
 
