@@ -2,23 +2,20 @@
 \section{Proving \CRDTLin{}}
 \label{sec:proofs}
 
-\textblue{
-I think this section should be about proving linearizability. Here we introduce:
-\begin{itemize}
-\item a semantics for CRDTs
-\item a general methodology based on simulation relation (explain that it can also be seen as invariant checking)
-\item the two proof strategies for building linearizations, as particular instances of that simulation relation
-\end{itemize}}
-
-TODO INTRODUCE THIS SECTION
+We describe a proof methodology for showing that CRDT objects are \crdtlinearizable{}. 
+This methodology consists of an inductive invariant proof combined with a simulation proof based on  
+refinement mappings~\cite{DBLP:journals/tcs/AbadiL91,DBLP:journals/iandc/LynchV95}, 
+to show that the evolution of replica states can be simulated by the specification.
 
 \subsection{Proof Methodology}\label{ssec:proof-methodology}
 
-Our approach for proving \CRDTLin{} (w.r.t. $\Spec{}$) consists in
+In order to show \crdtlin{} (w.r.t. a specification $\Spec{}$) we start by
 instrumenting the object semantics with an auxiliary variable
-$\alinord$ recording a linearization of the current history (recorded
-in the object's global configurations) following the approach
-of~\cite{AbadiL91, VafeiadisHHS06, more citations}.
+$\alinord$ recording a linearization of the current history (i.e., the history recorded
+in the object's global configurations). 
+%This follows a rather standard approach for 
+%proving classical linearizability, 
+%of~\cite{AbadiL91, VafeiadisHHS06, more citations}.
 
 As explained in Section~\ref{sec:overview} there are two actions in the
 semantics that can modify the state of replicas:
@@ -27,38 +24,37 @@ semantics that can modify the state of replicas:
   which is shown under the \lstinline|atSource| label -- immediately
   followed by the \lstinline|downStream| at the source replica
   --, or
-\item the execution of the downstream of an operation originating in a
+\item the execution of the effector of an operation originating in a
   different replica shown under the \lstinline|downStream| label of
   the implementation.
 \end{inparaenum}
 %
 While the execution of an operation at its source replica represents
-the arrival of a new operation, the execution of a
-(\lstinline|downStream|) in a different replica represents the
+the arrival of a new operation, the execution of 
+\lstinline|downStream| in a different replica represents the
 propagation of effects of preexisting operations.
 %
 Since the sequence $\alinord$ is a global order over all the
-operations for the object in the system, it needs only be updated when
-a \emph{new} operation arrives, therefore only the execution of an
-\lstinline|atSource| portion of an operation engenders the extension
-of $\alinord$\footnote{For readers familiars with proving classical
+operations of the object in the system, it needs only be updated when
+a \emph{new} operation arrives, therefore only during the execution of the code under the
+\lstinline|atSource| label\footnote{For readers familiars with proving classical
   linearizability for concurrent objects, this is akin to assuming that
   \lstinline|atSource| is a ``fixed'' linearization point.
   However, differently from the classical case, the operation may not
-  be necessarily placed at the end of the current linearization.}
+  be necessarily placed at the end of the current linearization.},
 by adding the current operation at some specific position.
 %
-In this paper we only consider CRDTs whose linearizations are
-consistent with the visibility of operations.
-%
-That is, the order of linearization of an execution respects the
-causality of in the execution.\footnote{In fact, we are not aware of
-  \CRDTLinshort{} CRDTs where this is not true.}
+%In this paper we only consider CRDTs whose linearizations are
+%consistent with the visibility of operations.
+%%
+%That is, the order of linearization of an execution respects the
+%causality of in the execution.\footnote{In fact, we are not aware of
+%  \CRDTLinshort{} CRDTs where this is not true.}
 %
 To guarantee that the linearization is consistent with the visibility
 relation, the operation must be inserted in the linearization after
 all the operations which are visible at the replica executing
-\lstinline|atSource|.
+\lstinline|atSource| (we will give later two different strategies for achieving this requirement).
 %%
 %\gpnote*{Clarify?}
 %{
@@ -82,9 +78,9 @@ defined as the conjunction of two properties:
 %\setlength{\itemsep}{0.5pt}
 \item[-] $\mathsf{ReplicaStates}$: requiring that for each replica
   $\arep$ with local configuration $(\alabelset,\astate)$, the state
-  $\sigma$ is obtained by applying the downstreams of the operations
-  in $\alabelset$ (that have been delivered to $\arep$) in the order
-  defined by $\alinord$, and
+  $\sigma$ is obtained by applying the effectors of the operations
+  in $\alabelset$ (that have been delivered to $\arep$) \emph{in the order
+  defined by $\alinord$}, and
 \item[-] $\mathsf{\CRDTLinshort{}}$: requiring that the sequence
   $\alinord$ is an \crdtlinearization{} of the current history (w.r.t.
   $\Spec{}$).
@@ -97,23 +93,32 @@ assertions describing the effect of each downstream (we provide
 examples in the following subsections), joint with a proof that:
 \begin{itemize}
 %\setlength{\itemsep}{0.5pt}
-\item[-] $\mathsf{Refinement}$: each downstream produced by an update
+\item[-] $\mathsf{Refinement}$: each effector produced by an operation
   $\alabel$, respectively each query $\alabel$, is simulated by the
-  execution of $\alabel$ in the specification $\Spec$.
+  execution of $\alabel$ in the specification $\Spec$. 
 \end{itemize}
 Essentially, this last requirements establishes a strong
 correspondence between the implementation of the algorithm and its
-specification.
+specification. Actually, when using query-updates rewritings $\gamma$, $\mathsf{Refinement}$ requires that 
+the effector produced by an operation $\alabel$ be simulated by $\secondrep(\gamma(\alabel))$ 
+(the update label in the image of $\alabel$ w.r.t. $\gamma$) in the specification. 
+
 The proof of $\mathsf{Refinement}$ relies on a \emph{refinement
-  mapping}~\cite{earlierLamport,AbadiL91} between replica states and states of the
-specification, denoted by $\refmap$. The proof goals require that for
+  mapping}~\cite{AbadiL91,DBLP:journals/iandc/LynchV95} between replica states and states of the
+specification, denoted by $\refmap$. Intuitively, $\refmap$ being a refinement mapping means that any
+effector or query applied on a replica state $\sigma$ can be mimicked by the corresponding operation in the specification
+starting from $\refmap(\sigma)$ and leading to a specification state which is related by $\refmap$ to the resulting
+replica state.
+More precisely, it is required that for 
 any two replica states $\sigma$ and $\sigma'$,
 \begin{enumerate}
-        \item if $\sigma'$ is obtained from $\sigma$ by applying a
-          downstream $\delta$ produced by an update $\alabel$, then
-          \mbox{$\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$},
-          where $\xRightarrow{\alabel}$ is the transition function of
-          $\Spec$, and
+        \item if $\sigma'$ is obtained from $\sigma$ by applying an
+          effector $\delta$ produced by an operation $\alabel$, then
+          \mbox{$\refmap(\sigma)\xrightharpoonup{\alabel}\refmap(\sigma')$},
+          where $\xrightharpoonup{\alabel}$ is the transition function of
+          $\Spec$, or \mbox{$\refmap(\sigma)\xrightharpoonup{\secondrep(\gamma(\alabel))}\refmap(\sigma')$} 
+          when a query-update rewriting $\gamma$ is used,
+          and
           \gpwarning{The match between labels and $\delta$ has to be made more explicit somewhere}
         \item if a query $\alabel$ is applied on a state $\sigma$ or
           it is introduced by a rewriting of a query-update that
