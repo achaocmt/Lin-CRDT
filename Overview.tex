@@ -4,12 +4,7 @@
 
 % \gpnote[inline, nomargin]{Add an intuitive notion of history.}
 
-In this section we will firstly describe the system and program model
-we assume, and we will then illustrate our main contribution in two
-interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
-
 \begin{figure}[t]
-  % \centering
 \begin{lstlisting}[caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11})},captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
@@ -38,40 +33,21 @@ interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
     return ret-list
 \end{lstlisting}
 \end{figure}
-%       precondition: a = @|$\circ$|@ or (a != @|$\circ$|@ and (a, ts@|$_{\mathtt{a}}$|@,_) @|$\in$|@ N)
-%       precondition : (a,_,_) @|$\in$|@ N
 
-% \gpnote*[nomargin]{}{
-%   Section sketch:
-%   \begin{itemize}
-%   \item Informal explanation of the system model. Multiple replicas,
-%     clients connect to any replica. Operations are propagated lazily.
-%   \item Explanation of the program model. We explain the code of RGA
-%     (\lstinline|atSource|, \lstinline|downStream|). Conflict
-%     resolution. Commutativity.
-%   \item We give a first intuition about the \CRDTLin{} of RGA. We
-%     might explain why standard Linearizability is not good enough.
-%   \item We present OR-Set. We explain that the linearization of OR-Set
-%     is more complicated without getting too tangled into de details.
-%     OR-Set is important because we need to explain that some
-%     operations will see a sub-sequence of the global linearization
-%     (in contrast to RGA above).
-%   \item If needed we can talk about the compositionality problem.
-%   \end{itemize}
-% }
+In this section we will firstly describe the system and program model
+we assume, and we will then illustrate our main contribution in two
+interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
 
 \subsection{System Model}
 \label{sec:sys-model}
 
-
 \begin{wrapfigure}{r}{0.5\textwidth}
-% \begin{figure}[t]
   \centering
   \includegraphics[scale=.9]{figures/sys-mod}
   \caption{CRDT System Model}
   \label{fig:sys-mod}
-% \end{figure}
 \end{wrapfigure}
+
 We assume that the system is comprised of multiple nodes in a network.
 In this work we will be concerned with the implementation of CRDTs,
 and we will usually concentrate our discussion to the behaviors
@@ -488,7 +464,7 @@ Hence, we can now consider the linearization
   \begin{array}{c}
     \alabellong[\mathtt{addAfter}]{\circ,a}{\bot}\ \cdot\
     {\color{red} \alabellong[\mathtt{addAfter}]{a,c}{\bot}}\ \cdot \kern5cm\\    
-    \hspace{\hfill} \alabellong[\mathtt{read}]{}{(\circ \cdot\ a \cdot c)}\ \cdot\
+    \hspace{\fill} \alabellong[\mathtt{read}]{}{(\circ \cdot\ a \cdot c)}\ \cdot\
     \alabellong[\mathtt{addAfter}]{a,b}{\bot}\ \cdot\
     \alabellong[\mathtt{read}]{}{(\circ \cdot\ a \cdot b)}
   \end{array}
