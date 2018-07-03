@@ -72,7 +72,7 @@ Wooki algorithm is an optimized version of Woot \cite{DBLP:conf/cscw/OsterUMI06}
 In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
 We use $degree(w)$ to denote the degree of $w$.
 
-A W-string is an ordered sequence of W-characters $w_b \cdot w_1 \cdot \ldots \cdot w_n \cdot w_e$, where $w_b$ and $w_e$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_b$ and $w_e$ are $\circ_b$ and $\circ_e$, respectively. The degree of $w_b$ and $w_e$ are $0$. We define the following function for a W-string $str$:
+A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ldots \cdot w_n \cdot w_{end}$, where $w_{begin}$ and $w_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_b$ and $w_e$ are $\circ_b$ and $\circ_e$, respectively. The degree of $w_{begin}$ and $w_{end}$ are $0$. We define the following function for a W-string $str$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -164,7 +164,110 @@ To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to b
 \subsection{The Tree-Doc Algorithm}
 \label{subsec:the Tree-Doc algorithm}
 
-The TreeDoc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. 
+The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}.
+
+In local state of each replica, tree-doc algorithm stores the list as a set of T-characters. A T-character $w$ is a tuple $(v,tid,g)$, where $v$ and $g$ are the value of $w$, and $tid$ is a T-identifier of $w$.
+
+The requirement of T-identifier are as follows: there should be a total order $<_t$ over the T-identifiers, and the T-identifiers are designed to satisfy a ``dense'' property: for each T-identifier $tid_1,tid_2$, assume $tid_1 <_t tid_2$, then, there must exists a T-identifier $tid_3$, such that $tid_1 <_t tid_2 <_t tid_3$.
+
+To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths of a binary tree as T-identifier, and the order $<_t$ can be considered as ``walking the tree in infix order''. However, this is insufficient for concurrent edit, as users might concurrently insert two different T-character at the same position of a binary tree. To address this issue, when there are multiple T-character ``at a same position of the binary tree'', we call the set of these T-characters a major node, and call each of them a minor node.
+
+For example, \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_h$ be the W-character of $a,\ldots,h$. We can see that both $w_b$ and $w_c$ are inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a$ and $w_c$ are a major node and we use a box containing $w_b$ and $w_c$ to emphasize a major node. Similarly, $w_d$ and $w_e$, $w_f$ and $w_g$ also forms a major node.
+
+A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $i$, $c_i \in \{ 0,1,(1,id') \vert id'$ is an identifier $\}$. We require such $id$ to be unique, and with a total order $<$. When the context is clear, we will call $id$ the identifier of $w$. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current major node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``sons'' of a minor node with identifier $id'$. For example, in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_h$ is $0 \cdot (1,id_h)$, which represent that $w_h$ is a ``right son'' of the major node of $w_b$ and $w_c$; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is not a ``right son'' of the major node of $w_b$ and $w_c$, but a ``right son'' of only minor node $w_b$. Note that, as in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree is not a binary tree.
+
+The path to the root is fixed to be $\epsilon$, and therefore, the identifier of $w_a$ in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} is $(\epsilon,id_a)$.
+
+We say a set $T$ of T-characters is a legal tree of tree-doc, if:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] There exists a T-character of $T$ with T-identifier $(\epsilon,\_)$.
+
+\item[-] Each value of T-character is unique, and each T-character has a unique identifier.
+
+\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. Then,for each $i$,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $c_i = p_i \in \{ 0,1 \}$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,\_) ) \in T$,
+
+    \item[-] Else, if $c_i = (p_i,id_i)$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id_i) ) \in T$, and there exists another T-character $w'' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id'_i) ) \in T$ and $id < id'$. Or we can say, the position of $w'$ is a major node containing $w'$ and $w''$, and the identifier of $w'$ is less that that of $w''$.
+    \end{itemize}
+\end{itemize}
+
+Given a legal tree of tree-doc,
+
+
+
+\figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8 \textwidth]{figures/TreeDocExecutionandLocalState.pdf}
+\vspace{-10pt}
+  \caption{An execution of tree-doc, the local state of replica $\arep_1$ after execution, and the T-identifiers of T-characters.}
+  \label{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}
+\end{figure}
+
+
+
+
+
+
+
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
+captionpos=b,label={lst:Tree-Doc algorithm}]
+  payload W-string @|$string_s$|@
+  initial @|$string_s$|@ = @|$\epsilon$|@
+  initial lin = @|$\epsilon$|@
+
+  addBetween(b,a,c) :
+    atSource :
+      precondition :  @|$contains(string_s,b) \wedge contains(string_s,c) \wedge pos(string_s,c) - pos(string_s,b) = 1\wedge \neg contains(string_s,a)$|@
+      let ts = getTimestamp()
+      let @|$c_p$|@ = @|$getWchar(string_s,b)$|@
+      let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{b,a,c}$|@
+    downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
+      integrateIns(@|$c_p,w,c_n$|@)
+
+  remove(a) :
+    atSource :
+      precondition : @|$contains(string_s,a)$|@
+      let w = @|$getWchar(string_s,a)$|@
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
+    downStream(w) :
+      let p = @|$pos(string_s,w)$|@
+      @|$changeFlag(string_s,p,\mathit{false})$|@
+
+  read() :
+    let s = @|$values(string_s)$|@
+    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
+    return s
+
+  integrateIns(@|$c_p,c,c_n$|@)
+    let @|$S$|@ = @|$string_s$|@
+    let @|$S'$|@ = @|$subseq(S,c_p,c_n)$|@
+    if @|$S' = \epsilon$|@
+      then  @|$insert(S,c,pos(S,c_n))$|@
+    else
+      Let i = 0
+      Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@
+      Let F be the projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@
+      while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} c$|@) do
+        i = i+1
+      integrateIns(@|$c,F[i-1],F[i]$|@)
+\end{lstlisting}
+\end{minipage}
+
+$\\$ $\\$
+
+The payload of each replica is a W-string $string_s$.
+
+
 
 
 
@@ -224,7 +327,7 @@ Each abstract state $\abstate = (l,T)$ contains a sequence $l$ and a set $T$. Th
 
 Method $\alabelshort[{\tt addBetween}]{a_k,a}$ puts $a$ into a random position between $a_i$ and $a_j$ in $l$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ adds $a_k$ into $T$. $\alabellong[{\tt read}]{}{s}{}$ returns the list content not in $T$.
 
-Assume that the initial value of list is $(\circ_b \cdot \circ_e,\emptyset)$, and $\circ_b$ and $\circ_e$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_b$ and $\circ_e$ in return value.
+Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value.
 
 
 
@@ -687,64 +790,64 @@ We prove by contradiction. Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $
 
 By Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we know that the order between W-characters of $\sigma$ and $\{ c_b,c_e \}$ are the same in $\sigma_{be}$ and $\sigma_{eb}$.
 
-Therefore, the only possibility is that in $\sigma_{eb}$, $c_b$ and $c_e$ are adjacent, and there are no W-character between $c_b$ and $c_e$. Let $c_1$ be the right-most W-character that are before $c_b$ in $\sigma_{eb}$. According to Wooki algorithm, in the process of applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$, the last time of calling recursive method ${\tt integrateIns}$ must be $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Otherwise, since there is no W-character (except $c_b$) between $c_1$ and $c_e$, we can see that $c_b$ is not between $c_1$ and $c_e$ in $\sigma_{eb}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can see that $c_b <_{id} c_e$. 
+Therefore, the only possibility is that in $\sigma_{eb}$, $c_b$ and $c_e$ are adjacent, and there are no W-character between $c_b$ and $c_e$. Let $c_1$ be the right-most W-character that are before $c_b$ in $\sigma_{eb}$. According to Wooki algorithm, in the process of applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$, the last time of calling recursive method ${\tt integrateIns}$ must be $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Otherwise, since there is no W-character (except $c_b$) between $c_1$ and $c_e$, we can see that $c_b$ is not between $c_1$ and $c_e$ in $\sigma_{eb}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can see that $c_b <_{id} c_e$.
 
-For the case of $\sigma_{be}$, similarly, we can prove that $c_e <_{id} c_b$. This implies that $c_b <_{id} c_e \wedge c_e <_{id} c_b$, which is a contradiction. $\qed$ 
+For the case of $\sigma_{be}$, similarly, we can prove that $c_e <_{id} c_b$. This implies that $c_b <_{id} c_e \wedge c_e <_{id} c_b$, which is a contradiction. $\qed$
 \end {proof}
 
 
 
-Then, let us prove that Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$. 
+Then, let us prove that Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
 
 \begin{lemma}
 \label{lemma:Wooki is correct}
-Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$. 
+Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
-We prove following the prove methodology of Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.  
+We prove following the prove methodology of Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.
 
-We define abstract state $\gconfres'(s)$ as follows: given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, assume $\igconfres(s) = c_1 \dot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $\gconfres'(s) = (v_1 \cdot \ldots \cdot v_n,T)$, where $T = \{ v_i \vert flag_i = \mathit{false} \}$. 
+We define abstract state $\gconfres'(s)$ as follows: given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, assume $\igconfres(s) = c_1 \dot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $\gconfres'(s) = (v_1 \cdot \ldots \cdot v_n,T)$, where $T = \{ v_i \vert flag_i = \mathit{false} \}$.
 
-Then, let us prove the downstream of concurrent operations commute and the $\mathsf{Refinement}$ property, 
+Then, let us prove the downstream of concurrent operations commute and the $\mathsf{Refinement}$ property,
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the downstream of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the downstream of concurrent {\tt remove} operations commute, since they both put some value into tombstone; A {\tt addBetween} and a {\tt remove} downstream commute when they are concurrent because in this case, the W-character removed by {\tt remove} are different from the pair added by the {\tt addBetween}. 
-\item[-] Let us prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ as follows: 
+\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the downstream of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the downstream of concurrent {\tt remove} operations commute, since they both put some value into tombstone; A {\tt addBetween} and a {\tt remove} downstream commute when they are concurrent because in this case, the W-character removed by {\tt remove} are different from the pair added by the {\tt addBetween}.
+\item[-] Let us prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ as follows:
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] Given an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$. 
-        
+    \item[-] Given an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+
         Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_a = (\_,a,\_,\_)$ and $c_c = (\_,c,\_,\_)$ in $str_1$, such that $c_a$ is before $c_c$ in $str_1$, there is no W-character of value $b$ in $str_1$, and $str_2$ is obtained from $str_1$ by inserting a W-character $c_b = (\_,b,\_,\mathit{true})$ at some position between $c_a$ and $c_c$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
-    
+
     \item[-] Given an operation $\alabel = \alabelshort[{\tt remove}]{b}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
 
-        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_b = (\_,b,\_,\_)$ in $str_1$, and $str_2$ is obtained from $str_1$ by setting the flag of $c_b$ into $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$. 
-    
-    \item[-] Given an operation $\alabel = \alabellong[{\tt read}]{}{s_1}{}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. Assume that $\alabel$ is applied on the state $\igconfres(s)$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$. 
+        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_b = (\_,b,\_,\_)$ in $str_1$, and $str_2$ is obtained from $str_1$ by setting the flag of $c_b$ into $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+
+    \item[-] Given an operation $\alabel = \alabellong[{\tt read}]{}{s_1}{}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. Assume that $\alabel$ is applied on the state $\igconfres(s)$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
 
         Assume that $\igconfres(s)=c_1 \cdot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $s_1$ is obtained from $v_1 \cdot \ldots \cdot v_n$ by removing values with flag $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
-    \end{itemize} 
-    
+    \end{itemize}
+
 \end{itemize}
 
-Then, our proof proceeds as follows: 
+Then, our proof proceeds as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}. 
+\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}.
 
-\item[-] {\bf Prove $\mathsf{ReplicaStates}$:} Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute. 
+\item[-] {\bf Prove $\mathsf{ReplicaStates}$:} Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute.
 
 \item[-] {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
 We also have to argue that for each query $\alabel_{\mathsf{qr}} = \alabellongind[read]{}{s_1}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
 visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstream of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\gconfres'(\epsilon)\xRightarrow{\alinord'}^*\gconfres'(\alinord')$. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\gconfres'(\alinord')\xRightarrow{\alabel_{\mathsf{qr}}}\gconfres'(\alinord')$. These two facts imply that $\gconfres'(\epsilon)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}^*\gconfres'(\alinord')$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
-\end{itemize} 
+\end{itemize}
 
-This completes the proof of this lemma. $\qed$ 
+This completes the proof of this lemma. $\qed$
 \end {proof}
 
 

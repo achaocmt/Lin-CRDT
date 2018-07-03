@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180628144214"/>
+<info created="D:20151003110714" modified="D:20180703011833"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -294,10 +294,10 @@ h
 448 208 m
 496 208 l
 </path>
-<text matrix="1 0 0 1 7.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="91.426" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(\circ_b,b,\circ_e)$</text>
-<text matrix="1 0 0 1 119.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="91.462" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(\circ_b,c,\circ_e)$</text>
-<text matrix="1 0 0 1 191.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="92.416" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(\circ_b,a,\circ_e)$</text>
-<text matrix="1 0 0 1 235.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="59.95" height="7.473" depth="2.49" valign="baseline">${\tt read}()\Rightarrow c \cdot b$</text>
+<text matrix="1 0 0 1 119.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="116.194" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},c,\circ_{end})$</text>
+<text matrix="1 0 0 1 191.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="117.149" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},a,\circ_{end})$</text>
 <text matrix="1 0 0 1 351.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="72.411" height="7.473" depth="2.49" valign="baseline">${\tt read}()\Rightarrow a \cdot b \cdot c$</text>
+<text matrix="1 0 0 1 -0.795 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="116.158" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},b,\circ_{end})$</text>
+<text matrix="1 0 0 1 239.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="59.95" height="7.473" depth="2.49" valign="baseline">${\tt read}()\Rightarrow c \cdot b$</text>
 </page>
 </ipe>
