@@ -176,30 +176,30 @@ TODO
 \hline
 \crdtimp&Correctness&Interface\\
 \hline
-counter~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[inc]{}$, $\alabelshort[dec]{}$\\
+counter~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$\\
 \hline
-PN-counter~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[inc]{}$, $\alabelshort[dec]{}$\\
+PN-counter~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$\\
 \hline
-LWW-register~\cite{?}&\tonelin&$\alabelshort[write]{value}$, $\alabellong[read]{}{value}{}$\\
+LWW-register~\cite{?}&\tonelin&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{value}{}$\\
 \hline
-Multi-value register~\cite{?}&\tzerolin&$\alabelshort[write]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
+Multi-value register~\cite{?}&\tzerolin&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{Set \ value}{}$\\
 \hline
-2P-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[add]{value}$, $\alabelshort[remove]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
+2P-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{Set \ value}{}$\\
 \hline
-LWW-set~\cite{ShapiroPBZ11}&\tonelin&$\alabelshort[add]{value}$, $\alabelshort[remove]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
+LWW-set~\cite{ShapiroPBZ11}&\tonelin&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{Set \ value}{}$\\
 \hline
 %PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
 %\hline
-OR-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[add]{value}$, $\alabelshort[remove]{value}$, $\alabellong[read]{}{Set \ value}{}$\\
+OR-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{Set \ value}{}$\\
 \hline
-RGA~\cite{?}&\tonelin&$\alabelshort[addAfter]{value,value}$, $\alabelshort[remove]{value}$,
-                \\ & & $\alabellong[read]{}{List \ value}{}$\\
+RGA~\cite{?}&\tonelin&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$,
+                \\ & & $\alabellong[{\tt read}]{}{List \ value}{}$\\
 \hline
-Wooki~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$,
-                \\ & & $\alabellong[read]{}{List \ value}{}$\\
+Wooki~\cite{?}&\tzerolin&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$,
+                \\ & & $\alabellong[{\tt read}]{}{List \ value}{}$\\
 \hline
-Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\alabelshort[remove]{value}$,
-                \\ & & $\alabellong[read]{}{List \ value}{}$\\
+Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$,
+                \\ & & $\alabellong[{\tt read}]{}{List \ value}{}$\\
 \hline
 \end{tabular}
 
@@ -275,7 +275,21 @@ Tree-Doc~\cite{?}&\tzerolin&$\alabelshort[addBetween]{value,value,value}$, $\ala
 \vspace{-10pt}
   \caption{An example of refinement mapping of an execution of OR-set.}
   \label{fig:an example of refinement mapping of an execution of or-set}
-\end{figure}
+\end{figure} 
+
+Let us consider another possible interface for RGA: $\alabelshort[{\tt addAt}]{a,k}$ puts value $a$ at the $k$-th position of the list, $\alabelshort[{\tt remove}]{a}$ removes a from the list, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. In \figurename~\ref{fig:an example that shows RGA with addAt interface is not compositional}, we show an example such that RGA with {\tt addAt} interface is not compositional. Here assume that timestamp order of $a,b,c,d$ is that $a<b<c<d$. This history contains operations of two RGA objects $\aobj_1$ and $\aobj_2$, the operations of $\aobj_1$ being represented using blank circles and the operations of $\aobj_2$ using filled circles. The only possible \crdtlinearization{} of $\aobj_1$ is $\aobj_1.\alabelshort[{\tt addAt}]{a,1} \cdot \aobj_1.\alabelshort[{\tt addAt}]{b,2} \cdot \aobj_1.\alabelshort[{\tt remove}]{a}$; since in $\aobj_1.\alabelshort[{\tt addAt}]{a,1} \cdot \aobj_1.\alabelshort[{\tt remove}]{a} \cdot \aobj_1.\alabelshort[{\tt addAt}]{b,2}$, before inserting $b$, the list is $\epsilon$ and $b$ can not be inserted in position $2$. Similarly, the only possible \crdtlinearization{} of $\aobj_2$ is $\aobj_2.\alabelshort[{\tt addAt}]{c,1} \cdot \aobj_2.\alabelshort[{\tt addAt}]{d,2} \cdot \aobj_2.\alabelshort[{\tt remove}]{c}$. However, such two \crdtlinearization{} are not timestamp-order linearizations. Moreover, the two \crdtlinearization{} and the visibility relation berings a cycle. 
+
+In \cite{DBLP:conf/podc/AttiyaBGMYZ16}, they use a more complex interface for RGA and other list implementations: $\alabellong[{\tt addAt}]{a,k}{s}{}, \alabellong[{\tt remove}]{a}{s}{},\alabellong[{\tt read}]{}{s}{}$: $\alabellong[{\tt addAt}]{a,k}{s}{}$ puts value $a$ in position $k$ of the list and returns the updated list $s$, $\alabellong[{\tt remove}]{a}{s}{}$ removes $a$ from the list and returns the updated list $s$, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. Similarly, such interface is not compositional. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/RGAwithaddAtnotCompositional.pdf}
+\vspace{-10pt}
+  \caption{An example that shows RGA with {\tt addAt} interface is not compositional.}
+  \label{fig:an example that shows RGA with addAt interface is not compositional}
+\end{figure} 
+
+
 
 
 
