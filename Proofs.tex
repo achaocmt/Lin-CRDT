@@ -139,21 +139,21 @@ any two replica states $\sigma$ and $\sigma'$,
 \hline
 {\bf CRDT} & {\bf Interface} & {\bf Linearization strategy}\\
 \hhline{|===|}
-counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$ & execution-order \\
+Counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$ & execution-order \\
 \hline
-PN-counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$ & execution-order \\
+PN-Counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$ & execution-order \\
 \hline
-LWW-register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{value}{}$ & timestamp-order\\
+LWW-Register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{value}{}$ & timestamp-order\\
 \hline
-Multi-value register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+Multi-Value Register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
 \hline
-2P-set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+2P-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
 \hline
-LWW-set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & timestamp-order\\
+LWW-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{set\_of\_values}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & timestamp-order\\
 \hline
 %PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
 %\hline
-OR-set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+OR-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
 \hline
 RGA~\cite{?}&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$, &
                 \\ & $\alabellong[{\tt read}]{}{list\_of\_values}{}$ & timestamp-order\\
@@ -270,7 +270,17 @@ Then, we have to argue that queries can be explained by applying the updates vis
 More precisely, we have to show that for each query $\alabel_{\mathsf{qr}}\in\{\alabellongind[{\tt readIds}]{a}{R}{},\alabellongind[{\tt read}]{}{A}{}\}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
 visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xrightharpoonup{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xrightharpoonup{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xrightharpoonup{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 
-TODO STATE WHICH OTHER OBJECTS SUPPORT THE SAME KIND OF PROOF.
+We give hereafter a formal definition of an RA-linearizable object admitting execution-order linearizations. Intuitively, an object $\aobj$ admits execution-order linearizations when the history of every trace (execution) can be linearized in the order in which operations are executed at the origin replica.
+
+\begin{definition}
+  Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$. We say that $\aobj$ admits \emph{execution-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
+\end{definition}
+
+The following theorem shows the set of objects we have proved to be RA-linearizable and admit execution-order linearizations (also mentioned in Figure~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}). The specification of the two variations of counters is given in Example~\ref{definition:sequential specification of counter}. The Multi-Value Register deals with concurrent write operations by taking the union of the values they wrote (therefore, a {\tt read} operation may return a set of values). Its specification is in the same vein as the one of the OR-Set (in particular, a write operation is a query-update since it reads and overwrites the values which are present at the origin replica). The specification of the 2P-Set is a standard set specification (where ${\tt add}$ and ${\tt remove}$ operations act as in a standard sequential set) while the specifications of Wooki and Tree-Doc are similar to RGA except that elements are added using the operation ${\tt addBetween}$ which inserts an element in between two other elements. The precise definitions of these specifications and the proofs can be found in the supplementary material.
+
+\begin{theorem}
+Counter, PN-Counter, Multi-Value Register, 2P-Set, OR-Set, Wooki, and Tree-Doc are RA-linearizable and admit execution-order linearizations.
+\end{theorem}
 
 \subsection{Timestamp-Order Linearizations}
 \label{subsec:time-stamp order as linearizabtion}
@@ -304,7 +314,19 @@ Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping 
 
 To prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant, we use almost the same arguments as in the case of OR-Set. The two notable differences are that in this case, the specification doesn't admit any sequence of updates and also, that effectors of ${\tt addAfter}$ operations are simulated by the corresponding specification operations only under a certain condition related to timestamps. Concerning the first point, the specification requires that any $\alabelshort[{\tt addAfter}]{a,b}$ or $\alabelshort[{\tt remove}]{a}$ operation is preceded by an operation adding ${\tt a}$. However, since $\alinord$ is consistent with the visibility relation, and the preconditions of the RGA $\alabelshort[{\tt addAfter}]{a,b}$ and $\alabelshort[{\tt remove}]{a}$ operations ensure that an operation $\alabelshort[{\tt addAfter}]{c,a}$, for some ${\tt c}$, is visible when applying them at the origin replica, it follows that the projection of $\alinord$ on updates is admitted by the specification. Second, we have to show that the side-condition added to the simulation of ${\tt addAfter}$ effectors still guarantees that any sequence $\mathsf{effSeq}$ of effector applications consistent with the linearization order (considering only such sequences is possible because of the $\mathsf{ReplicaStates}$ invariant) can be simulated by the specification. This follows from the fact that the linearization order is consistent with the timestamps generated by operations, which implies that any ${\tt addAfter}$ effector adding an element ${\tt b}$ with timestamp $\ats_{\tt b}$ is ordered in $\mathsf{effSeq}$ after all ${\tt addAfter}$ effectors adding elements with timestamps smaller than $\ats_{\tt b}$.
 
-TODO STATE WHICH OTHER OBJECTS SUPPORT THE SAME KIND OF PROOF.
+Next, we present a formal definition of timestamp-order linearizations. For a history $\ahist=(\alabelset,\avisord)$, we define the timestamp $\tsof_\ahist(\alabel)$ of a label $\alabel$ in the context of the history $h$ to be $\tsof_\ahist(\alabel)=\tsof(\alabel)$ if $\tsof(\alabel)\neq\bot$ and $\tsof_\ahist(\alabel)=\mathsf{max}\, \{\tsof(\alabel'):(\alabel',\alabel)\in \avisord \}$, otherwise.
+
+\begin{definition}
+An object $\aobj$ which is \crdtlinearizable{} w.r.t. a specification $\Spec$ admits \emph{timestamp-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\tsof_\ahist(\alabel_1) < \tsof_\ahist(\alabel_2)$ or $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
+\end{definition}
+
+The following theorem shows the set of objects we have proved to be RA-linearizable and admit timestamp-order linearizations (also mentioned in Figure~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}). The specification of the LWW-register (short for Last Writer Wins Register) is standard, i.e., a read operation returns the last written value, while the specification of the LWW-Set is similar, the object storing a set of values instead of a single value like in the context of the LWW-register. The precise definitions of these specifications and the proofs can be found in the supplementary material.
+
+\begin{theorem}
+LWW-Register, LWW-Set, and RGA are RA-linearizable and admit timestamp-order linearizations.
+\end{theorem}
+
+
 
 %%% Local Variables:
 %%% mode: latex
