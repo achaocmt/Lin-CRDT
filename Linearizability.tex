@@ -482,15 +482,14 @@ and the transitions are given as follows:
 
 \begin{example}[Sequential Specification of RGA-like List
   (with $\mathtt{addAfter}$ method)]
-  \label{definition:sequential specification of or-set}
+  \label{definition:sequential specification of rga}
   Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of
   elements of a given type and a set $T$ of elements appearing in the
   list.
   The element $l$ is the list of all input values, whether already
   removed or not; while $T$ stores the removed values and is used as
   \emph{tombstone}.
-  The sequential specification \gpnote*{Is this name used
-    anywhere?}{$\mathit{listAft}_s$} of list with add-after interface is
+  The sequential specification $\specRGA$ of list with add-after interface is
   given with the transitions as follows:
   \[
     \begin{array}{rcl}

@@ -14,7 +14,7 @@
     atSource :
       precondition : a = @|$\circ$|@ or (a != @|$\circ$|@ and (a,_,_) @|$\in$|@ N and a @|$\not\in$|@ Tomb)
       let ts@|$_{\mathtt{b}}$|@ = getTimestamp()
-      //@ let lin' = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
+      //@ let lin = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
       //@ N' = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
@@ -22,14 +22,14 @@
   remove(a) :
     atSource :
       precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
-      //@ let lin' = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
+      //@ let lin = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
       //@ Tomb' = Tomb @|$\cup$|@ {a}
 
   read() :
     let ret-list = traverse(N, Tomb)
-    //@ let lin' = insert(lin, read()@|$\Rightarrow$|@ret-list, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
+    //@ let lin = insert(lin, read()@|$\Rightarrow$|@ret-list, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     return ret-list
 \end{lstlisting}
 \end{figure}
