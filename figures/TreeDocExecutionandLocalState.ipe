@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180703014647"/>
+<info created="D:20151003110714" modified="D:20180704001225"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -255,112 +255,195 @@ h
 <page>
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
-<text layer="alpha" matrix="1 0 0 1 -36.795 -128" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
-<use matrix="1 0 0 1 -140 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 -16.795 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="117.149" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},a,\circ_{end})$</text>
-<use matrix="1 0 0 1 -12 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 111.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="103.093" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},b,a)$</text>
-<path matrix="1 0 0 1 28 64" stroke="black" arrow="normal/normal">
-64 240 m
-88 208 l
-</path>
-<use matrix="1 0 0 1 -60 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 63.205 -180" transformations="translations" pos="64 436" stroke="black" type="label" width="103.129" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},c,a)$</text>
-<use matrix="1 0 0 1 52 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 175.205 -180" transformations="translations" pos="64 436" stroke="black" type="label" width="102.501" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},e,c)$</text>
-<use matrix="1 0 0 1 104 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 227.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="103.012" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},d,b)$</text>
-<path matrix="1 0 0 1 28 64" stroke="black" arrow="normal/normal">
-148 208 m
-352 240 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-20 240 m
-60 240 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-68 240 m
-188 240 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-20 208 m
-140 208 l
-</path>
-<text matrix="1 0 0 1 -36.795 -164" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
-<path matrix="1 0 0 1 28 64" stroke="black">
-148 208 m
-252 208 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-196 240 m
-304 240 l
-</path>
-<use matrix="1 0 0 1 216 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 339.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="82.891" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(b,f,c)$</text>
-<use matrix="1 0 0 1 160 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 283.205 -180" transformations="translations" pos="64 436" stroke="black" type="label" width="82.604" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(b,g,c)$</text>
-<use matrix="1 0 0 1 268 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 391.205 -180" transformations="translations" pos="64 436" stroke="black" type="label" width="84.225" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(c,h,a)$</text>
-<path matrix="1 0 0 1 28 64" stroke="black" arrow="normal/normal">
-196 240 m
-332 208 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black" arrow="normal/normal">
-260 208 m
-460 240 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black" arrow="normal/normal">
-368 208 m
-492 240 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-312 240 m
-416 240 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-260 208 m
-360 208 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-368 208 m
-468 208 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-424 240 m
-512 240 l
-</path>
-<path matrix="1 0 0 1 28 64" stroke="black">
-476 208 m
-512 208 l
-</path>
-<text matrix="1 0 0 1 -36.795 -224" transformations="translations" pos="64 436" stroke="black" type="label" width="74.512" height="6.923" depth="1.49" valign="baseline">local state of $\ensuremath{\mathtt{r}}_1:$</text>
-<text matrix="1 0 0 1 43.205 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="5.535" height="6.918" depth="0" valign="baseline">b</text>
-<path matrix="1 0 0 1 28 20" stroke="black">
-5.65685 0 0 5.65685 80 160 e
-</path>
-<text matrix="1 0 0 1 59.205 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="4.428" height="4.289" depth="0" valign="baseline">c</text>
-<path matrix="1 0 0 1 44 20" stroke="black">
-5.65685 0 0 5.65685 80 160 e
-</path>
-<path matrix="1 0 0 1 8 12" stroke="black">
-92 176 m
-92 160 l
-124 160 l
-124 176 l
-h
+<text layer="alpha" matrix="1 0 0 1 -52.795 -128" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
+<use matrix="1 0 0 1 -156 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 -32.795 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="117.149" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},a,\circ_{end})$</text>
+<use matrix="1 0 0 1 -28 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 95.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="103.093" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},b,a)$</text>
+<use matrix="1 0 0 1 88 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 211.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="102.466" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},e,b)$</text>
+<text matrix="1 0 0 1 -52.795 -164" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<use matrix="1 0 0 1 200 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 323.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="82.604" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(b,g,c)$</text>
+<use matrix="1 0 0 1 -28 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 -52.795 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_3:$</text>
+<use matrix="1 0 0 1 -28 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<use matrix="1 0 0 1 88 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path stroke="black">
+32 304 m
+72 304 l
 </path>
 <path stroke="black">
+80 304 m
+200 304 l
+</path>
+<path stroke="black">
+208 304 m
+316 304 l
+</path>
+<path stroke="black">
+32 272 m
+200 272 l
+</path>
+<path stroke="black">
+208 272 m
+316 272 l
+</path>
+<path stroke="black">
+32 240 m
+200 240 l
+</path>
+<use matrix="1 0 0 1 200 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 323.205 -156" transformations="translations" pos="64 436" stroke="black" type="label" width="83.235" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(b,h,c)$</text>
+<use matrix="1 0 0 1 200 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 323.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="81.837" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(c,i,d)$</text>
+<path stroke="black">
+324 304 m
+428 304 l
+</path>
+<path stroke="black">
+324 272 m
+428 272 l
+</path>
+<path stroke="black">
+208 240 m
+428 240 l
+</path>
+<path stroke="black" arrow="normal/normal">
+204 304 m
+376 272 l
+</path>
+<path stroke="black" arrow="normal/normal">
+208 272 m
+376 304 l
+</path>
+<text matrix="1 0 0 1 71.205 -156" transformations="translations" pos="64 436" stroke="black" type="label" width="103.129" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},c,a)$</text>
+<path stroke="black" arrow="normal/normal">
+208 272 m
+376 240 l
+</path>
+<use matrix="1 0 0 1 292 60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 415.205 -124" transformations="translations" pos="64 436" stroke="black" type="label" width="82.605" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(c,j,a)$</text>
+<use matrix="1 0 0 1 292 28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 415.205 -156" transformations="translations" pos="64 436" stroke="black" type="label" width="83.986" height="7.473" depth="2.49" valign="baseline">${\tt addBetween}(c,k,a)$</text>
+<path stroke="black">
+436 304 m
+520 304 l
+</path>
+<path stroke="black">
+436 272 m
+520 272 l
+</path>
+<path stroke="black">
+436 240 m
+560 240 l
+</path>
+<path stroke="black">
+528 304 m
+560 304 l
+</path>
+<path stroke="black">
+528 272 m
+560 272 l
+</path>
+<text matrix="1 0 0 1 223.205 -176" transformations="translations" pos="64 436" stroke="black" type="label" width="103.259" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},f,c)$</text>
+<text matrix="1 0 0 1 -52.795 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_4:$</text>
+<path stroke="black" arrow="normal/normal">
+208 240 m
+224 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+208 272 m
+240 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+208 304 m
+256 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+324 272 m
+352 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+324 304 m
+368 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+432 240 m
+448 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+436 272 m
+464 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+436 304 m
+480 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+524 272 m
+544 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+528 304 m
+560 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+80 304 m
+96 208 l
+</path>
+<path stroke="black" arrow="normal/normal">
+80 304 m
+112 240 l
+</path>
+<path stroke="black" arrow="normal/normal">
+80 304 m
+128 272 l
+</path>
+<text matrix="1 0 0 1 63.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="104.003" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},d,a)$</text>
+<text matrix="1 0 0 1 -52.795 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="74.512" height="6.923" depth="1.49" valign="baseline">local state of $\ensuremath{\mathtt{r}}_4:$</text>
+<path matrix="1 0 0 1 -16 -36" stroke="black">
 148 204 m
 132 188 l
 </path>
-<text matrix="1 0 0 1 59.205 -300" transformations="translations" pos="64 436" stroke="black" type="label" width="3.044" height="6.918" depth="0" valign="baseline">f</text>
-<path matrix="1 0 0 1 44 -20" stroke="black">
+<text matrix="1 0 0 1 71.205 -268" transformations="translations" pos="64 436" stroke="black" type="label" width="4.981" height="4.289" depth="0" valign="baseline">a</text>
+<path matrix="1 0 0 1 56 12" stroke="black">
 5.65685 0 0 5.65685 80 160 e
 </path>
-<path matrix="1 0 0 1 60 -20" stroke="black">
+<text matrix="1 0 0 1 151.205 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="56.206" height="6.918" depth="0" valign="baseline">T-identifier: </text>
+<text matrix="1 0 0 1 215.205 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="43.226" height="7.473" depth="2.49" valign="baseline">$a:(\epsilon,id_a)$</text>
+<text matrix="1 0 0 1 215.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="42.355" height="7.473" depth="2.49" valign="baseline">$b: (0,id_b)$</text>
+<text matrix="1 0 0 1 215.205 -284" transformations="translations" pos="64 436" stroke="black" type="label" width="42.448" height="7.473" depth="2.49" valign="baseline">$c: (0,id_c)$</text>
+<text matrix="1 0 0 1 215.205 -296" transformations="translations" pos="64 436" stroke="black" type="label" width="43.909" height="7.473" depth="2.49" valign="baseline">$d: (0,id_d)$</text>
+<text matrix="1 0 0 1 215.205 -308" transformations="translations" pos="64 436" stroke="black" type="label" width="55.171" height="7.473" depth="2.49" valign="baseline">$e: 0 \cdot (0,id_e)$</text>
+<text matrix="1 0 0 1 11.205 -296" transformations="translations" pos="64 436" stroke="black" type="label" width="5.535" height="6.918" depth="0" valign="baseline">b</text>
+<path matrix="1 0 0 1 -4 -16" stroke="black">
 5.65685 0 0 5.65685 80 160 e
 </path>
-<path matrix="1 0 0 1 24 -28" stroke="black">
+<text matrix="1 0 0 1 27.205 -296" transformations="translations" pos="64 436" stroke="black" type="label" width="4.428" height="4.289" depth="0" valign="baseline">c</text>
+<path matrix="1 0 0 1 12 -16" stroke="black">
+5.65685 0 0 5.65685 80 160 e
+</path>
+<text matrix="1 0 0 1 43.205 -296" transformations="translations" pos="64 436" stroke="black" type="label" width="5.535" height="6.918" depth="0" valign="baseline">d</text>
+<path matrix="1 0 0 1 28 -16" stroke="black">
+5.65685 0 0 5.65685 80 160 e
+</path>
+<path matrix="1 0 0 1 -16 0" stroke="black">
+84 152 m
+84 136 l
+132 136 l
+132 152 l
+h
+</path>
+<text matrix="1 0 0 1 -44.795 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="4.428" height="4.289" depth="0" valign="baseline">e</text>
+<path matrix="1 0 0 1 -60 -56" stroke="black">
+5.65685 0 0 5.65685 80 160 e
+</path>
+<text matrix="1 0 0 1 -28.795 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="3.044" height="6.918" depth="0" valign="baseline">f</text>
+<path matrix="1 0 0 1 -44 -56" stroke="black">
+5.65685 0 0 5.65685 80 160 e
+</path>
+<path matrix="1 0 0 1 -80 -64" stroke="black">
 92 176 m
 92 160 l
 124 160 l
@@ -368,53 +451,64 @@ h
 h
 </path>
 <path stroke="black">
-112 176 m
-124 148 l
+68 136 m
+44 112 l
 </path>
-<path stroke="black">
-132 172 m
-172 148 l
-</path>
-<text matrix="1 0 0 1 111.205 -300" transformations="translations" pos="64 436" stroke="black" type="label" width="5.535" height="6.918" depth="0" valign="baseline">h</text>
-<path matrix="1 0 0 1 96 -20" stroke="black">
+<text matrix="1 0 0 1 27.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="4.981" height="4.297" depth="1.93" valign="baseline">g</text>
+<path matrix="1 0 0 1 12 -56" stroke="black">
 5.65685 0 0 5.65685 80 160 e
 </path>
-<text matrix="1 0 0 1 -4.795 -300" transformations="translations" pos="64 436" stroke="black" type="label" width="5.535" height="6.918" depth="0" valign="baseline">d</text>
-<path matrix="1 0 0 1 -20 -20" stroke="black">
+<path matrix="1 0 0 1 28 -56" stroke="black">
 5.65685 0 0 5.65685 80 160 e
 </path>
-<text matrix="1 0 0 1 11.205 -300" transformations="translations" pos="64 436" stroke="black" type="label" width="4.428" height="4.289" depth="0" valign="baseline">e</text>
-<path matrix="1 0 0 1 -4 -20" stroke="black">
-5.65685 0 0 5.65685 80 160 e
-</path>
-<path matrix="1 0 0 1 -40 -28" stroke="black">
+<path matrix="1 0 0 1 -8 -64" stroke="black">
 92 176 m
 92 160 l
 124 160 l
 124 176 l
 h
 </path>
+<text matrix="1 0 0 1 43.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="5.535" height="6.918" depth="0" valign="baseline">h</text>
 <path stroke="black">
-100 172 m
-84 148 l
+76 140 m
+84 108 l
 </path>
-<text matrix="1 0 0 1 75.205 -300" transformations="translations" pos="64 436" stroke="black" type="label" width="4.981" height="4.297" depth="1.93" valign="baseline">g</text>
-<path stroke="black" arrow="normal/normal">
-500 272 m
-532 304 l
+<path stroke="black">
+96 140 m
+128 108 l
 </path>
-<text matrix="1 0 0 1 87.205 -232" transformations="translations" pos="64 436" stroke="black" type="label" width="4.981" height="4.289" depth="0" valign="baseline">a</text>
-<path matrix="1 0 0 1 72 48" stroke="black">
+<text matrix="1 0 0 1 67.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="2.767" height="6.654" depth="0" valign="baseline">i</text>
+<path matrix="1 0 0 1 52 -56" stroke="black">
 5.65685 0 0 5.65685 80 160 e
 </path>
-<text matrix="1 0 0 1 167.205 -224" transformations="translations" pos="64 436" stroke="black" type="label" width="56.206" height="6.918" depth="0" valign="baseline">T-identifier: </text>
-<text matrix="1 0 0 1 231.205 -224" transformations="translations" pos="64 436" stroke="black" type="label" width="43.226" height="7.473" depth="2.49" valign="baseline">$a:(\epsilon,id_a)$</text>
-<text matrix="1 0 0 1 231.205 -236" transformations="translations" pos="64 436" stroke="black" type="label" width="42.355" height="7.473" depth="2.49" valign="baseline">$b: (0,id_b)$</text>
-<text matrix="1 0 0 1 231.205 -248" transformations="translations" pos="64 436" stroke="black" type="label" width="42.448" height="7.473" depth="2.49" valign="baseline">$c: (0,id_c)$</text>
-<text matrix="1 0 0 1 231.205 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="56.085" height="7.473" depth="2.49" valign="baseline">$d: 0 \cdot (0,id_d)$</text>
-<text matrix="1 0 0 1 231.205 -272" transformations="translations" pos="64 436" stroke="black" type="label" width="55.171" height="7.473" depth="2.49" valign="baseline">$e: 0 \cdot (0,id_e)$</text>
-<text matrix="1 0 0 1 231.205 -284" transformations="translations" pos="64 436" stroke="black" type="label" width="82.165" height="7.472" depth="2.85" valign="baseline">$f: (0,id_b) \cdot (0,id_f)$</text>
-<text matrix="1 0 0 1 231.205 -296" transformations="translations" pos="64 436" stroke="black" type="label" width="80.794" height="7.472" depth="2.85" valign="baseline">$g: (0,id_b) \cdot (0,id_g)$</text>
-<text matrix="1 0 0 1 231.205 -308" transformations="translations" pos="64 436" stroke="black" type="label" width="57.157" height="7.473" depth="2.49" valign="baseline">$h: 0 \cdot (1,id_h)$</text>
+<text matrix="1 0 0 1 95.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="3.044" height="6.661" depth="1.93" valign="baseline">j</text>
+<path matrix="1 0 0 1 80 -56" stroke="black">
+5.65685 0 0 5.65685 80 160 e
+</path>
+<path matrix="1 0 0 1 96 -56" stroke="black">
+5.65685 0 0 5.65685 80 160 e
+</path>
+<path matrix="1 0 0 1 60 -64" stroke="black">
+92 176 m
+92 160 l
+124 160 l
+124 176 l
+h
+</path>
+<text matrix="1 0 0 1 111.205 -336" transformations="translations" pos="64 436" stroke="black" type="label" width="5.258" height="6.918" depth="0" valign="baseline">k</text>
+<path stroke="black">
+116 136 m
+152 112 l
+</path>
+<text matrix="1 0 0 1 215.205 -320" transformations="translations" pos="64 436" stroke="black" type="label" width="57.369" height="7.472" depth="2.85" valign="baseline">$f: 0 \cdot (0,id_f)$</text>
+<text matrix="1 0 0 1 215.205 -332" transformations="translations" pos="64 436" stroke="black" type="label" width="80.794" height="7.472" depth="2.85" valign="baseline">$g: (0,id_b) \cdot (1,id_g)$</text>
+<text matrix="1 0 0 1 215.205 -344" transformations="translations" pos="64 436" stroke="black" type="label" width="81.952" height="7.473" depth="2.49" valign="baseline">$h: (0,id_b) \cdot (1,id_h)$</text>
+<text matrix="1 0 0 1 215.205 -356" transformations="translations" pos="64 436" stroke="black" type="label" width="77.856" height="7.473" depth="2.49" valign="baseline">$i: (0,id_c) \cdot (1,id_i)$</text>
+<text matrix="1 0 0 1 215.205 -368" transformations="translations" pos="64 436" stroke="black" type="label" width="55.125" height="7.472" depth="2.85" valign="baseline">$j: 0 \cdot (1,id_j)$</text>
+<text matrix="1 0 0 1 215.205 -380" transformations="translations" pos="64 436" stroke="black" type="label" width="56.656" height="7.473" depth="2.49" valign="baseline">$k: 0 \cdot (1,id_k)$</text>
+<path stroke="black">
+32 208 m
+560 208 l
+</path>
 </page>
 </ipe>

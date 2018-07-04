@@ -164,43 +164,16 @@ To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to b
 \subsection{The Tree-Doc Algorithm}
 \label{subsec:the Tree-Doc algorithm}
 
-The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}.
+The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. The tree-doc algorithm of Listing~\ref{lst:Tree-Doc algorithm} can be considered as the tree-doc with ``unique disambiguator'' in \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784}, and we do not consider optimizations, such as balancing tree.   
 
-In local state of each replica, tree-doc algorithm stores the list as a set of T-characters. A T-character $w$ is a tuple $(v,tid,g)$, where $v$ and $g$ are the value of $w$, and $tid$ is a T-identifier of $w$.
+In local state of each replica, tree-doc algorithm stores the list as a set of T-characters. A T-character $w$ is a tuple $(v,tid,gv)$, where $v$ is the value of $w$, and $tid$ is a T-identifier of $w$. Here $gv$ is a ``ghost field'' of $w$ and also stores the value of $w$. The reason of introducing $gv$ is that, the $\alabelshort[{\tt remove}]{a}$ method will find the T-character $w$ of value $a$ and set the value of $w$ into a special value $nil$; while in the proof, it will be convenient if we can always remember the value of $w$. Therefore, when $w$ is initialized, the value of $w$ is put both in $v$ and $gv$, while the value in $gv$ is never changed afterward.
 
-The requirement of T-identifier are as follows: there should be a total order $<_t$ over the T-identifiers, and the T-identifiers are designed to satisfy a ``dense'' property: for each T-identifier $tid_1,tid_2$, assume $tid_1 <_t tid_2$, then, there must exists a T-identifier $tid_3$, such that $tid_1 <_t tid_2 <_t tid_3$.
+T-identifiers are the unique identifiers of T-characters. The requirement of T-identifier are as follows: there should be a total order $<_t$ over the T-identifiers, and the T-identifiers are designed to satisfy a ``dense'' property: for each T-identifier $tid_1,tid_2$, assume $tid_1 <_t tid_2$, then, there must exists a T-identifier $tid_3$, such that $tid_1 <_t tid_2 <_t tid_3$.
 
 To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths of a binary tree as T-identifier, and the order $<_t$ can be considered as ``walking the tree in infix order''. However, this is insufficient for concurrent edit, as users might concurrently insert two different T-character at the same position of a binary tree. To address this issue, when there are multiple T-character ``at a same position of the binary tree'', we call the set of these T-characters a major node, and call each of them a minor node.
 
-For example, \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_h$ be the W-character of $a,\ldots,h$. We can see that both $w_b$ and $w_c$ are inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a$ and $w_c$ are a major node and we use a box containing $w_b$ and $w_c$ to emphasize a major node. Similarly, $w_d$ and $w_e$, $w_f$ and $w_g$ also forms a major node.
+For example, \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the W-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a,w_b,w_c$ are a major node and we use a box containing $w_a,w_b,w_c$ to emphasize a major node. Similarly, the set of T-characters of $w_e$ and $w_f$, $w_g$ and $w_h$, $w_j$ and $w_k$ are also major nodes, respectively. 
 
-A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $i$, $c_i \in \{ 0,1,(1,id') \vert id'$ is an identifier $\}$. We require such $id$ to be unique, and with a total order $<$. When the context is clear, we will call $id$ the identifier of $w$. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current major node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``sons'' of a minor node with identifier $id'$. For example, in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_h$ is $0 \cdot (1,id_h)$, which represent that $w_h$ is a ``right son'' of the major node of $w_b$ and $w_c$; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is not a ``right son'' of the major node of $w_b$ and $w_c$, but a ``right son'' of only minor node $w_b$. Note that, as in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree is not a binary tree.
-
-The path to the root is fixed to be $\epsilon$, and therefore, the identifier of $w_a$ in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} is $(\epsilon,id_a)$.
-
-We say a set $T$ of T-characters is a legal tree of tree-doc, if:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] There exists a T-character of $T$ with T-identifier $(\epsilon,\_)$.
-
-\item[-] Each value of T-character is unique, and each T-character has a unique identifier.
-
-\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. Then,for each $i$,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] If $c_i = p_i \in \{ 0,1 \}$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,\_) ) \in T$,
-
-    \item[-] Else, if $c_i = (p_i,id_i)$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id_i) ) \in T$, and there exists another T-character $w'' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id'_i) ) \in T$ and $id < id'$. Or we can say, the position of $w'$ is a major node containing $w'$ and $w''$, and the identifier of $w'$ is less that that of $w''$.
-    \end{itemize}
-\end{itemize}
-
-Given a legal tree of tree-doc,
-
-
-
-\figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}.
 
 \begin{figure}[t]
   \centering
@@ -209,6 +182,51 @@ Given a legal tree of tree-doc,
   \caption{An execution of tree-doc, the local state of replica $\arep_1$ after execution, and the T-identifiers of T-characters.}
   \label{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}
 \end{figure}
+
+
+A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $1 \leq i \leq n$, $c_i \in \{ 0,1,(1,id')\}$. We call such $id$ the disambiguator of $w$, and require disambiguator to be unique for each T-character. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current (major) node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``right sons'' of a minor node with identifier $id'$. The path to the root is fixed to be $\epsilon$. 
+
+For example, in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son (could be a major node)''; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
+
+We say a set $T$ of T-characters is a legal tree of tree-doc, if:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] There exists a T-character of $T$ with T-identifier $(\epsilon,\_)$.
+
+\item[-] Each value of T-character is unique, and each T-character has a unique disambiguator. 
+
+\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. Then,for each $1 \leq i \leq n$,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $c_i \in \{ 0,1 \}$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (c_i,\_) ) \in T$,
+
+    \item[-] Else, if $c_i = (p_i,id_i)$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id_i) ) \in T$, and there exists another T-character $w'' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id'_i) ) \in T$ and $id_i < id'_i$. Or we can say, $w'$ and $w''$ is contained in a same major node, and the disambiguator of $w'$ is less that that of $w''$.
+    \end{itemize}
+\end{itemize}
+
+Given a legal tree of tree-doc, we the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $(tid_2 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l) \vee (tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot x \cdot l)$, and $x=1 \vee x=(1,\_)$. 
+
+\item[-] If $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l$, and $x=0 \vee x=(0,\_)$. 
+
+\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot x_1 \cdot x_2 \cdot l_1$, $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot y_1 \cdot y_2 \cdot l_2$, and one of the following cases holds for some $p \in \{ 0,1 \}$ and $id,id'$: 
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $x_1=p$, $x_2=0$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2=1)$, 
+    
+    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, $y_1=(p,id')$, and $id<id'$, 
+    
+    \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$. 
+    \end{itemize}
+\end{itemize}
+
+The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given major node $n_a,n_b$ such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. Here T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
 
 
 
