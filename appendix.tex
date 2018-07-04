@@ -568,7 +568,7 @@ A history $h = (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\cup\upd
 $$ \gconfres(s)=\left\{
 \begin{aligned}
 an \ element \ of \ S &  & If \ S = \{ \abstate \vert \abstate_0 \xrightarrow{ \aseqord\!\downarrow_{s\cap \updates} }^* \abstate \} \neq \emptyset \\
-undefine & & Otherwise
+undefined & & Otherwise
 \end{aligned}
 \right.
 $$
@@ -611,7 +611,7 @@ Since the set of operations visible to $\alabellong[{\tt read}]{}{c \cdot b}{}$ 
 \end{figure}
 
 
-%Since the sequential specification is non-deterministic, for each operation sequence $s$, we fix $\gconfres(s)$ to be the consequence in sequential specification when applying update operations in $s$ according to \aseqord{} order from the initial abstract state $\abstate_0$ of sequential specification. The condition of ¡¤¡¤$\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$¡®¡¯ ensures that, the conflict resolution of bigger state $\gconfres(s_2)$ should also respect the conflict resolution of smaller state $\gconfres(s_1)$. Or we cam say, $\gconfres(s_1)$ is a ``sub-state'' of $\gconfres(s_2)$.
+%Since the sequential specification is non-deterministic, for each operation sequence $s$, we fix $\gconfres(s)$ to be the consequence in sequential specification when applying update operations in $s$ according to \aseqord{} order from the initial abstract state $\abstate_0$ of sequential specification. The condition of $\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$utf ensures that, the conflict resolution of bigger state $\gconfres(s_2)$ should also respect the conflict resolution of smaller state $\gconfres(s_1)$. Or we cam say, $\gconfres(s_1)$ is a ``sub-state'' of $\gconfres(s_2)$.
 
 The case when histories include query-updates is similarly dealt with as Definition \ref{definition:distributed linearizability}. We do it by rewriting of the original history where each query-update is decomposed into a label representing the query part and another label representing the update part.
 
@@ -3124,3 +3124,8 @@ Let the cycle in $S_4$ be $(\mathit{obj}_1,\mathit{obj}_k),(\mathit{obj}_k,\math
 Thus, it is easy to see $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},$ $o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in \mathit{vis}$. By definition of $S_2$, we can see that $\mathit{ts}(o^{0}_{\mathit{o1}}) < \mathit{ts}(o^{1}_{\mathit{o1}}), \ldots, \mathit{ts}(o^{0}_{\mathit{ok}}) < \mathit{ts}(o^{1}_{\mathit{ok}})$. This contradicts the definition of causal-time-stamp. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
 \end {proof}
 }
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "draft"
+%%% End:
