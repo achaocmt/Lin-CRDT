@@ -143,26 +143,26 @@ Counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}
 \hline
 PN-Counter~\cite{ShapiroPBZ11}&$\alabelshort[{\tt inc}]{}$, $\alabelshort[{\tt dec}]{}$ & execution-order \\
 \hline
-LWW-Register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{value}{}$ & timestamp-order\\
+LWW-Register~\cite{DBLP:journals/rfc/rfc677}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{value}{}$ & timestamp-order\\
 \hline
-Multi-Value Register~\cite{?}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+Multi-Value Register~\cite{DBLP:conf/sosp/DeCandiaHJKLPSVV07}&$\alabelshort[{\tt write}]{value}$, $\alabellong[{\tt read}]{}{set}{}$ & execution-order\\
 \hline
-2P-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+2P-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set}{}$ & execution-order\\
 \hline
-LWW-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{set\_of\_values}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & timestamp-order\\
+LWW-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{set}$, $\alabellong[{\tt read}]{}{set}{}$ & timestamp-order\\
 \hline
 %PN-set~\cite{ShapiroPBZ11}&not \crdtlinearizable{}&$add$, $remove$, $read$\\
 %\hline
-OR-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set\_of\_values}{}$ & execution-order\\
+OR-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set}{}$ & execution-order\\
 \hline
-RGA~\cite{?}&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$, &
-                \\ & $\alabellong[{\tt read}]{}{list\_of\_values}{}$ & timestamp-order\\
+RGA~\cite{DBLP:journals/jpdc/RohJKL11}&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$ &
+                \\ & $\alabellong[{\tt read}]{}{list}{}$ & timestamp-order\\
 \hline
-Wooki~\cite{?}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$, & 
-                \\ & $\alabellong[{\tt read}]{}{list\_of\_values}{}$ & execution-order \\
+Wooki~\cite{DBLP:conf/wise/WeissUM07}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$ & 
+                \\ & $\alabellong[{\tt read}]{}{list}{}$ & execution-order \\
 \hline
-Tree-Doc~\cite{?}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$, &
-                \\ & $\alabellong[{\tt read}]{}{list\_of\_values}{}$ & execution-order\\
+Treedoc~\cite{DBLP:conf/icdcs/PreguicaMSL09}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$ &
+                \\ & $\alabellong[{\tt read}]{}{list}{}$ & execution-order\\
 \hline
 \end{tabular}
 }
@@ -252,7 +252,7 @@ The annotations under \lstinline|downStream| specify the behavior of the effecto
 a {\tt remove} effector removes the set of element-id pairs added by {\tt add} operations visible at the replica $\arep$ where the {\tt remove} originated, and which were not ``canceled'' by other {\tt remove}s visible at $\arep$ ({\tt remove}s that saw those {\tt add} operations).\footnote{This characterization of the set of element-id pairs removed by a {\tt remove} effector is written on the first annotation line under \lstinline|downStream(R)|.}
 
 In the following, we show that the $\mathsf{ReplicaStates}$ property described above is an inductive invariant for OR-Set. Since every operation is appended to the linearization when it executes \lstinline|atSource| it clearly follows, in the linearization order, all operations visible to it. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. 
-Therefore, showing that $\mathsf{ReplicaStates}$ is an inductive invariant only requires dealing with the situation where two effectors corresponding to two concurrent operations $\alabel_1$ and $\alabel_2$ (i.e., $\alabel_1$ and $\alabel_2$ are not related by visibility) are applied at some replica in an order that doesn't coincide with the linearization order between $\alabel_1$ and $\alabel_2$. 
+Therefore, showing that $\mathsf{ReplicaStates}$ is an inductive invariant only requires dealing with the situation where two effectors corresponding to two \emph{concurrent} operations $\alabel_1$ and $\alabel_2$ (i.e., $(\alabel_1,\alabel_2)$ and $(\alabel_2,\alabel_1)$ are not included in the visibility) are applied at some replica in an order that doesn't coincide with the linearization order between $\alabel_1$ and $\alabel_2$. 
 %have to be linearized in an order which does not coincide with the order in which their downstreams might have been applied in one or more of the replicas. 
 It is important to recall at this point that concurrent operations can be applied in different orders in different replicas. 
 % The main difficulty in showing that $\mathsf{ReplicaStates}$ is an inductive invariant is when two downstreams correspond to two ``concurrent'' operations (not related by visibility) and their linearization order is different from the order in which they are applied at a given replica.
@@ -272,14 +272,15 @@ visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $
 
 We give hereafter a formal definition of an RA-linearizable object admitting execution-order linearizations. Intuitively, an object $\aobj$ admits execution-order linearizations when the history of every trace (execution) can be linearized in the order in which operations are executed at the origin replica.
 
-\begin{definition}
+\begin{definition}\label{def:exec_order}
   Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$. We say that $\aobj$ admits \emph{execution-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
 \end{definition}
 
-The following theorem shows the set of objects we have proved to be RA-linearizable and admit execution-order linearizations (also mentioned in Figure~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}). The specification of the two variations of counters is given in Example~\ref{definition:sequential specification of counter}. The Multi-Value Register deals with concurrent write operations by taking the union of the values they wrote (therefore, a {\tt read} operation may return a set of values). Its specification is in the same vein as the one of the OR-Set (in particular, a write operation is a query-update since it reads and overwrites the values which are present at the origin replica). The specification of the 2P-Set is a standard set specification (where ${\tt add}$ and ${\tt remove}$ operations act as in a standard sequential set) while the specifications of Wooki and Tree-Doc are similar to RGA except that elements are added using the operation ${\tt addBetween}$ which inserts an element in between two other elements. The precise definitions of these specifications and the proofs can be found in the supplementary material.
+The following theorem shows the set of objects we have proved to be RA-linearizable and admit execution-order linearizations (also mentioned in Figure~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}). The specification of the two variations of counters is given in Example~\ref{definition:sequential specification of counter}. The Multi-Value Register deals with concurrent write operations by taking the union of the values they wrote (therefore, a {\tt read} operation may return a set of values). Its specification is in the same vein as the one of the OR-Set (in particular, a write operation is a query-update since it reads and overwrites the values which are present at the origin replica). The specification of the 2P-Set is a standard set specification (where ${\tt add}$ and ${\tt remove}$ operations act as in a standard sequential set) while the specifications of Wooki and Treedoc are similar to RGA except that elements are added using the operation ${\tt addBetween}$ which inserts an element in between two other elements. The precise definitions of these specifications and the proofs can be found in the supplementary material. We remark that proving $\mathsf{ReplicaStates}$ and $\mathsf{Refinement}$ in the case of Wooki and Treedoc in particular is more involved than in the case of OR-Set. The concrete replica states are more complex, they are lists or trees of values and metadata, which makes the reasoning about concurrent operations and refinement mappings more challenging.
 
-\begin{theorem}
-Counter, PN-Counter, Multi-Value Register, 2P-Set, OR-Set, Wooki, and Tree-Doc are RA-linearizable and admit execution-order linearizations.
+
+\begin{theorem}\label{th:execution_order_objects}
+Counter, PN-Counter, Multi-Value Register, 2P-Set, OR-Set, Wooki, and Treedoc are RA-linearizable and admit execution-order linearizations.
 \end{theorem}
 
 \subsection{Timestamp-Order Linearizations}
@@ -322,11 +323,11 @@ An object $\aobj$ which is \crdtlinearizable{} w.r.t. a specification $\Spec$ ad
 
 The following theorem shows the set of objects we have proved to be RA-linearizable and admit timestamp-order linearizations (also mentioned in Figure~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}). The specification of the LWW-register (short for Last Writer Wins Register) is standard, i.e., a read operation returns the last written value, while the specification of the LWW-Set is similar, the object storing a set of values instead of a single value like in the context of the LWW-register. The precise definitions of these specifications and the proofs can be found in the supplementary material.
 
-\begin{theorem}
+\begin{theorem}\label{th:ts_order_objects}
 LWW-Register, LWW-Set, and RGA are RA-linearizable and admit timestamp-order linearizations.
 \end{theorem}
 
-
+TODO SAY THAT RGA WITH ADDAT IS NOT RA-LINEARIZABLE
 
 %%% Local Variables:
 %%% mode: latex
