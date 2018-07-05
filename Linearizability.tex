@@ -111,7 +111,7 @@ We assume the existence of a special value $\bot \in \datadomain$
 which we shall use to represent the absence of a value (for instance
 the return type of procedures).
 %
-We will generally omit writing this value since this value is of no
+We will generally omit writing this value since it is generally of no
 importance.
 %
 Furthermore, we ignore here the issues of typing which should be
@@ -147,6 +147,19 @@ However, since we assume that each label of an operation in an
 execution is tagged with a unique identifier, we will ignore
 identifiers when unambiguous.
 The set of all operation labels is denoted by $\labels$.
+%
+To distinguish between the generator and effector executed at the
+origin replica from the propagation of an effectors to different replica
+in an execution we use decorated labels.
+%
+We will call these decorate labels actions and they are defined as
+$\acts = \{ \src{\arep}{\alabel}, \dwn{\arep}{\alabel}\ |\ \arep \in
+\replicas\ \text{and}\ \alabel \in \labels \}$,
+where $\src{\arep}{\alabel}$ is the source action of the label
+$\alabel$ in replica $\arep$ and
+$\dwn{\arep}{\alabel}$ is the downstream action for the same label.
+
+
 %\labels
 % the transitions are labeled by operation labels in $\labels$,
 %\times \labels
@@ -189,7 +202,7 @@ Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to
 each operation label $\alabel \in \alabelset$ a downstream
 $\effector\in [\states \rightarrow \states]$, which is the replica
 state transformer generated when the operation was executed at the
-source replica.
+origin replica.
 
 For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
 
@@ -418,28 +431,28 @@ set of histories $h$ of an execution $e$ of $\aobj$.
   $\aseqord$ is a sequence including all the labels in $\alabelset$.
 \end{definition}
 
-\gp{I'm changing the arrow because we use it in many places.}
+% \gp{I'm changing the arrow because we use it in many places.}
 To describe sequential specifications in a succinct way we will
 provide an operational description.
 To that end, we will associate to specifications a notion of abstract
 state, which we shall generally denote by $\abstate$ and its domain
 shall be denoted by $\abstates$.
 Then, to each valid label $\alabel$ we will associate a transition
-relation \;$\xrightharpoonup{\alabel}$\; which, given a state and provided
+relation \;$\specarrow{\alabel}$\; which, given a state and provided
 that the label can be applied into that state, produces a new abstract
 state.
-Hence, we denote by $\abstate \xrightharpoonup{\alabel}  \abstate'$
+Hence, we denote by $\abstate \specarrow{\alabel}  \abstate'$
 %$\absopsem{\abstate} = \abstate'$
 the fact that the resulting state for label $\alabel$ with initial
 abstract state $\abstate$ is $\abstate'$.
 %
 %To simplify our descriptions, we will use a shortcut notation for
 %$\absopsem{\abstate} = \abstate'$ and will write it as:
-%\[ \abstate \xrightharpoonup{\alabel}  \abstate' \]
+%\[ \abstate \specarrow{\alabel}  \abstate' \]
 In the specific case where the label $\alabel$ assumes a certain
 precondition $\apre$ over the initial abstract state $\abstate$ we
 will use Hoare-style preconditions and write
-\[ \big(\abstate\ |\ \apre(\abstate)\big) \xrightharpoonup{\alabel}  \abstate' \]
+\[ \big(\abstate\ |\ \apre(\abstate)\big) \specarrow{\alabel}  \abstate' \]
 
 A sequential specification then is the set of labels that are accepted
 by the successive application of the transition relation starting from
@@ -455,7 +468,7 @@ some given initial state $\abstate_{0}$.
 %   show more specs, since it kinda proves that they are easy to
 %   read/write/understand.}
 
-\gpwarning{Lots of rewriting to do here.}
+% \gpwarning{Lots of rewriting to do here.}
 
 Let us consider the specification of a very simple counter object, and
 then the specifications of the RGA and OR-Set objects described above.
@@ -467,16 +480,16 @@ that $\abstates = \mathbb{Z}$, that is the state will be an integer,
 and the transitions are given as follows:
 \[
   \begin{array}[rcl]{rcl}
-    k & \xrightharpoonup{\alabellong[\mathsf{inc}]{}{}} & k+1\\
-    k & \xrightharpoonup{\alabellong[\mathsf{dec}]{}{}} & k-1\\
-    k & \xrightharpoonup{\alabellong[\mathsf{read}]{}{k}} & k
+    k & \specarrow{\alabellong[\mathsf{inc}]{}{}} & k+1\\
+    k & \specarrow{\alabellong[\mathsf{dec}]{}{}} & k-1\\
+    k & \specarrow{\alabellong[\mathsf{read}]{}{k}} & k
   \end{array}
 \]
 % \begin{itemize}
 % \setlength{\itemsep}{0.5pt}
-% \item[-] $k \xrightharpoonup{\alabellong[\mathsf{inc}]{}{}} k+1$
-% \item[-] $k \xrightharpoonup{\alabellong[\mathsf{dec}]{}{}} k-1$
-% \item[-] $k \xrightharpoonup{\alabellong[\mathsf{read}]{}{k}} k$
+% \item[-] $k \specarrow{\alabellong[\mathsf{inc}]{}{}} k+1$
+% \item[-] $k \specarrow{\alabellong[\mathsf{dec}]{}{}} k-1$
+% \item[-] $k \specarrow{\alabellong[\mathsf{read}]{}{k}} k$
 % \end{itemize}
 \end{example}
 
@@ -495,13 +508,13 @@ and the transitions are given as follows:
   \[
     \begin{array}{rcl}
       \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
-      & \xrightharpoonup{\alabelshort[\mathtt{addAfter}]{a_k,a}}
+      & \specarrow{\alabelshort[\mathtt{addAfter}]{a_k,a}}
       & (l_1 \cdot a_k \cdot a \cdot l_2,T)\\
       \big(\ (l,T)\ |\ a_k\ \text{occurs in}\ l\ \big)
-      & \xrightharpoonup{\alabelshort[\mathtt{remove}]{a_k}}
+      & \specarrow{\alabelshort[\mathtt{remove}]{a_k}}
       & (l,T \cup \{a_k\})\\
       (l,T)
-      & \xrightharpoonup{\alabellong[\mathtt{read}]{}{s}{}}
+      & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
       & (l,T)\
         \left[\begin{array}{c}
                  \text{with $s$ is obtained from $l$}\\
@@ -537,19 +550,19 @@ $\specOrSet$ of OR-Set is given by the transitions:
 \[
   \begin{array}{rcl}
     \abstate
-    & \xrightharpoonup{\alabellong[\mathtt{readIds}]{a}{S}{}}
+    & \specarrow{\alabellong[\mathtt{readIds}]{a}{S}{}}
     & \abstate\
       \begin{array}{c}
         [\text{with}\ S = \{ (a,id)\ \vert\ (a,id) \in \abstate\}]
       \end{array}\\
     \abstate &
-               \xrightharpoonup{\alabelshort[\mathtt{remove}]{a,S}}
+               \specarrow{\alabelshort[\mathtt{remove}]{a,S}}
     & \abstate \setminus S \\
     \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
-             & \xrightharpoonup{ \alabelshort[{\tt add}]{a,id} }
+             & \specarrow{ \alabelshort[{\tt add}]{a,id} }
     & \abstate \cup \{ (a,\mathtt{id}) \}\\
     \abstate
-    & \xrightharpoonup{\alabellong[\mathtt{read}]{a}{ S }{}}
+    & \specarrow{\alabellong[\mathtt{read}]{a}{ S }{}}
     & \abstate\
       \begin{array}{c}
         [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]

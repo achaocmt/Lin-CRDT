@@ -18,7 +18,7 @@ views of the same instance.
 %
 However, CRDTs guarantee that the different states of the multiple
 nodes will \emph{eventually} converge to a unique state common to all
-nodes~\cite{Burckhardt14}.
+nodes~\cite{ShapiroPBZ11,Burckhardt14}.
 %
 Importantly, this \emph{convergence property} is intrinsic to the data
 type design and in general no synchronization is needed among nodes,
@@ -26,8 +26,7 @@ hence achieving availability.
 
 \paragraph{Availability vs. Consistency}
 To illustrate the problem we will consider the implementation of a
-CRDT to implement a List-like object (usually used for text-editing
-applications).
+List-like CRDT object (usually used for text-editing applications).
 %
 We will base our discussion on the Replicated Growing Array (RGA) due
 to~\cite{RohJKL11}.\footnote{We use a variation of code extracted
@@ -70,7 +69,7 @@ and hence return control to the client -- and lazily propagate the
 updates to all the other replicas at later point in time.
 %
 For instance, assuming that we have an initial list containing the
-sequence $\mathtt{a \cdot b \cdot e \cdot f}$\footnote{We will use
+sequence $\mathtt{a \cdot b \cdot e \cdot f}$~\footnote{We will use
   $s_0 \cdot s_1$ to denote the composition of sequences $s_0$ and
   $s_1$ throughout the paper.}
 and two replicas, $\arep_1$ and $\arep_2$, if $\arep_1$ inserts the
@@ -94,7 +93,7 @@ concurrent updates, CRDTs guarantee that under conflicting operations --
 that is, operations that could lead to different states as shown above
 --, there is a systematic way to \emph{detect conflicts}, and moreover, there
 is a strategy to \emph{deterministically solve conflicts} which will be followed
-by all replicas. 
+by all replicas.
 
 % {\color {red}CW: Here ``detect conflict'' may confuse the readers. When we do the downstream, we do not distinguish whether this downstream comes from a concurrent operation or from a visible operation.}
 % \gpnote[nomargin, inline]{I don't think it's confusing or inaccurate.
@@ -119,7 +118,7 @@ monotonically with time, that replica identifiers are unique, etc.)
 which we shall discuss in the next sections.
 %
 Then, for the case of the RGA data type, whose implementation will be
-presented in the next section, it is enough to know that whenever
+presented in the next section, it is enough to know whether
 two \lstinline|addAfter| operations have conflicted by simply
 comparing the replica identifiers and their timestamps.
 %
@@ -135,8 +134,8 @@ should be the same, an arbitrary order among replicas will be used.
 %
 Going back to the example above, and assuming that the character
 \lstinline|c| was added with timestamp $t_1$ and the character
-\lstinline|d| was added with timestamp $t_2$, if we assume that $t_1 \leq
-t_2$ for some order $\leq$ between timestamps, then the list will
+\lstinline|d| was added with timestamp $t_2$, if we assume that
+$t_1 < t_2$ for some order $\leq$ between timestamps, then the list will
 converge to $\mathtt{a \cdot b \cdot c \cdot d \cdot e}$.
 %
 We obtain the same result if $t_1 = t_2$ and, assuming that we have a replica
@@ -145,8 +144,8 @@ order $<_r$, we have $\arep_1 <_r \arep_2$.
 In any other case we obtain $\mathtt{a \cdot b \cdot d \cdot c \cdot e}$.
 %
 The idea of using an arbitrary order among replica identifiers is
-often used in CRDT implementations to break ties among elements that
-are equal according to the timestamps.
+often used in CRDT implementations to break ties among elements with
+equal timestamps.
 %
 For this reason in the rest of the paper we will assume that metadata
 provides a strict ordering relation to abstract this detail away.
@@ -232,14 +231,13 @@ We provide both, their specification as \CRDTLinshort{}, and proofs
 showing that an implementation is faithful to this specification.
 %
 Encouragingly, most of the the CRDTs discussed by~\citet{ShapiroPBZ11}
-are \CRDTLinshort{}.
+are \crdtlinearizable{}.
 
 Given that our criterion is inspired by
 linearizability~\cite{HerlihyW90} it is natural to ask whether it
-preserves the same modularity properties as shown
-by~\citet{HerlihyW90}.
+preserves the same modularity properties shown by~\citet{HerlihyW90}.
 %
-We shown that this is general not true, but we identify classes of
+We shown that this is in general not true, but we identify classes of
 CRDT implementations, based on the conflict-resolution strategy that
 they implement, for which modularity can be achieved.
 

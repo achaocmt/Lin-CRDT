@@ -115,15 +115,15 @@ any two replica states $\sigma$ and $\sigma'$,
 \begin{enumerate}
         \item if $\sigma'$ is obtained from $\sigma$ by applying an
           effector $\delta$ produced by an operation $\alabel$, then
-          \mbox{$\refmap(\sigma)\xrightharpoonup{\alabel}\refmap(\sigma')$},
-          where $\xrightharpoonup{\alabel}$ is the transition function of
-          $\Spec$, or \mbox{$\refmap(\sigma)\xrightharpoonup{\secondrep(\gamma(\alabel))}\refmap(\sigma')$} 
+          \mbox{$\refmap(\sigma)\specarrow{\alabel}\refmap(\sigma')$},
+          where $\specarrow{\alabel}$ is the transition function of
+          $\Spec$, or \mbox{$\refmap(\sigma)\specarrow{\secondrep(\gamma(\alabel))}\refmap(\sigma')$} 
           when a query-update rewriting $\gamma$ is used,
           and
         \item if a query $\alabel$ is applied on a state $\sigma$ or
           it is introduced by a rewriting of a query-update that
           executes \lstinline|atSource| on a state $\sigma$, then
-          $\refmap(\sigma)\xrightharpoonup{\alabel}\refmap(\sigma)$.
+          $\refmap(\sigma)\specarrow{\alabel}\refmap(\sigma)$.
 \end{enumerate}
 % \gpnote*{Explain or remove}{
 % Actually, for the CRDT objects presented in Section~\ref{subsec:time order of execution as linearization}, we consider a stronger version of $\mathsf{Refinement}$ which requires that the state $\sigma$ and the downstream $\delta$ satisfy some particular condition (in the context of the first proof goal).
@@ -135,7 +135,7 @@ any two replica states $\sigma$ and $\sigma'$,
 \begin{figure}[t]
 %\centering
 {\footnotesize
-\begin{tabular}{|l|c|c|}
+\begin{tabular}{|l|c|r|}
 \hline
 {\bf CRDT} & {\bf Interface} & {\bf Linearization strategy}\\
 \hhline{|===|}
