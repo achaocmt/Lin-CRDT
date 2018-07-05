@@ -593,7 +593,7 @@ If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns
 \end{lemma}
 
 
-The following lemma states that, given two W-characters that are degree-$i$-adjacent in $string_s$, then, they are ordered by $<_{id}$ in $s$. 
+The following lemma states that, given two W-characters that are degree-$i$-adjacent in $string_s$, then, they are ordered by $<_{id}$ in $s$.
 
 \begin{lemma}
 \label{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}
@@ -626,40 +626,101 @@ The case of $c_b <_{string'_s} c_x \wedge c_x <_{id} c_b$ can be similarly prove
 \end {proof}
 
 
-%The following lemma states that, the order of $\{$values of $\sigma \} \cup \{ b \}$ in the following two cases are the same: either we insert $b$ into $\sigma$, or first insert another item $e$ and then insert $b$. 
-The following lemma states that, inserting a value $b$ is ``independent'' from whether another value $e$ has already been inserted or not.  
+%The following lemma states that, the order of $\{$values of $\sigma \} \cup \{ b \}$ in the following two cases are the same: either we insert $b$ into $\sigma$, or first insert another item $e$ and then insert $b$.
+The following lemma states that, inserting a value $b$ is ``independent'' from whether another value $e$ has already been inserted or not.
 
 \begin{lemma}
 \label{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}
-Assume from a local state $\sigma$, we obtain $\sigma_b$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, and obtain $\sigma_{eb}$ by first applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ and then applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$. Then, the order of $\{$values of $\sigma \} \cup \{ b \}$ is the same for $\sigma_b$ and $\sigma_{eb}$.
+Assume from a local state $\sigma$, we obtain $\sigma_b$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, and obtain $\sigma_{eb}$ by first applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ and then applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$. Let $c_b$ be W-character of $b$. Then, the order of $\{$W-characters of $\sigma \} \cup \{ c_b \}$ is the same for $\sigma_b$ and $\sigma_{eb}$.
 \end{lemma}
 
 \begin {proof}
-Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $a,b,c,d,e,f$, respectively. Assume $\sigma_e$ is obtained from $\sigma$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$. Let us use case $1$ to mention the process of $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma$. Let us use case $2$ to mention the process of $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma_e$. Let $j_e$ be the degree of $c_e$.
+Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $a,b,c,d,e,f$, respectively. Assume $\sigma_e$ is obtained from $\sigma$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$. Let us use case $1$ to mention the process of doing $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma$. Let us use case $2$ to mention the process of doing $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma_e$. Let $j_e$ be the degree of $c_e$.
 
-We need to prove that, for each degree $i$, the order of $\{$values of degree $i$ in $\sigma \} \cup \{ b \}$ is the same for case $1$ and case $2$. We prove this by considering all possible degrees.
+We need to prove that, for each degree $i$, the order of $\{$W-characters of degree $i$ in $\sigma \} \cup \{ c_b \}$ is the same for case $1$ and case $2$. We prove this by considering all possible degrees.
+
+When case $1$ and case $2$ both call $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$, and $d_{min}<j_e$. Then, it is easy to see that case $1$ and case $2$ work in the same way.
+
+When case $1$ and case $2$ both call $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$, and it is the first time that $d_{min} \geq j_e$. Then, there are two possibilities:
+
+\noindent {\bf Possibility $1$:} In $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of case $1$, $d_{min} > j_e$, while in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of case $2$, $d_{min} = j_e$. Or we can say, $c_b$ is the only W-character that has degree $j_e$ and is between $c_1$ and $c_2$ in $\sigma_e$.
+
+Assume $c_e$ is put into $\sigma_e$ by calling $\alabelshort[{\tt integrateIns}]{c_{pe},c_e,c_{ne}}$. Obviously, the degree of $c_{pe}$ and $c_{ne}$ is smaller than $j_e$. Since in case $2$, we have $d_{min} = j_e$, then, it is not the case that $c_1 <_{\sigma_e} c_{pe} <_{\sigma_e} c_2 \vee c_1 <_{\sigma_e} c_{ne} <_{\sigma_e}$. Thus, we can see that, $c_{pe} <_{\sigma_e} c_1 <_{\sigma_e} c_2 <_{\sigma_e} c_{ne}$.
+
+Let $F_1$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of case $1$, and let $d_{min1}$ be the $d_{min}$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of case $1$. Assume that $F_1 = c'_1 \cdot \ldots \cdot c'_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c'_1,c'_2),\ldots,(c'_{n-1},c'_n)$ are degree-$d_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c'_1 <_{id} c'_2 \ldots <_{id} c'_n$. Since $d_{min1} > j_e$, we can see that, $c'_n <_{\sigma_e} c_e \vee c_e <_{\sigma_e} c'_1$.
+
+Let us consider the case when $c'_n <_{\sigma_e} c_e$, while the case when $c_e <_{\sigma_e} c'_1$ can be similarly proved.
+
+Let us prove $c'_n <_{id} c_e$ by contradiction. Assume that $c_e <_{id} c'_n$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{c_{pe},c_e,c_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $c'_n$ should never be in array $F$. Since $c_{pe} <_{\sigma_e} c_1 <_{\sigma_e} c_2 <_{\sigma_e} c_{ne}$, there exists a W-character $c_x$, such that $c'_n <_{\sigma_e} c_x <_{\sigma_e} c_e$, and in the process of doing $\alabelshort[{\tt integrateIns}]{c_{pe},c_e,c_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{c_x,c_e,\_}$. Since this time-point is before we reach degree $d_{min1}$, we can see that the degree of $c_x$ is smaller than $d_{min1}$. Therefore, $d_{min1}$ should equal the degree of $c_x$, which brings a contradiction.
+
+Therefore, we can see that $F_1[0] <_{id} F_1[1] \ldots <_{id} F_1[n] <_{id} c_e$ and $F_1[0] <_{\sigma_e} F_1[1] \ldots <_{\sigma_e} F_1[n] <_{\sigma_e} c_e$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] It is obvious that, for degree $i < j_e$, case $1$ and case $2$ both calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$, and they work in the same way.
+\item[-] If $c_b <_{id} c'_n$, then, case $1$ and case $2$ work in the same way.
 
-\item[-] For degree $j_e$, case $1$ and case $2$ both calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$.
+\item[-] Else, if $c'_n <_{id} c_b <_{id} c_e$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_n,c_b,c_2}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_n,c_b,c_e}$. We can see that the order of $\{ c'_1,\ldots,c'_n,c_b \}$ is the same for case $1$ and case $2$.
 
-    Let $c'_1,\ldots,c'_n$ be the W-characters with degree $j_e +1$ between $c_1$ and $c_2$ in $\sigma$. Assume that $c'_1 <_{\sigma} \ldots <_{\sigma} c'_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are ordered in id-order}, we know that, $c'_1 <_{id} \ldots <_{id} c'_n$. Assume $c'_k <_{\sigma_e} c_e <_{\sigma_e} c'_{k+1}$. By Wooki algorithm, in inserting $c_e$, we will call $\alabelshort[{\tt integrateIns}]{c_1,c_e,c_2}$, and then, $c'_k <_{id} c_e <_{id} c'_{k+1}$. Thus, we have $c'_1 <_{id} \ldots <_{id} c'_k <_{id} c_e <_{id} c'_{k+1} <_{id} \ldots <_{id} c'_n$ and $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_k <_{\sigma_e} c_e <_{\sigma_e} c'_{k+1} <_{\sigma_e} \ldots <_{\sigma_e} c'_n$.
+\item[-] Else, we know that $c'_n <_{id} c_e <_{id} c_b$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_n,c_b,c_2}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_e,c_b,c_2}$. We can see that the order of $\{ c'_1,\ldots,c'_n,c_b \}$ is the same for case $1$ and case $2$.
+\end{itemize}
 
-    If $c_b <_{id} c'_k$ or $c'_{k+1} <_{id} c_b$, assume $c'_m <_{id} c_b <_{id} c'_{m+1}$, then both case $1$ and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c'_{m+1}}$, and $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. Moreover, from now on, case $2$ will work in the same way as case $1$.
 
-    Else, we know that $c'_k <_{id} c_b <_{id} c'_{k+1}$. Assume that $c'_k <_{id} c_b <_{id} c_e <_{id} c'_{k+1}$. Then, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c'_{k+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c_e}$. We can see in both case $1$ and case $2$, $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. The situation of $c'_k <_{id} c_2 <_{id} c_b <_{id} c'_{k+1}$ can be similarly proved.
+\noindent {\bf Possibility $2$:} In $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of both case $1$ and case $1$, we have $d_{min} = j_e$.
 
-    We can see that, if case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c_e}$, then we have $c_b <_{id} c_e$; if case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_{k+1}}$, then we have $c_e <_{id} c_b$.
+Similarly, we can prove that, $c_{pe} <_{\sigma_e} c_1 <_{\sigma_e} c_2 <_{\sigma_e} c_{ne}$.
 
-\item[-] Inductively, for a degree $k > j_e$, assume that case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Let $c'_1,\ldots,c'_n$ be the W-characters with degree $k+1$ between $c_1$ and $c_e$ in $\sigma_e$. Assume that $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_n$. Let $c'_{m+1},\ldots,c'_n$ be the W-characters with degree $k+1$ between $c_e$ and $c_2$ in $\sigma_e$. Assume that $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_n$.
+Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of case $2$, and let $d_{min2}=j_e$ be the $d_{min}$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of case $2$. Assume that $F_2 = c'_1 \cdot \ldots \cdot c'_k \cdot c_e \cdot c'_{k+1} \cdot \ldots \cdot c'_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c'_1,c'_2),\ldots,(c'_k,c_e),(c_e,c'_{k+1}),\ldots,(c'_{n-1},c'_n)$ are degree-$d_{min2}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c'_1 <_{id} c'_2 \ldots <_{id} c'_k <_{id} c_e <_{id} c'_{k+1} <_{id} c'_n$.
 
-    By Lemma \ref{lemma:in F of Wooki, W-characters are ordered in id-order}, we can see that $c'_1 <_{id} \ldots <_{id} c'_n$. By Wooki algorithm, in inserting $c_e$, we will call $\alabelshort[{\tt integrateIns}]{c_1,c_e,c_2}$, and then, we can see that $c'_m <_{id} c_e <_{id} c'_{m+1}$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $c_b <_{id} c'_k \vee c'_{k+1} <_{id} c_b$, then, case $1$ and case $2$ work in the same way.
 
-    If $c_b <_{id} c'_m$, assume $c'_l <_{id} c_b <_{id} c'_{l+1}$, then both case $1$ and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_l,c_b,c'_{l+1}}$, and $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. Moreover, from now on, case $2$ will work in the same way as case $1$.
+\item[-] Else, if $c'_k <_{id} c_b <_{id} c_e <_{id} c'_{k+1}$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c'_{k+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c_e}$. We can see that the order of $\{ c'_1,\ldots,c'_n,c_b \}$ is the same for case $1$ and case $2$.
 
-    Else, we know that $c'_m <_{id} c_b$. Since case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$, we know that $c_b <_{id} c_e <_{id} c'_{m+1}$. Then, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c'_{m+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c_e}$. We can see in both case $1$ and case $2$, $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order.
+\item[-] Else, we know that $c'_k <_{id} c_e <_{id} c_b <_{id} c'_{k+1}$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c'_{k+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_{k+1}}$. We can see that the order of $\{ c'_1,\ldots,c'_n,c_b \}$ is the same for case $1$ and case $2$.
+\end{itemize}
+
+\noindent {\bf Induction situation:} Let us consider the inductive situations.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Assume case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c¡®_2}$ and case $2$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_e}$. By induction assumption, we can see that, $c_e <_{\sigma_e} c'_2$ and $c_b <_{id} c_e$.
+
+    Let $F'_1$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$, and let $d'_{min1}$ be the $d_{min}$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$. Assume that $F'_1 = c''_1 \cdot \ldots \cdot c''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c''_1,c''_2),\ldots,(c''_{n-1},c''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c''_1 <_{id} c''_2 \ldots <_{id} c''_n$. Since $d¡¯_{min1} > j_e$, according to the definition of degree-$d'_{min1}$-adjacent, we can see that, $c''_n <_{\sigma_e} c_e \vee c_e <_{\sigma_e} c''_1$.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Let us consider the situation of $c_e <_{\sigma_e} c''_1$. We can see that only case $1$ need to concern this round, since in case $2$, there is no W-character with degree $d'_{min1}$ between $c'_1$ and $c'_2$.
+
+        By induction assumption, we can see that $c_{pe} <_{\sigma_e} c'_1 <_{\sigma_e} c'_2 <_{\sigma_e} c_{ne}$.
+
+        Let us prove $c_e <_{id} c''_1$ by contradiction. Assume that $c''_1 <_{id} c_e$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{c_{pe},c_e,c_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $c''_1$ should never be in array $F$. Since $c_{pe} <_{\sigma_e} c'_1 <_{\sigma_e} c'_2 <_{\sigma_e} c_{ne}$, there exists a W-character $c_x$, such that $c_e <_{\sigma_e} c_x <_{\sigma_e} c''_1$, and in the process of doing $\alabelshort[{\tt integrateIns}]{c_{pe},c_e,c_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{\_,c_e,c_x}$. Since this time-point is before we reach degree $d'_{min1}$, we can see that the degree of $c_x$ is smaller than $d'_{min1}$. Therefore, $d'_{min1}$ should equal the degree of $c_x$, which brings a contradiction.
+
+        We can see that $c_b <_{id} c_e <_{id} c''_1 <_{id} \ldots <_{id} c''_n$. Case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c''_1}$. Note that case $2$ does not concern this round and still wait in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$. We can see that the order of $\{ c''_1,\ldots,c''_n,c_b \}$ is the same for case $1$ and case $2$.
+
+        If in the next round of {\tt integrateIns} of case $1$, $c_e <_{\sigma_e} F[1]$, then, similarly, we can prove that $c_e <_{id} F[1]$, and $c_b <_{id} F[1] <_{id}\ldots$. Case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,F[1]}$, case $2$ still do not concern this round and still wait in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$, and the order of $F \cup \{ c_b \}$ is the same for case $1$ and case $2$.
+
+        If from now on, each round is as such, then we can similar prove it and our proof is done.
+
+        Otherwise, in the first round of case $1$ that is not as such, we can see that it calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c}$ with $c_e <_{\sigma_e} c$, the $F$ array is $F'¡®$, the $d_{min}$ is $d''$, assume $F'' = c'''_1 \cdot \ldots \cdot c'''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c'''_1,c'''_2),\ldots,(c'''_{n-1},c'''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c'''_1 <_{id} c'''_2 \ldots <_{id} c'''_n$. Similarly, we can prove that $c'''_n <_{id} c_e$.
+
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] If $c_b <_{id} c'''_n$, then, case $1$ and case $2$ work in the same way.
+
+        \item[-] Else, we can see that $c'''_n <_{id} c_b <_{id} c_e$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'''_n,c_b,_c}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'''_n,c_b,c_e}$. We can see that the order of $\{ c'''_1,\ldots,c'''_n,c_b \}$ is the same for case $1$ and case $2$.
+        \end{itemize}
+
+    \item[-] Let us consider the situation of $c''_n <_{\sigma_e} c_e$. Similarly, we can prove the $c''_n <_{id} c_e$. Therefore, we have $c''_1 <_{id} \ldots <_{id} c''_n <_{id} c_e$. Then,
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] If $c_b <_{id} c''_n$, then, case $1$ and case $2$ work in the same way.
+
+        \item[-] Else, if $c''_n <_{id} c_b <_{id} c_e$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c''_n,c_b,c'_2}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c''_n,c_b,c_e}$. We can see that the order of $\{ c''_1,\ldots,c''_n,c_b \}$ is the same for case $1$ and case $2$.
+        \end{itemize}
+    \end{itemize}
+
+\item[-] The situation when case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c¡®_2}$ and calls $2$ does $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_2}$ can be similarly proved.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -679,9 +740,10 @@ We prove by contradiction. Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $
 
 By Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we know that the order between W-characters of $\sigma$ and $\{ c_b,c_e \}$ are the same in $\sigma_{be}$ and $\sigma_{eb}$.
 
-Therefore, the only possibility is that in $\sigma_{eb}$, $c_b$ and $c_e$ are adjacent, and there are no W-character between $c_b$ and $c_e$. Let $c_1$ be the right-most W-character that are before $c_b$ in $\sigma_{eb}$. According to Wooki algorithm, in the process of applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$, the last time of calling recursive method ${\tt integrateIns}$ must be $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Otherwise, since there is no W-character (except $c_b$) between $c_1$ and $c_e$, we can see that $c_b$ is not between $c_1$ and $c_e$ in $\sigma_{eb}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can see that $c_b <_{id} c_e$.
+Therefore, the only possibility is that in both $\sigma_{be}$ and $\sigma_{eb}$, $c_b$ and $c_e$ are adjacent, and they are in different order in $\sigma_{be}$ and in $\sigma_{eb}$. Assume that $c_b <_{\sigma_{eb}} c_e$, and let $c_1$ be the right-most W-character that are before $c_b$ in $\sigma_{eb}$.
 
-For the case of $\sigma_{be}$, similarly, we can prove that $c_e <_{id} c_b$. This implies that $c_b <_{id} c_e \wedge c_e <_{id} c_b$, which is a contradiction. $\qed$
+According to Wooki algorithm, in the process of applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$, the last time of calling recursive method ${\tt integrateIns}$ must be $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. %Otherwise, since there is no W-character (except $c_b$) between $c_1$ and $c_e$, we can see that $c_b$ is not between $c_1$ and $c_e$ in $\sigma_{eb}$.
+We can see that $c_e$ is not an argument of $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can prove that, when we call $\alabelshort[{\tt integrateIns}]{\_,c_b,c_e}$, we must have $c_b <_{id} c_e$. Similarly, from $c_e <_{\sigma_{be}} c_b$, we can prove that $c_e <_{id} c_b$. This implies that $c_b <_{id} c_e \wedge c_e <_{id} c_b$, which is a contradiction. $\qed$
 \end {proof}
 
 
@@ -693,47 +755,33 @@ Then, let us prove that Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
 Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
 \end{lemma}
 
-\begin {proof}
+\begin {proof} 
 
-We prove following the prove methodology of Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.
+A refinement mapping $\refmap$ is given as follows: 
 
-We define abstract state $\gconfres'(s)$ as follows: given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, assume $\igconfres(s) = c_1 \dot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $\gconfres'(s) = (v_1 \cdot \ldots \cdot v_n,T)$, where $T = \{ v_i \vert flag_i = \mathit{false} \}$.
+Given a local state $\sigma$ that is a sequence of W-characters. Assume that $\sigma = c_1 \cdot \ldots \cdot c_n$, and for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, the refinement mapping $\refmap(\sigma) = (l,T)$, where $l = v_1 \cdot \ldots \cdot v_n$, and $T = \{ v_i \vert flag_i = \mathit{false} \}$. 
 
-Then, let us prove the downstream of concurrent operations commute and the $\mathsf{Refinement}$ property,
+Our proof proceeds as follows: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the downstream of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the downstream of concurrent {\tt remove} operations commute, since they both put some value into tombstone; A {\tt addBetween} and a {\tt remove} downstream commute when they are concurrent because in this case, the W-character removed by {\tt remove} are different from the pair added by the {\tt addBetween}.
-\item[-] Let us prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ as follows:
-
+\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the downstream of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the downstream of concurrent {\tt remove} operations commute, since they both put some value into tombstone; Concurrent {\tt addBetween} and a {\tt remove} downstream commute because in this case, the W-character removed by {\tt remove} are different from the W-character added by the {\tt addBetween}. 
+    
+    Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute. 
+    
+\item[-] Let us prove $\mathsf{Refinement}$: 
     \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] Given an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
-
-        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_a = (\_,a,\_,\_)$ and $c_c = (\_,c,\_,\_)$ in $str_1$, such that $c_a$ is before $c_c$ in $str_1$, there is no W-character of value $b$ in $str_1$, and $str_2$ is obtained from $str_1$ by inserting a W-character $c_b = (\_,b,\_,\mathit{true})$ at some position between $c_a$ and $c_c$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
-
-    \item[-] Given an operation $\alabel = \alabelshort[{\tt remove}]{b}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
-
-        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_b = (\_,b,\_,\_)$ in $str_1$, and $str_2$ is obtained from $str_1$ by setting the flag of $c_b$ into $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
-
-    \item[-] Given an operation $\alabel = \alabellong[{\tt read}]{}{s_1}{}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. Assume that $\alabel$ is applied on the state $\igconfres(s)$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
-
-        Assume that $\igconfres(s)=c_1 \cdot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $s_1$ is obtained from $v_1 \cdot \ldots \cdot v_n$ by removing values with flag $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
-    \end{itemize}
-
-\end{itemize}
-
-Then, our proof proceeds as follows:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}.
-
-\item[-] {\bf Prove $\mathsf{ReplicaStates}$:} Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute.
-
-\item[-] {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
-We also have to argue that for each query $\alabel_{\mathsf{qr}} = \alabellongind[read]{}{s_1}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
-visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstream of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\gconfres'(\epsilon)\xRightarrow{\alinord'}^*\gconfres'(\alinord')$. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\gconfres'(\alinord')\xRightarrow{\alabel_{\mathsf{qr}}}\gconfres'(\alinord')$. These two facts imply that $\gconfres'(\epsilon)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}^*\gconfres'(\alinord')$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+    \setlength{\itemsep}{0.5pt} 
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt addBetween}]{a,b,c}$. By the {\textred{causal delivery}} assumption, we can see that the W-character of $a$ and $c$ is already in $\sigma$, and then, $a,c \in l$. It is obvious that the W-character of $a$ is before the W-character of $c$ in $\sigma$, and then, $a$ is before $c$ in $l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by inserting a W-character $(\_,b,\_,\mathit{true})$ of $b$ at some position between the W-character of $a$ and the W-character of $c$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $T=T'$, and $l'$ is obtained from $l$ by adding $b$ at some position between $a$ and $c$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$. 
+        
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt remove}]{a}$. By the {\textred{causal delivery}} assumption, we can see that a W-character $c_a$ of $a$ is already in $\sigma$, and then, $a \in l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by setting the flag of $c_a$ into $\mathit{false}$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $l=l'$, and $T' = T \cup \{ a \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt remove}]{a}} \refmap(\sigma')$. 
+    
+    \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on local state $\sigma$. Assume $\sigma = c_1 \cdot \ldots \cdot c_n$, and for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$. 
+    \end{itemize} 
+    
+    \item[-] {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification). 
+        
+        We also have to argue that for each query $\alabel_{\mathsf{qr}} = \alabellongind[read]{}{s_1}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstream of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\gconfres'(\epsilon)\xRightarrow{\alinord'}^*\gconfres'(\alinord')$. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\gconfres'(\alinord')\xRightarrow{\alabel_{\mathsf{qr}}}\gconfres'(\alinord')$. These two facts imply that $\gconfres'(\epsilon)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}^*\gconfres'(\alinord')$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
