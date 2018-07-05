@@ -108,13 +108,13 @@ captionpos=b,label={lst:wooki algorithm}]
   initial @|$string_s$|@ = @|$\epsilon$|@
   initial lin = @|$\epsilon$|@
 
-  addBetween(b,a,c) :
+  addBetween(a,b,c) :
     atSource :
-      precondition :  @|$contains(string_s,b) \wedge contains(string_s,c) \wedge pos(string_s,c) - pos(string_s,b) = 1\wedge \neg contains(string_s,a)$|@
+      precondition :  @|$contains(string_s,a) \wedge contains(string_s,c) \wedge pos(string_s,c) > pos(string_s,a) \wedge \neg contains(string_s,b)$|@
       let ts = getTimestamp()
-      let @|$c_p$|@ = @|$getWchar(string_s,b)$|@
+      let @|$c_p$|@ = @|$getWchar(string_s,a)$|@
       let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{b,a,c}$|@
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
     downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
       integrateIns(@|$c_p,w,c_n$|@)
 
@@ -141,9 +141,15 @@ captionpos=b,label={lst:wooki algorithm}]
       Let i = 0
       Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@
       Let F be the projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@
-      while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} c$|@) do
-        i = i+1
-      integrateIns(@|$c,F[i-1],F[i]$|@)
+      if (@|$c<_{id} F[0]$|@)
+        integrateIns(@|$c,c_p,F[0]$|@)
+      else
+        while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} c$|@) do
+            i = i+1
+        if (@|$i = \vert F \vert -1 \wedge F[i] <_{id} c$|@)
+            integrateIns(@|$c,F[i],c_n$|@)
+        else
+            integrateIns(@|$c,F[i-1],F[i]$|@)
 \end{lstlisting}
 \end{minipage}
 
@@ -151,11 +157,11 @@ $\\$ $\\$
 
 The payload of each replica is a W-string $string_s$.
 
-To do $addBetween(b,a,c)$, we first ensure that $b$ and $c$ are adjacent in $string_s$ and $a$ is not in $string_s$. Then, we generate a W-character $w$ for value $a$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $b$ and $c$ in $string_s$, respectively.
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a$ and $c$ are adjacent in $string_s$ and $b$ is not in $string_s$. Then, we generate a W-character $w$ for value $b$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
 
 $integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $w$ is put after $c_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $c_p$ and $c_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$, and recursive call $integrateIns(c,F[i-1],F[i])$. We can see that, the minimal degree of the sub-sequence of $S$ between $F[i-1]$ and $F[i]$ is larger than that of the sub-sequence of $S$ between $c_p$ and $c_n$.
 
-To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do $read()$, we return $values(string_s)$.
+To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
 
 
 
@@ -164,7 +170,7 @@ To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to b
 \subsection{The Tree-Doc Algorithm}
 \label{subsec:the Tree-Doc algorithm}
 
-The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. The tree-doc algorithm of Listing~\ref{lst:Tree-Doc algorithm} can be considered as the tree-doc with ``unique disambiguator'' in \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784}, and we do not consider optimizations, such as balancing tree.   
+The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. The tree-doc algorithm of Listing~\ref{lst:Tree-Doc algorithm} can be considered as the tree-doc with ``unique disambiguator'' in \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784}, and we do not consider optimizations, such as balancing tree.
 
 In local state of each replica, tree-doc algorithm stores the list as a set of T-characters. A T-character $w$ is a tuple $(v,tid,gv)$, where $v$ is the value of $w$, and $tid$ is a T-identifier of $w$. Here $gv$ is a ``ghost field'' of $w$ and also stores the value of $w$. The reason of introducing $gv$ is that, the $\alabelshort[{\tt remove}]{a}$ method will find the T-character $w$ of value $a$ and set the value of $w$ into a special value $nil$; while in the proof, it will be convenient if we can always remember the value of $w$. Therefore, when $w$ is initialized, the value of $w$ is put both in $v$ and $gv$, while the value in $gv$ is never changed afterward.
 
@@ -172,7 +178,7 @@ T-identifiers are the unique identifiers of T-characters. The requirement of T-i
 
 To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths of a binary tree as T-identifier, and the order $<_t$ can be considered as ``walking the tree in infix order''. However, this is insufficient for concurrent edit, as users might concurrently insert two different T-character at the same position of a binary tree. To address this issue, when there are multiple T-character ``at a same position of the binary tree'', we call the set of these T-characters a major node, and call each of them a minor node.
 
-For example, \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the W-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a,w_b,w_c$ are a major node and we use a box containing $w_a,w_b,w_c$ to emphasize a major node. Similarly, the set of T-characters of $w_e$ and $w_f$, $w_g$ and $w_h$, $w_j$ and $w_k$ are also major nodes, respectively. 
+For example, \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the W-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a,w_b,w_c$ are a major node and we use a box containing $w_a,w_b,w_c$ to emphasize a major node. Similarly, the set of T-characters of $w_e$ and $w_f$, $w_g$ and $w_h$, $w_j$ and $w_k$ are also major nodes, respectively.
 
 
 \begin{figure}[t]
@@ -184,19 +190,19 @@ For example, \figurename~\ref{fig:an execution of tree-doc, the local state of r
 \end{figure}
 
 
-A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $1 \leq i \leq n$, $c_i \in \{ 0,1,(1,id')\}$. We call such $id$ the disambiguator of $w$, and require disambiguator to be unique for each T-character. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current (major) node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``right sons'' of a minor node with identifier $id'$. The path to the root is fixed to be $\epsilon$. 
+A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $1 \leq i \leq n$, $c_i \in \{ 0,1,(1,id')\}$. We call such $id$ the disambiguator of $w$, and require disambiguator to be unique for each T-character. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current (major) node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``right sons'' of a minor node with identifier $id'$. The path to the root is fixed to be $\epsilon$.
 
 For example, in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son (could be a major node)''; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
 
-We say a set $T$ of T-characters is a legal tree of tree-doc, if:
+We say a set $T$ of T-characters is a T-tree, if:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] There exists a T-character of $T$ with T-identifier $(\epsilon,\_)$.
 
-\item[-] Each value of T-character is unique, and each T-character has a unique disambiguator. 
+\item[-] Each value of T-character is unique, and each T-character has a unique disambiguator.
 
-\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. Then,for each $1 \leq i \leq n$,
+\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that,for each $1 \leq i \leq n$,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -206,84 +212,102 @@ We say a set $T$ of T-characters is a legal tree of tree-doc, if:
     \end{itemize}
 \end{itemize}
 
-Given a legal tree of tree-doc, we the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if 
+Given a T-tree, we the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $(tid_2 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l) \vee (tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot x \cdot l)$, and $x=1 \vee x=(1,\_)$. 
+\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $(tid_2 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l) \vee (tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot x \cdot l)$, and $x=1 \vee x=(1,\_)$.
 
-\item[-] If $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l$, and $x=0 \vee x=(0,\_)$. 
+\item[-] If $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l$, and $x=0 \vee x=(0,\_)$.
 
-\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot x_1 \cdot x_2 \cdot l_1$, $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot y_1 \cdot y_2 \cdot l_2$, and one of the following cases holds for some $p \in \{ 0,1 \}$ and $id,id'$: 
+\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot x_1 \cdot x_2 \cdot l_1$, $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot y_1 \cdot y_2 \cdot l_2$, and one of the following cases holds for some $p \in \{ 0,1 \}$ and $id,id'$:
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $x_1=p$, $x_2=0$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2=1)$, 
-    
-    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, $y_1=(p,id')$, and $id<id'$, 
-    
-    \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$. 
+    \item[-] $x_1=p$, $x_2=0$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2=1)$,
+
+    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, $y_1=(p,id')$, and $id<id'$,
+
+    \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$.
     \end{itemize}
 \end{itemize}
 
-The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given major node $n_a,n_b$ such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. Here T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
+The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given minor node $n_a,n_b$ of a same major node, such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. Here T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
 
+We define the following function for a set $tree$ of T-characters:
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $contains(tree,a)$ returns true if there exists a T-character $(\_,\_,a)$ in $tree$.
 
+\item[-] $getTchar(tree,a)$ returns the T-character with (ghost) value $a$ in $tree$.
+
+\item[-] $notRemoved(tree,a)$ returns true, if there exists a T-character $(a,\_,a)$ in $tree$.
+
+\item[-] $removeTChar(tree,a)$ first find a T-character $w=(\_,\_,a)$ in $tree$, and then set the value of $w$ into $nil$.
+
+\item[-] $values(tree)$ returns a sequence, which is obtained by walking the tree according to $<_t$ orders and consider only values of node whose value is not $nil$.
+\end{itemize}
 
 
 
 
 
 \begin{minipage}[t]{1.0\linewidth}
-\begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
+\begin{lstlisting}[frame=top,caption={Pseudo-code of Tree-Doc algorithm},
 captionpos=b,label={lst:Tree-Doc algorithm}]
-  payload W-string @|$string_s$|@
-  initial @|$string_s$|@ = @|$\epsilon$|@
+  payload Set @|$tree$|@
+  initial @|$tree$|@ = @|$\emptyset$|@
   initial lin = @|$\epsilon$|@
 
-  addBetween(b,a,c) :
+  addBetween(a,b,c) :
     atSource :
-      precondition :  @|$contains(string_s,b) \wedge contains(string_s,c) \wedge pos(string_s,c) - pos(string_s,b) = 1\wedge \neg contains(string_s,a)$|@
-      let ts = getTimestamp()
-      let @|$c_p$|@ = @|$getWchar(string_s,b)$|@
-      let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{b,a,c}$|@
-    downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
-      integrateIns(@|$c_p,w,c_n$|@)
+      precondition :  @|$contains(tree,a) \wedge contains(tree,c)\wedge \neg contains(tree,b)$|@, and @|$ \neg \exists (\_,tid,\_) \in tree, tid_a <_t tid <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c, respectively.
+      let id = getTimestamp()
+      let @|$w_a$|@ = @|$getTchar(tree,a)$|@
+      let @|$w_c$|@ = @|$getTchar(tree,c)$|@
+      let @|$w_b$|@ = @|$(b,newID(w_a,w_c,id),b)$|@
+      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
+    downStream(@|$w_b$|@) :
+      @|$tree$|@ = @|$tree \cup \{ w_b \}$|@
 
   remove(a) :
     atSource :
-      precondition : @|$contains(string_s,a)$|@
-      let w = @|$getWchar(string_s,a)$|@
+      precondition : @|$contains(tree,a) \wedge notRemoved(tree,a)$|@
       //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
-    downStream(w) :
-      let p = @|$pos(string_s,w)$|@
-      @|$changeFlag(string_s,p,\mathit{false})$|@
+    downStream(a) :
+      @|$removeTChar(tree,a)$|@
 
   read() :
     let s = @|$values(string_s)$|@
     //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
     return s
 
-  integrateIns(@|$c_p,c,c_n$|@)
-    let @|$S$|@ = @|$string_s$|@
-    let @|$S'$|@ = @|$subseq(S,c_p,c_n)$|@
-    if @|$S' = \epsilon$|@
-      then  @|$insert(S,c,pos(S,c_n))$|@
+  newID(@|$w_1,w_2,id$|@)
+      precondition : @|$ \neg \exists (\_,tid,\_) \in tree, tid_1 <_t tid <_t tid_2$|@, where @|$tid_1$|@ and @|$tid_2$|@ are the T-identifiers of @|$w_1$|@ and @|$w_2$|@, respectively.
+    if @|$tid_2$|@ is a descendant of @|$tid_1$|@
+      assume @|$tid_2 = l_2 \cdot (p,id_2)$|@
+      return @|$l_2 \cdot p \cdot (0,id)$|@
+    else if @|$tid_1$|@ is a descendant of @|$tid_2$|@
+      assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
+      return @|$l_1 \cdot p \cdot (1,id)$|@
+    else if @|$tid_1 = l\cdot (p,id_1)$|@, @|$tid_2 = l\cdot (p,id_2)$|@, and @|$tid_1 < tid_2$|@
+      return @|$l \cdot (p,id_1) \cdot (1,id)$|@
     else
-      Let i = 0
-      Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@
-      Let F be the projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@
-      while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} c$|@) do
-        i = i+1
-      integrateIns(@|$c,F[i-1],F[i]$|@)
+      assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
+      return @|$l_1 \cdot p \cdot (1,id)$|@
 \end{lstlisting}
 \end{minipage}
 
 $\\$ $\\$
 
-The payload of each replica is a W-string $string_s$.
+The payload of each replica is a set $tree$ of T-characters.
+
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that the T-identifier of $a$ and $c$ are adjacent in $tree$, and no T-character in $tree$ has value $b$. Then, we calls method $newID(w_a,w_c,id)$ to generate a new T-identifier between that of $a$ and $c$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$.
+
+$newID(w_1,w_2,id)$ require that $tid_1$ and $tid_2$ are adjacent according to $<_t$, where $tid_1$ and $tid_2$ are the T-identifiers of $w_1$ and $w_2$, respectively. It will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
+
+To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
 
 
 
@@ -527,6 +551,200 @@ visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $
 
 This completes the proof of this lemma. $\qed$
 \end {proof}
+
+
+
+
+
+
+\subsection{Proof of Wooki}
+\label{subsec:proof of Wooki}
+
+
+Given a W-string $s$ and two W-characters $c_1,c_2$, we say that $c_1$ and $c_2$ are degree-$i$-adjacent in $s$, if
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] the degree of $c_1$ and $c_2$ are $i$,
+
+\item[-] there does not exists W-character $c$ of $s$, such that the degree of $c$ is less or equal than $i$, and $c_1 <_s c <_s c_2$.
+\end{itemize}
+
+
+The following lemma states that, when doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent.
+
+\begin{lemma}
+\label{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}
+When doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent.
+\end{lemma}
+
+\begin {proof}
+Obviously, $F[i],F[i+1]$ have degree $d_{min}$, and there is no W-character with degree $d_{min}$ and between $F[i]$ and $F[i+1]$ in $string_s$.
+
+Since $d_{min}$ is the minimal degree of W-characters in $S'$, there does not exists W-character that is between $F[i]$ and $F[i+1]$ and will a degree smaller than $d_{min}$. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+The following lemma states a property of degrees of the argument of {\tt integrateIns}. Its can be obviously proved by induction and we omit its proof.
+
+\begin{lemma}
+\label{lemma:a property of degree of argument of integrateIns}
+If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{c_p,c_b,c_n}$, and that, for each time, we find $d_{min}^i$ and then recursively calls $\alabelshort[{\tt integrateIns}]{c_i,c_b,c'_i},\ldots$. Then the degree of $c_i$ and $c'_i$ is chosen from $\{ d_p,d_n,d_{min}^1,\ldots d_{min}^i \}$, where $d_p$ and $d_n$ is the degree of $c_p$ and $c_n$, respectively.
+\end{lemma}
+
+
+The following lemma states that, given two W-characters that are degree-$i$-adjacent in $string_s$, then, they are ordered by $<_{id}$ in $s$. 
+
+\begin{lemma}
+\label{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}
+If $c_1$ and $c_2$ are degree-$i$-adjacent in $string_s$, then, $c_1 <_{string_s} c_2$, if and only if $c_1 <_{id} c_2$.
+\end{lemma}
+
+\begin {proof}
+Let us prove this property by induction.
+
+It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for $string_s$, let $string'_s$ be obtained from $string_s$ by applying downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, and this property does not hold for $string'_s$. Let $c_b$ be the W-character of $b$. Assume the degree of $c_b$ is $i_b$. Then, there exists W-characters $c_x$ and $c_y$, such that $c_x$ and $c_y$ are degree-$k$-adjacent, and it is not the case that $c_x <_{string'_s} c_y$, if and only if $c_x <_{id} c_y$.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] For degree $i<i_b$, it is obvious that the set of degree-$i$-adjacent pairs in $string_s$ is same as that in $string'_s$.
+
+\item[-] For degree $i>i_b$, it is easy to prove that the set of degree-$i$-adjacent pairs in $string'_s$ is a subset of that in $string_s$.
+\end{itemize}
+
+Therefore, the only possibility is that $k=i_b$. By induction assumption, we can see that $c_y = c_b$. Or we can say, $c_x$ and $c_b$ are degree-$i_b$-adjacent, and it is not the case that $c_x <_{string'_s} c_b$, if and only if $c_x <_{id} c_b$.
+
+Let us consider the case when $c_x <_{string'_s} c_b \wedge c_b <_{id} c_x$.
+
+Assume $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$. Assume $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ is the last {\tt integrateIns} with $d_{min} < i_b$, and then, we recursively calls $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$. By Lemma \ref{lemma:a property of degree of argument of integrateIns}, we can see that the degree of $c_y$ and $c_z$ are less than $i_b$.
+
+It is obviously that $c_y <_{string'_s} c_b <_{string'_s} c_z$. Since $c_x$ and $c_b$ are degree-$i_b$-adjacent, we can see that $c_y <_{string'_s} c_x$. Therefore, in $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$, $d_{min} = i_b$, and $c_x,c_b \in F$.
+
+By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, given $F$ of $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$, for each $i$, $F[i]$ and $F[i+1]$ are degree-$d_{min}$-adjacent. By induction assumption, we can see that, in $string'_s$, the W-characters of $F \setminus \{ c_b \}$ are ordered by $<_{id}$. Then, according to Wooki algorithm, we have $c_b <_{string'_s} c_x$, contradicts the assumption that $c_x <_{string'_s} c_b$.
+
+The case of $c_b <_{string'_s} c_x \wedge c_x <_{id} c_b$ can be similarly proved. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+%The following lemma states that, the order of $\{$values of $\sigma \} \cup \{ b \}$ in the following two cases are the same: either we insert $b$ into $\sigma$, or first insert another item $e$ and then insert $b$. 
+The following lemma states that, inserting a value $b$ is ``independent'' from whether another value $e$ has already been inserted or not.  
+
+\begin{lemma}
+\label{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}
+Assume from a local state $\sigma$, we obtain $\sigma_b$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, and obtain $\sigma_{eb}$ by first applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ and then applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$. Then, the order of $\{$values of $\sigma \} \cup \{ b \}$ is the same for $\sigma_b$ and $\sigma_{eb}$.
+\end{lemma}
+
+\begin {proof}
+Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $a,b,c,d,e,f$, respectively. Assume $\sigma_e$ is obtained from $\sigma$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$. Let us use case $1$ to mention the process of $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma$. Let us use case $2$ to mention the process of $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$ from $\sigma_e$. Let $j_e$ be the degree of $c_e$.
+
+We need to prove that, for each degree $i$, the order of $\{$values of degree $i$ in $\sigma \} \cup \{ b \}$ is the same for case $1$ and case $2$. We prove this by considering all possible degrees.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] It is obvious that, for degree $i < j_e$, case $1$ and case $2$ both calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$, and they work in the same way.
+
+\item[-] For degree $j_e$, case $1$ and case $2$ both calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ for some $c_1$ and $c_2$.
+
+    Let $c'_1,\ldots,c'_n$ be the W-characters with degree $j_e +1$ between $c_1$ and $c_2$ in $\sigma$. Assume that $c'_1 <_{\sigma} \ldots <_{\sigma} c'_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are ordered in id-order}, we know that, $c'_1 <_{id} \ldots <_{id} c'_n$. Assume $c'_k <_{\sigma_e} c_e <_{\sigma_e} c'_{k+1}$. By Wooki algorithm, in inserting $c_e$, we will call $\alabelshort[{\tt integrateIns}]{c_1,c_e,c_2}$, and then, $c'_k <_{id} c_e <_{id} c'_{k+1}$. Thus, we have $c'_1 <_{id} \ldots <_{id} c'_k <_{id} c_e <_{id} c'_{k+1} <_{id} \ldots <_{id} c'_n$ and $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_k <_{\sigma_e} c_e <_{\sigma_e} c'_{k+1} <_{\sigma_e} \ldots <_{\sigma_e} c'_n$.
+
+    If $c_b <_{id} c'_k$ or $c'_{k+1} <_{id} c_b$, assume $c'_m <_{id} c_b <_{id} c'_{m+1}$, then both case $1$ and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c'_{m+1}}$, and $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. Moreover, from now on, case $2$ will work in the same way as case $1$.
+
+    Else, we know that $c'_k <_{id} c_b <_{id} c'_{k+1}$. Assume that $c'_k <_{id} c_b <_{id} c_e <_{id} c'_{k+1}$. Then, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c'_{k+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c_e}$. We can see in both case $1$ and case $2$, $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. The situation of $c'_k <_{id} c_2 <_{id} c_b <_{id} c'_{k+1}$ can be similarly proved.
+
+    We can see that, if case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_k,c_b,c_e}$, then we have $c_b <_{id} c_e$; if case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_{k+1}}$, then we have $c_e <_{id} c_b$.
+
+\item[-] Inductively, for a degree $k > j_e$, assume that case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Let $c'_1,\ldots,c'_n$ be the W-characters with degree $k+1$ between $c_1$ and $c_e$ in $\sigma_e$. Assume that $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_n$. Let $c'_{m+1},\ldots,c'_n$ be the W-characters with degree $k+1$ between $c_e$ and $c_2$ in $\sigma_e$. Assume that $c'_1 <_{\sigma_e} \ldots <_{\sigma_e} c'_n$.
+
+    By Lemma \ref{lemma:in F of Wooki, W-characters are ordered in id-order}, we can see that $c'_1 <_{id} \ldots <_{id} c'_n$. By Wooki algorithm, in inserting $c_e$, we will call $\alabelshort[{\tt integrateIns}]{c_1,c_e,c_2}$, and then, we can see that $c'_m <_{id} c_e <_{id} c'_{m+1}$.
+
+    If $c_b <_{id} c'_m$, assume $c'_l <_{id} c_b <_{id} c'_{l+1}$, then both case $1$ and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_l,c_b,c'_{l+1}}$, and $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order. Moreover, from now on, case $2$ will work in the same way as case $1$.
+
+    Else, we know that $c'_m <_{id} c_b$. Since case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$, we know that $c_b <_{id} c_e <_{id} c'_{m+1}$. Then, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c'_{m+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{c'_m,c_b,c_e}$. We can see in both case $1$ and case $2$, $\{c'_1,\ldots,c'_n,c_b\}$ is ordered by $<_{id}$ order.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+The following lemma states that, in Wooki algorithm, two downstream that correspond to two ``concurrent'' {\tt addBetween} operations commute.
+
+\begin{lemma}
+\label{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}
+Assume from a local state $\sigma$, we obtain $\sigma_b$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma$, and obtain $\sigma_{be}$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ to $\sigma_b$. Assume we obtain $\sigma_e$ by applying the downstream of $\alabelshort[{\tt addBetween}]{d,e,f}$ to $\sigma$, and obtain $\sigma_{eb}$ by applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$. Then, $\sigma_{be} = \sigma_{eb}$.
+\end{lemma}
+
+\begin {proof}
+We prove by contradiction. Let $c_a,c_b,c_c,c_d,c_e,c_f$ be the W-character of $a,b,c,d,e,f$, respectively. Assume that $c_b <_{\sigma_{eb}} c_e$ and $c_e <_{\sigma_{be}} c_b$.
+
+By Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we know that the order between W-characters of $\sigma$ and $\{ c_b,c_e \}$ are the same in $\sigma_{be}$ and $\sigma_{eb}$.
+
+Therefore, the only possibility is that in $\sigma_{eb}$, $c_b$ and $c_e$ are adjacent, and there are no W-character between $c_b$ and $c_e$. Let $c_1$ be the right-most W-character that are before $c_b$ in $\sigma_{eb}$. According to Wooki algorithm, in the process of applying the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$, the last time of calling recursive method ${\tt integrateIns}$ must be $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_e}$. Otherwise, since there is no W-character (except $c_b$) between $c_1$ and $c_e$, we can see that $c_b$ is not between $c_1$ and $c_e$ in $\sigma_{eb}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can see that $c_b <_{id} c_e$.
+
+For the case of $\sigma_{be}$, similarly, we can prove that $c_e <_{id} c_b$. This implies that $c_b <_{id} c_e \wedge c_e <_{id} c_b$, which is a contradiction. $\qed$
+\end {proof}
+
+
+
+Then, let us prove that Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+
+\begin{lemma}
+\label{lemma:Wooki is correct}
+Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+\end{lemma}
+
+\begin {proof}
+
+We prove following the prove methodology of Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.
+
+We define abstract state $\gconfres'(s)$ as follows: given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, assume $\igconfres(s) = c_1 \dot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $\gconfres'(s) = (v_1 \cdot \ldots \cdot v_n,T)$, where $T = \{ v_i \vert flag_i = \mathit{false} \}$.
+
+Then, let us prove the downstream of concurrent operations commute and the $\mathsf{Refinement}$ property,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the downstream of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the downstream of concurrent {\tt remove} operations commute, since they both put some value into tombstone; A {\tt addBetween} and a {\tt remove} downstream commute when they are concurrent because in this case, the W-character removed by {\tt remove} are different from the pair added by the {\tt addBetween}.
+\item[-] Let us prove $\mathsf{Refinement}$ holds between $\igconfres(s)$ and $\gconfres'(s)$ as follows:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Given an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+
+        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_a = (\_,a,\_,\_)$ and $c_c = (\_,c,\_,\_)$ in $str_1$, such that $c_a$ is before $c_c$ in $str_1$, there is no W-character of value $b$ in $str_1$, and $str_2$ is obtained from $str_1$ by inserting a W-character $c_b = (\_,b,\_,\mathit{true})$ at some position between $c_a$ and $c_c$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+
+    \item[-] Given an operation $\alabel = \alabelshort[{\tt remove}]{b}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+
+        Assume that $\igconfres(s)=str_1$, and $\igconfres(s')=str_2$. We can see that there exists W-character $c_b = (\_,b,\_,\_)$ in $str_1$, and $str_2$ is obtained from $str_1$ by setting the flag of $c_b$ into $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s \cdot \alabel)$.
+
+    \item[-] Given an operation $\alabel = \alabellong[{\tt read}]{}{s_1}{}$, assume that $s \cdot \alabel$ is consistent with $\avisord$ and closed under $\avisord^{-1}$. Assume that $\alabel$ is applied on the state $\igconfres(s)$. We need to prove that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
+
+        Assume that $\igconfres(s)=c_1 \cdot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $s_1$ is obtained from $v_1 \cdot \ldots \cdot v_n$ by removing values with flag $\mathit{false}$. Then, it is easy to see that $\gconfres'(s)\xRightarrow{\alabel}\gconfres'(s)$.
+    \end{itemize}
+
+\end{itemize}
+
+Then, our proof proceeds as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}.
+
+\item[-] {\bf Prove $\mathsf{ReplicaStates}$:} Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute.
+
+\item[-] {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
+We also have to argue that for each query $\alabel_{\mathsf{qr}} = \alabellongind[read]{}{s_1}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates
+visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the downstream of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every downstream is simulated by the corresponding operation in the context of the specification. This implies that $\gconfres'(\epsilon)\xRightarrow{\alinord'}^*\gconfres'(\alinord')$. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\gconfres'(\alinord')\xRightarrow{\alabel_{\mathsf{qr}}}\gconfres'(\alinord')$. These two facts imply that $\gconfres'(\epsilon)\xRightarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}^*\gconfres'(\alinord')$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+
+
+
 
 
 
@@ -884,441 +1102,7 @@ This completes the proof of this lemma. $\qed$
 
 
 
-\section{For State-based CRDT}
-\label{sec:for state-based CRDT}
 
-\begin{example}[List with add-between interface]
-\label{definition:sequential specification of list with add-after interface}
-Such kind of list is similar as list with add-after interface. One difference is the $\mathit{add}$ method: $\mathit{add}(b,a,c)$ inserts item $b$ into the list at some nondeterministic position between position of $a$ and position of $c$. The other difference is that, we assume that the initial value of list is $(\circ_1,\mathit{true}) \cdot (\circ_2,\mathit{true})$ and these two nodes can not be removed. The sequential specification $\mathit{list}_s^{\mathit{ab}}$ of list is given as follows: Here $\mathit{ab}$ represents add-between. When the context is clear, in $\mathit{read}$ operation, we will omit $\circ_1$ and $\circ_2$.
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge k < m < l \wedge b \notin \{ a_1, \ldots, a_n \} \}$ $add(b,a_k,a_l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_m,f_m) \cdot (b,\mathit{true}) \cdot (a_{m+1},f_{m+1}) \cdot \ldots \cdot (a_n,f_n) \}$. Here the chosen of $m$ is deterministic.
-\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge S = \{ a \vert (a,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \}$.
-\end{itemize}
-\end{example}
-
-
-
-
-
-
-
-
-
-
-Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a state-based CRDT object}.
-
-\begin{figure}[ht]
-$\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
-
-$\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R}$.
-
-$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$.
-
-$\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \mathbb{R}) \cup \mathit{send}(\mathbb{MID} \times \mathbb{R}) \cup \mathit{receive}(\mathbb{MID} \times \mathbb{R})$
-
-\[
-\begin{array}{l c}
-\bigfrac{ R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b) }
-{ (R,T) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T) }
-\end{array}
-\]
-
-
-\[
-\begin{array}{l c}
-\bigfrac{ R(r) = \sigma, \mathit{unique}(\mathit{mid}) }
-{ (R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R,T \cup \{ (\mathit{mid},\sigma,r) \}) }
-\end{array}
-\]
-
-
-\[
-\begin{array}{l c}
-\bigfrac{ R(r) = \sigma, r.\mathit{receive}(\sigma,\sigma') = \sigma'',(\mathit{mid},\sigma',r') \in T, r \neq r'}
-{ (R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R[r:\sigma''],T) }
-\end{array}
-\]
-\caption{The definition of semantics of $\llbracket \mathit{obj} \rrbracket_s$}
-\label{fig:the semantics of a state-based CRDT object}
-\end{figure}
-
-A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, and has no message inside. Since $\mathit{obj}$ is a state-based CRDT, each message content is chosen from $\Sigma$.
-
-Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
-
-A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_s$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is in the form of either $\mathit{do}(i,m,a,b,r)$, or $\mathit{send}(i,\mathit{mid},r)$, or $\mathit{receive}(i,\mathit{mid},r)$, where $i \in \mathbb{OID}$ is a unique operation identifier.
-
-
-
-
-
-
-
-
-Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_s$ of state-based CRDT $\mathit{obj}$, we can obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] Each operation in $\mathit{Op}$ is a tuple $(\ell,i,\mathit{obj})$, such that $i$ is the operation identifier of a $\mathit{do}(m,a,b,r)$ action of $l$.
-
-\item[-] $(o_1,o_2) \in \mathit{ro}$, if they are of same replica, and the index of $o_1$ in $h$ is before that of $o_2$.
-
-\item[-] Let us defines a delivery relation $\mathit{del} \subseteq \mathbb{OP} \times \mathbb{OP}$ as follows: $(o_1,o_2) \in \mathit{del}$, if: $o_1$ and $o_2$ are of different replicas, there exists a $\mathit{send}(\mathit{mid},r)$ action and a $\mathit{receive}(\mathit{mid},r')$ action, $o_1$ and $\mathit{send}(\mathit{mid},r)$ happen on a same replica and $o_1$ happens earlier, $\mathit{receive}(\mathit{mid},r)$ and $o_2$ happen on a same replica and $\mathit{receive}(\mathit{mid},r)$ happens earlier.
-
-\item[-] $\mathit{vis} = (\mathit{ro}+\mathit{del})^*$.
-\end{itemize}
-
-Intuitively, each local state can be considered as the consequence of all updates it receives. Since state-based CRDT sends the modified local state as message, the visibility relation is then the transitive closure of replica order and message delivery relation. Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_s$.
-
-
-
-
-
-
-\subsection{Proof Strategy of State-based CRDT}
-\label{subsec:proof strategy of operation-based CRDT}
-
-Given a state-based CRDT object $\mathit{obj}$ and a sequential specification $\mathit{spec}$, we need to construct a invariant $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\mathit{config}$ is a configuration of $\llbracket \mathit{obj} \rrbracket_s$.
-
-\item[-] $h$ is a history.
-
-\item[-] $h$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}$ is a linearization.
-
-\item[-] $\mathit{del} \subseteq \mathbb{MID} \times \mathbb{R}$ is the message delivery relation.
-
-\item[-] $\mathit{map} \subseteq \mathbb{MID} \times 2^{\mathbb{OID}}$ maps each message $\mathit{mid}$ to a set $S_1$ of operations. Intuitively, $S_1$ is the set of operations whose information are contained in $\mathit{mid}$.
-\end{itemize}
-
-$\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ needs to satisfy the following properties:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] The visibility of $h$ is transitive.
-
-\item[-] $\mathit{del}$ preserves causal delivery: If $(o_1,o_2) \in \mathit{vis}$ and $(o_2,r) \in \mathit{del}$, then $(o_1,r) \in \mathit{del}$.
-
-\item[-] $\mathit{map}$ preserves causal delivery: Given $o_1,o_3 \in \mathit{map}(\mathit{mid})$, if $\exists o_2$, such that $(o_1,o_2),(o_2,o_3) \in \mathit{vis}$, then $o_2 \in \mathit{map}(\mathit{mid})$.
-
-\item[-] $\mathit{inv}$ holds initially: $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds, where $\mathit{config}_0$ is the initial configuration of $\llbracket \mathit{obj} \rrbracket_s$.
-
-\item[-] $\mathit{inv}$ is a transition invariant:
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}', h \otimes i, \mathit{lin} \cdot i,\mathit{del},\mathit{map})$ holds. Note that here we always put a new operation in the last of linearization.
-
-        Here $i$ is the identifier of the newly-generated $\mathit{do}$ action. Given $h = (\mathit{Op},\mathit{ro},\mathit{vis})$, then, $h \otimes i = (\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ (m(a) \Rightarrow b,i,\mathit{obj}) \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (j,i) \vert j \in \mathit{Op},(j,r) \in \mathit{del} \} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \})^*$.
-
-    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{send}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h,\mathit{lin},\mathit{del},\mathit{map}')$ holds, where $\mathit{map}' = \mathit{map} \cup (\mathit{mid}, \mathit{vd}(h,\mathit{del},r))$.
-
-
-    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h,\mathit{lin},\mathit{del}',\mathit{map})$ holds, where $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
-    \end{itemize}
-\end{itemize}
-
-Here $\mathit{vd}(h,\mathit{del},r) = \{ i \vert (i,j) \in h.\mathit{vis}, j$ is of replica $r \} \cup \{ i \vert (i,r) \in \mathit{del} \}$ is the set of operations that are either to some operation of replica $r$, or has been delivered into replica $r$. An invariant $\mathit{inv}$ satisfies above properties is called invariant of state-based CRDT. The following lemma states that the existence of such invariant implies distributed linearizability.
-
-\begin{lemma}
-\label{lemma:invariant of state-based CRDT implies distributed linearizability}
-If there exists a invariant $\mathit{inv}$ of state-based CRDT for object $\mathit{obj}$ and sequential specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ is distributed linearizable w.r.t $\mathit{spec}$.
-\end{lemma}
-
-\begin {proof}
-Given an execution $l=\alpha_1 \cdot \ldots \cdot \alpha_n$, let $\mathit{config}_0 {\xrightarrow{\alpha_1}} \mathit{config}_1 \ldots {\xrightarrow{\alpha_n}} \mathit{config}_n$ be the transitions from initial configuration. We need to prove that, for each $1 \leq k \leq n$, we have $\mathit{inv}(\mathit{config}_k,h_k,\mathit{lin}_k,\mathit{del}_k,\mathit{map}_k)$ holds, where $h_k$ is the history of execution $l_k = \alpha_1 \cdot \ldots \cdot \alpha_k$, $\mathit{lin}_k$ is the linearization of $h_k$, $\mathit{del}_k$ records message delivery relation of $l_k$, and $\mathit{map}_k$ records the operations contained in each message in $l_k$.
-
-Since $\mathit{inv}$ holds initially and is a transition invariant, it is easy to prove above requirements by induction on execution. This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-For many state-based CRDT implementations, $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map}) = C_1 \wedge C_2$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-%\item[-] For each update operation $o$ of $h$, define $\mathit{ds}(o)$ which is a local state. %be the local state of replica $r$ at the time point immediately after $o$ is launched. Here $r$ is the replica of $o$.
-
-\item[-] $C_1: \forall (\mathit{mid},\mathit{msg},\_) \in T$, $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
-
-\item[-] $C_2: \forall r$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
-\end{itemize}
-
-The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying ``virtual messages'' of operations in $S$ according to total order $\mathit{lin}$. Here for each update operation $o$ of $h$, we need to define a local state $\mathit{ds}(o)$, which is the ``virtual messages'' of $o$. Note that state-based CRDT send message randomly, instead of each message for a update operation. This is the reason why we need to manually generate virtual message for each update operation.
-
-To give $\mathit{inv}$, it only remains to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-counter} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively.
-
-\begin{example}[virtual messages of state-based PN-counter]
-\label{example:virtual messagess of state-based PN-counter}
-
-For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-
-\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize}
-\end{example}
-
-\begin{example}[virtual messages of state-based Multi-value Register]
-\label{example:virtual messages of state-based multi-value register}
-
-For each update operation $o = (\mathit{write}(a),\_,\_)$ of replica $r$, $\mathit{ds}(o) = (a,V)$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize}
-\end{example}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\subsection{Proof of State-based PN-counter}
-\label{subsec:appendix proof of state-based PN-counter}
-
-The following lemma states that each visibility-closed set is a union of operations visible to a set of operations. Its proof is obvious and omitted here.
-
-\begin{lemma}
-\label{lemma:a transitive-closed set is a union of visibility of several sets}
-Given a set $\mathit{Op}$ of operations and a transitive and acyclic visibility relation $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$, if given a set $S \subseteq \mathit{Op}$, if $S$ satisfies that $\forall o_1,o_2 \in S, o_2 \in S \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in S$, then there exists a set $O \subseteq \mathit{Op}$, such that $S = \cup_{o \in O} \mathit{vis}^{-1}(o)$.
-\end{lemma}
-
-The following lemma states that given two operations $o_1,o_2$, for each replica $r$, either the set of operations of replica $r$ visible to $o_1$ is a subset of that of $o_2$, or the set of operations of replica $r$ visible to $o_2$ is a subset of that of $o_1$. Its proof is obvious and omitted here.
-
-\begin{lemma}
-\label{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}
-Assume that $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds. Let $S_o^r = \{ o' \vert (o',o) \in \mathit{vis}, o'$ is of replica $r \}$. Then for each operations $o_1$ and $o_2$, and for each replica $r$, $S_{\mathit{o1}}^r \subseteq S_{\mathit{o2}}^r \vee S_{\mathit{o2}}^r \subseteq S_{\mathit{o1}}^r$.
-\end{lemma}
-
-
-Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-
-\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize}
-
-The following lemma states that $\mathit{inv}$ is an invariant of state-based PN-counter.
-
-\begin{lemma}
-\label{lemma:inv is an invariant of state-based CRDT for state-based PN-counter}
-$\mathit{inv}$ is an invariant of state-based PN-counter.
-\end{lemma}
-
-\begin {proof}
-
-It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
-
-Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] It is easy to see that $R' = R[ r: ( R(r).P[r: R(r).P(r)+1 ], R(r).N ) ]$ and $T' = T$.
-
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-
-    Since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$, we know that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$. Therefore, we need to prove that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
-
-    Since $\mathit{vd}(h,\mathit{del},r)$ satisfies that, $\forall o_1,o_2 \in \mathit{vd}(h,\mathit{del},r), o_2 \in \mathit{vd}(h,\mathit{del},r) \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in \mathit{vd}(h,\mathit{del},r)$, by Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists a set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa} and the construction of $\mathit{ds}$, we can see that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$.
-
-    We already know that $\mathit{ds}(i) = (P'',N'')$, where for each replica $r'$, $P''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Then, it is obvious that $\mathit{merge}(R(r),\mathit{ds}(i)) = \mathit{ds}(i)$. It is also easy to see that $\mathit{ds}(i) = (R(r).P[r: R(r).P(r)+1], R(r).N) = R'(r)$. Therefore, $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
-
-\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{dec},r)}} (R',T')$: Similarly as that of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$.
-
-\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},k,r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] It is obvious that $R' = R$ and $T' = T$.
-
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot ((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
-
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
-
-\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
-
-    \item[-] Let $h' = h$.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del}$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$.
-    \end{itemize}
-
-    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since the message content of message $\mathit{mid}$ is $R(r)$, and we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
-
-\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$.
-
-    \item[-] Let $h' = h$.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-
-    We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-\end{itemize}
-
-This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-
-
-\subsection{Proof of State-based Multi-value Register}
-\label{subsec:appendix proof of state-based multi-value register}
-
-Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (a,V)$, where
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
-\end{itemize}
-
-The following lemma states that $\mathit{inv}$ is an invariant of state-based multi-value register.
-
-\begin{lemma}
-\label{lemma:inv is an invariant of state-based CRDT for state-based multi-value register}
-$\mathit{inv}$ is an invariant of state-based multi-value register.
-\end{lemma}
-
-\begin {proof}
-
-It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
-
-Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
-
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{vis}^{-1}(i))$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-
-    It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = h'.\mathit{vis}^{-1}(i)$. And then, we need to prove that $(a,V') = \mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i))$.
-
-    Recall that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$, from Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. We can prove that, for each $o = \mathit{write}(b)$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) = (b,V_b)$, where $\forall r' \neq r, V_b[r'] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert$, and $V_b[r] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert + 1$.
-
-    It is not hard to prove that the order of merging virtual message is not important, and a virtual message can be applied multiple times. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, we can see that $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. Therefore, we can see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \} \cup \{ \mathit{ds}(i) \}$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, it is not hard to see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{ds}(i)$.
-
-    Then, we need to prove that $(a,V') = \mathit{ds}(i)$. This holds since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$, Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, and the value of $V'$.
-
-\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},S,r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] It is obvious that $R' = R$ and $T' = T$.
-
-    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read}() \Rightarrow S,i,\mathit{vd}(h,\mathit{del},r) )$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
-
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = h'.\mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$, we can prove that there exists a set $O$, such that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$.
-
-    By the definition of merging, it is same to assume that $O = \mathit{max}_{\mathit{vis}} \mathit{vd}(h,\mathit{del},r)$. Assume that for each operation $o = \mathit{write}(a) \in O$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o))) = (a,V_o)$. Then it is not hard to see that $R(r) = \{ (a,V_o) \vert o = \mathit{write}(a) \in O \}$. Therefore, $S = \{ a \vert o = \mathit{write}(a) \in \mathit{vis}^{-1}(i), \forall o' = \mathit{write}(\_) \in \mathit{vis}^{-1}(i), (o,o') \notin \mathit{vis} \}$. According to sequential specification $\mathit{spec}$, $(\mathit{read} \Rightarrow S,i,\mathit{obj})$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
-
-\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
-
-    \item[-] Let $h' = h$.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del}$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$.
-    \end{itemize}
-
-    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since the message content of message $\mathit{mid}$ is $R(r)$, and we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
-
-\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$.
-
-    \item[-] Let $h' = h$.
-
-    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
-
-    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
-
-    \item[-] Let $\mathit{map}' = \mathit{map}$.
-    \end{itemize}
-
-    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-
-    We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
-\end{itemize}
-
-This completes the proof of this lemma. $\qed$
-\end {proof}
 
 
 
@@ -3122,6 +2906,459 @@ Let the cycle in $S_4$ be $(\mathit{obj}_1,\mathit{obj}_k),(\mathit{obj}_k,\math
 \end{itemize}
 
 Thus, it is easy to see $(o^{1}_{\mathit{o1}},o^{0}_{\mathit{ok}}), (o^{1}_{\mathit{ok}},$ $o^{0}_{\mathit{ok-1}})$, $\ldots$, $(o^{1}_{\mathit{o2}},o^{0}_{\mathit{o1}}) \in \mathit{vis}$. By definition of $S_2$, we can see that $\mathit{ts}(o^{0}_{\mathit{o1}}) < \mathit{ts}(o^{1}_{\mathit{o1}}), \ldots, \mathit{ts}(o^{0}_{\mathit{ok}}) < \mathit{ts}(o^{1}_{\mathit{ok}})$. This contradicts the definition of causal-time-stamp. Therefore, this process terminates with $\mathit{Op}' = \emptyset$. $\qed$
+\end {proof}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\forget{
+\section{For State-based CRDT}
+\label{sec:for state-based CRDT}
+
+\begin{example}[List with add-between interface]
+\label{definition:sequential specification of list with add-after interface}
+Such kind of list is similar as list with add-after interface. One difference is the $\mathit{add}$ method: $\mathit{add}(b,a,c)$ inserts item $b$ into the list at some nondeterministic position between position of $a$ and position of $c$. The other difference is that, we assume that the initial value of list is $(\circ_1,\mathit{true}) \cdot (\circ_2,\mathit{true})$ and these two nodes can not be removed. The sequential specification $\mathit{list}_s^{\mathit{ab}}$ of list is given as follows: Here $\mathit{ab}$ represents add-between. When the context is clear, in $\mathit{read}$ operation, we will omit $\circ_1$ and $\circ_2$.
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge k < m < l \wedge b \notin \{ a_1, \ldots, a_n \} \}$ $add(b,a_k,a_l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_m,f_m) \cdot (b,\mathit{true}) \cdot (a_{m+1},f_{m+1}) \cdot \ldots \cdot (a_n,f_n) \}$. Here the chosen of $m$ is deterministic.
+\item[-] $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \wedge S = \{ a \vert (a,\mathit{true}) \in \mathit{state} \} \wedge l = a_1 \cdot \ldots \cdot a_n \uparrow_{S} \}$ $(read() \Rightarrow l)$ $\{ \mathit{state} = (a_1,f_1) \cdot \ldots \cdot (a_n,f_n) \}$.
+\end{itemize}
+\end{example}
+
+
+
+
+
+
+
+
+
+
+Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a state-based CRDT object}.
+
+\begin{figure}[ht]
+$\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
+
+$\mathit{TState} = \mathbb{MID} \times \mathbb{MSG} \times \mathbb{R}$.
+
+$\mathit{Config} = \mathit{RState} \times \mathit{TState}$, $\mathit{config}_0 \in \mathit{Config}$.
+
+$\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \mathbb{R}) \cup \mathit{send}(\mathbb{MID} \times \mathbb{R}) \cup \mathit{receive}(\mathbb{MID} \times \mathbb{R})$
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{do}(\sigma,m,a) = (\sigma',b) }
+{ (R,T) {\xrightarrow{\mathit{do}(m,a,b,r)}} (R[r:\sigma'],T) }
+\end{array}
+\]
+
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, \mathit{unique}(\mathit{mid}) }
+{ (R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R,T \cup \{ (\mathit{mid},\sigma,r) \}) }
+\end{array}
+\]
+
+
+\[
+\begin{array}{l c}
+\bigfrac{ R(r) = \sigma, r.\mathit{receive}(\sigma,\sigma') = \sigma'',(\mathit{mid},\sigma',r') \in T, r \neq r'}
+{ (R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R[r:\sigma''],T) }
+\end{array}
+\]
+\caption{The definition of semantics of $\llbracket \mathit{obj} \rrbracket_s$}
+\label{fig:the semantics of a state-based CRDT object}
+\end{figure}
+
+A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, and has no message inside. Since $\mathit{obj}$ is a state-based CRDT, each message content is chosen from $\Sigma$.
+
+Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
+
+A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_s$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is in the form of either $\mathit{do}(i,m,a,b,r)$, or $\mathit{send}(i,\mathit{mid},r)$, or $\mathit{receive}(i,\mathit{mid},r)$, where $i \in \mathbb{OID}$ is a unique operation identifier.
+
+
+
+
+
+
+
+
+Given an execution $l = \alpha_1 \cdot \ldots \cdot \alpha_k$ of $\llbracket \mathit{obj} \rrbracket_s$ of state-based CRDT $\mathit{obj}$, we can obtain a corresponding history $\mathit{history}(l) = (\mathit{Op},\mathit{ro},\mathit{vis})$, such that
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Each operation in $\mathit{Op}$ is a tuple $(\ell,i,\mathit{obj})$, such that $i$ is the operation identifier of a $\mathit{do}(m,a,b,r)$ action of $l$.
+
+\item[-] $(o_1,o_2) \in \mathit{ro}$, if they are of same replica, and the index of $o_1$ in $h$ is before that of $o_2$.
+
+\item[-] Let us defines a delivery relation $\mathit{del} \subseteq \mathbb{OP} \times \mathbb{OP}$ as follows: $(o_1,o_2) \in \mathit{del}$, if: $o_1$ and $o_2$ are of different replicas, there exists a $\mathit{send}(\mathit{mid},r)$ action and a $\mathit{receive}(\mathit{mid},r')$ action, $o_1$ and $\mathit{send}(\mathit{mid},r)$ happen on a same replica and $o_1$ happens earlier, $\mathit{receive}(\mathit{mid},r)$ and $o_2$ happen on a same replica and $\mathit{receive}(\mathit{mid},r)$ happens earlier.
+
+\item[-] $\mathit{vis} = (\mathit{ro}+\mathit{del})^*$.
+\end{itemize}
+
+Intuitively, each local state can be considered as the consequence of all updates it receives. Since state-based CRDT sends the modified local state as message, the visibility relation is then the transitive closure of replica order and message delivery relation. Let $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ be the set of histories of all executions of $\llbracket \mathit{obj} \rrbracket_s$.
+
+
+
+
+
+
+\subsection{Proof Strategy of State-based CRDT}
+\label{subsec:proof strategy of operation-based CRDT}
+
+Given a state-based CRDT object $\mathit{obj}$ and a sequential specification $\mathit{spec}$, we need to construct a invariant $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\mathit{config}$ is a configuration of $\llbracket \mathit{obj} \rrbracket_s$.
+
+\item[-] $h$ is a history.
+
+\item[-] $h$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}$ is a linearization.
+
+\item[-] $\mathit{del} \subseteq \mathbb{MID} \times \mathbb{R}$ is the message delivery relation.
+
+\item[-] $\mathit{map} \subseteq \mathbb{MID} \times 2^{\mathbb{OID}}$ maps each message $\mathit{mid}$ to a set $S_1$ of operations. Intuitively, $S_1$ is the set of operations whose information are contained in $\mathit{mid}$.
+\end{itemize}
+
+$\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ needs to satisfy the following properties:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The visibility of $h$ is transitive.
+
+\item[-] $\mathit{del}$ preserves causal delivery: If $(o_1,o_2) \in \mathit{vis}$ and $(o_2,r) \in \mathit{del}$, then $(o_1,r) \in \mathit{del}$.
+
+\item[-] $\mathit{map}$ preserves causal delivery: Given $o_1,o_3 \in \mathit{map}(\mathit{mid})$, if $\exists o_2$, such that $(o_1,o_2),(o_2,o_3) \in \mathit{vis}$, then $o_2 \in \mathit{map}(\mathit{mid})$.
+
+\item[-] $\mathit{inv}$ holds initially: $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds, where $\mathit{config}_0$ is the initial configuration of $\llbracket \mathit{obj} \rrbracket_s$.
+
+\item[-] $\mathit{inv}$ is a transition invariant:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{do}(m,a,b,r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}', h \otimes i, \mathit{lin} \cdot i,\mathit{del},\mathit{map})$ holds. Note that here we always put a new operation in the last of linearization.
+
+        Here $i$ is the identifier of the newly-generated $\mathit{do}$ action. Given $h = (\mathit{Op},\mathit{ro},\mathit{vis})$, then, $h \otimes i = (\mathit{Op}',\mathit{ro}',\mathit{vis}')$, where $\mathit{Op}' = \mathit{Op} \cup \{ (m(a) \Rightarrow b,i,\mathit{obj}) \}$, $\mathit{ro}' = \mathit{ro} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \}$, and $\mathit{vis}' = (\mathit{vis} \cup \{ (j,i) \vert j \in \mathit{Op},(j,r) \in \mathit{del} \} \cup \{ (j,i) \vert j \in \mathit{Op}, j$ is of replica $r \})^*$.
+
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{send}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h,\mathit{lin},\mathit{del},\mathit{map}')$ holds, where $\mathit{map}' = \mathit{map} \cup (\mathit{mid}, \mathit{vd}(h,\mathit{del},r))$.
+
+
+    \item[-] If $\mathit{inv}(\mathit{config},h,\mathit{lin},\mathit{del},\mathit{map})$ holds and $\mathit{config} {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} \mathit{config}'$, then $\mathit{inv}(\mathit{config}',h,\mathit{lin},\mathit{del}',\mathit{map})$ holds, where $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
+    \end{itemize}
+\end{itemize}
+
+Here $\mathit{vd}(h,\mathit{del},r) = \{ i \vert (i,j) \in h.\mathit{vis}, j$ is of replica $r \} \cup \{ i \vert (i,r) \in \mathit{del} \}$ is the set of operations that are either to some operation of replica $r$, or has been delivered into replica $r$. An invariant $\mathit{inv}$ satisfies above properties is called invariant of state-based CRDT. The following lemma states that the existence of such invariant implies distributed linearizability.
+
+\begin{lemma}
+\label{lemma:invariant of state-based CRDT implies distributed linearizability}
+If there exists a invariant $\mathit{inv}$ of state-based CRDT for object $\mathit{obj}$ and sequential specification $\mathit{spec}$, then each history of $\mathit{history}(\llbracket \mathit{obj} \rrbracket_s)$ is distributed linearizable w.r.t $\mathit{spec}$.
+\end{lemma}
+
+\begin {proof}
+Given an execution $l=\alpha_1 \cdot \ldots \cdot \alpha_n$, let $\mathit{config}_0 {\xrightarrow{\alpha_1}} \mathit{config}_1 \ldots {\xrightarrow{\alpha_n}} \mathit{config}_n$ be the transitions from initial configuration. We need to prove that, for each $1 \leq k \leq n$, we have $\mathit{inv}(\mathit{config}_k,h_k,\mathit{lin}_k,\mathit{del}_k,\mathit{map}_k)$ holds, where $h_k$ is the history of execution $l_k = \alpha_1 \cdot \ldots \cdot \alpha_k$, $\mathit{lin}_k$ is the linearization of $h_k$, $\mathit{del}_k$ records message delivery relation of $l_k$, and $\mathit{map}_k$ records the operations contained in each message in $l_k$.
+
+Since $\mathit{inv}$ holds initially and is a transition invariant, it is easy to prove above requirements by induction on execution. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+For many state-based CRDT implementations, $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map}) = C_1 \wedge C_2$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+%\item[-] For each update operation $o$ of $h$, define $\mathit{ds}(o)$ which is a local state. %be the local state of replica $r$ at the time point immediately after $o$ is launched. Here $r$ is the replica of $o$.
+
+\item[-] $C_1: \forall (\mathit{mid},\mathit{msg},\_) \in T$, $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
+
+\item[-] $C_2: \forall r$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$.
+\end{itemize}
+
+The function $\mathit{apply}(\mathit{lin},S)$ returns a local state by applying ``virtual messages'' of operations in $S$ according to total order $\mathit{lin}$. Here for each update operation $o$ of $h$, we need to define a local state $\mathit{ds}(o)$, which is the ``virtual messages'' of $o$. Note that state-based CRDT send message randomly, instead of each message for a update operation. This is the reason why we need to manually generate virtual message for each update operation.
+
+To give $\mathit{inv}$, it only remains to give the virtual messages. The virtual message of state-based PN-counter and state-based multi-value register as follows. The proof of them being invariants of state-based CRDT is given in Appendix \ref{subsec:appendix proof of state-based PN-counter} and Appendix \ref{subsec:appendix proof of state-based multi-value register}, respectively.
+
+\begin{example}[virtual messages of state-based PN-counter]
+\label{example:virtual messagess of state-based PN-counter}
+
+For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+
+\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+\end{example}
+
+\begin{example}[virtual messages of state-based Multi-value Register]
+\label{example:virtual messages of state-based multi-value register}
+
+For each update operation $o = (\mathit{write}(a),\_,\_)$ of replica $r$, $\mathit{ds}(o) = (a,V)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+\end{example}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Proof of State-based PN-counter}
+\label{subsec:appendix proof of state-based PN-counter}
+
+The following lemma states that each visibility-closed set is a union of operations visible to a set of operations. Its proof is obvious and omitted here.
+
+\begin{lemma}
+\label{lemma:a transitive-closed set is a union of visibility of several sets}
+Given a set $\mathit{Op}$ of operations and a transitive and acyclic visibility relation $\mathit{vis} \subseteq \mathit{Op} \times \mathit{Op}$, if given a set $S \subseteq \mathit{Op}$, if $S$ satisfies that $\forall o_1,o_2 \in S, o_2 \in S \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in S$, then there exists a set $O \subseteq \mathit{Op}$, such that $S = \cup_{o \in O} \mathit{vis}^{-1}(o)$.
+\end{lemma}
+
+The following lemma states that given two operations $o_1,o_2$, for each replica $r$, either the set of operations of replica $r$ visible to $o_1$ is a subset of that of $o_2$, or the set of operations of replica $r$ visible to $o_2$ is a subset of that of $o_1$. Its proof is obvious and omitted here.
+
+\begin{lemma}
+\label{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}
+Assume that $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds. Let $S_o^r = \{ o' \vert (o',o) \in \mathit{vis}, o'$ is of replica $r \}$. Then for each operations $o_1$ and $o_2$, and for each replica $r$, $S_{\mathit{o1}}^r \subseteq S_{\mathit{o2}}^r \vee S_{\mathit{o2}}^r \subseteq S_{\mathit{o1}}^r$.
+\end{lemma}
+
+
+Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (P,N)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $P[r'] = \vert \{ o' \vert o'$ is a $\mathit{inc}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+
+\item[-] $\forall r'$, $N[r'] = \vert \{ o' \vert o'$ is a $\mathit{dec}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+
+The following lemma states that $\mathit{inv}$ is an invariant of state-based PN-counter.
+
+\begin{lemma}
+\label{lemma:inv is an invariant of state-based CRDT for state-based PN-counter}
+$\mathit{inv}$ is an invariant of state-based PN-counter.
+\end{lemma}
+
+\begin {proof}
+
+It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
+
+Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is easy to see that $R' = R[ r: ( R(r).P[r: R(r).P(r)+1 ], R(r).N ) ]$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    Since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{obj})$, we know that $\mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r)) = \mathit{merge}(R(r),\mathit{ds}(i))$. Therefore, we need to prove that $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
+    Since $\mathit{vd}(h,\mathit{del},r)$ satisfies that, $\forall o_1,o_2 \in \mathit{vd}(h,\mathit{del},r), o_2 \in \mathit{vd}(h,\mathit{del},r) \wedge (o_1,o_2) \in \mathit{vis} \Rightarrow o_1 \in \mathit{vd}(h,\mathit{del},r)$, by Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists a set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa} and the construction of $\mathit{ds}$, we can see that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$.
+
+    We already know that $\mathit{ds}(i) = (P'',N'')$, where for each replica $r'$, $P''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N''[r'] = \vert \{ j \in \mathit{vd}(h',\mathit{del}',r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Then, it is obvious that $\mathit{merge}(R(r),\mathit{ds}(i)) = \mathit{ds}(i)$. It is also easy to see that $\mathit{ds}(i) = (R(r).P[r: R(r).P(r)+1], R(r).N) = R'(r)$. Therefore, $R'(r) = \mathit{merge}(R(r),\mathit{ds}(i))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{dec},r)}} (R',T')$: Similarly as that of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},k,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot ((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
+
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since the message content of message $\mathit{mid}$ is $R(r)$, and we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+\subsection{Proof of State-based Multi-value Register}
+\label{subsec:appendix proof of state-based multi-value register}
+
+Recall that $\mathit{inv} = C_1 \wedge C_2$ with the virtual messages defined as follows: For each update operation $o$, $\mathit{ds}(o) = (a,V)$, where
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\forall r'$, $V[r'] = \vert \{ o' \vert o'$ is a $\mathit{write}$ operation of replica $r'$, $o' = o \vee (o',o) \in h.\mathit{vis} \} \vert$.
+\end{itemize}
+
+The following lemma states that $\mathit{inv}$ is an invariant of state-based multi-value register.
+
+\begin{lemma}
+\label{lemma:inv is an invariant of state-based CRDT for state-based multi-value register}
+$\mathit{inv}$ is an invariant of state-based multi-value register.
+\end{lemma}
+
+\begin {proof}
+
+It is obvious that $\mathit{inv}(\mathit{config}_0,\epsilon,\emptyset,\emptyset,\emptyset)$ holds.
+
+Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}((R,T),h,\mathit{lin},\mathit{del},\mathit{map})$ holds,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{inc},i,\mathit{vis}^{-1}(i))$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that $\mathit{lin}'$ is a linearization of $h'$. It is obvious that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = h'.\mathit{vis}^{-1}(i)$. And then, we need to prove that $(a,V') = \mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i))$.
+
+    Recall that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$, from Lemma \ref{lemma:a transitive-closed set is a union of visibility of several sets}, we know that there exists set $O$, such that $\mathit{vd}(h,\mathit{del},r) = \cup_{o \in O} \mathit{vis}^{-1}(o)$. We can prove that, for each $o = \mathit{write}(b)$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) = (b,V_b)$, where $\forall r' \neq r, V_b[r'] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert$, and $V_b[r] = \vert \{ o' \vert o' \in \mathit{vis}^{-1}(o), o'$ is of replica $r' \} \vert + 1$.
+
+    It is not hard to prove that the order of merging virtual message is not important, and a virtual message can be applied multiple times. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, we can see that $\mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$. Therefore, we can see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \} \cup \{ \mathit{ds}(i) \}$. By Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, it is not hard to see that $\mathit{apply}(\mathit{lin}',h'.\mathit{vis}^{-1}(i)) = \mathit{ds}(i)$.
+
+    Then, we need to prove that $(a,V') = \mathit{ds}(i)$. This holds since $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$, Lemma \ref{lemma:the view of a replica of one operation is contained in another operaiton, or vice versa}, and the value of $V'$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{do}(\mathit{read},S,r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$ and $T' = T$.
+
+    \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{read}$ action.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin} \cdot (\mathit{read}() \Rightarrow S,i,\mathit{vd}(h,\mathit{del},r) )$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$ and $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
+
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = h'.\mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{write},a,r)}} (R',T')$, we can prove that there exists a set $O$, such that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ is obtained by merging $\{ o \in O \vert \mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o)) \}$.
+
+    By the definition of merging, it is same to assume that $O = \mathit{max}_{\mathit{vis}} \mathit{vd}(h,\mathit{del},r)$. Assume that for each operation $o = \mathit{write}(a) \in O$, $\mathit{apply}(\mathit{lin},\mathit{vis}^{-1}(o))) = (a,V_o)$. Then it is not hard to see that $R(r) = \{ (a,V_o) \vert o = \mathit{write}(a) \in O \}$. Therefore, $S = \{ a \vert o = \mathit{write}(a) \in \mathit{vis}^{-1}(i), \forall o' = \mathit{write}(\_) \in \mathit{vis}^{-1}(i), (o,o') \notin \mathit{vis} \}$. According to sequential specification $\mathit{spec}$, $(\mathit{read} \Rightarrow S,i,\mathit{obj})$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] It is obvious that $R' = R$. Let $T' = T \cup \{ (\mathit{mid},R(r),r) \}$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map} \cup \{ (\mathit{mid},\mathit{vd}(h,\mathit{del},r)) \}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for checking $C_1$ for $\mathit{mid}$. This holds obviously since the message content of message $\mathit{mid}$ is $R(r)$, and we already know that $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r)) = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$.
+
+\item[-] If $(R,T) {\xrightarrow{\mathit{receive}(\mathit{mid},r)}} (R',T')$: Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Let $R' = R[ r: \mathit{merge}(R(r),\mathit{msg})]$ where $(\mathit{mid},\mathit{msg},\_) \in T$. It is obvious that $T' = T$.
+
+    \item[-] Let $h' = h$.
+
+    \item[-] Let $\mathit{lin}' = \mathit{lin}$.
+
+    \item[-] Let $\mathit{del}' = \mathit{del} \cup \{ (i,r) \vert i \in \mathit{map}(\mathit{mid}) \}$.
+
+    \item[-] Let $\mathit{map}' = \mathit{map}$.
+    \end{itemize}
+
+    It is easy to see that all other properties hold, except for $C_2$ for replica $r$. Therefore, let us prove that $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+
+    We already know that $R'(r) = \mathit{merge}(R(r), \mathit{msg})$, $R(r) = \mathit{apply}(\mathit{lin},\mathit{vd}(h,\mathit{del},r))$ and $\mathit{msg} = \mathit{apply}(\mathit{lin},\mathit{map}(\mathit{mid}))$. It is easy to see that $\mathit{vd}(h',\mathit{del}',r) = \mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid})$. It is easy to prove that, applying messages in any order lead to the same consequence. Therefore, we have $\mathit{merge}(R(r), \mathit{msg}) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h,\mathit{del},r) \cup \mathit{map}(\mathit{mid}))$. Then, we have $R'(r) = \mathit{apply}(\mathit{lin}',\mathit{vd}(h',\mathit{del}',r))$.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
 \end {proof}
 }
 
