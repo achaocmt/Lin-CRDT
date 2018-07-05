@@ -5,7 +5,7 @@
 % \gpnote[inline, nomargin]{Add an intuitive notion of history.}
 
 \begin{figure}[t]
-\begin{lstlisting}[caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11})},captionpos=b,label={lst:rga}]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11})},captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -17,7 +17,7 @@
       //@ let lin = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
-      //@ N' = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
+      //@ N@|$'$|@ = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
 
   remove(a) :
     atSource :
@@ -25,7 +25,7 @@
       //@ let lin = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
-      //@ Tomb' = Tomb @|$\cup$|@ {a}
+      //@ Tomb@|$'$|@ = Tomb @|$\cup$|@ {a}
 
   read() :
     let ret-list = traverse(N, Tomb)
@@ -506,8 +506,7 @@ execution thereof.
 
 \begin{figure}[!t]
   \centering
-\begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT},
-captionpos=b,label={lst:or-set}]
+\begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT},basicstyle=\ttfamily\footnotesize,captionpos=b,label={lst:or-set}]
   payload Set S
   initial S = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@

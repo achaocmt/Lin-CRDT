@@ -135,7 +135,7 @@ any two replica states $\sigma$ and $\sigma'$,
 \begin{figure}[t]
 %\centering
 {\footnotesize
-\begin{tabular}{|l|c|r|}
+\begin{tabular}{|l|c|c|}
 \hline
 {\bf CRDT} & {\bf Interface} & {\bf Linearization strategy}\\
 \hhline{|===|}
@@ -155,14 +155,14 @@ LWW-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{set}$, $\alabellong[{\tt re
 %\hline
 OR-Set~\cite{ShapiroPBZ11}&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{set}{}$ & execution-order\\
 \hline
-RGA~\cite{DBLP:journals/jpdc/RohJKL11}&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$ &
-                \\ & $\alabellong[{\tt read}]{}{list}{}$ & timestamp-order\\
+RGA~\cite{DBLP:journals/jpdc/RohJKL11}&$\alabelshort[{\tt addAfter}]{value,value}$, & timestamp-order
+                \\ & $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{list}{}$ & \\
 \hline
-Wooki~\cite{DBLP:conf/wise/WeissUM07}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$ & 
-                \\ & $\alabellong[{\tt read}]{}{list}{}$ & execution-order \\
+Wooki~\cite{DBLP:conf/wise/WeissUM07}&$\alabelshort[{\tt addBetween}]{value,value,value}$, & execution-order
+                \\ & $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{list}{}$ & \\
 \hline
-Treedoc~\cite{DBLP:conf/icdcs/PreguicaMSL09}&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$ &
-                \\ & $\alabellong[{\tt read}]{}{list}{}$ & execution-order\\
+Treedoc~\cite{DBLP:conf/icdcs/PreguicaMSL09}&$\alabelshort[{\tt addBetween}]{value,value,value}$, & execution-order
+                \\ & $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{list}{}$ & \\
 \hline
 \end{tabular}
 }
