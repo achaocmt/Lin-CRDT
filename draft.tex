@@ -99,8 +99,8 @@
   % belowskip=3mm,
   showstringspaces=false,
   columns=flexible,
-  basicstyle=\ttfamily\small,
-  % basicstyle={\small\ttfamily},
+  % basicstyle=\ttfamily\footnotesize,
+  basicstyle={\small\ttfamily},
   numbers=left,
   numberstyle=\tiny\color{gray},
   keywordstyle=\color{blue},
@@ -207,12 +207,12 @@
   \begin{itemize}
   \item Position w.r.t. HW linearizability early on.
   \item Talk about deterministic/non-deterministic specs?
-  \item Explain that for single-replica systems, both the spec and the
-    implementation of a CRDT meets the sequential spec a la HW.
-  \item Explain that the spec of RGA with \lstinline|addAt| does not
-    work.
-  \item Explain the difference with~\cite{PerrinMJ14}.
-  \item Explain the difference with~\cite{JagadeesanR18}.
+  % \item Explain that for single-replica systems, both the spec and the
+  %   implementation of a CRDT meets the sequential spec a la HW.
+  % \item Explain that the spec of RGA with \lstinline|addAt| does not
+  %   work.
+  % \item Explain the difference with~\cite{PerrinMJ14}.
+  % \item Explain the difference with~\cite{JagadeesanR18}.
   \item Perhaps talk about multiple objects earlier.
   \end{itemize}
 }
@@ -234,6 +234,8 @@
 \input{Proofs}
 
 \input{Compositionality}
+
+\input{rel-work}
 
 %\section{CRDT-Linearizable Implementations}
 %\label{sec:crdt-lin-imp}

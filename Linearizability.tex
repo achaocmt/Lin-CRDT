@@ -36,6 +36,7 @@ These constraints are commonly guaranteed by network systems
 implementing \emph{causal delivery}~\cite{}.
 
 \begin{figure}
+\small
 \[
   \inferrule[\text{\sc Operation}]
   {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
@@ -456,8 +457,8 @@ some given initial state $\abstate_{0}$.
 
 \gpwarning{Lots of rewriting to do here.}
 
-Let us consider the specification of a very counter object, and then
-the specifications of the RGA and OR-Set objects described above.
+Let us consider the specification of a very simple counter object, and
+then the specifications of the RGA and OR-Set objects described above.
 
 \begin{example}[Sequential Specification of a Counter]
 \label{definition:sequential specification of counter}
@@ -645,6 +646,8 @@ To be precise:
 %We shall relax this definition to accept histories where
 %not all operations are seen by every query.
 %
+\gpnote{From Chao: There is a connection between the fact that the
+  operations are commutative and the third condition here. }
 \begin{definition}
   \label{definition:ralinearizability1} A history $h =
   (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\uplus\updates$ is \crdtlinearizable{} w.r.t. a

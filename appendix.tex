@@ -785,7 +785,7 @@ A history $h = (\alabelset,\avisord)$ with $\alabelset\subseteq \queries\cup\upd
 $$ \gconfres(s)=\left\{
 \begin{aligned}
 an \ element \ of \ S &  & If \ S = \{ \abstate \vert \abstate_0 \xrightarrow{ \aseqord\!\downarrow_{s\cap \updates} }^* \abstate \} \neq \emptyset \\
-undefine & & Otherwise
+undefined & & Otherwise
 \end{aligned}
 \right.
 $$
@@ -828,7 +828,7 @@ Since the set of operations visible to $\alabellong[{\tt read}]{}{c \cdot b}{}$ 
 \end{figure}
 
 
-%Since the sequential specification is non-deterministic, for each operation sequence $s$, we fix $\gconfres(s)$ to be the consequence in sequential specification when applying update operations in $s$ according to \aseqord{} order from the initial abstract state $\abstate_0$ of sequential specification. The condition of ¡¤¡¤$\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$¡®¡¯ ensures that, the conflict resolution of bigger state $\gconfres(s_2)$ should also respect the conflict resolution of smaller state $\gconfres(s_1)$. Or we cam say, $\gconfres(s_1)$ is a ``sub-state'' of $\gconfres(s_2)$.
+%Since the sequential specification is non-deterministic, for each operation sequence $s$, we fix $\gconfres(s)$ to be the consequence in sequential specification when applying update operations in $s$ according to \aseqord{} order from the initial abstract state $\abstate_0$ of sequential specification. The condition of $\gconfres(s_1) \xrightarrow{ s_2 - s_1 }^* \gconfres(s_2)$utf ensures that, the conflict resolution of bigger state $\gconfres(s_2)$ should also respect the conflict resolution of smaller state $\gconfres(s_1)$. Or we cam say, $\gconfres(s_1)$ is a ``sub-state'' of $\gconfres(s_2)$.
 
 The case when histories include query-updates is similarly dealt with as Definition \ref{definition:distributed linearizability}. We do it by rewriting of the original history where each query-update is decomposed into a label representing the query part and another label representing the update part.
 
@@ -3360,3 +3360,8 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 This completes the proof of this lemma. $\qed$
 \end {proof}
 }
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "draft"
+%%% End:

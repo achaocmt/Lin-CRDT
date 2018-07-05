@@ -1,0 +1,158 @@
+\section{Related Work}
+\label{sec:rel-work}
+
+\paragraph{CRDT Correctness Criteria}
+CRDTs are hard to specify since concurrent interactions between
+replicas must be considered to provide accurate explanations for the
+conflict resolution and convergence properties they provide.
+%
+\citet{BurckhardtGYZ14, Burckhardt14} provide the one of the first formal
+frameworks where CRDTs and other weakly consistent replicated systems
+can be specified.
+%
+The specification language they provide uses event structures where
+operations are structured using partial orders (e.g. visibility), and
+axioms on these partial orders characterize the validity of invalidity
+of behaviours of operations.
+%
+This specification style bares some similarities with the literature
+of weakly consistent shared memory systems~\cite{AlglaveMT14}.
+%
+While the specification language
+of~\cite{BurckhardtGYZ14,Burckhardt14} appears to be complete, this
+comes at the cost of complexity of the specifications.
+%
+To specify the behavior of a CRDT in this model one is forced to think
+about the many partial orders and axioms that constraint them.
+%
+One of the goals of \CRDTLinshort{} is to simplify specifications and
+free the user from reasoning about complicated graphs resulting from
+concurrent operations.
+
+\paragraph{Linearizability for CRDTs}
+We are not the firsts to observe that CRDT specifications can be
+simplified by considering sequential histories.
+%
+Two recent works~\cite{PerrinMJ14, JagadeesanR18} made similar
+observations.
+%
+\citet{PerrinMJ14} provides a criterion called Update Consistency,
+which to the best of our knowledge is the first to consider a
+linearization of updates and queries as resulting from sub-sequences
+of this linearization.
+%
+Unlike \CRDTLinshort{}, to show that a history is Update Consistent,
+the visibility relation of the specification history is existentially
+quantified, whereas in our definition the visibility relation is
+directly extracted from the implementation trace.
+%
+Hence, \CRDTLinshort{} preserves in the specification histories the
+causality of execution histories, whereas Update Consistency does not.
+%
+While their definition is similar to ours, they do not prove the
+correctness of CRDT implementations as we do.
+
+% %
+% \gpnote[nomargin, inline]{They don't provide proofs of algorithms.
+%   There isn't even code. They claim that OR-Set is not update
+%   consistent w.r.t. a Set spec.}
+
+\citet{JagadeesanR18} provide a correctness criterion for CRDTs under
+Eventual Consistency which the call SEC.
+%
+SEC shares some similarities with~\cite{PerrinMJ14} but the
+formalization is quite different.
+There are some important differences between~\cite{JagadeesanR18} and
+CRDTLinshort{}:
+\begin{inparaenum}
+\item while our definition of \CRDTLin{} has three simple
+  requirements, the definition SEC is far from simple.
+  %
+  In particular, \CRDTLin{} as well as Update Consistency have a
+  global total order for updates, which is not the case for
+  SEC.\footnote{At least this is not apparent from the definitions nor
+    stated in the paper.}
+\item
+  \label{it-dependencies}
+  A second important difference is in that in their framework CRDT
+  specifications are assumed to be parameterized by a given dependency
+  relation between operations of the data type.
+  %
+  Then, their definition assumes that all independent operations
+  commute (regardless whether these are issued by the same client or
+  not).
+  %
+  It is unclear that such a specification could be adequate for
+  systems enforcing (some of their) session guarantees
+  of~\cite{TerryDPSTW94}.
+  %
+  With \CRDTLin{} we strive to preserve the guarantees enforced by the
+  underlying network of the system.
+  %
+  This is particularly important since we assume that certain
+  operations that appear to be independent w.r.t. the API could be
+  data or control dependent when considering the client code.
+  %
+  This is certainly the case when we relabel query-update operations
+  since the query usually provides arguments for the subsequent
+  update.
+\item Another important difference concerns their compositionality
+  result.
+  %
+  While their compositionality result which appears to be similar to
+  ours, the fact that operations stemming from different objects are
+  necessarily independent (the dependency relation is given at the level
+  of the API of an object, hence one cannot give one between objects) in
+  conjunction with the point~ref{it-dependencies} means that the
+  interleaving of specifications of two different objects makes the
+  operations of the objects independent.
+  %
+  Hence, the composition of specifications of two objects accepts any
+  interleaving of the example in~\autoref{fig:negative_composition}
+  which we find at least counter-intuitive.
+  %
+  Our result is strictly stronger, since the composition of the
+  specification of two objects will respect causality stemming from
+  the client code as illustrated by the failure to linearize the
+  interleavings of~\autoref{fig:negative_composition}.
+  %
+  We show however in~\autoref{sec:compositionality} conditions on the
+  CRDTs under which the composition can always be linearized.
+  \gpnote{Is this clear?}
+\end{inparaenum}
+
+\paragraph{Verification of CRDTs}
+There are several works that approach the problem of verifying that a
+CRDT implementation is correct w.r.t. a certain specification.
+%
+Here we mention but a few.
+%
+In~\cite{BurckhardtGYZ14, AttiyaBGMYZ16, Burckhardt14} along with the
+formal specification proofs of correctness of implementations are
+given for several CRDTs.
+%
+Of interest is the notion of Replication Aware Simulation introduced
+in~\cite{BurckhardtGYZ14}.
+%
+Compared to these simulations, our proofs remain at a much more
+abstract level -- and are therefore simpler -- since our
+specifications are simpler.
+%
+We acknowledge however that their method is more general than ours
+which only applies to CRDTs satisfying the \CRDTLinshort{} criterion.
+
+\citet{ZellerBP14} and~\citet{GomesKMB17} provide frameworks for the
+verification of CRDTs in Isabelle/HOL.
+%
+Both of these works introduce a methodology to specify and prove the
+correctness of CRDTs.
+%
+The main difference with these works is that they do not provide a
+consistency criterion, and their proofs are similar to the simulations
+of~\cite{BurckhardtGYZ14}, albeit using a different -- but similar --
+specification language based on partial orders of operations.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "draft"
+%%% End:
