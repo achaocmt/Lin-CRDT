@@ -5,7 +5,7 @@
 % \gpnote[inline, nomargin]{Add an intuitive notion of history.}
 
 \begin{figure}[t]
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11})},captionpos=b,label={lst:rga}]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11}).},captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -44,7 +44,7 @@ interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
 \begin{wrapfigure}{r}{0.5\textwidth}
   \centering
   \includegraphics[scale=.9]{figures/sys-mod}
-  \caption{CRDT System Model}
+  \caption{CRDT System Model.}
   \label{fig:sys-mod}
 \end{wrapfigure}
 
@@ -537,7 +537,7 @@ execution thereof.
 
 \begin{figure}[!t]
   \centering
-\begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT},basicstyle=\ttfamily\footnotesize,captionpos=b,label={lst:or-set}]
+\begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT.},basicstyle=\ttfamily\footnotesize,captionpos=b,label={lst:or-set}]
   payload Set S
   initial S = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -570,7 +570,7 @@ execution thereof.
 \begin{wrapfigure}{r}{.5\textwidth}
   \centering
   \includegraphics[width=0.45 \textwidth]{./figures/OR-Set-simple}
-  \caption{Interleaving-based Set}
+  \caption{Interleaving-based Set.}
   \label{fig:or-set-simple}
 \end{wrapfigure}
 The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11},
@@ -654,7 +654,7 @@ being we ignore the lines marked with \lstinline|//@| annotations.
     \caption{Label rewriting of an OR-Set execution.}
     \label{fig:or-set-lk-rem}
   \end{subfigure}
-  \caption{OR-Set Linearizability vs. \CRDTLinshort{}}
+  \caption{OR-Set Linearizability vs. \CRDTLinshort{}.}
 \end{figure}
 
 It is easy to find examples where the implementation of OR-Set can
