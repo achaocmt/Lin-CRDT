@@ -561,72 +561,73 @@ This completes the proof of this lemma. $\qed$
 \label{subsec:proof of Wooki}
 
 
-Given a W-string $s$ and two W-characters $c_1,c_2$, we say that $c_1$ and $c_2$ are degree-$i$-adjacent in $s$, if 
+Given a W-string $s$ and two W-characters $c_1,c_2$, we say that $c_1$ and $c_2$ are degree-$i$-adjacent in $s$, if
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] the degree of $c_1$ and $c_2$ are $i$, 
+\item[-] the degree of $c_1$ and $c_2$ are $i$,
 
-\item[-] there does not exists W-character $c$ of $s$, such that the degree of $c$ is less or equal than $i$, and $c_1 <_s c <_s c_2$. 
-\end{itemize} 
+\item[-] there does not exists W-character $c$ of $s$, such that the degree of $c$ is less or equal than $i$, and $c_1 <_s c <_s c_2$.
+\end{itemize}
 
 
-The following lemma states that, when doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent. 
+The following lemma states that, when doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent.
 
 \begin{lemma}
 \label{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}
 When doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent.
 \end{lemma}
 
-\begin {proof} 
-Obviously, $F[i],F[i+1]$ have degree $d_{min}$, and there is no W-character with degree $d_{min}$ and between $F[i]$ and $F[i+1]$ in $string_s$. 
+\begin {proof}
+Obviously, $F[i],F[i+1]$ have degree $d_{min}$, and there is no W-character with degree $d_{min}$ and between $F[i]$ and $F[i+1]$ in $string_s$.
 
-Since $d_{min}$ is the minimal degree of W-characters in $S'$, there does not exists W-character that is between $F[i]$ and $F[i+1]$ and will a degree smaller than $d_{min}$. This completes the proof of this lemma. $\qed$ 
+Since $d_{min}$ is the minimal degree of W-characters in $S'$, there does not exists W-character that is between $F[i]$ and $F[i+1]$ and will a degree smaller than $d_{min}$. This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
-The following lemma states a property of degrees of the argument of {\tt integrateIns}. Its can be obviously proved by induction and we omit its proof. 
+The following lemma states a property of degrees of the argument of {\tt integrateIns}. Its can be obviously proved by induction and we omit its proof.
 
 \begin{lemma}
 \label{lemma:a property of degree of argument of integrateIns}
-If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{c_p,c_b,c_n}$, and that, for each time, we find $d_{min}^i$ and then recursively calls $\alabelshort[{\tt integrateIns}]{c_i,c_b,c'_i},\ldots$. Then the degree of $c_i$ and $c'_i$ is chosen from $\{ d_p,d_c,d_{min}^1,\ldots d_{min}^i \}$, where $d_p$ and $d_c$ is the degree of $c_p$ and $c_n$, respectively. 
+If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{c_p,c_b,c_n}$, and that, for each time, we find $d_{min}^i$ and then recursively calls $\alabelshort[{\tt integrateIns}]{c_i,c_b,c'_i},\ldots$. Then the degree of $c_i$ and $c'_i$ is chosen from $\{ d_p,d_n,d_{min}^1,\ldots d_{min}^i \}$, where $d_p$ and $d_n$ is the degree of $c_p$ and $c_n$, respectively.
 \end{lemma}
 
 
-The following lemma states that, given two W-characters that are degree-$i$-adjacent in $string_s$, then, they are ordered by $<_id$. 
+The following lemma states that, given two W-characters that are degree-$i$-adjacent in $string_s$, then, they are ordered by $<_{id}$ in $s$. 
 
 \begin{lemma}
-\label{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order} 
-If $c_1$ and $c_2$ are degree-$i$-adjacent in $string_s$, then, $c_1 <_{string_s} c_2$, if and only if $c_1 <_{id} c_2$. 
+\label{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}
+If $c_1$ and $c_2$ are degree-$i$-adjacent in $string_s$, then, $c_1 <_{string_s} c_2$, if and only if $c_1 <_{id} c_2$.
 \end{lemma}
 
 \begin {proof}
 Let us prove this property by induction.
 
-It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for $string_s$, let $string'_s$ be obtained from $string_s$ by applying downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, and this property does not hold for $string'_s$. Let $c_b$ be the W-character of $b$. Assume the degree of $c_b$ is $i_b$. Then, there exists W-characters $c_x$ and $c_y$, such that $c_x$ and $c_y$ are degree-$k$-adjacent, and it is not the case that $c_x <_{string'_s} c_y$, if and only if $c_x <_{id} c_y$. 
+It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for $string_s$, let $string'_s$ be obtained from $string_s$ by applying downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, and this property does not hold for $string'_s$. Let $c_b$ be the W-character of $b$. Assume the degree of $c_b$ is $i_b$. Then, there exists W-characters $c_x$ and $c_y$, such that $c_x$ and $c_y$ are degree-$k$-adjacent, and it is not the case that $c_x <_{string'_s} c_y$, if and only if $c_x <_{id} c_y$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For degree $i<i_b$, it is obvious that the set of degree-$i$-adjacent pairs in $string_s$ is same as that in $string'_s$. 
+\item[-] For degree $i<i_b$, it is obvious that the set of degree-$i$-adjacent pairs in $string_s$ is same as that in $string'_s$.
 
-\item[-] For degree $i>i_b$, it is easy to prove that the set of degree-$i$-adjacent pairs in $string'_s$ is a subset of that in $string_s$.  
-\end{itemize} 
+\item[-] For degree $i>i_b$, it is easy to prove that the set of degree-$i$-adjacent pairs in $string'_s$ is a subset of that in $string_s$.
+\end{itemize}
 
 Therefore, the only possibility is that $k=i_b$. By induction assumption, we can see that $c_y = c_b$. Or we can say, $c_x$ and $c_b$ are degree-$i_b$-adjacent, and it is not the case that $c_x <_{string'_s} c_b$, if and only if $c_x <_{id} c_b$.
 
-Let us consider the case when $c_x <_{string'_s} c_b \wedge c_b <_{id} c_x$. 
+Let us consider the case when $c_x <_{string'_s} c_b \wedge c_b <_{id} c_x$.
 
-Assume $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$. Assume $\alabelshort[{\tt integrateIns}]{c,c_b,c'}$ is the last {\tt integrateIns} with $d_{min} < i_b$, and then, we recursively calls $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$. By Lemma \ref{lemma:a property of degree of argument of integrateIns}, we can see that the degree of $c_y$ and $c_z$ are less than $i_b$. 
+Assume $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{c_a,c_b,c_c}$. Assume $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ is the last {\tt integrateIns} with $d_{min} < i_b$, and then, we recursively calls $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$. By Lemma \ref{lemma:a property of degree of argument of integrateIns}, we can see that the degree of $c_y$ and $c_z$ are less than $i_b$.
 
-It is obviously that $c_y <_{string'_s} c_b <_{string'_s} c_z$. Since $c_x$ and $c_b$ are degree-$i_b$-adjacent, we can see that $c_y <_{string'_s} c_x$. Therefore, in $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$, $d_{min} = i_b$, and $c_x,c_b \in F$. 
+It is obviously that $c_y <_{string'_s} c_b <_{string'_s} c_z$. Since $c_x$ and $c_b$ are degree-$i_b$-adjacent, we can see that $c_y <_{string'_s} c_x$. Therefore, in $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$, $d_{min} = i_b$, and $c_x,c_b \in F$.
 
-By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, given $F$ of $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$, for each $i$, $F[i]$ and $F[i+1]$ are degree-$d_{min}$-adjacent. By induction assumption, we can see that, in $string'_s$, the W-characters of $F \setminus \{ c_b \}$ are ordered by $<_{id}$. Then, according to Wooki algorithm, we have $c_b <_{string'_s} c_x$, contradicts the assumption that $c_x <_{string'_s} c_b$. 
+By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, given $F$ of $\alabelshort[{\tt integrateIns}]{c_y,c_b,c_z}$, for each $i$, $F[i]$ and $F[i+1]$ are degree-$d_{min}$-adjacent. By induction assumption, we can see that, in $string'_s$, the W-characters of $F \setminus \{ c_b \}$ are ordered by $<_{id}$. Then, according to Wooki algorithm, we have $c_b <_{string'_s} c_x$, contradicts the assumption that $c_x <_{string'_s} c_b$.
 
-The case of $c_b <_{string'_s} c_x \wedge c_x <_{id} c_b$ can be similarly proved. This completes the proof of this lemma. $\qed$ 
+The case of $c_b <_{string'_s} c_x \wedge c_x <_{id} c_b$ can be similarly proved. This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
-The following lemma states that, the order of $\{$values of $\sigma \} \cup \{ b \}$ in the following two cases are the same: either we insert $b$ into $\sigma$, or first insert another item $e$ and then insert $b$. Or we can say, this lemma states that, inserting a value is ``independent'' from inserting another value.
+%The following lemma states that, the order of $\{$values of $\sigma \} \cup \{ b \}$ in the following two cases are the same: either we insert $b$ into $\sigma$, or first insert another item $e$ and then insert $b$. 
+The following lemma states that, inserting a value $b$ is ``independent'' from whether another value $e$ has already been inserted or not.  
 
 \begin{lemma}
 \label{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}
