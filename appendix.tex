@@ -110,22 +110,22 @@ captionpos=b,label={lst:operation-based counter}]
 \begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based PN-counter},
 captionpos=b,label={lst:operation-based PN-counter}]
-  payload ingeter[reps()] P, ingeter[reps()] N  
+  payload ingeter[reps()] P, ingeter[reps()] N
   initial P = [@|$0,\ldots,0$|@], N = [@|$0,\ldots,0$|@]
-  initial lin = @|$\epsilon$|@ 
-  
+  initial lin = @|$\epsilon$|@
+
   inc()
-    atSource : 
-      let g = myRep() 
-      let @|$P'$|@ = @|$P[ g: P[g] + 1]$|@ 
-      let @|$N'$|@ = @|$N$|@ 
-      //@ lin = lin@|$\,\cdot\,inc()$|@ 
+    atSource :
+      let g = myRep()
+      let @|$P'$|@ = @|$P[ g: P[g] + 1]$|@
+      let @|$N'$|@ = @|$N$|@
+      //@ lin = lin@|$\,\cdot\,inc()$|@
     downStream(@|$(P',N')$|@) :
-      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@ 
+      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@
       @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
-      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@, 
-      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@, 
-  
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+
   dec()
     atSource :
       let g = myRep()
@@ -137,7 +137,7 @@ captionpos=b,label={lst:operation-based PN-counter}]
       @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
       //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
       @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
-      
+
 
   read() :
     let c  = @|$\Sigma_{\arep} P[\arep]$|@ - @|$\Sigma_{\arep} N[\arep]$|@
@@ -407,7 +407,7 @@ To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a
 
 
 \section{Sequential Specifications}
-\label{sec:sequential specifications} 
+\label{sec:sequential specifications}
 
 
 
@@ -463,11 +463,11 @@ Method $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $
 
 
 \subsection{The Sequential Specification of Multi-Value Register}
-\label{subsec:the sequential specification of multi-value register} 
+\label{subsec:the sequential specification of multi-value register}
 
 The query-update rewriting of multi-value register is as follows: $\gamma( \alabelshort[{\tt write}]{a}) = ( \alabellong[{\tt readIds}]{}{S}{}, \alabelshort[{\tt write}]{a,id,S})$.
 
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specMVReg$ of multi-value register is given by the transitions: 
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specMVReg$ of multi-value register is given by the transitions:
 
 \[
   \begin{array}{rcl}
@@ -492,7 +492,7 @@ Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\
 
 
 \subsection{The Sequential Specification of List with Add-After Interface}
-\label{subsec:the sequential specification of list with add-after interface} 
+\label{subsec:the sequential specification of list with add-after interface}
 
 Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specRGA$ of list with add-after interface is given with the transitions as follows:
 \[
@@ -520,7 +520,7 @@ Method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$
 
 
 \subsection{The Sequential Specification of List with Add-Between Interface}
-\label{subsec:the sequential specification of list with add-between interface} 
+\label{subsec:the sequential specification of list with add-between interface}
 
 Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specWooki$ of list with add-after interface is given with the transitions as follows:
 \[
@@ -541,7 +541,7 @@ Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a 
    \end{array}
 \]
 
-Method $\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}$ puts $a$ at some random position between $a_1$ and $a_2$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value. 
+Method $\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}$ puts $a$ at some random position between $a_1$ and $a_2$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value.
 
 
 
@@ -597,13 +597,13 @@ Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2
 
 
 \subsection{Proof of Operation-Based Multi-Value Register}
-\label{subsec:proof of operation-based multi-value register} 
+\label{subsec:proof of operation-based multi-value register}
 
-The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$. 
+The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$.
 
 \begin{lemma}
 \label{lemma:multi-value register is correct}
-The operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\specMVReg$. 
+The operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\specMVReg$.
 \end{lemma}
 
 \begin {proof}
@@ -636,10 +636,11 @@ Our proof of the lemma proceed as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations.
+Since every operation is appended to the linearization when it executes \lstinline|atSource| it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into effectors applied in a replica $\arep$, and $\alinord_2$ be the order of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations.
 
-Let us prove that applying downstream of such pair of operations commute, and we only need to consider the case of two concurrent $write$ labels. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream of labels $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$, respectively. Given a payload $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$ are concurrent, by  $fact_2$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
+Let us prove that applying effectors of concurrent operations commute, and we only need to consider the case of two concurrent $write$ operations. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the effector of operations $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$, respectively. Given a payload $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. By the causal delivery assumption, for each $(a',V') \in S$ (and let $o'$ be its operation), $\alabelshort[{\tt write}]{a_1,V_1}$ is not visible to $o'$. Or we can say, either $o'$ is visible to $\alabelshort[{\tt write}]{a_1,V_1}$, or $o'$ and $\alabelshort[{\tt write}]{a_1,V_1}$ are concurrent. By $fact_1$ and $fact_2$, we know that $\neg V_1 < V'$. Similarly, we can see that $\neg V_2 < V'$.
 
+In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$ are concurrent, by  $fact_2$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
 
 
 \item[-] Let we prove that the Annotation1 and Annotation2 is an inductive invariant.
