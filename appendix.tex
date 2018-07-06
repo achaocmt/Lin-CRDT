@@ -814,30 +814,51 @@ This completes the proof of this lemma. $\qed$
 
 A sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic. 
 
+For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded. 
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/ErrorExecutionofWooki.pdf}
+\vspace{-10pt}
+  \caption{A history w.r.t $\mathit{listBet}_s$ that should be excluded.}
+  \label{fig:a wrong history w.r.t listbets}
+\end{figure} 
 
+Given an execution $e$ of $\aobj$, we propose the following two property of $e$: Given local state $\sigma_1$ and $\sigma_2$ of $e$, if $\sigma_1$ (resp., $\sigma_2$) is obtained from the initial local state by applying a sequence $s_1$ of downstream (resp., a sequence $s_2$ of downstream).
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Convergence: if $s_1 \cap \updates = s_2 \cap \updates$, then $\sigma_1 = \sigma_2$. 
 
+\item[-] Consistent Conflict Resolution: if $s_1 \cap \updates$ is a sub-sequence of $s_2 \cap \updates$. Let $S$ be the set of downstream of update operations that are in $s_2$ and not in $s_1$, and let $s_3$ be a sequences of $S$ that is consistent with visibility relation. Then, we can obtain $\sigma_2$ from $\sigma_1$ by applying the downstream sequence $s_3$. 
+\end{itemize} 
 
+We say an execution $e$ is ready for downstream, if given a local state $\sigma$ of $e$ which is of replica $\arep$, we can safely apply all the downstream that are still not visible to replica $\arep$ in any order consistent with visibility relation. 
 
+Let us go back to \figurename~\ref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$. 
 
-An important property of CRDT algorithms is \emph{convergence}.
-Convergence means that all replicas will arrive to the same final
-state when the same set of operations are applied to them.
-For the moment we concentrate on specifications that are
-\emph{deterministic}.
-That is to say that for every label, the transition from a given
-initial state can produce at most one final state.
-We will later remove this restriction.
-It is useful to remark that if the specification of a CRDT is
-deterministic, then our definition of \crdtlin{} implies the
-convergence of the data type, as formalized in the following lemma.
+$\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$
+
+$\alabellong[{\tt read}]{}{c \cdot b}{}$, 
+
+The following lemma states that, once we prove ready for downstream and downstream of concurrent operations commute, we can obtain convergence and consistent conflict resolution, no matter whether the \Spec{} is deterministic or non-deterministic.
 
 \begin{lemma}
-\label{lemma:distributed linarizability implies convergence}
-If a history $h$ is \crdtlinearizable{} w.r.t. a deterministic
-sequential specification \Spec, then $h$ is convergent.
+\label{lemma:execution-order linearization ensures convergence and consistent conflict resolution} 
+If $\aobj$ is \crdtlinearizable{} w.r.t \Spec{} and each of its execution is ready for downstream. 
+execution-order linearizations 
+
+When doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent.
 \end{lemma}
+
+\begin {proof}
+Obviously, $F[i],F[i+1]$ have degree $d_{min}$, and there is no W-character with degree $d_{min}$ and between $F[i]$ and $F[i+1]$ in $string_s$.
+
+Since $d_{min}$ is the minimal degree of W-characters in $S'$, there does not exists W-character that is between $F[i]$ and $F[i+1]$ and will a degree smaller than $d_{min}$. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
 
 
 
