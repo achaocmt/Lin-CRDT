@@ -12,35 +12,21 @@
 % \item should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section)
 % \end{itemize}}
 
-\fxnote[nomargin, inline]{Should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section).}
+In this section we formalize the intuitions developed in Section~\ref{sec:overview}. We define the semantics of CRDT objects (\S~\ref{ssec:semantics}), specifications (\S~\ref{subsec:sequential specification}), and our notion of RA-linearizability (\S~\ref{subsec:definition of distributed linearizability}).
 
-\fxwarning[nomargin, inline]{MAKE A SUMMARY OF THIS SECTION.}
+%\fxnote[nomargin, inline]{Should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section).}
+
+%\fxwarning[nomargin, inline]{MAKE A SUMMARY OF THIS SECTION.}
 
 \subsection{The Semantics of CRDT objects}\label{ssec:semantics}
-
-\fxwarning[nomargin, inline]{MAKE THE CONNECTION WITH THE OVERVIEW. IN PARTICULAR, SAY THAT WE ASSUME CAUSAL DELIVERY, BUT THIS IS ONLY TO SIMPLIFY THE EXPOSITION (AND ANYWAY, IT IS ASSUMED IN MOST IMPLEMENTATIONS)}
-
-\gp{Rewrite?}
-The CRDT implementations we consider assume the following two
-properties of the propagation of downstreams:
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] The downstream of each operation is applied exactly once at
-  each replica, and
-\item[-] If the downstream of operation $\aop_1$ is applied at the
-  source replica of $\aop_2$ before $\aop_2$ happens, then for every
-  replica $\arep$, the downstream of $\aop_2$ will be applied only
-  after the downstream of $\aop_1$ has already been applied.
-\end{itemize}
-These constraints are commonly guaranteed by network systems
-implementing \emph{causal delivery}~\cite{}.
 
 \begin{figure}
 \small
 \[
   \inferrule[\text{\sc Operation}]
   {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
-  \ats\neq\bot\implies (\,\forall \alabel\in\alabelset.\ \tsof(\alabel)\neq\bot \implies \tsof(\alabel) < \ats\,) }
+  \ats\neq\bot\implies (\,\forall \alabel'\in\alabelset.\ \tsof(\alabel') < \ats\,) \\
+  \forall \alabel'\in \labeldom{\avisord}.\ \tsof(\alabel') \neq \ats}
   {(\gstates, \avisord, \downstreams) \xrightarrow{\src{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], %\alabel
     \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \leftarrow \effector])}
 \]
@@ -55,8 +41,7 @@ implementing \emph{causal delivery}~\cite{}.
 
 \caption{
   Operational Semantics of CRDTs.
-  We use $[A\rightarrow B]$ to denote the set of total functions from
-  $A$ to $B$; $C[a \leftarrow b]$ to denote the in-place update of
+  We use $C[a \leftarrow b]$ to denote the in-place update of
   element $a$ of the domain of $C$ with value $b$;
   $\mathit{unique}(i)$ to ensure that $i$ is a unique identifier;
   and $\labeldom{\avisord}=\{\alabel: \exists \alabel'.\
@@ -68,15 +53,15 @@ implementing \emph{causal delivery}~\cite{}.
 
 To formalize the semantics of CRDT objects and our correctness
 criterion we will introduce the following semantic domains summarized
-in~\autoref{fig:sem-dom}.
+in Figure~\ref{fig:sem-dom}.
 %
 We let $\aobj \in \objs$ be a CRDT object in the set of objects
 $\objs$.
 Similarly, $\arep \in \reps$ is a replica in the set of replicas
 $\reps$.
-We assume that both objects and replicas are uniquely identified, and
-therefore we will equate an object with its identifier, with the same
-convention applying to replicas.
+%We assume that both objects and replicas are uniquely identified, and
+%therefore we will equate an object with its identifier, with the same
+%convention applying to replicas.
 
 \begin{wrapfigure}{r}{0.5\linewidth}
   \centering
@@ -111,8 +96,8 @@ We assume the existence of a special value $\bot \in \datadomain$
 which we shall use to represent the absence of a value (for instance
 the return type of procedures).
 %
-We will generally omit writing this value since it is generally of no
-importance.
+%We will generally omit writing this value since it is generally of no
+%importance.
 %
 Furthermore, we ignore here the issues of typing which should be
 addressed by an underlying programming language.
@@ -148,16 +133,6 @@ execution is tagged with a unique identifier, we will ignore
 identifiers when unambiguous.
 The set of all operation labels is denoted by $\labels$.
 %
-To distinguish between the generator and effector executed at the
-origin replica from the propagation of an effectors to different replica
-in an execution we use decorated labels.
-%
-We will call these decorate labels actions and they are defined as
-$\acts = \{ \src{\arep}{\alabel}, \dwn{\arep}{\alabel}\ |\ \arep \in
-\reps\ \text{and}\ \alabel \in \labels \}$,
-where $\src{\arep}{\alabel}$ is the source action of the label
-$\alabel$ in replica $\arep$ and
-$\dwn{\arep}{\alabel}$ is the downstream action for the same label.
 
 
 %\labels
@@ -169,28 +144,59 @@ $\dwn{\arep}{\alabel}$ is the downstream action for the same label.
 Given a CRDT object $\aobj$, its semantics is defined as a labeled transition
 system (LTS) $\llbracket \aobj \rrbracket =
 (\globalstates,\acts,\aglobalstate_0,\rightarrow)$ as shown in
-\autoref{fig:crdt-opsem}, where $\globalstates$ is a set of
+Figure~\ref{fig:crdt-opsem}, where $\globalstates$ is a set of
 global configurations, $\acts$ is the set of transition labels called \emph{actions},
 $\aglobalstate_0$ is the initial configuration, and
 $\rightarrow\subseteq \globalstates \times \acts\times \globalstates$ is the
-transition relation. For readability, we use $\aglobalstate \xrightarrow{\aact} \aglobalstate'$
+transition relation. 
+We use the action $\src{\arep}{\alabel}$ to label the generator of $\alabel$ when executed at replica $\arep$,
+and $\dwn{\arep}{\alabel}$ to label the effector of $\alabel$ when executed at replica $\arep$.
+For readability, we use $\aglobalstate \xrightarrow{\aact} \aglobalstate'$
 to denote a transition $(\aglobalstate,\aact,\aglobalstate')\in\,\rightarrow$.
+%To distinguish between the generator and effector executed at the
+%origin replica from the propagation of an effectors to different replica
+%in an execution we use decorated labels.
+%%
+%We will call these decorate labels actions and they are defined as
+%$\acts = \{ \src{\arep}{\alabel}, \dwn{\arep}{\alabel}\ |\ \arep \in
+%\reps\ \text{and}\ \alabel \in \labels \}$,
+%where $\src{\arep}{\alabel}$ is the source action of the label
+%$\alabel$ in replica $\arep$ and
+%$\dwn{\arep}{\alabel}$ is the downstream action for the same label.
+
+
+%\fxwarning[nomargin, inline]{MAKE THE CONNECTION WITH THE OVERVIEW. IN PARTICULAR, SAY THAT WE ASSUME CAUSAL DELIVERY, BUT THIS IS ONLY TO SIMPLIFY THE EXPOSITION (AND ANYWAY, IT IS ASSUMED IN MOST IMPLEMENTATIONS)}
+Our semantics assumes the following two
+properties of the propagation of effectors:
+\begin{inparaenum}[(i)]
+%\setlength{\itemsep}{0.5pt}
+\item the effector of each operation is applied exactly once at
+  each replica, and
+\item if the effector of operation $\alabel_1$ is applied at the
+  origin replica of $\alabel_2$ before $\alabel_2$ happens, then for every
+  replica $\arep$, the effector of $\alabel_2$ will be applied only
+  after the effector of $\alabel_1$ has already been applied.
+\end{inparaenum}
+These constraints are commonly guaranteed by network systems
+implementing \emph{causal delivery}.
 
 A global configuration $(\gstates, \avisord, \downstreams)$ is a
 ``snapshot'' of the system that records all the operations that have
 been executed.
-$\gstates \in [\reps \rightarrow \localstates]$ stores the local
-configuration of each replica.
+$\gstates \in [\reps \rightarrow \localstates]$~\footnote{We use $[A\rightarrow B]$ to denote the set of total functions from
+  $A$ to $B$.} stores the local
+configuration of each replica ($\localstates$ denotes the set of local configurations).
 A local configuration $(\alabelset, \astate)$ contains the state
 $\astate$ of a replica and the set $\alabelset$ of labels of
 operations that have been originated at this replica, or whose
-downstreams have been executed (or applied) at this replica.
+effectors have been executed (or applied) at this replica.
 When $\alabel\in \alabelset$, we say that $\alabel$ is \emph{visible}
-to the replica or that the replica \emph{sees} $\alabel$.
+to the replica or that the replica \emph{sees} $\alabel$. 
+The set of replica states $\astate$ is denoted by $\Sigma$.
 The relation $\avisord\subseteq \powerset{\labels \times \labels}$ is
 the \emph{visibility} relation between operations, i.e.,
 $(\alabel_1,\alabel_2)\in \avisord$, where $\alabel_2$ is an operation
-originated at a replica $\arep$, if the downstream of $\alabel_1$ was
+originated at a replica $\arep$, if the effector of $\alabel_1$ was
 executed at $\arep$ before $\alabel_2$ was executed.
 When $(\alabel_1,\alabel_2)\in \avisord$, we say that $\alabel_1$ is
 \emph{visible} to $\alabel_2$, or that $\alabel_2$ \emph{sees}
@@ -199,118 +205,73 @@ As it will be clear from the definition of the transition relation,
 $\avisord$ is a \emph{strict partial order} (i.e.
 irreflexive and transitive).
 Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to
-each operation label $\alabel \in \alabelset$ a downstream
+each operation label $\alabel \in \alabelset$ an effector
 $\effector\in [\states \rightarrow \states]$, which is the replica
 state transformer generated when the operation was executed at the
-origin replica.
+origin replica ($\Delta$ denotes the set of effectors).
 
 For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
 
 %\fxwarning[nomargin, inline]{ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.}
 
 The transition relation between global configurations is defined in
-\autoref{fig:crdt-opsem}.
+Figure~\ref{fig:crdt-opsem}.
 The first rule describes a replica $\arep$ in state $\astate$
 executing an invocation of method $\amethod$ with argument $\argv$.
-This transition first applies the {\tt atSource} function $\atsource$
-in the state of the source replica, and as a result it outputs a
-return value $\retv$, a downstream state transformer $\effector$
+This transition first applies the \lstinline|atSource| function $\atsource$
+in the state of the origin replica, and as a result it outputs a
+return value $\retv$, an effector state transformer $\effector$
 to be applied on all replicas, and possibly, a timestamp $\ats$.
 As mentioned above, $\ats=\bot$ for methods that don't generate
 timestamps. This transition is labeled by an action $\src{\arep}{\alabel}$ where
 $\alabel$ is the label of this invocation. We may ignore the index $\arep$ when it is not important.
 We assume that timestamps are consistent with the visibility relation
 $\avisord$, i.e., the timestamp $\ats$ generated by $\atsource$ is strictly bigger than
-all the timestamps of operations visible to $\arep$. Formally, if $\ats\neq\bot$ then $\ats' < \ats$ for all timestamps
-$\ats'\neq\bot$ of operations in $\alabelset$.
+all the timestamps of operations visible to $\arep$, and that each timestamp can be generated only once.
+%Formally, if $\ats\neq\bot$ then $\ats' < \ats$ for all timestamps
+%$\ats'\neq\bot$ of operations in $\alabelset$.
 The association between the label $\alabel$ corresponding to this
-invocation and the downstream $\effector$ is recorded in the
+invocation and the effector $\effector$ is recorded in the
 $\downstreams$ component of the new global configuration.
 We say that the effector $\effector$ is \emph{produced} by the operation $\alabel$.
 The local configuration $(\alabelset,\sigma)$ of $\arep$ is changed by
-applying the downstream $\effector$ on the state $\sigma$, resulting
+applying the effector $\effector$ on the state $\sigma$, resulting
 in a new state $\sigma'$, and adding $\alabel$ to the set of labels
 $\alabelset$.
 Finally, the visibility relation $\avisord$ is changed to record the
-fact that the downstreams of all operations in $\alabelset$ have been
+fact that the effectors of all operations in $\alabelset$ have been
 applied before $\alabel$.
 %
-\autoref{fig:rga-sem} shows how some components of the semantics
-progress according to the rules of~\autoref{fig:crdt-opsem} for the
-RGA data type.
-%
-In particular we shown: the local labels of replica $\arep_1$
-($\gstates(\arep_1).\alabelset$); its state, where we remove the
-$\astate$ for succinctness (then $\gstates(\arep_1).\astate.\mathsf{N}$
-becomes $\gstates(\arep_1).\mathsf{N}$); and the global visibility
-relation $\gstates.\mathtt{vis}$.
-%
-The transition from~\autoref{fig:rga-sem-2} to~\autoref{fig:rga-sem-3}
-shows an {\sc Operation} transition where the operation
-$\mathtt{remove}(b)$ is executed by replica $\arep_1$.
-%
-Notice in particular how the global visibility relation is extended.
+
 
 % \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \autoref{fig:an example run of semantics} (b) to \autoref{fig:an example run of semantics} (c).}
 
 The second rule describes a replica $\arep$ in state $\astate$
-executing the downstream $\effector$ that corresponds to an operation
+executing the effector $\effector$ that corresponds to an operation
 $\alabel$ originated in a different replica.\footnote{We could
-  simplify the first rule by not performing the downstream immediately,
+  simplify the first rule by not performing the effector immediately,
   but in general we assume no interleavings of operations within a
   single replica.}
-The rule requires that $\effector$ is a downstream of a label that has
+The rule requires that $\effector$ is a effector of a label that has
 not yet been applied at $\arep$ (i.e., its corresponding label is not
 in the $\alabelset$ component of $\arep$'s configuration) and
 moreover, that it is a minimal one with respect to the order
-$\avisord$ among such downstreams, i.e., there exists no
+$\avisord$ among such effectors, i.e., there exists no
 $\alabel'\not\in \alabelset$ such that $(\alabel',\alabel)\in
 \avisord$.
 This transition, labeled by the action $\dwn{\arep}{\alabel}$ (we may
 ignore the index $\arep$ when it is not important), results in
 modifying the state of $\arep$ to $\effector(\sigma)$ and adding
-$\alabel$ to the set of operations whose downstreams have been
+$\alabel$ to the set of operations whose effectors have been
 executed by $\arep$.
 Remark that these transition rules preserve the fact that $\avisord$
 is a strict partial order.
 %
-In~\autoref{fig:rga-sem}, the transition from~\autoref{fig:rga-sem-1}
-to~\autoref{fig:rga-sem-2} corresponds to a {\sc DownStream}
-transition which extends the visibility of the operation
-$\mathtt{addAfter}(b, d)$ to $\arep_1$.
-%
-Notice that this is reflected in the $\gstates(\arep_1).\alabelset$
-component.
-%
-The relation $\gstates.\mathtt{vis}$ does not change since this
-relation only changes when a new operation is executed at the source
-replica.
 
 
 % \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \autoref{fig:an example run of semantics} (a) to \autoref{fig:an example run of semantics} (b).}
 
-\begin{figure}[t]
-  % \centering
-  \begin{subfigure}[!ht]{.3\linewidth}
-    \includegraphics[scale=.7]{figures/LinRGA-1}
-      \vspace{1.3cm}
-    \caption{}
-    \label{fig:rga-sem-1}
-  \end{subfigure}
-  \begin{subfigure}[!ht]{.3\linewidth}
-      \includegraphics[scale=.7]{figures/LinRGA-2}
-      \vspace{1cm}
-    \caption{}
-    \label{fig:rga-sem-2}
-  \end{subfigure}
-  \begin{subfigure}[!ht]{.3\linewidth}
-    \includegraphics[scale=.7]{figures/LinRGA-3}
-    \caption{}
-    \label{fig:rga-sem-3}
-  \end{subfigure}
-  \caption{Example of the semantics of RGA.}
-  \label{fig:rga-sem}
-\end{figure}
+
 
 In the sequel it will be useful to distinguish query (or pure) methods
 which do not modify the state from state-modifying methods, which we
@@ -318,18 +279,18 @@ shall call updates (or effectful).
 %
 We say that a method $\amethod\in\methods$ of object $\aobj\in \objs$
 is a \emph{query} if it always results (by applying the {\tt atSource}
-function $\atsource$) in an identity downstream $\effector$ (i.e.
+function $\atsource$) in an identity effector $\effector$ (i.e.
 $\delta(\sigma)=\sigma$ for all replica states
 $\sigma$).\footnote{While we could have defined a semantics in which a
-  read-only operation doesn't generate any downstream, we have preferred
+  read-only operation doesn't generate any effector, we have preferred
   the current version for uniformity.}
 We shall call an \emph{update} to any method $\amethod$ which is not a
 query -- that is, whose effectors are not the identity function -- and
-whose resulting downstream and return value do not depend on the
+whose resulting effector and return value do not depend on the
 initial state $\astate$ of the origin replica.
 That is, it's behavior is fully determined by its arguments.
 More formally, assuming a functional equivalence relation $\equiv$
-between downstreams that relates any two downstreams that have the same
+between effectors that relates any two effectors that have the same
 effect (modulo the values of timestamps or unique identifiers)
 $\amethod$ is called an update when
 $\atsource(\sigma,\amethod,\argv)|_2 \equiv
@@ -337,7 +298,7 @@ $\atsource(\sigma,\amethod,\argv)|_2 \equiv
 and two states $\sigma,\sigma'\in\Sigma$ (for a tuple $x$, $x|_k$
 denotes the projection of $x$ on the $k$-th component).
 A method $\amethod$ which is not a query nor an update is called a
-\emph{query-update} (it generates a downstream which is not the
+\emph{query-update} (it generates an effector which is not the
 identity function, and whose effect depends on the local state of the
 replica at which the invocation of $\amethod$ originated).
 We denote by $\queries$, $\updates$, and $\queryupdates$, the sets of
