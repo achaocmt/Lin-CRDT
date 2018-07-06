@@ -17,7 +17,7 @@
       //@ let lin = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
-      //@ N@|$'$|@ = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
+      //@ N' = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
 
   remove(a) :
     atSource :
@@ -25,7 +25,7 @@
       //@ let lin = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
-      //@ Tomb@|$'$|@ = Tomb @|$\cup$|@ {a}
+      //@ Tomb' = Tomb @|$\cup$|@ {a}
 
   read() :
     let ret-list = traverse(N, Tomb)
@@ -548,7 +548,7 @@ execution thereof.
       //@ let lin = lin@|$\,\cdot\,$|@add(a,k)
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
-      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
+      //@ S' = S @|$\cup$|@ {(a, k)}
 
   remove(a) :
     atSource :
@@ -558,7 +558,7 @@ execution thereof.
       S = S @|$\setminus$|@ R
       //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k). (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
                               @|$ \forall\ \alabel'$|@ = remove(a,_). {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
-      //@ S@|$'$|@ = S @|$\setminus$|@ R
+      //@ S' = S @|$\setminus$|@ R
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}

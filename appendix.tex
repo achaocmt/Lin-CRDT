@@ -4,7 +4,7 @@
 
 
 \subsection{Multi-Value Register Implementation}
-\label{subsec:multi-value register implementation}
+\label{subsec:multi-value register implementation} 
 
 \cite{ShapiroPBZ11} shows how to obtain a state-based \crdtimp{} from a operation-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. To do an operation $f(a)$, we compute the state-based update and perform merge method in downstream. Here the precondition of downstream is empty because merge is always enabled.
 
@@ -30,7 +30,7 @@ $\\$ $\\$
 Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
 
 
-\begin{minipage}[t]{1.0\linewidth}
+\begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based multi-value register},
 captionpos=b,label={lst:operation-based multi-value register}]
   payload Set S
@@ -43,8 +43,8 @@ captionpos=b,label={lst:operation-based multi-value register}]
       let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
       let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
       let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
-    downStream(a, V@|$'$|@) :
+      //@ let lin' = lin@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
+    downStream(a, V') :
       let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
       S = A @|$\cup$|@ B
@@ -52,10 +52,10 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
   read() :
     let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
+    //@ let lin' = lin@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
     return @|$S_1$|@
 \end{lstlisting}
-\end{minipage}
+\end{figure}
 
 %//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
 
@@ -101,7 +101,7 @@ A total order $<_{id}$ is given for identifiers of W-characters for conflict res
 
 %A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
 
-\begin{minipage}[t]{1.0\linewidth}
+\begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
 captionpos=b,label={lst:wooki algorithm}]
   payload W-string @|$string_s$|@
@@ -114,7 +114,7 @@ captionpos=b,label={lst:wooki algorithm}]
       let ts = getTimestamp()
       let @|$c_p$|@ = @|$getWchar(string_s,a)$|@
       let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
     downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
       integrateIns(@|$c_p,w,c_n$|@)
 
@@ -122,14 +122,14 @@ captionpos=b,label={lst:wooki algorithm}]
     atSource :
       precondition : @|$contains(string_s,a)$|@
       let w = @|$getWchar(string_s,a)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
     downStream(w) :
       let p = @|$pos(string_s,w)$|@
       @|$changeFlag(string_s,p,\mathit{false})$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
+    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
     return s
 
   integrateIns(@|$c_p,c,c_n$|@)
@@ -151,7 +151,7 @@ captionpos=b,label={lst:wooki algorithm}]
         else
             integrateIns(@|$c,F[i-1],F[i]$|@)
 \end{lstlisting}
-\end{minipage}
+\end{figure}
 
 $\\$ $\\$
 
@@ -267,20 +267,20 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
       let @|$w_a$|@ = @|$getTchar(tree,a)$|@
       let @|$w_c$|@ = @|$getTchar(tree,c)$|@
       let @|$w_b$|@ = @|$(b,newID(w_a,w_c,id),b)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
     downStream(@|$w_b$|@) :
       @|$tree$|@ = @|$tree \cup \{ w_b \}$|@
 
   remove(a) :
     atSource :
       precondition : @|$contains(tree,a) \wedge notRemoved(tree,a)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
     downStream(a) :
       @|$removeTChar(tree,a)$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
+    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
     return s
 
   newID(@|$w_1,w_2,id$|@)
@@ -684,9 +684,9 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Assume case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c¡®_2}$ and case $2$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_e}$. By induction assumption, we can see that, $c_e <_{\sigma_e} c'_2$ and $c_b <_{id} c_e$.
+\item[-] Assume case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_2}$ and case $2$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_e}$. By induction assumption, we can see that, $c_e <_{\sigma_e} c'_2$ and $c_b <_{id} c_e$.
 
-    Let $F'_1$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$, and let $d'_{min1}$ be the $d_{min}$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$. Assume that $F'_1 = c''_1 \cdot \ldots \cdot c''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c''_1,c''_2),\ldots,(c''_{n-1},c''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c''_1 <_{id} c''_2 \ldots <_{id} c''_n$. Since $d¡¯_{min1} > j_e$, according to the definition of degree-$d'_{min1}$-adjacent, we can see that, $c''_n <_{\sigma_e} c_e \vee c_e <_{\sigma_e} c''_1$.
+    Let $F'_1$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$, and let $d'_{min1}$ be the $d_{min}$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$. Assume that $F'_1 = c''_1 \cdot \ldots \cdot c''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c''_1,c''_2),\ldots,(c''_{n-1},c''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c''_1 <_{id} c''_2 \ldots <_{id} c''_n$. Since $d_{min1} > j_e$, according to the definition of degree-$d'_{min1}$-adjacent, we can see that, $c''_n <_{\sigma_e} c_e \vee c_e <_{\sigma_e} c''_1$.
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -702,7 +702,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of
 
         If from now on, each round is as such, then we can similar prove it and our proof is done.
 
-        Otherwise, in the first round of case $1$ that is not as such, we can see that it calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c}$ with $c_e <_{\sigma_e} c$, the $F$ array is $F'¡®$, the $d_{min}$ is $d''$, assume $F'' = c'''_1 \cdot \ldots \cdot c'''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c'''_1,c'''_2),\ldots,(c'''_{n-1},c'''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c'''_1 <_{id} c'''_2 \ldots <_{id} c'''_n$. Similarly, we can prove that $c'''_n <_{id} c_e$.
+        Otherwise, in the first round of case $1$ that is not as such, we can see that it calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c}$ with $c_e <_{\sigma_e} c$, the $F$ array is $F'$, the $d_{min}$ is $d''$, assume $F'' = c'''_1 \cdot \ldots \cdot c'''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c'''_1,c'''_2),\ldots,(c'''_{n-1},c'''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c'''_1 <_{id} c'''_2 \ldots <_{id} c'''_n$. Similarly, we can prove that $c'''_n <_{id} c_e$.
 
         \begin{itemize}
         \setlength{\itemsep}{0.5pt}
@@ -720,7 +720,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of
         \end{itemize}
     \end{itemize}
 
-\item[-] The situation when case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c¡®_2}$ and calls $2$ does $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_2}$ can be similarly proved.
+\item[-] The situation when case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_2}$ and calls $2$ does $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_2}$ can be similarly proved.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -1466,24 +1466,24 @@ captionpos=b,label={lst:operation-based multi-value register}]
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
-      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
+      //@ S' = S @|$\cup$|@ {(a, k)}
 
   remove(a) :
     atSource :
       let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
     downStream(R) :
       S = S @|$\setminus$|@ R
       //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@
                        @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@
-      //@ S@|$'$|@ = S @|$\setminus$|@ R
+      //@ S' = S @|$\setminus$|@ R
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
+    //@ let seq' = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
     return A
 \end{lstlisting}
 \end{minipage}
@@ -2550,7 +2550,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
 
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
 
 \item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
 
@@ -2624,7 +2624,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
 
@@ -2768,7 +2768,7 @@ captionpos=b,label={lst:woot algorithm}]
       let @|$c_p$|@ = @|$getWchar(string_s,b)$|@
       let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
       @|$H_s$|@ = @|$H_s$|@ + 1
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[addBetween]{a,b,c}{}{}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabellongind[addBetween]{a,b,c}{}{}$|@
     downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = ((H_s,g),a,\mathit{true},c_p.id,c_n.id)$|@
       integrateIns(@|$w,c_p,c_n$|@)
 
@@ -2776,14 +2776,14 @@ captionpos=b,label={lst:woot algorithm}]
     atSource :
       precondition : @|$contains(string_s,a)$|@
       let w = @|$getWchar(string_s,a)$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[remove]{a}{}{}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabellongind[remove]{a}{}{}$|@
     downStream(w) :
       let p = @|$pos(string_s,w)$|@
       @|$changeFlag(string_s,p,\mathit{false})$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{s}{}$|@
+    //@ let seq' = seq@|$\,\cdot\,\alabellongind[read]{}{s}{}$|@
     return s
 
   integrateIns(@|$c,c_p,c_n$|@)
@@ -3482,7 +3482,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
 
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
 
 \item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
 
@@ -3556,7 +3556,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
 
