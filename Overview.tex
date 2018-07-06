@@ -14,7 +14,7 @@
     atSource :
       precondition : a = @|$\circ$|@ or (a != @|$\circ$|@ and (a,_,_) @|$\in$|@ N and a @|$\not\in$|@ Tomb)
       let ts@|$_{\mathtt{b}}$|@ = getTimestamp()
-      //@ let lin = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
+      //@ lin = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
       //@ N@|$'$|@ = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
@@ -22,14 +22,14 @@
   remove(a) :
     atSource :
       precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
-      //@ let lin = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
+      //@ lin = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
       //@ Tomb@|$'$|@ = Tomb @|$\cup$|@ {a}
 
   read() :
     let ret-list = traverse(N, Tomb)
-    //@ let lin = insert(lin, read()@|$\Rightarrow$|@ret-list, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
+    //@ lin = insert(lin, read()@|$\Rightarrow$|@ret-list, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     return ret-list
 \end{lstlisting}
 \end{figure}
@@ -53,19 +53,17 @@ In this work we will be concerned with the implementation of CRDTs,
 and we will usually concentrate our discussion to the behaviors
 allowed for \emph{an instance} of the data type.
 We will generically call such an instance an \emph{object}.
-As mentioned in~\autoref{sec:introduction} we assume that objects are
-replicated among the participating nodes of the system -- which we
-shall call replicas.
+As mentioned in Section~\ref{sec:introduction} we assume that objects are
+replicated among the participating nodes of the system -- which we shall call replicas.
 
 % \gpwarning{Redraw pictures.}
-The execution model for an operation \lstinline|op(v)| on a replicated
-object is depicted in~\autoref{fig:sys-mod} and it proceeds as follows:
+The execution model for an operation \lstinline|op(v)| on a replicated object is depicted in Figure~\ref{fig:sys-mod} and it proceeds as follows:
 \begin{itemize}
 \item A client, which is a program issuing calls to the object, connects
-  to any one replica (a node of the system holding a copy of the object)
-  and performs the operation in that replica, we call such a
+  to any one replica %(a node of the system holding a copy of the object)
+  and performs the operation in that replica. We call such a
   replica the source or \emph{origin}. The source of \lstinline|op(v)|
-  in~\autoref{fig:sys-mod} is the replica on the top: $\arep_1$.
+  in Figure~\ref{fig:sys-mod} is the replica $\arep_1$ on the top.
   Then, executing an operation is done in two phases.
 \item Assuming that the operation requires reading and updating the
   state of the object, the state of the object in the origin replica is
@@ -73,20 +71,20 @@ object is depicted in~\autoref{fig:sys-mod} and it proceeds as follows:
   We shall sometimes refer to this part of the operation as the
   \emph{generator} following~\cite{ShapiroPBZ11}.
   Then, if the state needs to be changed as part of the operation --
-  e.g. an \lstinline|addRight| operation of RGA -- an update is
+  e.g. an \lstinline|addAfter| operation of RGA -- an update is
   generated which shall be executed in all the replicas holding copies of the
   object.
   We shall refer to the update as the \emph{effector}.
   We assume throughout this paper that effectors are executed
   immediately at the origin replica.
   This is represented by the dot at the origin replica
-  in~\autoref{fig:sys-mod}.
+  in Figure~\ref{fig:sys-mod}.
 \item Finally, as the system progresses, the effector of the operation
   will be delivered to each of the replicas holding a copy of the
   object, and the state of each of the replicas will be updated
   consequently.
   This is represented by the target of the arrows
-  in~\autoref{fig:sys-mod}.
+  in Figure~\ref{fig:sys-mod}.
 \end{itemize}
 % This model is depicted in~\autoref{fig:system-model}.
 % \fxwarning[nomargin, inline]{We need the picture}.
@@ -97,14 +95,14 @@ Following the description above, \citet{ShapiroPBZ11} present the code
 of a number of CRDT implementations.
 %
 Here we consider the code of the RGA algorithm presented
-in~\autoref{lst:rga}, where we ignore the lines starting with the
+in Listing~\ref{lst:rga}, where we ignore the lines starting with the
 annotation \lstinline|//@| for the moment.
 %
 Let us first consider the structure of the data type implementation:
 \begin{itemize}
 \item The keyword \lstinline|payload| introduces the state that is
   used to represent the object. This is akin to the fields of a class
-  declaration in an object oriented language such as Java. In the specific
+  declaration in an object oriented language such as Java. In the
   case of RGA we have a variable \lstinline|N| of type
   \lstinline|Ti-Tree| (to be discussed later), and a variable
   \lstinline|Tomb| of type \lstinline|Set|.
@@ -124,7 +122,7 @@ Let us first consider the structure of the data type implementation:
   assumed about the state of the object upon execution of either of
   the generator or effector of the operation.
 \end{itemize}
-Reconsidering~\autoref{fig:sys-mod} we can say that the
+Reconsidering Figure~\ref{fig:sys-mod} the
 source of the arrows in a replica represents the execution of an
 \lstinline|atSource| jointly with the \lstinline|downStream| of the
 operation at the origin replica.
@@ -134,7 +132,7 @@ effector of the operation in a replica other than the origin.
 
 
 In the rest of this section we consider two examples of CRDT
-implementations and their linearization arguments.
+implementations and their RA-linearization arguments.
 
 \subsection{RGA CRDT Implementation}
 \label{sec:rga-crdt-impl}
@@ -171,7 +169,7 @@ The tree-ness property is ensured by construction.
 %   \label{fig:rga-tree}
 % \end{wrapfigure}
 If we look at the \lstinline|atSource| portion of the
-\lstinline|addAfter(a,b)| method we can see that precondition requires
+\lstinline|addAfter(a,b)| method we can see that the precondition requires
 the element \lstinline|a| to exist in the tree before the insertion of
 \lstinline|b| after it.
 %
@@ -181,8 +179,9 @@ preexisting initial element denoted by $\circ$.
 The generator then samples a timestamp \lstinline|t|$_{\mathtt{b}}$
 for \lstinline|b| which is assumed to be larger than any
 timestamp presently occurring in the \lstinline|Ti-Tree|
-\lstinline|N| of the origin replica.
-\gpnote{Add note about uniqueness of TSs (rid).}
+\lstinline|N| of the origin replica~\footnote{Also, \lstinline|t|$_{\mathtt{b}}$ cannot 
+be sampled by another replica invoking \lstinline|addAfter| (as we discussed
+in Section~\ref{sec:introduction} this can be ensured by tagging the timestamps with replica identifiers).}.
 %
 Looking at the \lstinline|downStream| portion of
 \lstinline|addAfter(a,b)| we see that the effect of the operation is
@@ -207,7 +206,7 @@ the tree (eg. siblings) are not causally related.
 %   the correctness of the algorithm.}
 %
 An example of such a tree is shown in the left most box
-of~\autoref{fig:rga-trace}, where we can see that
+of Figure~\ref{fig:rga-trace}, where we can see that
 elements \lstinline|c| and \lstinline|b| were concurrently added after
 \lstinline|a|, and \lstinline|a| was added first after the
 initialization element $\circ$.
@@ -217,7 +216,7 @@ obtain a list by traversing the tree in pre-order fashion, with the
 proviso that siblings are ordered according to their timestamps with
 the \emph{highest timestamp visited first}.
 %
-Again, the leftmost box in~\autoref{fig:rga-trace} shows a tree that
+Again, the leftmost box in Figure~\ref{fig:rga-trace} shows a tree that
 results in the list $\mathtt{a \cdot b \cdot c}$ assuming that the
 timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 
@@ -231,11 +230,11 @@ timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 
 Let us now consider the case of two concurrent operations:
 \lstinline|addAfter(c,d)| and \lstinline|addAfter(c,e)| executing in
-two different replicas starting both with the state depicted at the
-left of~\autoref{fig:rga-trace}.
+two different replicas starting both with the state depicted on the
+left of Figure~\ref{fig:rga-trace}.
 %
-Following the code in~\autoref{lst:rga} we obtain the trees in the
-second column of~\autoref{fig:rga-trace} where we assume that the
+Following the code in Listing~\ref{lst:rga} we obtain the trees in the
+second column of Figure~\ref{fig:rga-trace} where we assume that the
 top tree is the result of \lstinline|addAfter(c,d)| in one of the
 replicas, and the bottom tree is the result of executing
 \lstinline|addAfter(c,e)| in the other replica.
@@ -243,7 +242,7 @@ replicas, and the bottom tree is the result of executing
 As it can be seen, the two trees result in different lists in each
 replica before the operations are mutually propagated.
 %
-In the third column of~\autoref{fig:rga-trace} we obtain the
+In the third column of Figure~\ref{fig:rga-trace} we obtain the
 result of propagating the operations between the replicas -- indeed
 the propagation of any of the operations to any of the replicas
 engenders this tree, since the result would be the same (c.f. the
@@ -286,16 +285,16 @@ In our case the tombstone is simply a set \lstinline|Tomb| of
 elements.
 %
 With this explanation the code of the \lstinline|remove| operation
-in~\autoref{lst:rga} should be self-explanatory.
+in Listing~\ref{lst:rga} should be self-explanatory.
 %
-The last column of~\autoref{fig:rga-trace} shows the result of
+The last column of Figure~\ref{fig:rga-trace} shows the result of
 removing item $\mathtt{d}$ from the list.
 
 Then, the implementation of \lstinline|read| performs the pre-order
 traversal as explained before, where all the elements in the tombstone
 \lstinline|Tomb| are ignored from the output list.
 %
-In each of the boxes of~\autoref{fig:rga-trace} the list shown
+In each of the boxes of Figure~\ref{fig:rga-trace} the list shown
 represents the result of a \lstinline|read| operation in the state
 depicted.
 
@@ -303,34 +302,15 @@ depicted.
 
 % \fxwarning[nomargin, inline]{We should already explain the issue of queries, the fact that RGA is not linearizable in the classical sense.}
 
-\paragraph{Operations, histories and linearizability}
-Let us now consider a more abstract view of executions of a concurrent
-CRDT object.
-%
-The de-facto correctness condition of concurrent data structure
-implementations is \emph{linearizability}~\cite{HerlihyW90}.
-%
-Linearizability requires that for any execution of a concurrent
-object, there must exists an ``equivalent sequential'' (or linear)
-execution where each of the operations sees the effects of all
-operations prior to it.
-%
-The notion of equivalent here requires that the set of executed
-operations are the same -- that is the method, arguments, and return
-value of each operation are preserved.
-%
-Then, linearizability requires that whenever two operations are
-sequentially ordered by the client code executing them, they should
-appear in the linear ordering in that order.
-%
-A final constraint imposed by linearizability, sometimes referred to
-as real-time order, is that whenever an operation returns at a time
-prior the starting time of another operation (concurrent or not),
-these operations must respect this order in the linearization.
-%
+\begin{wrapfigure}{L}{.6\linewidth}
+  \includegraphics[scale=.8]{figures/history-RGA}
+  \caption{A history for the RGA object.}
+  \label{fig:rga-history}
+\end{wrapfigure}
 
-To make these notions precise without referring to implementation
-details we will consider \emph{execution histories}.
+\paragraph{Operations, histories and linearizability}
+Let us now consider a more abstract view of executions of a 
+CRDT object called \emph{history}.
 %
 Informally a history is a set of operations with a partial order
 representing the ordering constraints imposed on the execution of each
@@ -341,74 +321,118 @@ form $\alabellong{\argv}{\retv}$ representing a call to method
 $\amethod$ with arguments $\argv$ and whose return value is $\retv$.
 %
 When the values are unimportant we shall use the meta-variable
-$\alabel$ to denote a label.
+$\alabel$ to denote a label~\footnote{We can assume here that each of these labels is uniquely identified.}.
 %
-We can assume here that each of these labels is uniquely identified.
+The partial order mentioned above represents the \emph{visibility} relation among operations, where we say that an
+operation with label $\alabel_1$ is visible to another operation with
+label $\alabel_2$ if at the time when $\alabel_2$ was first executed
+at the origin replica, the effects of $\alabel_1$ where incorporated
+in the state of the replica executing $\alabel_2$.
 %
-Then, an execution history is a pair $(\alabelset, <)$ containing a
-set of labels $\alabelset$ and a partial order $<$ between labels
-incorporating the constraints enforced by the execution.
+Then, a history is a pair $(\alabelset, \prec)$ containing a
+set of labels $\alabelset$ and a visibility relation $\prec$ between labels. 
+%incorporating the constraints enforced by the execution.
 %
-For instance, in the case of linearizability as in~\cite{HerlihyW90}
-the order $<$ relates two operations originating from the same process
-as well as any two operations the first of which terminated before the
-other one started.
+For instance, the history %where the constraints are given by visibility
+corresponding to the execution in Figure~\ref{fig:rga-trace} 
+is presented in Figure~\ref{fig:rga-history}.
+%, where we can see the
+%partial order resulting from the visibility relation of the execution
+%explained in~\autoref{fig:rga-trace}. 
 %
+Each node of the history represents a label in the set $\alabelset$
+and the arrows represent that the operation corresponding to the
+source is visible to the operation at the target.
+%
+Since we assume that the visibility is transitive we ignore
+redundant arrows derivable from transitivity.
 
-Then, the linearizability requirement for an execution history
-$(\alabelset, <)$ is that there exists a \emph{sequential execution}
-history $(\alabelset, <_{\mathsf{seq}})$ such that
+A similar notion of history is used in the context of \emph{linearizability}~\cite{HerlihyW90}, 
+the de-facto correctness condition of concurrent data structures.
+ % is \emph{linearizability}~\cite{HerlihyW90}.
+The only difference is that the order $\prec$ relates two operations originating from the same process
+as well as any two operations the first of which returns before the
+other one started. Then, a history $(\alabelset, \prec)$ is called linearizable
+if there exists a \emph{sequential} history $(\alabelset, \prec_{\mathsf{seq}})$ (i.e., $\prec_{\mathsf{seq}}$ is a total order of the operations in
+  $\alabelset$), called \emph{linearization},
+such that
 \begin{inparaenum}[(i)]
-\item $(\alabelset, <_{\mathsf{seq}})$ is a valid execution of the object,
-\item $<_{\mathsf{seq}}$ is a total order of the operations in
-  $\alabelset$, and
-\item $ <\ \subseteq\ <_{\mathsf{seq}}$.
+\item $(\alabelset, \prec_{\mathsf{seq}})$ is a valid execution of the object, and
+%\item $\prec_{\mathsf{seq}}$ is a total order of the operations in
+%  $\alabelset$, and
+\item $ \prec\ \subseteq\ \prec_{\mathsf{seq}}$.
 \end{inparaenum}
-
-\begin{wrapfigure}{L}{.6\linewidth}
-  \includegraphics[scale=.8]{figures/history-RGA}
-  \caption{A history for the RGA object.}
-  \label{fig:rga-history}
-\end{wrapfigure}
+%%
+%Linearizability requires that for any execution of a concurrent
+%object, there must exists an ``equivalent sequential'' (or linear)
+%execution where each of the operations sees the effects of all
+%operations prior to it.
+%%
+%The notion of equivalent here requires that the set of executed
+%operations are the same -- that is the method, arguments, and return
+%value of each operation are preserved.
+%%
+%Then, linearizability requires that whenever two operations are
+%sequentially ordered by the client code executing them, they should
+%appear in the linear ordering in that order.
+%%
+%A final constraint imposed by linearizability, sometimes referred to
+%as real-time order, is that whenever an operation returns at a time
+%prior the starting time of another operation (concurrent or not),
+%these operations must respect this order in the linearization.
+%%
+%
+%To make these notions precise without referring to implementation
+%details we will consider \emph{execution histories}.
+%%
+%%
+%For instance, in the case of linearizability as in~\cite{HerlihyW90}
+%the order $<$ relates two operations originating from the same process
+%as well as any two operations the first of which terminated before the
+%other one started.
+%%
+%
+%Then, the linearizability requirement for an execution history
+%$(\alabelset, <)$ is that there exists a \emph{sequential execution}
+%history $(\alabelset, <_{\mathsf{seq}})$ such that
+%\begin{inparaenum}[(i)]
+%\item $(\alabelset, <_{\mathsf{seq}})$ is a valid execution of the object,
+%\item $<_{\mathsf{seq}}$ is a total order of the operations in
+%  $\alabelset$, and
+%\item $ <\ \subseteq\ <_{\mathsf{seq}}$.
+%\end{inparaenum}
 
 While linearizability is an adequate correctness criterion for
 systems with strong synchronization assumptions (for instance
-shared-memory systems), it is not adequate for unreliable distributed
+shared-memory systems), it is not adequate for replicated distributed
 systems.
 %
 In the specific case of CRDTs, we need to accommodate for the fact
 that operations are propagated lazily, so two replicas can see
 non-coinciding sets of operations.
 %
-Hence we relax linearizability to adapt it to CRDTs.
+Hence we relax linearizability to adapt it to CRDTs as follows:
+\begin{inparaenum}
+\item we require that the sequential history be consistent with
+the visibility relation among operations instead of the returns-before order, and
+\item operations that only read the state of the object are allowed
+to see a \emph{sub-sequence} of the linearization, instead of
+the whole prefix as in the case of linearizability.
+\end{inparaenum}
+(We will discuss one additional relaxation in Section~\ref{sec:or-set-crdt}).
 %
-Our relaxations requires that the linear execution be consistent with
-the visibility relation among operations, where we say that an
-operation with label $\alabel_1$ is visible to another operation with
-label $\alabel_2$ if at the time when $\alabel_2$ was first executed
-at the origin replica, the effects of $\alabel_1$ where incorporated
-in the state of the replica executing $\alabel_2$.
+%Our relaxations requirethat the linear execution be consistent with
+%the visibility relation among operations (instead of the returns-before order)
+%%
+%Hence, our notion of history instead of using the real-time order
+%described above uses visibility as the underlying order of executions.
+%%
+%%
+%For operations that only read the state of the object, we will allow
+%them to see a to see a sub-sequence of the linearization, instead of
+%the whole prefix as in the case of~\cite{HerlihyW90}.
+%%
 %
-Hence, our notion of history instead of using the real-time order
-described above uses visibility as the underlying order of executions.
-%
-An example of a history where the constraints are given by visibility
-is presented in~\autoref{fig:rga-history}, where we can see the
-partial order resulting from the visibility relation of the execution
-explained in~\autoref{fig:rga-trace}. 
-%
-Each node of the history represents a label in the set $\alabelset$
-and the arrows represent that the operation corresponding to the
-source is visible to the operation at the target.
-%
-Since we assume visibility is transitive in this case we ignore
-redundant arrows derivable from transitivity.
-%
-For operations that only read the state of the object, we will allow
-them to see a to see a sub-sequence of the linearization, instead of
-the whole prefix as in the case of~\cite{HerlihyW90}.
-%
-
 Let us now illustrate these intuitions through examples.
 % %
 % That is, that there exists a total order of the operations such that
@@ -426,7 +450,7 @@ Let us say that we have two concurrent \lstinline|addAfter(a,b)| and
 \lstinline|addAfter(a,c)| operations.
 %
 This example corresponds to the first three nodes
-of~\autoref{fig:rga-history} from left to right.
+of Figure~\ref{fig:rga-history} from left to right.
 %
 Because these operations are concurrent they are not related by
 visibility (by definition of concurrent) so our criterion allows for
@@ -442,7 +466,7 @@ determined by their corresponding timestamps
 (\lstinline|t|$_{\mathtt{b}}$ and \lstinline|t|$_{\mathtt{c}}$).
 %
 Assuming that the ordering is the one given in the tree of the first
-column of~\autoref{fig:rga-trace} we know that we can order the
+column of Figure~\ref{fig:rga-trace} we know that we can order the
 operations as \lstinline|addAfter(a, c)| followed by
 \lstinline|addAfter(a, b)| which when executed sequentially obviously
 results in $\mathtt{a \cdot b \cdot c}$ as shown in the picture.
@@ -458,12 +482,12 @@ sequence:
 \alabellong[\mathtt{addAfter}]{a,b}{\bot}
 \]
 where we denote by $\bot$ the fact that the method $\mathtt{addAfter}$
-does not return any value.
+does not return any value (for readability, we write a sequential history as a sequence of labels).
 %
-The sequencing operator above ($\cdot$) stands for the total order in
-the original definition of linearizability ($<_{\mathtt{seq}}$ as we
-have denoted it before) and thus we can see this sequence as a history
-as defined before.
+%The sequencing operator above ($\cdot$) stands for the total order in
+%the original definition of linearizability ($<_{\mathtt{seq}}$ as we
+%have denoted it before) and thus we can see this sequence as a history
+%as defined before.
 
 We have shown an example above where two $\mathtt{addAfter}$
 operations can be linearized.
@@ -475,7 +499,7 @@ Consider now a similar case where after issuing the
 $\mathtt{addAfter}$ operations the processes attempt to immediately
 read the state.
 %
-As it was explained in~\autoref{fig:rga-trace} a possible behavior is
+As it was explained in Figure~\ref{fig:rga-trace} a possible behavior is
 that the first process returns the list $\mathtt{\circ \cdot a \cdot
   b}$ while the second returns the list $\mathtt{\circ \cdot a \cdot
   c}$. 
@@ -504,8 +528,8 @@ where the last call to $\mathtt{read}$ ignores the label
 {\color{red} $\mathtt{addAfter}(a, c)$} marked in red.
 
 While these are only two of the cases of conflicting concurrent
-operations, in~\autoref{sec:proofs} we show that all operations
-can be order in such a way that they correspond to a sequential
+operations, in Section~\ref{sec:proofs} we show that all operations
+can be ordered in such a way that they correspond to a sequential
 execution thereof.
 
 % In RGA algorithm, a replica store the list as a timestamp insertion
@@ -545,7 +569,7 @@ execution thereof.
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let lin = lin@|$\,\cdot\,$|@add(a,k)
+      //@ lin = lin@|$\,\cdot\,$|@add(a,k)
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
       //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
@@ -553,7 +577,7 @@ execution thereof.
   remove(a) :
     atSource :
       let R = {(a,k) | (a,k) @|$\in$|@ S}
-      //@ let lin = lin@|$\,\cdot\,( $|@readIds(a)@|$\,\Rightarrow\,$|@R@|$ )\,\cdot\,$|@remove(a,R)
+      //@ lin = lin@|$\,\cdot\,( $|@readIds(a)@|$\,\Rightarrow\,$|@R@|$ )\,\cdot\,$|@remove(a,R)
     downStream(R) :
       S = S @|$\setminus$|@ R
       //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k). (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
@@ -562,7 +586,7 @@ execution thereof.
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let lin = lin@|$\,\cdot\,$|@read@|$\,\Rightarrow\,$|@A
+    //@ lin = lin@|$\,\cdot\,$|@read@|$\,\Rightarrow\,$|@A
     return A
 \end{lstlisting}
 \end{figure}
@@ -592,15 +616,15 @@ Consider for example the case where two replicas add a certain element
 If we consider an interleaving based execution of these operations
 there are two options depending on the interleaving:
 \begin{inparaenum}[i)]
-\item if the \lstinline|remove(a)| operation is the last operation
+\item If the \lstinline|remove(a)| operation is the last operation
   then the expected set is empty, since the two consecutive
   \lstinline|add(a)| operations are idempotent, and the
   \lstinline|remove| would remove the only occurrence of
   \lstinline|a|. This interleaving is the one depicted with solid
-  arrows in~\autoref{fig:or-set-simple}.
+  arrows in Figure~\ref{fig:or-set-simple}.
 \item On the other hand, if the operation \lstinline|add(a)| of the
   non-removing process comes last as depicted with the dashed arrows
-  in~\autoref{fig:or-set-simple}, the final set could contain the
+  in Figure~\ref{fig:or-set-simple}, the final set could contain the
   element \lstinline|a|.
 \end{inparaenum}
 As we have explained before, in our system model the operations can
@@ -628,7 +652,7 @@ Therefore the item will not be removed, even in the case where the
 effectors of the two adds are performed in a replica before the effector
 of the remove.
 %
-The code of OR-Set is shown in~\autoref{lst:or-set} where for the time
+The code of OR-Set is shown in Listing~\ref{lst:or-set} where for the time
 being we ignore the lines marked with \lstinline|//@| annotations.
 
 % \fxwarning[nomargin, inline]{If queries are discussed already for RGA,
@@ -659,11 +683,11 @@ being we ignore the lines marked with \lstinline|//@| annotations.
 
 It is easy to find examples where the implementation of OR-Set can
 produce executions which cannot be justified by standard definition of
-linearizability (they are not even sequentializable)
-of~\citet{HerlihyW90} assuming a standard Set specification.
+linearizability (even with the relaxations discussed in Section~\ref{sec:rga-crdt-impl})
+assuming a standard Set specification.
 %
 % \gpwarning{Redraw this picture properly.}
-\autoref{fig:or-set-not-lin} shows one such example.
+Figure~\ref{fig:or-set-not-lin} shows one such example.
 %
 For simplicity we assume here that we have two clients, each executing
 in one of two replicas as their origin, issuing the sequences of
@@ -673,46 +697,57 @@ operations \lstinline|add(b);add(a);remove(b);read()| and
 The final reads are added only to exhibit the final state as perceived by
 each replica through the API of the object.
 %
-Clearly any linearization a la~\citet{HerlihyW90} should end with a
-\lstinline|remove| operation, and therefore the final set should have
-at most one element. Contrary to that, in the final set we obtain:
-\{\lstinline|a, b|\} as observed by the result of the final
-\lstinline|read| operations.
+Clearly any linearization of the visibility relation in this execution should order
+the \lstinline|add| and \lstinline|remove| updates before the \lstinline|read| queries,
+and the linearization of the updates should end with a
+\lstinline|remove| operation. 
+%Since the \lstinline|read| queries see all the updates
+%in the execution, 
+Therefore, the final set returned by each of the two \lstinline|read| queries should have
+at most one element (note that the \lstinline|read| queries see all the updates
+in the execution), contrary to their return value in this execution.
+%that, in the final set we obtain:
+%\{\lstinline|a, b|\} as observed by the result of the final
+%\lstinline|read| operations.
 %
 % In other words, if in any of the replicas a \lstinline|read()|
 % operation were to be issued, the result would be the set
 % \{\lstinline|a, b|\} .
 
-For our definition of \CRDTLinshort{} we will distinguish between
-\emph{update} and \emph{query} operations.
-%
-We will impose two constraints, one on updates and another one on
-queries:
-\begin{itemize}
-\item For updates we require that there exists a total order of all
-  the updates in the execution -- essentially a linearization -- such
-  that the resulting state of the object -- or any intermediate state --
-  can be explained by executing the \emph{specification} of these
-  updates in order.
-%
-  Essentially, reachable states of the implementation are related to
-  specification states that can be reached by a certain global
-  linearization of the updates.
-%
-  \gpnote{Example?}
-\item Unfortunately, this simple requirement does not suffice for
-  query operations, since the system model allows for updates to arrive
-  to different replicas in different order.
-%
-  Hence, for \CRDTLinshort{} we will require that the result of any
-  query can be explained by consider a \emph{sub-sequence} of the above
-  mentioned global linearization of updates.
-\end{itemize}
-This definition will be made precise in~\autoref{sec:distributed-lin}.
+%For our definition of \CRDTLinshort{} we will distinguish between
+%\emph{update} and \emph{query} operations.
+%%
+%We will impose two constraints, one on updates and another one on
+%queries:
+%\begin{itemize}
+%\item For updates we require that there exists a total order of all
+%  the updates in the execution -- essentially a linearization -- such
+%  that the resulting state of the object -- or any intermediate state --
+%  can be explained by executing the \emph{specification} of these
+%  updates in order.
+%%
+%  Essentially, reachable states of the implementation are related to
+%  specification states that can be reached by a certain global
+%  linearization of the updates.
+%%
+%  \gpnote{Example?}
+%\item Unfortunately, this simple requirement does not suffice for
+%  query operations, since the system model allows for updates to arrive
+%  to different replicas in different order.
+%%
+%  Hence, for \CRDTLinshort{} we will require that the result of any
+%  query can be explained by consider a \emph{sub-sequence} of the above
+%  mentioned global linearization of updates.
+%\end{itemize}
+%This definition will be made precise in~\autoref{sec:distributed-lin}.
 
-\gpnote{Maybe add a read example first?}
-Coming back to our OR-Set example in~\autoref{fig:or-set-not-lin}, we
-have that the \lstinline|remove| operation behaves as both a query
+%\gpnote{Maybe add a read example first?}
+%To deal with this issue, we consider an additional relaxation of linearizability which 
+%stems from the observation that 
+%Coming back to our OR-Set example in~\autoref{fig:or-set-not-lin}, we
+%have that 
+This execution shows that 
+the \lstinline|remove| operation behaves as both a query
 (observing a certain number of adds of the element to be removed)
 and an update (by removing said observed elements).
 %
@@ -738,7 +773,7 @@ to be removed.
 Any identifier not in this set will remain in the set after the update
 part of the remove.
 %
-\autoref{fig:or-set-lk-rem} shows this rewriting
+Figure~\ref{fig:or-set-lk-rem} shows this rewriting
 where we denote by \lstinline|lk| (for lookup) the query part of
 remove, which returns a set of elements to be removed, and a
 \lstinline|remove| operation taking a set of elements to be removed.
