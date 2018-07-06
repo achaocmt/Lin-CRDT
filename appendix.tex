@@ -30,7 +30,7 @@ $\\$ $\\$
 Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
 
 
-\begin{minipage}[t]{1.0\linewidth}
+\begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based multi-value register},
 captionpos=b,label={lst:operation-based multi-value register}]
   payload Set S
@@ -43,8 +43,8 @@ captionpos=b,label={lst:operation-based multi-value register}]
       let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
       let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
       let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
-    downStream(a, V@|$'$|@) :
+      //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{}{S}{}\,\cdot\,\alabelshort[{\tt write}]{a,V',S}$|@
+    downStream(a, V') :
       let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
       S = A @|$\cup$|@ B
@@ -52,10 +52,48 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
   read() :
     let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
+    //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{S_1}{}$|@
     return @|$S_1$|@
 \end{lstlisting}
-\end{minipage}
+\end{figure}
+
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@    
+
+
+
+
+
+
+\subsection{Counter Implementation}
+\label{subsec:counter implementation}
+
+\cite{ShapiroPBZ11} gives a operation-based counter implementation, which is shown in Listing~\ref{lst:operation-based multi-value register}. A payload is a integer $ctr$. 
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based counter},
+captionpos=b,label={lst:operation-based counter}]
+  payload integer ctr
+  initial ctr = 0
+  initial lin = @|$\epsilon$|@
+
+  inc() :
+    atSource :
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt inc}]{} $|@
+    downStream(inc) :
+      ctr = ctr + 1 
+  
+  dec() :
+    atSource :
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt dec}]{} $|@
+    downStream(dec) :
+      ctr = ctr - 1 
+
+  read() : 
+    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ ctr }{}$|@
+    return ctr 
+\end{lstlisting}
+\end{figure}
 
 %//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
 
@@ -69,10 +107,10 @@ captionpos=b,label={lst:operation-based multi-value register}]
 The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. %Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
 Wooki algorithm is an optimized version of Woot \cite{DBLP:conf/cscw/OsterUMI06}. To make our introduction more clear, we borrow the notion of W-character and W-string from Woot algorithm.
 
-In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
-We use $degree(w)$ to denote the degree of $w$.
+In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $c$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $c$; $v$ is the value of $c$; $degree$ is the degree of $c$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $c$ and indicates whether $c$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
+We use $degree(c)$ to denote the degree of $c$.
 
-A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ldots \cdot w_n \cdot w_{end}$, where $w_{begin}$ and $w_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_b$ and $w_e$ are $\circ_b$ and $\circ_e$, respectively. The degree of $w_{begin}$ and $w_{end}$ are $0$. We define the following function for a W-string $str$:
+A W-string is an ordered sequence of W-characters $c_{begin} \cdot c_1 \cdot \ldots \cdot c_n \cdot c_{end}$, where $c_{begin}$ and $c_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $c_{begin}$ and $c_{end}$ are $\circ_{begin}$ and $\circ_{end}$, respectively. The degree of $c_{begin}$ and $c_{end}$ are $0$. We define the following function for a W-string $str$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -80,11 +118,11 @@ A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ld
 
 \item[-] $str[p]$ returns the W-character at position $p$ in $str$. Her we assume that the first element of $str$ is at position 0.
 
-\item[-] $pos(str,w)$ returns the position of W-character $w$ in $S$.
+\item[-] $pos(str,c)$ returns the position of W-character $c$ in $S$.
 
-\item[-] $insert(str,w,p)$ inserts W-character $w$ into $str$ at position $p$.
+\item[-] $insert(str,c,p)$ inserts W-character $c$ into $str$ at position $p$.
 
-\item[-] $subseq(str,w_1,w_2)$ returns the part of $str$ between the W-characters $w_1$ and $w_2$ (excluding $w_1$ and $w_2$).
+\item[-] $subseq(str,c_1,c_2)$ returns the part of $str$ between the W-characters $c_1$ and $c_2$ (excluding $c_1$ and $c_2$).
 
 \item[-] $contains(str,a)$ returns true if there exists a W-character in $str$ with value $a$.
 
@@ -97,11 +135,11 @@ A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ld
 
 %Note that only $values(str)$ distinguish whether a W-character is with flag $\mathit{true}$ or with flag $\mathit{false}$.
 
-A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
+A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $c_1,c_2$ of $str$, we write $c_1 <_{str} c_2$ to indicate that $pos(str,c_1) < pos(str,c_2)$.
 
 %A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
 
-\begin{minipage}[t]{1.0\linewidth}
+\begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
 captionpos=b,label={lst:wooki algorithm}]
   payload W-string @|$string_s$|@
@@ -114,22 +152,22 @@ captionpos=b,label={lst:wooki algorithm}]
       let ts = getTimestamp()
       let @|$c_p$|@ = @|$getWchar(string_s,a)$|@
       let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
-    downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
-      integrateIns(@|$c_p,w,c_n$|@)
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
+    downStream((c,@|$c_p$|@,@|$c_n$|@)) : with @|$c = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
+      integrateIns(@|$c_p,c,c_n$|@)
 
   remove(a) :
     atSource :
       precondition : @|$contains(string_s,a)$|@
       let w = @|$getWchar(string_s,a)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
     downStream(w) :
       let p = @|$pos(string_s,w)$|@
       @|$changeFlag(string_s,p,\mathit{false})$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
+    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
     return s
 
   integrateIns(@|$c_p,c,c_n$|@)
@@ -151,15 +189,15 @@ captionpos=b,label={lst:wooki algorithm}]
         else
             integrateIns(@|$c,F[i-1],F[i]$|@)
 \end{lstlisting}
-\end{minipage}
+\end{figure}
 
 $\\$ $\\$
 
 The payload of each replica is a W-string $string_s$.
 
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a$ and $c$ are adjacent in $string_s$ and $b$ is not in $string_s$. Then, we generate a W-character $w$ for value $b$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a$ and $c$ are adjacent in $string_s$ and $b$ is not in $string_s$. Then, we generate a W-character $c$ for value $b$, and calls method $integrateIns(c,c_p,c_n)$ to put $c$ between $c_p$ and $c_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
 
-$integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $w$ is put after $c_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $c_p$ and $c_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$, and recursive call $integrateIns(c,F[i-1],F[i])$. We can see that, the minimal degree of the sub-sequence of $S$ between $F[i-1]$ and $F[i]$ is larger than that of the sub-sequence of $S$ between $c_p$ and $c_n$.
+$integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $c$ is put after $c_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $c_p$ and $c_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$, and recursive call $integrateIns(c,F[i-1],F[i])$. We can see that, the minimal degree of the sub-sequence of $S$ between $F[i-1]$ and $F[i]$ is larger than that of the sub-sequence of $S$ between $c_p$ and $c_n$.
 
 To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
 
@@ -178,7 +216,7 @@ T-identifiers are the unique identifiers of T-characters. The requirement of T-i
 
 To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths of a binary tree as T-identifier, and the order $<_t$ can be considered as ``walking the tree in infix order''. However, this is insufficient for concurrent edit, as users might concurrently insert two different T-character at the same position of a binary tree. To address this issue, when there are multiple T-character ``at a same position of the binary tree'', we call the set of these T-characters a major node, and call each of them a minor node.
 
-For example, \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the W-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a,w_b,w_c$ are a major node and we use a box containing $w_a,w_b,w_c$ to emphasize a major node. Similarly, the set of T-characters of $w_e$ and $w_f$, $w_g$ and $w_h$, $w_j$ and $w_k$ are also major nodes, respectively.
+For example, \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the W-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a,w_b,w_c$ are a major node and we use a box containing $w_a,w_b,w_c$ to emphasize a major node. Similarly, the set of T-characters of $w_e$ and $w_f$, $w_g$ and $w_h$, $w_j$ and $w_k$ are also major nodes, respectively.
 
 
 \begin{figure}[t]
@@ -192,7 +230,7 @@ For example, \figurename~\ref{fig:an execution of tree-doc, the local state of r
 
 A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $1 \leq i \leq n$, $c_i \in \{ 0,1,(1,id')\}$. We call such $id$ the disambiguator of $w$, and require disambiguator to be unique for each T-character. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current (major) node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``right sons'' of a minor node with identifier $id'$. The path to the root is fixed to be $\epsilon$.
 
-For example, in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son (could be a major node)''; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \figurename~\ref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
+For example, in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son (could be a major node)''; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
 
 We say a set $T$ of T-characters is a T-tree, if:
 
@@ -267,20 +305,20 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
       let @|$w_a$|@ = @|$getTchar(tree,a)$|@
       let @|$w_c$|@ = @|$getTchar(tree,c)$|@
       let @|$w_b$|@ = @|$(b,newID(w_a,w_c,id),b)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
     downStream(@|$w_b$|@) :
       @|$tree$|@ = @|$tree \cup \{ w_b \}$|@
 
   remove(a) :
     atSource :
       precondition : @|$contains(tree,a) \wedge notRemoved(tree,a)$|@
-      //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
     downStream(a) :
       @|$removeTChar(tree,a)$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let lin@|$'$|@ = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
+    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
     return s
 
   newID(@|$w_1,w_2,id$|@)
@@ -555,6 +593,25 @@ This completes the proof of this lemma. $\qed$
 
 
 
+\subsection{Proof of Operation-Based Counter}
+\label{subsec:proof of operation-based counter}
+
+Then, let us prove that the operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$.
+
+\begin{lemma}
+\label{lemma:operation-based counter is correct}
+The operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$. 
+\end{lemma}
+
+\begin {proof} 
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that concurrent effectors commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. Then, the effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt dec}]{}$. Applying the query $\alabellongind[{\tt read}]{}{ctr}{}$ on the replica state $\sigma$ should result in the same return value $ctr$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma=ctr$, which again holds trivially. 
+
+Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification). Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order. More precisely, we have to show that for each query $\alabel_{\mathsf{qr}} = \alabellongind[{\tt read}]{}{k}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\specarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\specarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\specarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+\end {proof}
+
+
 
 
 \subsection{Proof of Wooki}
@@ -684,9 +741,9 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Assume case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c¡®_2}$ and case $2$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_e}$. By induction assumption, we can see that, $c_e <_{\sigma_e} c'_2$ and $c_b <_{id} c_e$.
+\item[-] Assume case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_2}$ and case $2$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_e}$. By induction assumption, we can see that, $c_e <_{\sigma_e} c'_2$ and $c_b <_{id} c_e$.
 
-    Let $F'_1$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$, and let $d'_{min1}$ be the $d_{min}$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$. Assume that $F'_1 = c''_1 \cdot \ldots \cdot c''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c''_1,c''_2),\ldots,(c''_{n-1},c''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c''_1 <_{id} c''_2 \ldots <_{id} c''_n$. Since $d¡¯_{min1} > j_e$, according to the definition of degree-$d'_{min1}$-adjacent, we can see that, $c''_n <_{\sigma_e} c_e \vee c_e <_{\sigma_e} c''_1$.
+    Let $F'_1$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$, and let $d'_{min1}$ be the $d_{min}$ in $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c'_2}$ of case $1$. Assume that $F'_1 = c''_1 \cdot \ldots \cdot c''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c''_1,c''_2),\ldots,(c''_{n-1},c''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c''_1 <_{id} c''_2 \ldots <_{id} c''_n$. Since $d_{min1} > j_e$, according to the definition of degree-$d'_{min1}$-adjacent, we can see that, $c''_n <_{\sigma_e} c_e \vee c_e <_{\sigma_e} c''_1$.
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -702,7 +759,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of
 
         If from now on, each round is as such, then we can similar prove it and our proof is done.
 
-        Otherwise, in the first round of case $1$ that is not as such, we can see that it calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c}$ with $c_e <_{\sigma_e} c$, the $F$ array is $F'¡®$, the $d_{min}$ is $d''$, assume $F'' = c'''_1 \cdot \ldots \cdot c'''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c'''_1,c'''_2),\ldots,(c'''_{n-1},c'''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c'''_1 <_{id} c'''_2 \ldots <_{id} c'''_n$. Similarly, we can prove that $c'''_n <_{id} c_e$.
+        Otherwise, in the first round of case $1$ that is not as such, we can see that it calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c}$ with $c_e <_{\sigma_e} c$, the $F$ array is $F'$, the $d_{min}$ is $d''$, assume $F'' = c'''_1 \cdot \ldots \cdot c'''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(c'''_1,c'''_2),\ldots,(c'''_{n-1},c'''_n)$ are degree-$d'_{min1}$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $c'''_1 <_{id} c'''_2 \ldots <_{id} c'''_n$. Similarly, we can prove that $c'''_n <_{id} c_e$.
 
         \begin{itemize}
         \setlength{\itemsep}{0.5pt}
@@ -720,7 +777,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{c_1,c_b,c_2}$ of
         \end{itemize}
     \end{itemize}
 
-\item[-] The situation when case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c¡®_2}$ and calls $2$ does $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_2}$ can be similarly proved.
+\item[-] The situation when case $1$ calls $\alabelshort[{\tt integrateIns}]{c'_1,c_b,c_2}$ and calls $2$ does $\alabelshort[{\tt integrateIns}]{c_e,c_b,c'_2}$ can be similarly proved.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -779,8 +836,8 @@ Our proof proceeds as follows:
     \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on local state $\sigma$. Assume $\sigma = c_1 \cdot \ldots \cdot c_n$, and for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
     \end{itemize}
 
-    \item[-] Prove $\mathsf{\CRDTLinshort{}}$: Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. By the {\textred{causal delivery}} assumption, when we apply the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, the W-character of $a$ and $c$ is already in the local state, and the W-character is before the W-character of $c$ in local state; when we apply the downstream of $\alabelshort[{\tt remove}]{a}$, a W-character of $a$ is already in the local state. Thus, the projection of $\alinord$ on the updates is obviously admitted by the specification. 
-        
+    \item[-] Prove $\mathsf{\CRDTLinshort{}}$: Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. By the {\textred{causal delivery}} assumption, when we apply the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, the W-character of $a$ and $c$ is already in the local state, and the W-character is before the W-character of $c$ in local state; when we apply the downstream of $\alabelshort[{\tt remove}]{a}$, a W-character of $a$ is already in the local state. Thus, the projection of $\alinord$ on the updates is obviously admitted by the specification.
+
         Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order. More precisely, we have to show that for each query $\alabel_{\mathsf{qr}} = \alabellongind[{\tt read}]{}{s}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xrightharpoonup{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xrightharpoonup{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xrightharpoonup{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end{itemize}
 
@@ -810,11 +867,11 @@ This completes the proof of this lemma. $\qed$
 
 
 \section{Non-Deterministic Specifications, Convergence, and Consistent Conflict Resolution}
-\label{subsec:appendix non-deterministic specifications, convergence, and consistent conflict resolution} 
+\label{subsec:appendix non-deterministic specifications, convergence, and consistent conflict resolution}
 
-A sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic. 
+A sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
-For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded. 
+For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded. 
 
 \begin{figure}[t]
   \centering
@@ -822,31 +879,31 @@ For a non-deterministic specification Spec{}, it is possible that although a his
 \vspace{-10pt}
   \caption{A history w.r.t $\mathit{listBet}_s$ that should be excluded.}
   \label{fig:a wrong history w.r.t listbets}
-\end{figure} 
+\end{figure}
 
 Given an execution $e$ of $\aobj$, we propose the following two property of $e$: Given local state $\sigma_1$ and $\sigma_2$ of $e$, if $\sigma_1$ (resp., $\sigma_2$) is obtained from the initial local state by applying a sequence $s_1$ of downstream (resp., a sequence $s_2$ of downstream).
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Convergence: if $s_1 \cap \updates = s_2 \cap \updates$, then $\sigma_1 = \sigma_2$. 
+\item[-] Convergence: if $s_1 \cap \updates = s_2 \cap \updates$, then $\sigma_1 = \sigma_2$.
 
-\item[-] Consistent Conflict Resolution: if $s_1 \cap \updates$ is a sub-sequence of $s_2 \cap \updates$. Let $S$ be the set of downstream of update operations that are in $s_2$ and not in $s_1$, and let $s_3$ be a sequences of $S$ that is consistent with visibility relation. Then, we can obtain $\sigma_2$ from $\sigma_1$ by applying the downstream sequence $s_3$. 
-\end{itemize} 
+\item[-] Consistent Conflict Resolution: if $s_1 \cap \updates$ is a sub-sequence of $s_2 \cap \updates$. Let $S$ be the set of downstream of update operations that are in $s_2$ and not in $s_1$, and let $s_3$ be a sequences of $S$ that is consistent with visibility relation. Then, we can obtain $\sigma_2$ from $\sigma_1$ by applying the downstream sequence $s_3$.
+\end{itemize}
 
-We say an execution $e$ is ready for downstream, if given a local state $\sigma$ of $e$ which is of replica $\arep$, we can safely apply all the downstream that are still not visible to replica $\arep$ in any order consistent with visibility relation. 
+We say an execution $e$ is ready for downstream, if given a local state $\sigma$ of $e$ which is of replica $\arep$, we can safely apply all the downstream that are still not visible to replica $\arep$ in any order consistent with visibility relation.
 
-Let us go back to \figurename~\ref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$. 
+Let us go back to \autoref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$. 
 
 $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$
 
-$\alabellong[{\tt read}]{}{c \cdot b}{}$, 
+$\alabellong[{\tt read}]{}{c \cdot b}{}$,
 
 The following lemma states that, once we prove ready for downstream and downstream of concurrent operations commute, we can obtain convergence and consistent conflict resolution, no matter whether the \Spec{} is deterministic or non-deterministic.
 
 \begin{lemma}
-\label{lemma:execution-order linearization ensures convergence and consistent conflict resolution} 
-If $\aobj$ is \crdtlinearizable{} w.r.t \Spec{} and each of its execution is ready for downstream. 
-execution-order linearizations 
+\label{lemma:execution-order linearization ensures convergence and consistent conflict resolution}
+If $\aobj$ is \crdtlinearizable{} w.r.t \Spec{} and each of its execution is ready for downstream.
+execution-order linearizations
 
 When doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent.
 \end{lemma}
@@ -911,7 +968,7 @@ Let us explain Definition \ref{definition:ralinearizability1 with non-determinis
 
 \item[-] Unique Choice in Specification: We should get rid of histories that have several operations that use ``Inconsistent non-deterministic choice''.
 
-An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history.
+An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history.
 
 Since the set of operations visible to $\alabellong[{\tt read}]{}{c \cdot b}{}$ and the set of operations visible to $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ are different, our convergence requirement is not enough to rule them out. Instead, the $\mathsf{ConsistentChoice}$ condition is able to rule them out. $\mathsf{ConsistentChoice}$ essentially represents that, a ``bigger state'' follows the same choice in a ``smaller'' state.
 \end{itemize}
@@ -1192,7 +1249,7 @@ Let us explain Definition \ref{definition:ralinearizability1 with non-determinis
 
 \item[-] Unique Choice in Specification: We should get rid of histories that have several operations that use ``Inconsistent non-deterministic choice''.
 
-An example $h$ of such history is shown in \figurename~\ref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history.
+An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. Therefore, we can not put these two $read$ operation in one history.
 
 Since the set of operations visible to $\alabellong[{\tt read}]{}{c \cdot b}{}$ and the set of operations visible to $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ are different, our convergence requirement is not enough to rule them out. Instead, the $\mathsf{ConsistentChoice}$ condition is able to rule them out. $\mathsf{ConsistentChoice}$ essentially represents that, a ``bigger state'' follows the same choice in a ``smaller'' state.
 \end{itemize}
@@ -1466,24 +1523,24 @@ captionpos=b,label={lst:operation-based multi-value register}]
   add(a) :
     atSource :
       let k = getUniqueIdentifier()
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabelshort[add]{a,k}$|@
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
-      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
+      //@ S' = S @|$\cup$|@ {(a, k)}
 
   remove(a) :
     atSource :
       let R = @|$\{$|@ (a,k): (a,k) @|$\in$|@ S @|$\}$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabellongind[readIds]{a}{R}{}\,\cdot\,\alabelshort[remove]{a,R}$|@
     downStream(R) :
       S = S @|$\setminus$|@ R
       //@ R = @|$\{ (a,k): \exists\ \alabel = \alabellongind[add]{a,k}{\bot}{*}.\ (\alabel, \alabelshort[remove]{a,R}) \in \avisord$|@
                        @|$\land\,\forall\ \alabel' = \alabellongind[remove]{a,*}{\bot}{*}.\ \{(\alabel,\alabel'),(\alabel',\alabelshort[remove]{a,R})\}\not\subseteq \avisord\}$|@
-      //@ S@|$'$|@ = S @|$\setminus$|@ R
+      //@ S' = S @|$\setminus$|@ R
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
+    //@ let seq' = seq@|$\,\cdot\,\alabellongind[read]{}{A}{}$|@
     return A
 \end{lstlisting}
 \end{minipage}
@@ -2288,7 +2345,7 @@ Such kind of list is similar as list with add-after interface. One difference is
 
 
 
-Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a state-based CRDT object}.
+Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \autoref{fig:the semantics of a state-based CRDT object}.
 
 \begin{figure}[ht]
 $\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
@@ -2327,7 +2384,7 @@ $\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \ma
 
 A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, and has no message inside. Since $\mathit{obj}$ is a state-based CRDT, each message content is chosen from $\Sigma$.
 
-Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
+Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \autoref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
 
 A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_s$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is in the form of either $\mathit{do}(i,m,a,b,r)$, or $\mathit{send}(i,\mathit{mid},r)$, or $\mathit{receive}(i,\mathit{mid},r)$, where $i \in \mathbb{OID}$ is a unique operation identifier.
 
@@ -2550,7 +2607,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
 
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
 
 \item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
 
@@ -2624,7 +2681,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
 
@@ -2768,7 +2825,7 @@ captionpos=b,label={lst:woot algorithm}]
       let @|$c_p$|@ = @|$getWchar(string_s,b)$|@
       let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
       @|$H_s$|@ = @|$H_s$|@ + 1
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[addBetween]{a,b,c}{}{}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabellongind[addBetween]{a,b,c}{}{}$|@
     downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = ((H_s,g),a,\mathit{true},c_p.id,c_n.id)$|@
       integrateIns(@|$w,c_p,c_n$|@)
 
@@ -2776,14 +2833,14 @@ captionpos=b,label={lst:woot algorithm}]
     atSource :
       precondition : @|$contains(string_s,a)$|@
       let w = @|$getWchar(string_s,a)$|@
-      //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[remove]{a}{}{}$|@
+      //@ let seq' = seq@|$\,\cdot\,\alabellongind[remove]{a}{}{}$|@
     downStream(w) :
       let p = @|$pos(string_s,w)$|@
       @|$changeFlag(string_s,p,\mathit{false})$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let seq@|$'$|@ = seq@|$\,\cdot\,\alabellongind[read]{}{s}{}$|@
+    //@ let seq' = seq@|$\,\cdot\,\alabellongind[read]{}{s}{}$|@
     return s
 
   integrateIns(@|$c,c_p,c_n$|@)
@@ -3220,7 +3277,7 @@ Such kind of list is similar as list with add-after interface. One difference is
 
 
 
-Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of a state-based CRDT object}.
+Given a object $\mathit{obj}$ of a state-based CRDT with $\Sigma$ be the set of local states, we define its semantics as a set of executions generated from an LTS $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \autoref{fig:the semantics of a state-based CRDT object}.
 
 \begin{figure}[ht]
 $\mathit{RState} = \mathbb{R} \rightarrow \Sigma$
@@ -3259,7 +3316,7 @@ $\Sigma' = \mathit{do}(\mathbb{M} \times \mathbb{D} \times \mathbb{D} \times \ma
 
 A configuration $(R,T)$ is a snapshot of distributed system and contains two parts: $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, and has no message inside. Since $\mathit{obj}$ is a state-based CRDT, each message content is chosen from $\Sigma$.
 
-Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
+Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describe a single step of distributed systems. The first rule in \autoref{fig:the semantics of a state-based CRDT object} describes replica $r$ performs a operation $m(a) \Rightarrow b$ and works locally. The second rule describes that a replica $r$ may nondeterministically decide to send a message with its local state as message content. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$.
 
 A sequence $l$ of actions is an execution of $\llbracket \mathit{obj} \rrbracket_s = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T)$. The semantics of $\mathit{obj}$ is defined as the set of executions of $\llbracket \mathit{obj} \rrbracket_s$. Given an execution, when the context is clear, we can associate a unique operation identifier to each action. Or we can say, it is safe to assume each action is in the form of either $\mathit{do}(i,m,a,b,r)$, or $\mathit{send}(i,\mathit{mid},r)$, or $\mathit{receive}(i,\mathit{mid},r)$, where $i \in \mathbb{OID}$ is a unique operation identifier.
 
@@ -3482,7 +3539,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     It is easy to see that all other properties hold, except for $h'$ being distributed linearizable w.r.t $\mathit{spec}$ with $\mathit{lin}'$ the linearization. Let us prove that $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization. It is easy to see that only operation $i$ need to be checked.
 
-    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P¡®[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
+    It is easy to see that $\mathit{vd}(h,\mathit{del},r) = \mathit{vis}^{-1}(i)$. Similarly as the case of $(R,T) {\xrightarrow{\mathit{do}(\mathit{inc},r)}} (R',T')$, we can prove that $R(r) = (P',N')$, where for each replica $r'$, $P'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{inc}}$ and $j$ is of replica $r \} \vert$ and $N'[r'] = \vert \{ j \in \mathit{vd}(h,\mathit{del},r) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert = \vert \{ j \in \mathit{vis}^{-1}(i) \uparrow_{\mathit{dec}}$ and $j$ is of replica $r \} \vert$. Since $k = \Sigma_{r'} P[r'] - \Sigma_{r'} N'[r']$, $k$ is obtained by minus the number of all visible $\mathit{dec}$ of $i$ from the number of all visible $\mathit{inc}$ of $i$. Therefore, we can see that $((\mathit{read}() \Rightarrow k,i,\mathit{obj}), \mathit{vd}(h,\mathit{del},r) )$ of $\mathit{lin}'$ is ``correct''. Then, $h'$ is distributed linearizable w.r.t $\mathit{spec}$ and $\mathit{lin}'$ is a linearization.
 
 \item[-] If $(R,T) {\xrightarrow{\mathit{send}(\mathit{mid},r)}} (R',T')$: Then,
 
@@ -3556,7 +3613,7 @@ Let us prove that $\mathit{inv}$ is a transition invariant: assume $\mathit{inv}
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r¡®) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
+    \item[-] $R' = R[ r: \{ (a,V') \} ], R(r).N)]$ and $T' = T$. Here $\forall r' \neq r, V'[r'] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \}$, and $V'[r] = \mathit{max} \{ V_1(r) \vert (\_,V_1) \in R(r) \} + 1$.
 
     \item[-] Let $h' = h \otimes i$, where $i$ is the identifier of the newly-generated $\mathit{inc}$ action.
 

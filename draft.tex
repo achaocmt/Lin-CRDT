@@ -92,6 +92,10 @@
 
 \usepackage{wrapfig}
 
+\def\sectionautorefname{Section}%
+% \def\figureautorefname{Fig.}%
+\def\subsectionautorefname{Section}%
+
 \usepackage{listings}
 
 \lstset{
@@ -106,19 +110,22 @@
   numbers=left,
   numberstyle=\tiny\color{gray},
   keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
+  commentstyle=\footnotesize\ttfamily,
   breaklines=true,
   breakatwhitespace=true,
   tabsize=3,
   morekeywords={[1]in,upto,skip,return,let},
   morekeywords={[2]payload, initial, downStream, atSource},
   morekeywords={[3]precondition},
+  morecomment=[l]{//@},
   escapeinside={@|}{|@},
   keywordstyle=[2]\color{red},
   keywordstyle=[3]\color{green!30!black!90},
   deletekeywords={[2]max,list},
   % belowcaptionskip=-15pt,
   numbers=none,
+  morestring=[b]',
+  morestring=[b]'',
 }
 
 \usepackage[margin,draft]{fixme}
@@ -204,20 +211,7 @@
 
 \maketitle
 
-\fxwarning*{}{
-  Some things that are missing:
-  \begin{itemize}
-  \item Position w.r.t. HW linearizability early on.
-  \item Talk about deterministic/non-deterministic specs?
-  % \item Explain that for single-replica systems, both the spec and the
-  %   implementation of a CRDT meets the sequential spec a la HW.
-  % \item Explain that the spec of RGA with \lstinline|addAt| does not
-  %   work.
-  % \item Explain the difference with~\cite{PerrinMJ14}.
-  % \item Explain the difference with~\cite{JagadeesanR18}.
-  \item Perhaps talk about multiple objects earlier.
-  \end{itemize}
-}
+\fxwarning*{Talk about Det. vs. Non-Det.}
 
 \input{Introduction}
 

@@ -58,19 +58,18 @@ correctness of CRDT implementations as we do.
 %   consistent w.r.t. a Set spec.}
 
 \citet{JagadeesanR18} provide a correctness criterion for CRDTs under
-Eventual Consistency which the call SEC.
+Eventual Consistency which they call SEC.
 %
 SEC shares some similarities with~\cite{PerrinMJ14} but the
 formalization is quite different.
-There are some important differences between~\cite{JagadeesanR18} and
-CRDTLinshort{}:
+There are some important differences between SEC and \CRDTLinshort{}:
 \begin{inparaenum}
-\item while our definition of \CRDTLin{} has three simple
-  requirements, the definition SEC is far from simple.
+\item while \CRDTLinshort{} has three simple requirements, the
+  definition SEC is far from simple.
   %
-  In particular, \CRDTLin{} as well as Update Consistency have a
+  In particular, \CRDTLinshort{} as well as Update Consistency have a
   global total order for updates, which is not the case for
-  SEC.\footnote{At least this is not apparent from the definitions nor
+  SEC.\footnote{At least this is not apparent from the definitions, nor
     stated in the paper.}
 \item
   \label{it-dependencies}
@@ -86,7 +85,7 @@ CRDTLinshort{}:
   systems enforcing (some of their) session guarantees
   of~\cite{TerryDPSTW94}.
   %
-  With \CRDTLin{} we strive to preserve the guarantees enforced by the
+  With \CRDTLinshort{} we strive to preserve the guarantees enforced by the
   underlying network of the system.
   %
   This is particularly important since we assume that certain

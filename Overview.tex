@@ -17,7 +17,7 @@
       //@ lin = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
-      //@ N@|$'$|@ = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
+      //@ N' = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
 
   remove(a) :
     atSource :
@@ -25,7 +25,7 @@
       //@ lin = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
-      //@ Tomb@|$'$|@ = Tomb @|$\cup$|@ {a}
+      //@ Tomb' = Tomb @|$\cup$|@ {a}
 
   read() :
     let ret-list = traverse(N, Tomb)
@@ -572,7 +572,7 @@ execution thereof.
       //@ lin = lin@|$\,\cdot\,$|@add(a,k)
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
-      //@ S@|$'$|@ = S @|$\cup$|@ {(a, k)}
+      //@ S' = S @|$\cup$|@ {(a, k)}
 
   remove(a) :
     atSource :
@@ -582,7 +582,7 @@ execution thereof.
       S = S @|$\setminus$|@ R
       //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k). (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
                               @|$ \forall\ \alabel'$|@ = remove(a,_). {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
-      //@ S@|$'$|@ = S @|$\setminus$|@ R
+      //@ S' = S @|$\setminus$|@ R
 
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
@@ -773,8 +773,8 @@ to be removed.
 Any identifier not in this set will remain in the set after the update
 part of the remove.
 %
-Figure~\ref{fig:or-set-lk-rem} shows this rewriting
-where we denote by \lstinline|lk| (for lookup) the query part of
+\autoref{fig:or-set-lk-rem} shows this rewriting
+where we denote by \lstinline|readIds| the query part of
 remove, which returns a set of elements to be removed, and a
 \lstinline|remove| operation taking a set of elements to be removed.
 %
