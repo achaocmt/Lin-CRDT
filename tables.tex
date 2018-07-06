@@ -6,7 +6,7 @@
 
 {\color {red}CW: We should make agreement about the interface.}
 
-\figurename~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods).
+\autoref{fig:crdt-implementaton of this paper, their correctness, and their interface} gives the \crdtimp{} proved in our work, their correctness, and their interface (methods).
 
 % \begin{figure}[t]
 % %\centering
@@ -47,7 +47,7 @@
 % \end{figure}
 
 
-% \figurename~\ref{fig:an example run of semantics} gives a example of two step of transitions on semantics of RGA. The first step is to do downstream of a $addAfter$, while the second step is to do operation $remove$. Here we can see that, the downstream of $addAfter$ always insert a new node into the Ti-tree $N$, while the downstream of $remove$ always insert a value into $Tomb$.
+% \autoref{fig:an example run of semantics} gives a example of two step of transitions on semantics of RGA. The first step is to do downstream of a $addAfter$, while the second step is to do operation $remove$. Here we can see that, the downstream of $addAfter$ always insert a new node into the Ti-tree $N$, while the downstream of $remove$ always insert a value into $Tomb$.
 
 % \begin{figure}[t]
 %   \centering
@@ -58,7 +58,7 @@
 % \end{figure}
 
 
-\figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its \crdtlinearization{}.
+\autoref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its \crdtlinearization{}.
 
 \begin{figure}[t]
   \centering
@@ -69,7 +69,7 @@
 \end{figure}
 
 
-\figurename~\ref{fig:a history of OR-set, its update-query rewriting, and its RA-linearization} gives a history of OR-set, its query-update rewriting, and its \crdtlinearization{}.
+\autoref{fig:a history of OR-set, its update-query rewriting, and its RA-linearization} gives a history of OR-set, its query-update rewriting, and its \crdtlinearization{}.
 
 \begin{figure}[t]
   \centering
@@ -80,9 +80,9 @@
 \end{figure}
 
 
-\figurename~\ref{fig:how refinement mapping works} shows how refinement mapping works. \figurename~\ref{fig:how refinement mapping works} (a) shows the case of update labels, \figurename~\ref{fig:how refinement mapping works} (b) shows the case of query labels, and \figurename~\ref{fig:how refinement mapping works} (c) shows the case of update-query labels.
+\autoref{fig:how refinement mapping works} shows how refinement mapping works. \autoref{fig:how refinement mapping works} (a) shows the case of update labels, \autoref{fig:how refinement mapping works} (b) shows the case of query labels, and \autoref{fig:how refinement mapping works} (c) shows the case of update-query labels.
 
-%Note that, in \figurename~\ref{fig:how refinement mapping works} (a) there is a ``gap'' between $\refmap(\sigma)$ and $\refmap(\sigma')$: it may be not the case that $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$. Although $\refmap(\sigma')$ should be obtained from $\refmap(\sigma_0)$ by a sequence of the same set of operations as from $\sigma_0$ to $\sigma'$, the order may be different. Such a transition exists for execution-order linearizations, and may not exist for timestamp-order linearizations. What we require here is only that the existence of $\refmap(\sigma')$.
+%Note that, in \autoref{fig:how refinement mapping works} (a) there is a ``gap'' between $\refmap(\sigma)$ and $\refmap(\sigma')$: it may be not the case that $\refmap(\sigma)\xRightarrow{\alabel}\refmap(\sigma')$. Although $\refmap(\sigma')$ should be obtained from $\refmap(\sigma_0)$ by a sequence of the same set of operations as from $\sigma_0$ to $\sigma'$, the order may be different. Such a transition exists for execution-order linearizations, and may not exist for timestamp-order linearizations. What we require here is only that the existence of $\refmap(\sigma')$.
 
 \begin{figure}[t]
   \centering
@@ -94,7 +94,7 @@
 
 
 
-\figurename~\ref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Here we assume $\ats_a$ and $\ats_b$ is the timestamp of $a$ and $b$ respectively, and the timestamp order be $\ats_a < \ats_b$. Since applying downstream of concurrent operations commute, we take the order of ``increasing timestamp'': $\alabelshort[addAfter]{\circ,a} \cdot \alabelshort[addAfter]{\circ,a} \cdot \alabellong[read]{}{b \cdot a}{}$, and then, according to the refinement mapping, we construct the transitions in sequential specification.
+\autoref{fig:an example of refinement mapping of an execution of RGA} gives an example of refinement mapping of an execution of RGA. Here we assume $\ats_a$ and $\ats_b$ is the timestamp of $a$ and $b$ respectively, and the timestamp order be $\ats_a < \ats_b$. Since applying downstream of concurrent operations commute, we take the order of ``increasing timestamp'': $\alabelshort[addAfter]{\circ,a} \cdot \alabelshort[addAfter]{\circ,a} \cdot \alabellong[read]{}{b \cdot a}{}$, and then, according to the refinement mapping, we construct the transitions in sequential specification.
 
 \begin{figure}[t]
   \centering
@@ -106,7 +106,7 @@
 
 
 
-\figurename~\ref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set.
+\autoref{fig:an example of refinement mapping of an execution of or-set} gives an example of refinement mapping of an execution of OR-set.
 
 \begin{figure}[t]
   \centering
@@ -116,7 +116,7 @@
   \label{fig:an example of refinement mapping of an execution of or-set}
 \end{figure}
 
-%Let us consider another possible interface for RGA: $\alabelshort[{\tt addAt}]{a,k}$ puts value $a$ at the $k$-th position of the list, $\alabelshort[{\tt remove}]{a}$ removes a from the list, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. In \figurename~\ref{fig:an example that shows RGA with addAt interface is not compositional}, we show an example such that RGA with {\tt addAt} interface is not compositional. Here assume that timestamp order of $a,b$ is $a<b$, and the timestamp of $c,d$ is $c<d$. This history contains operations of two RGA objects $\aobj_1$ and $\aobj_2$, the operations of $\aobj_1$ being represented using blank circles and the operations of $\aobj_2$ using filled circles. The only possible \crdtlinearization{} of $\aobj_1$ is $\aobj_1.\alabelshort[{\tt addAt}]{a,1} \cdot \aobj_1.\alabelshort[{\tt addAt}]{b,2} \cdot \aobj_1.\alabelshort[{\tt remove}]{a}$; since in $\aobj_1.\alabelshort[{\tt addAt}]{a,1} \cdot \aobj_1.\alabelshort[{\tt remove}]{a} \cdot \aobj_1.\alabelshort[{\tt addAt}]{b,2}$, before inserting $b$, the list is $\epsilon$ and $b$ can not be inserted in position $2$. Similarly, the only possible \crdtlinearization{} of $\aobj_2$ is $\aobj_2.\alabelshort[{\tt addAt}]{c,1} \cdot \aobj_2.\alabelshort[{\tt addAt}]{d,2} \cdot \aobj_2.\alabelshort[{\tt remove}]{c}$. However, such two \crdtlinearization{} are not timestamp-order linearizations. Moreover, the two \crdtlinearization{} and the visibility relation berings a cycle.
+%Let us consider another possible interface for RGA: $\alabelshort[{\tt addAt}]{a,k}$ puts value $a$ at the $k$-th position of the list, $\alabelshort[{\tt remove}]{a}$ removes a from the list, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. In \autoref{fig:an example that shows RGA with addAt interface is not compositional}, we show an example such that RGA with {\tt addAt} interface is not compositional. Here assume that timestamp order of $a,b$ is $a<b$, and the timestamp of $c,d$ is $c<d$. This history contains operations of two RGA objects $\aobj_1$ and $\aobj_2$, the operations of $\aobj_1$ being represented using blank circles and the operations of $\aobj_2$ using filled circles. The only possible \crdtlinearization{} of $\aobj_1$ is $\aobj_1.\alabelshort[{\tt addAt}]{a,1} \cdot \aobj_1.\alabelshort[{\tt addAt}]{b,2} \cdot \aobj_1.\alabelshort[{\tt remove}]{a}$; since in $\aobj_1.\alabelshort[{\tt addAt}]{a,1} \cdot \aobj_1.\alabelshort[{\tt remove}]{a} \cdot \aobj_1.\alabelshort[{\tt addAt}]{b,2}$, before inserting $b$, the list is $\epsilon$ and $b$ can not be inserted in position $2$. Similarly, the only possible \crdtlinearization{} of $\aobj_2$ is $\aobj_2.\alabelshort[{\tt addAt}]{c,1} \cdot \aobj_2.\alabelshort[{\tt addAt}]{d,2} \cdot \aobj_2.\alabelshort[{\tt remove}]{c}$. However, such two \crdtlinearization{} are not timestamp-order linearizations. Moreover, the two \crdtlinearization{} and the visibility relation berings a cycle.
 
 %In \cite{DBLP:conf/podc/AttiyaBGMYZ16}, they use a more complex interface for RGA and other list implementations: $\alabellong[{\tt addAt}]{a,k}{s}{}, \alabellong[{\tt remove}]{a}{s}{},\alabellong[{\tt read}]{}{s}{}$: $\alabellong[{\tt addAt}]{a,k}{s}{}$ puts value $a$ in position $k$ of the list and returns the updated list $s$, $\alabellong[{\tt remove}]{a}{s}{}$ removes $a$ from the list and returns the updated list $s$, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. Similarly, such interface is not compositional.
 
@@ -132,7 +132,7 @@
 
 Let us consider another possible interface for RGA: $\alabelshort[{\tt addAt}]{a,k}$ puts value $a$ at the $k$-th position of the list, $\alabelshort[{\tt remove}]{a}$ removes a from the list, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. 
 
-In \figurename~\ref{fig:an example that shows RGA with addAt interface is hard to prove}, we shows an example such that the proof of RGA with {\tt addAt} interface is hard to prove. Here assume that timestamp order of $b,c,d,e$ is $b<c<d<e$. Let us call the upper history $h_1$ and the history below $h_2$. The only difference between $h_1$ and $h_2$ is the position of $e$. Both $h_1$ and $h_2$ is \crdtlinearizable{}. However, their \crdtlinearization{} are completely different. We draw the \crdtlinearization{} below the corresponding history. This implies that, the \crdtlinearization{} is no longer timestamp-order linearizations, but something influenced by position. The position $2$ of $e$ in $h_2$ represents that ``the list contains at least one value'', which is essentially a semantics requirement, and it is reasonable to believe that the proof of RGA with {\tt addAt} interface will be much more complex than proving using timestamp-order linearizations.
+In \autoref{fig:an example that shows RGA with addAt interface is hard to prove}, we shows an example such that the proof of RGA with {\tt addAt} interface is hard to prove. Here assume that timestamp order of $b,c,d,e$ is $b<c<d<e$. Let us call the upper history $h_1$ and the history below $h_2$. The only difference between $h_1$ and $h_2$ is the position of $e$. Both $h_1$ and $h_2$ is \crdtlinearizable{}. However, their \crdtlinearization{} are completely different. We draw the \crdtlinearization{} below the corresponding history. This implies that, the \crdtlinearization{} is no longer timestamp-order linearizations, but something influenced by position. The position $2$ of $e$ in $h_2$ represents that ``the list contains at least one value'', which is essentially a semantics requirement, and it is reasonable to believe that the proof of RGA with {\tt addAt} interface will be much more complex than proving using timestamp-order linearizations.
 
 \begin{figure}[t]
   \centering
@@ -143,7 +143,7 @@ In \figurename~\ref{fig:an example that shows RGA with addAt interface is hard t
 \end{figure} 
 
 
-In \figurename~\ref{fig:an example that shows RGA with addAt interface is not RAlinearizable}, we shows an example of RGA, it uses {\tt addAt} interface, and is not \crdtlinearizable{}. Here assume that timestamp order of $a,b,c,d,e$ is $a<b<c<d<e$. For easy understanding, we also draw the local state of $\arep_3$ in \figurename~\ref{fig:an example that shows RGA with addAt interface is not RAlinearizable}. 
+In \autoref{fig:an example that shows RGA with addAt interface is not RAlinearizable}, we shows an example of RGA, it uses {\tt addAt} interface, and is not \crdtlinearizable{}. Here assume that timestamp order of $a,b,c,d,e$ is $a<b<c<d<e$. For easy understanding, we also draw the local state of $\arep_3$ in \autoref{fig:an example that shows RGA with addAt interface is not RAlinearizable}. 
 
 \begin{figure}[t]
   \centering
@@ -320,7 +320,7 @@ Given a multi-object history $h$, if each of its object uses a t0-specification,
 \subsection{Composing Several t0-Specifications with One T1-specification}
 \label{lemma:composing several t0-specification with one t1-specification}
 
-Composing several t0-specifications with one t1-specification does not hold in general. \figurename~\ref{fig:a failed example of composing a multi-value register with a last-write-win register} is a history $h$ that is a failed example of composing a multi-value register with a last-write-win register, where the operations of LWW register are boxed. Here we assume that $\mathit{ts}_1<\mathit{ts}_2$. Since multi-value register is t0-specification and LWW register is t1-specification, we can see that the projection of $h$ into operations of multi-value register is distributed linearization and the only possible linearization is $\mathit{write}(a) \cdot \mathit{write}(b)$, and the projection of $h$ into operations of LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c) \cdot \mathit{write}(d)$. However, $h$ is not distributed linearizable, since there is a a cycle.
+Composing several t0-specifications with one t1-specification does not hold in general. \autoref{fig:a failed example of composing a multi-value register with a last-write-win register} is a history $h$ that is a failed example of composing a multi-value register with a last-write-win register, where the operations of LWW register are boxed. Here we assume that $\mathit{ts}_1<\mathit{ts}_2$. Since multi-value register is t0-specification and LWW register is t1-specification, we can see that the projection of $h$ into operations of multi-value register is distributed linearization and the only possible linearization is $\mathit{write}(a) \cdot \mathit{write}(b)$, and the projection of $h$ into operations of LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c) \cdot \mathit{write}(d)$. However, $h$ is not distributed linearizable, since there is a a cycle.
 
 \begin{figure}[t]
   \centering
@@ -343,7 +343,7 @@ Given a multi-object $h$, if its object use several t0-specifications and one t1
 \subsection{Composing Several t0-Specifications with Several T1-specification}
 \label{lemma:composing several t0-specification with several t1-specification}
 
-Composing several t0-specifications with several t1-specification does not hold in general. \figurename~\ref{fig:a failed example of composing two last-write-win registers} is a history $h$ that is a failed example of composing two last-write-win registers, where the operations of one LWW register are boxed, and the operations of the other LWW registers are not boxed. Here we assume that $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$. Since LWW register is t1-specification, we can see that the projection of $h$ into operations of one LWW register is distributed linearization and the only possible linearization is $\mathit{write}(a,\mathit{ts}'_1) \cdot \mathit{write}(b,\mathit{ts}'_2)$, and the projection of $h$ into operations of the other LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c,\mathit{ts}_1) \cdot \mathit{write}(d,\mathit{ts}_2) \cdot \mathit{write}(e,\mathit{ts}_3)$. However, $h$ is not distributed linearizable, since there is a a cycle.
+Composing several t0-specifications with several t1-specification does not hold in general. \autoref{fig:a failed example of composing two last-write-win registers} is a history $h$ that is a failed example of composing two last-write-win registers, where the operations of one LWW register are boxed, and the operations of the other LWW registers are not boxed. Here we assume that $\mathit{ts}_1 < \mathit{ts}_2 < \mathit{ts}_3$, and $\mathit{ts}'_1 < \mathit{ts}'_2$. Since LWW register is t1-specification, we can see that the projection of $h$ into operations of one LWW register is distributed linearization and the only possible linearization is $\mathit{write}(a,\mathit{ts}'_1) \cdot \mathit{write}(b,\mathit{ts}'_2)$, and the projection of $h$ into operations of the other LWW register is distributed linearization and the only possible linearization is $\mathit{write}(c,\mathit{ts}_1) \cdot \mathit{write}(d,\mathit{ts}_2) \cdot \mathit{write}(e,\mathit{ts}_3)$. However, $h$ is not distributed linearizable, since there is a a cycle.
 
 \begin{figure}[t]
   \centering
@@ -450,7 +450,7 @@ Based on shared-time-stamp,
 
 
 
-Formally, given a set $\mathit{Objs}$ of objects, its semantics is defined as $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \figurename~\ref{fig:the semantics of multiple operation-based CRDT object}.
+Formally, given a set $\mathit{Objs}$ of objects, its semantics is defined as $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$ as in \autoref{fig:the semantics of multiple operation-based CRDT object}.
 
 
 \begin{figure}[ht]
@@ -501,7 +501,7 @@ $\Sigma' = \mathit{do}(\mathit{Objs} \times \mathbb{M} \times \mathbb{D} \times 
 
 
 
-$R$ is now a function from object and replica identifier to local state. Message and action also record its object. $\mathit{MsgHB}$ and $\mathit{MsgDel}$ now record the relation between messages of multiple objects. In each transition rule of \figurename~\ref{fig:the semantics of multiple operation-based CRDT object}, we deal with each object according to its CRDT implementations. Similarly, a sequence $l$ of actions is an execution of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T,\mathit{MsgHB},\mathit{MsgDel}) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T,\mathit{MsgHB},\mathit{MsgDel})$. The semantics of $\mathit{Objs}$ is defined as the set of executions of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}}$.
+$R$ is now a function from object and replica identifier to local state. Message and action also record its object. $\mathit{MsgHB}$ and $\mathit{MsgDel}$ now record the relation between messages of multiple objects. In each transition rule of \autoref{fig:the semantics of multiple operation-based CRDT object}, we deal with each object according to its CRDT implementations. Similarly, a sequence $l$ of actions is an execution of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}} = (\mathit{Config},\mathit{config}_0,\Sigma',\rightarrow)$, if there exists $(R,T,\mathit{MsgHB},\mathit{MsgDel}) \in \mathit{Config}$, such that $\mathit{config}_0 {\xrightarrow{ l }} (R,T,\mathit{MsgHB},\mathit{MsgDel})$. The semantics of $\mathit{Objs}$ is defined as the set of executions of $\llbracket \mathit{Objs} \rrbracket_{\mathit{op}}$.
 
 
 
@@ -510,7 +510,7 @@ $R$ is now a function from object and replica identifier to local state. Message
 A configuration $(R,T,\mathit{MsgHB},\mathit{MsgDel})$ is a snapshot of distributed system. $R$ gives the local state of each replica, and $T$ gives the set of messages that has been generated. Let $\mathbb{MID}$ be the set of message identifiers of message content. A message is a tuple $(\mathit{mid},\mathit{msg},r)$, where $\mathit{mid} \in \mathbb{MID}$ is the identifier, $\mathit{msg} \in \mathbb{MSG}$ is the message content, and $r$ is the original replica of message. $\mathit{MsgHB}$ is used to record the happen-before relation between messages: two messages $(\mathit{mid}_1,\mathit{mid}_2) \in \mathit{MsgHB}$ represents that the operation of $\mathit{mid}_1$ happens before the operation of $\mathit{mid}_2$. $\mathit{MsgDel}$ is used to record the message delivery relation between messages: $(\mathit{mid},r) \in \mathit{MsgDel}$ represents that message $\mathit{mid}_1$ has already been delivered to replica $r$. $\mathit{MsgHB}$ and $\mathit{MsgDel}$ are used to ensure message delivery requirements. $\mathit{config}_0$ is the initial configuration, which maps each replica into the initial local state, has no message, and with a empty happen-before relation and a empty message delivery relation.
 
 
-Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describes a single step of distributed systems. The first rule in \figurename~\ref{fig:the semantics of a operation-based CRDT object} describes replica $r$ performs a update operation $m(a) \Rightarrow b$ and generates a message with message content $\mathit{msg}$. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. We insert message identifier $\mathit{mid}$ into the happen-before relation and keeps the happen-before relation be transitive. The second rule describes replica $r$ performs a query operation $m(a) \Rightarrow b$ and thus does not generate message. Since no message is generated, the $\mathit{MsgHB}$ and $\mathit{MsgDel}$ tuples remain the same. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$. By $(\mathit{mid},r) \notin \mathit{MsgDel}$, we ensure that $\mathit{mid}$ has not been previously delivered to replica $r$, and thus, each message be delivered to each replica at most once. By $\mathit{mid}$ being minimal w.r.t $\mathit{MsgHB}$ among $\{ \mathit{mid}' \vert (\mathit{mid}',r) \notin \mathit{MsgDel} \}$, we always choose a minimal element w.r.t $\mathit{MsgHB}$ among operations not been delivered to a replica, and thus, ensures causal-delivery.
+Each element of $\Sigma'$ is called an action. $\rightarrow \in \mathit{Config} \times \Sigma' \times \mathit{Config}$ is the transition relation and describes a single step of distributed systems. The first rule in \autoref{fig:the semantics of a operation-based CRDT object} describes replica $r$ performs a update operation $m(a) \Rightarrow b$ and generates a message with message content $\mathit{msg}$. Here $\mathit{unique}$ is a function that ensures $\mathit{mid}$ be a fresh message identifier. We insert message identifier $\mathit{mid}$ into the happen-before relation and keeps the happen-before relation be transitive. The second rule describes replica $r$ performs a query operation $m(a) \Rightarrow b$ and thus does not generate message. Since no message is generated, the $\mathit{MsgHB}$ and $\mathit{MsgDel}$ tuples remain the same. The third rule describes delivery of a message to a replica $r$ other than its origin replica $r'$. By $(\mathit{mid},r) \notin \mathit{MsgDel}$, we ensure that $\mathit{mid}$ has not been previously delivered to replica $r$, and thus, each message be delivered to each replica at most once. By $\mathit{mid}$ being minimal w.r.t $\mathit{MsgHB}$ among $\{ \mathit{mid}' \vert (\mathit{mid}',r) \notin \mathit{MsgDel} \}$, we always choose a minimal element w.r.t $\mathit{MsgHB}$ among operations not been delivered to a replica, and thus, ensures causal-delivery.
 
 
 
