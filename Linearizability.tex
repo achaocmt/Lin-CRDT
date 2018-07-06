@@ -766,34 +766,35 @@ A data type implementation is \crdtlinearizable{} w.r.t.
 $\Spec$ if for any object $\aobj$ of the data type, the set
 $\histories(\aobj)$ is linearizable w.r.t. $\Spec$.
 
+% \fxwarning[nomargin, inline]{MOVE THE FOLLOWING WHEN WE NEED IT (WHEN WE TALK ABOUT SOME NONDETERMINISTIC SPECIFICATION, E.G., WOOT)}
 
-\fxwarning[nomargin, inline]{MOVE THE FOLLOWING WHEN WE NEED IT (WHEN WE TALK ABOUT SOME NONDETERMINISTIC SPECIFICATION, E.G., WOOT)}
-
-An important property of CRDT algorithms is \emph{convergence}.
-Convergence means that all replicas will arrive to the same final
-state when the same set of operations are applied to them.
-For the moment we concentrate on specifications that are
-\emph{deterministic}.
-That is to say that for every label, the transition from a given
-initial state can produce at most one final state.
-We will later remove this restriction.
-It is useful to remark that if the specification of a CRDT is
-deterministic, then our definition of \crdtlin{} implies the
-convergence of the data type, as formalized in the following lemma.
+As we anticipated, our definition of \CRDTLinshort{} implies that if
+an implementation is \crdtlinearizable{} w.r.t. a deterministic
+specification, then it is also convergent.
 
 \begin{lemma}
 \label{lemma:distributed linarizability implies convergence}
 If a history $h$ is \crdtlinearizable{} w.r.t. a deterministic
 sequential specification \Spec, then $h$ is convergent.
-\end{lemma}
+\end{lemma} 
+
+A similar lemma can be shown for non-deterministic
+specifications, but we relegate to the additional material for space
+reasons.
+\gpnote{Ref to the appendix?}
 
 
-
-
-
-
-
-
+% An important property of CRDT algorithms is \emph{convergence}.
+% Convergence means that all replicas will arrive to the same final
+% state when the same set of operations are applied to them.
+% For the moment we concentrate on specifications that are
+% \emph{deterministic}.
+% That is to say that for every label, the transition from a given
+% initial state can produce at most one final state.
+% We will later remove this restriction.
+% It is useful to remark that if the specification of a CRDT is
+% deterministic, then our definition of \crdtlin{} implies the
+% convergence of the data type, as formalized in the following lemma.
 
 \forget{
 \fxfatal[nomargin, inline]{Complete the others!}
