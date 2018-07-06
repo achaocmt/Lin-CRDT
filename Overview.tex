@@ -254,7 +254,7 @@ It is clear now that the result of the list is $\mathtt{a \cdot b
 
 
 % \gpnote*{By Chao. Should be elsewhere}{
-% \figurename~\ref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
+% \autoref{fig:how RGA works} gives a example of how RGA do conflict resolution for concurrent $addAfter$ operations, and how it do $remove$: if from one local state we do concurrent $\alabelshort[addAfter]{b,c}$ and $\alabelshort[addAfter]{b,d}$, then it converges. If we then do $\alabelshort[remove]{b}$, we just add $b$ into tombstone. Here we assume $\ats_a$, $\ats_b$, $\ats_c$ and $\ats_d$ is the timestamp of $a$, $b$, $c$ and $d$, respectively, and the timestamp order be $\ats_a < \ats_b < \ats_c < \ats_d$.
 % }
 
 We have so far ignored the \lstinline|remove| operation.
@@ -739,7 +739,7 @@ Any identifier not in this set will remain in the set after the update
 part of the remove.
 %
 \autoref{fig:or-set-lk-rem} shows this rewriting
-where we denote by \lstinline|lk| (for lookup) the query part of
+where we denote by \lstinline|readIds| the query part of
 remove, which returns a set of elements to be removed, and a
 \lstinline|remove| operation taking a set of elements to be removed.
 %

@@ -169,7 +169,7 @@ $\dwn{\arep}{\alabel}$ is the downstream action for the same label.
 Given a CRDT object $\aobj$, its semantics is defined as a labeled transition
 system (LTS) $\llbracket \aobj \rrbracket =
 (\globalstates,\acts,\aglobalstate_0,\rightarrow)$ as shown in
-\figurename~\ref{fig:crdt-opsem}, where $\globalstates$ is a set of
+\autoref{fig:crdt-opsem}, where $\globalstates$ is a set of
 global configurations, $\acts$ is the set of transition labels called \emph{actions},
 $\aglobalstate_0$ is the initial configuration, and
 $\rightarrow\subseteq \globalstates \times \acts\times \globalstates$ is the
@@ -209,7 +209,7 @@ For some fixed initial replica state $\astate_0$, the initial global configurati
 %\fxwarning[nomargin, inline]{ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.}
 
 The transition relation between global configurations is defined in
-\figurename~\ref{fig:crdt-opsem}.
+\autoref{fig:crdt-opsem}.
 The first rule describes a replica $\arep$ in state $\astate$
 executing an invocation of method $\amethod$ with argument $\argv$.
 This transition first applies the {\tt atSource} function $\atsource$
@@ -251,7 +251,7 @@ $\mathtt{remove}(b)$ is executed by replica $\arep_1$.
 %
 Notice in particular how the global visibility relation is extended.
 
-% \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (b) to \figurename~\ref{fig:an example run of semantics} (c).}
+% \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \autoref{fig:an example run of semantics} (b) to \autoref{fig:an example run of semantics} (c).}
 
 The second rule describes a replica $\arep$ in state $\astate$
 executing the downstream $\effector$ that corresponds to an operation
@@ -287,7 +287,7 @@ relation only changes when a new operation is executed at the source
 replica.
 
 
-% \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \figurename~\ref{fig:an example run of semantics} (a) to \figurename~\ref{fig:an example run of semantics} (b).}
+% \fxwarning[nomargin, inline]{EXAMPLE BASED ON RGA} {\color {red} CW: See the process from \autoref{fig:an example run of semantics} (a) to \autoref{fig:an example run of semantics} (b).}
 
 \begin{figure}[t]
   % \centering
@@ -361,13 +361,13 @@ Given an execution $e$ ending in a global configuration $(\gstates,
 \avisord, \downstreams)$, the \emph{history} of $e$, denoted by $\hist{e}$, is the pair
 $(\labeldom{\avisord}, \avisord)$. Note that the relation $\avisord$ is a strict partial order in this case.
 We will later allow a more general notion of history in order to deal
-with object compositions (see Section~\ref{sec:compositionality}).
+with object compositions (see \autoref{sec:compositionality}).
 Also, the history of a trace $\atrace$, denoted by $\hist{\atrace}$,
 is the history of the execution that corresponds to $\atrace$.
 The set of histories $\histories(\aobj)$ of an object $\aobj$ is the
 set of histories $h$ of an execution $e$ of $\aobj$.
 
-\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.} {\color {red} CW: \figurename~\ref{fig:an example run of semantics} shows two steps of a history of RGA, and we can see how history grow in this example. Do I need to draw another figure start from initial global configuration?}
+\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.} {\color {red} CW: \autoref{fig:an example run of semantics} shows two steps of a history of RGA, and we can see how history grow in this example. Do I need to draw another figure start from initial global configuration?}
 
 %\ce{Need to talk about read/updates}
 %
@@ -698,7 +698,7 @@ that
   to it.
 \end{inparaenum}
 
-\fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW} {\color {red}CW: \figurename~\ref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its linearization step by step.}
+\fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW} {\color {red}CW: \autoref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its linearization step by step.}
 
 We now consider the case where histories include query-updates.
 In such a case, we apply~\autoref{definition:ralinearizability1} on a
@@ -711,7 +711,7 @@ original operations of the data type, but which have been extended to
 be taken into account by the specification.
 Also, other (update) operations of the object may be rewritten as
 well.}
-\fxwarning[nomargin, inline]{EXPLAIN THE OR-SET CASE.} {\color {red}CW: \figurename~\ref{fig:a history of OR-set, its update-query rewriting, and its RA-linearization} gives a history of OR-set, its query-update rewriting, and its \crdtlinearization{}.}
+\fxwarning[nomargin, inline]{EXPLAIN THE OR-SET CASE.} {\color {red}CW: \autoref{fig:a history of OR-set, its update-query rewriting, and its RA-linearization} gives a history of OR-set, its query-update rewriting, and its \crdtlinearization{}.}
 
 TODO MODIFY $\gamma$ BECAUSE IT MAY REWRITE UPDATES AS WELL. DO WE NEED TO REWRITE QUERIES ?
 
