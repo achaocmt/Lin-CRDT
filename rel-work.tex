@@ -15,15 +15,30 @@ operations are structured using partial orders (e.g. visibility), and
 axioms on these partial orders characterize the validity of invalidity
 of behaviours of operations.
 %
-This specification style bares some similarities with the literature
+This specification style bears some similarities with the literature
 of weakly consistent shared memory systems~\cite{AlglaveMT14}.
 %
 While the specification language
 of~\cite{BurckhardtGYZ14,Burckhardt14} appears to be complete, this
 comes at the cost of complexity of the specifications.
 %
-To specify the behavior of a CRDT in this model one is forced to think
-about the many partial orders and axioms that constraint them.
+The specification of an operation in this framework is given as a
+function whose inputs are the operation name and its arguments
+together with a \emph{context} for the operation.
+%
+A context is a graph of operations equipped with two partial orders:
+visibility (similar to our visibility) and arbitration.
+%
+Arbitration is a total order over the operations whose purpose is to
+represent the deterministic conflict resolution of the algorithms.
+%
+The validity of an operation is given by a set of axioms relating the
+visibility and arbitration orders with the result value of the
+operation.
+%
+Therefore, to specify the behavior of a CRDT in this model one is
+forced to think about the context graph and the axioms that constraint
+them.
 %
 One of the goals of \CRDTLinshort{} is to simplify specifications and
 free the user from reasoning about complicated graphs resulting from
@@ -73,20 +88,20 @@ There are some important differences between SEC and \CRDTLinshort{}:
     stated in the paper.}
 \item
   \label{it-dependencies}
-  A second important difference is in that in their framework CRDT
+  A second important difference is that in for the SEC framework CRDT
   specifications are assumed to be parameterized by a given dependency
-  relation between operations of the data type.
+  relation at the level of the type API.
   %
   Then, their definition assumes that all independent operations
   commute (regardless whether these are issued by the same client or
   not).
   %
-  It is unclear that such a specification could be adequate for
-  systems enforcing (some of their) session guarantees
+  It is unclear how such a specification could be adequately capture
+  systems enforcing (some of the) session guarantees
   of~\cite{TerryDPSTW94}.
   %
   With \CRDTLinshort{} we strive to preserve the guarantees enforced by the
-  underlying network of the system.
+  underlying system network.
   %
   This is particularly important since we assume that certain
   operations that appear to be independent w.r.t. the API could be
@@ -95,25 +110,33 @@ There are some important differences between SEC and \CRDTLinshort{}:
   This is certainly the case when we relabel query-update operations
   since the query usually provides arguments for the subsequent
   update.
-\item Another important difference concerns their compositionality
+\item A last important difference concerns their compositionality
   result.
   %
-  While their compositionality result which appears to be similar to
-  ours, the fact that operations stemming from different objects are
-  necessarily independent (the dependency relation is given at the level
-  of the API of an object, hence one cannot give one between objects) in
-  conjunction with the point~ref{it-dependencies} means that the
-  interleaving of specifications of two different objects makes the
-  operations of the objects independent.
+  While their compositionality result appears similar to ours, the
+  fact that operations stemming from different objects are necessarily
+  independent (the dependency relation is given at the level of the API
+  of an object, hence no dependencies between objects) in conjunction
+  with the point~(\ref{it-dependencies}) above means that the interleaving
+  of specifications of two different objects is such that any two
+  operations on the different objects are independent.
   %
   Hence, the composition of specifications of two objects accepts any
-  interleaving of the example in~\autoref{fig:negative_composition}
-  which we find at least counter-intuitive.
+  interleaving, for example any interleaving of the linearizations
+  of~\autoref{fig:negative_composition} would be accepted.
   %
-  Our result is strictly stronger, since the composition of the
-  specification of two objects will respect causality stemming from
-  the client code as illustrated by the failure to linearize the
-  interleavings of~\autoref{fig:negative_composition}.
+  We find this definition of composition counter-intuitive, but more
+  problematically, the composition of specifications cannot capture
+  causality relations between the different objects, a very common
+  pattern when writing distributed applications (e.g. for referential
+  integrity in a key-value store).
+  %
+  Our result is stronger since the composition of the specification of
+  two objects will respect the causality resulting from the client code as
+  illustrated by the failure to linearize the interleavings
+  in~\autoref{fig:negative_composition}.\footnote{Note that there
+    are other linearizations for which this composition is indeed
+    linearizable (see~\sectionautorefname~\ref{sec:compositionality}).}
   %
   We show however in~\autoref{sec:compositionality} conditions on the
   CRDTs under which the composition can always be linearized.
@@ -122,12 +145,12 @@ There are some important differences between SEC and \CRDTLinshort{}:
 
 \paragraph{Verification of CRDTs}
 There are several works that approach the problem of verifying that a
-CRDT implementation is correct w.r.t. a certain specification.
+CRDT implementation is correct w.r.t. a specification.
 %
 Here we mention but a few.
 %
 In~\cite{BurckhardtGYZ14, AttiyaBGMYZ16, Burckhardt14} along with the
-formal specification proofs of correctness of implementations are
+formal specification, proofs of correctness of implementations are
 given for several CRDTs.
 %
 Of interest is the notion of Replication Aware Simulation introduced
