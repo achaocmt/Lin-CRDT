@@ -6,7 +6,7 @@
 \subsection{Multi-Value Register Implementation}
 \label{subsec:multi-value register implementation}
 
-\cite{ShapiroPBZ11} shows how to obtain a state-based \crdtimp{} from a operation-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. To do an operation $f(a)$, we compute the state-based update and perform merge method in downstream. Here the precondition of downstream is empty because merge is always enabled.
+\cite{ShapiroPBZ11} introduces state-based \crdtimp{}, where an update occurs entirely at the source replica, and then propagates by transmitting the modified payload between replicas. When a replica receives a effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload. \cite{ShapiroPBZ11} shows how to obtain a operation-based \crdtimp{} from a state-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. Since query operations do not change, we ignore query operations. To do a update operation $f(a)$, we compute the state-based update and perform merge in downstream. Here the precondition of downstream is empty because merge is always enabled.
 
 
 \begin{minipage}[t]{1.0\linewidth}
@@ -15,7 +15,7 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
   payload S ( the state-based payload )
   initial initial payload of S
 
-  update method f(a)
+  f(a)
     atSource :
       precondition : precondition of f(a)
       let s = atSource of f(a) in state-based
@@ -26,8 +26,8 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
 
 $\\$ $\\$
 
-\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is $reps()$. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
-Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is the number of replicas in distributed system. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for effector of $write(a)$.
 
 
 \begin{figure}[t]
@@ -43,21 +43,21 @@ captionpos=b,label={lst:operation-based multi-value register}]
       let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
       let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
       let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{}{S}{}\,\cdot\,\alabelshort[{\tt write}]{a,V',S}$|@
-    downStream(a, V') :
+      //@ lin = lin@|$\,\cdot\,( $|@readIds()@|$\,\Rightarrow\,$|@S@|$ )\,\cdot\,write(a,V',S)$|@
+    downStream(@|$(a,V')$|@) :
       let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
       S = A @|$\cup$|@ B
-      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabellongind[write]{\_,\_}{\bot}{*}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@
+      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt write}]{\_}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@
 
   read() :
     let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{S_1}{}$|@
+    //@ lin = lin@|$\,\cdot\,( $|@read()@|$\,\Rightarrow\,S_1)$|@
     return @|$S_1$|@
 \end{lstlisting}
 \end{figure}
 
-%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@    
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
 
 
 
@@ -67,7 +67,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
 \subsection{Counter Implementation}
 \label{subsec:counter implementation}
 
-\cite{ShapiroPBZ11} gives a operation-based counter implementation, which is shown in Listing~\ref{lst:operation-based multi-value register}. A payload is a integer $ctr$. 
+\cite{ShapiroPBZ11} gives a operation-based counter implementation, which is shown in Listing~\ref{lst:operation-based counter}. A payload is a integer $ctr$.
 
 
 \begin{figure}[t]
@@ -79,19 +79,19 @@ captionpos=b,label={lst:operation-based counter}]
 
   inc() :
     atSource :
-      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt inc}]{} $|@
+      //@ lin = lin@|$\,\cdot\,inc() $|@
     downStream(inc) :
-      ctr = ctr + 1 
-  
+      ctr = ctr + 1
+
   dec() :
     atSource :
-      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt dec}]{} $|@
+      //@ lin = lin@|$\,\cdot\,dec() $|@
     downStream(dec) :
-      ctr = ctr - 1 
+      ctr = ctr - 1
 
-  read() : 
-    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ ctr }{}$|@
-    return ctr 
+  read() :
+    //@ let lin' = lin@|$\,\cdot\,(read()\Rightarrow ctr)$|@
+    return ctr
 \end{lstlisting}
 \end{figure}
 
@@ -104,34 +104,46 @@ captionpos=b,label={lst:operation-based counter}]
 \subsection{PN-Counter Implementation}
 \label{subsec:PN-counter implementation}
 
-\cite{ShapiroPBZ11} gives a state-based PN-counter implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is $reps()$. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+\cite{ShapiroPBZ11} gives a state-based PN-counter implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based PN-counter}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier, and $\alabelshort[{\tt reps}]{}$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is $reps()$. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
 Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
 
 
 \begin{figure}[t]
-\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based multi-value register},
-captionpos=b,label={lst:operation-based multi-value register}]
-  payload Set S
-  initial S = @|$\emptyset$|@
-  initial lin = @|$\epsilon$|@
-
-  write(a) :
+\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based PN-counter},
+captionpos=b,label={lst:operation-based PN-counter}]
+  payload ingeter[reps()] P, ingeter[reps()] N  
+  initial P = [@|$0,\ldots,0$|@], N = [@|$0,\ldots,0$|@]
+  initial lin = @|$\epsilon$|@ 
+  
+  inc()
+    atSource : 
+      let g = myRep() 
+      let @|$P'$|@ = @|$P[ g: P[g] + 1]$|@ 
+      let @|$N'$|@ = @|$N$|@ 
+      //@ lin = lin@|$\,\cdot\,inc()$|@ 
+    downStream(@|$(P',N')$|@) :
+      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@ 
+      @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@, 
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@, 
+  
+  dec()
     atSource :
       let g = myRep()
-      let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
-      let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
-      let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{}{S}{}\,\cdot\,\alabelshort[{\tt write}]{a,V',S}$|@
-    downStream(a, V') :
-      let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
-      let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
-      S = A @|$\cup$|@ B
-      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabellongind[write]{\_,\_}{\bot}{*}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@
+      let @|$P'$|@ = @|$P$|@
+      let @|$N'$|@ = @|$N[ g: N[g] + 1]$|@
+      //@ lin = lin@|$\,\cdot\,dec()$|@
+    downStream(@|$(P',N')$|@) :
+      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@
+      @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      
 
   read() :
-    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{S_1}{}$|@
-    return @|$S_1$|@
+    let c  = @|$\Sigma_{\arep} P[\arep]$|@ - @|$\Sigma_{\arep} N[\arep]$|@
+    //@ lin = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{c}{}$|@
+    return c
 \end{lstlisting}
 \end{figure}
 
@@ -642,13 +654,13 @@ Then, let us prove that the operation-based counter is \crdtlinearizable{} w.r.t
 
 \begin{lemma}
 \label{lemma:operation-based counter is correct}
-The operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$. 
+The operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$.
 \end{lemma}
 
-\begin {proof} 
-Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that concurrent effectors commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+\begin {proof}
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that concurrent effectors commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. Then, the effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt dec}]{}$. Applying the query $\alabellongind[{\tt read}]{}{ctr}{}$ on the replica state $\sigma$ should result in the same return value $ctr$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma=ctr$, which again holds trivially. 
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. Then, the effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt dec}]{}$. Applying the query $\alabellongind[{\tt read}]{}{ctr}{}$ on the replica state $\sigma$ should result in the same return value $ctr$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma=ctr$, which again holds trivially.
 
 Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification). Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order. More precisely, we have to show that for each query $\alabel_{\mathsf{qr}} = \alabellongind[{\tt read}]{}{k}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\specarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\specarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\specarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end {proof}
@@ -913,7 +925,7 @@ This completes the proof of this lemma. $\qed$
 
 A sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
-For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded. 
+For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded.
 
 \begin{figure}[t]
   \centering
@@ -934,7 +946,7 @@ Given an execution $e$ of $\aobj$, we propose the following two property of $e$:
 
 We say an execution $e$ is ready for downstream, if given a local state $\sigma$ of $e$ which is of replica $\arep$, we can safely apply all the downstream that are still not visible to replica $\arep$ in any order consistent with visibility relation.
 
-Let us go back to \autoref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$. 
+Let us go back to \autoref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$.
 
 $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$
 
