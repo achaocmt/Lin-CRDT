@@ -6,7 +6,7 @@
 \subsection{Multi-Value Register Implementation}
 \label{subsec:multi-value register implementation}
 
-\cite{ShapiroPBZ11} shows how to obtain a state-based \crdtimp{} from a operation-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. To do an operation $f(a)$, we compute the state-based update and perform merge method in downstream. Here the precondition of downstream is empty because merge is always enabled.
+\cite{ShapiroPBZ11} introduces state-based \crdtimp{}, where an update occurs entirely at the source replica, and then propagates by transmitting the modified payload between replicas. When a replica receives a effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload. \cite{ShapiroPBZ11} shows how to obtain a operation-based \crdtimp{} from a state-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. Since query operations do not change, we ignore query operations. To do a update operation $f(a)$, we compute the state-based update and perform merge in downstream. Here the precondition of downstream is empty because merge is always enabled.
 
 
 \begin{minipage}[t]{1.0\linewidth}
@@ -15,7 +15,7 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
   payload S ( the state-based payload )
   initial initial payload of S
 
-  update method f(a)
+  f(a)
     atSource :
       precondition : precondition of f(a)
       let s = atSource of f(a) in state-based
@@ -26,8 +26,8 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
 
 $\\$ $\\$
 
-\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
-Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is the number of replicas in distributed system. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for effector of $write(a)$.
 
 
 \begin{figure}[t]
@@ -43,21 +43,21 @@ captionpos=b,label={lst:operation-based multi-value register}]
       let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
       let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
       let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{}{S}{}\,\cdot\,\alabelshort[{\tt write}]{a,V',S}$|@
-    downStream(a, V') :
+      //@ lin = lin@|$\,\cdot\,( $|@readIds()@|$\,\Rightarrow\,$|@S@|$ )\,\cdot\,write(a,V',S)$|@
+    downStream(@|$(a,V')$|@) :
       let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
       S = A @|$\cup$|@ B
-      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabellongind[write]{\_,\_}{\bot}{*}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@
+      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt write}]{\_}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@
 
   read() :
     let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{S_1}{}$|@
+    //@ lin = lin@|$\,\cdot\,( $|@read()@|$\,\Rightarrow\,S_1)$|@
     return @|$S_1$|@
 \end{lstlisting}
 \end{figure}
 
-%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@    
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
 
 
 
@@ -67,7 +67,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
 \subsection{Counter Implementation}
 \label{subsec:counter implementation}
 
-\cite{ShapiroPBZ11} gives a operation-based counter implementation, which is shown in Listing~\ref{lst:operation-based multi-value register}. A payload is a integer $ctr$. 
+\cite{ShapiroPBZ11} gives a operation-based counter implementation, which is shown in Listing~\ref{lst:operation-based counter}. A payload is a integer $ctr$.
 
 
 \begin{figure}[t]
@@ -79,23 +79,76 @@ captionpos=b,label={lst:operation-based counter}]
 
   inc() :
     atSource :
-      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt inc}]{} $|@
+      //@ lin = lin@|$\,\cdot\,inc() $|@
     downStream(inc) :
-      ctr = ctr + 1 
-  
+      ctr = ctr + 1
+
   dec() :
     atSource :
-      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt dec}]{} $|@
+      //@ lin = lin@|$\,\cdot\,dec() $|@
     downStream(dec) :
-      ctr = ctr - 1 
+      ctr = ctr - 1
 
-  read() : 
-    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ ctr }{}$|@
-    return ctr 
+  read() :
+    //@ let lin' = lin@|$\,\cdot\,(read()\Rightarrow ctr)$|@
+    return ctr
 \end{lstlisting}
 \end{figure}
 
 %//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
+
+
+
+
+
+\subsection{PN-Counter Implementation}
+\label{subsec:PN-counter implementation}
+
+\cite{ShapiroPBZ11} gives a state-based PN-counter implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based PN-counter}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier, and $\alabelshort[{\tt reps}]{}$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ contains a integer array $P$ and a integer array $N$. $P[\arep]$ represents the number of $\alabelshort[{\tt inc}]{}$ that happens on replica $\arep$ and their effector have been applied in current local sate, while $N[\arep]$ represents the number of $\alabelshort[{\tt dec}]{}$ that happens on replica $\arep$ and their effector have been applied in current local sate. Annotation1 is an annotation for effector of {\tt inc} or {\tt dec}.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based PN-counter},
+captionpos=b,label={lst:operation-based PN-counter}]
+  payload ingeter[reps()] P, ingeter[reps()] N  
+  initial P = [@|$0,\ldots,0$|@], N = [@|$0,\ldots,0$|@]
+  initial lin = @|$\epsilon$|@ 
+  
+  inc()
+    atSource : 
+      let g = myRep() 
+      let @|$P'$|@ = @|$P[ g: P[g] + 1]$|@ 
+      let @|$N'$|@ = @|$N$|@ 
+      //@ lin = lin@|$\,\cdot\,inc()$|@ 
+    downStream(@|$(P',N')$|@) :
+      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@ 
+      @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@, 
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@, 
+  
+  dec()
+    atSource :
+      let g = myRep()
+      let @|$P'$|@ = @|$P$|@
+      let @|$N'$|@ = @|$N[ g: N[g] + 1]$|@
+      //@ lin = lin@|$\,\cdot\,dec()$|@
+    downStream(@|$(P',N')$|@) :
+      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@
+      @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      
+
+  read() :
+    let c  = @|$\Sigma_{\arep} P[\arep]$|@ - @|$\Sigma_{\arep} N[\arep]$|@
+    //@ lin = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{c}{}$|@
+    return c
+\end{lstlisting}
+\end{figure}
+
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
+
+
 
 
 
@@ -107,10 +160,10 @@ captionpos=b,label={lst:operation-based counter}]
 The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. %Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
 Wooki algorithm is an optimized version of Woot \cite{DBLP:conf/cscw/OsterUMI06}. To make our introduction more clear, we borrow the notion of W-character and W-string from Woot algorithm.
 
-In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $c$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $c$; $v$ is the value of $c$; $degree$ is the degree of $c$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $c$ and indicates whether $c$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
+In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
 We use $degree(c)$ to denote the degree of $c$.
 
-A W-string is an ordered sequence of W-characters $c_{begin} \cdot c_1 \cdot \ldots \cdot c_n \cdot c_{end}$, where $c_{begin}$ and $c_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $c_{begin}$ and $c_{end}$ are $\circ_{begin}$ and $\circ_{end}$, respectively. The degree of $c_{begin}$ and $c_{end}$ are $0$. We define the following function for a W-string $str$:
+A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ldots \cdot w_n \cdot w_{end}$, where $w_{begin}$ and $w_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_{begin}$ and $w_{end}$ are $\circ_{begin}$ and $\circ_{end}$, respectively. The degree of $w_{begin}$ and $w_{end}$ are $0$. We define the following function for a W-string $str$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -118,11 +171,11 @@ A W-string is an ordered sequence of W-characters $c_{begin} \cdot c_1 \cdot \ld
 
 \item[-] $str[p]$ returns the W-character at position $p$ in $str$. Her we assume that the first element of $str$ is at position 0.
 
-\item[-] $pos(str,c)$ returns the position of W-character $c$ in $S$.
+\item[-] $pos(str,w)$ returns the position of W-character $w$ in $S$.
 
-\item[-] $insert(str,c,p)$ inserts W-character $c$ into $str$ at position $p$.
+\item[-] $insert(str,w,p)$ inserts W-character $w$ into $str$ at position $p$.
 
-\item[-] $subseq(str,c_1,c_2)$ returns the part of $str$ between the W-characters $c_1$ and $c_2$ (excluding $c_1$ and $c_2$).
+\item[-] $subseq(str,w_1,w_2)$ returns the part of $str$ between the W-characters $w_1$ and $w_2$ (excluding $w_1$ and $w_2$).
 
 \item[-] $contains(str,a)$ returns true if there exists a W-character in $str$ with value $a$.
 
@@ -135,7 +188,7 @@ A W-string is an ordered sequence of W-characters $c_{begin} \cdot c_1 \cdot \ld
 
 %Note that only $values(str)$ distinguish whether a W-character is with flag $\mathit{true}$ or with flag $\mathit{false}$.
 
-A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $c_1,c_2$ of $str$, we write $c_1 <_{str} c_2$ to indicate that $pos(str,c_1) < pos(str,c_2)$.
+A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $w_1,w_2$ of $str$, we write $w_1 <_{str} w_2$ to indicate that $pos(str,w_1) < pos(str,w_2)$.
 
 %A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
 
@@ -150,44 +203,44 @@ captionpos=b,label={lst:wooki algorithm}]
     atSource :
       precondition :  @|$contains(string_s,a) \wedge contains(string_s,c) \wedge pos(string_s,c) > pos(string_s,a) \wedge \neg contains(string_s,b)$|@
       let ts = getTimestamp()
-      let @|$c_p$|@ = @|$getWchar(string_s,a)$|@
-      let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
-      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
-    downStream((c,@|$c_p$|@,@|$c_n$|@)) : with @|$c = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
-      integrateIns(@|$c_p,c,c_n$|@)
+      let @|$w_p$|@ = @|$getWchar(string_s,a)$|@
+      let @|$w_n$|@ = @|$getWchar(string_s,c)$|@
+      //@ lin = lin@|$\,\cdot\,addBetween(a,b,c)$|@
+    downStream((w,@|$w_p$|@,@|$w_n$|@)) : with @|$w = (ts, a, max(degree(w_p),degree(w_n)) +1, \mathit{true})$|@
+      integrateIns(@|$w_p,w,w_n$|@)
 
   remove(a) :
     atSource :
       precondition : @|$contains(string_s,a)$|@
       let w = @|$getWchar(string_s,a)$|@
-      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt remove}]{a}$|@
+      //@ lin = lin@|$\,\cdot\,remove(a)$|@
     downStream(w) :
       let p = @|$pos(string_s,w)$|@
       @|$changeFlag(string_s,p,\mathit{false})$|@
 
   read() :
     let s = @|$values(string_s)$|@
-    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ s }{}$|@
+    //@ lin = lin@|$\,\cdot\,(read()\Rightarrow s)$|@
     return s
 
-  integrateIns(@|$c_p,c,c_n$|@)
+  integrateIns(@|$w_p,w,w_n$|@)
     let @|$S$|@ = @|$string_s$|@
-    let @|$S'$|@ = @|$subseq(S,c_p,c_n)$|@
+    let @|$S'$|@ = @|$subseq(S,w_p,w_n)$|@
     if @|$S' = \epsilon$|@
-      then  @|$insert(S,c,pos(S,c_n))$|@
+      then  @|$insert(S,w,pos(S,w_n))$|@
     else
       Let i = 0
       Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@
       Let F be the projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@
-      if (@|$c<_{id} F[0]$|@)
-        integrateIns(@|$c,c_p,F[0]$|@)
+      if (@|$w<_{id} F[0]$|@)
+        integrateIns(@|$w_p,w,F[0]$|@)
       else
-        while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} c$|@) do
+        while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} w$|@) do
             i = i+1
-        if (@|$i = \vert F \vert -1 \wedge F[i] <_{id} c$|@)
-            integrateIns(@|$c,F[i],c_n$|@)
+        if (@|$i = \vert F \vert -1 \wedge F[i] <_{id} w$|@)
+            integrateIns(@|$F[i],w,w_n$|@)
         else
-            integrateIns(@|$c,F[i-1],F[i]$|@)
+            integrateIns(@|$F[i-1],w,F[i]$|@)
 \end{lstlisting}
 \end{figure}
 
@@ -195,9 +248,9 @@ $\\$ $\\$
 
 The payload of each replica is a W-string $string_s$.
 
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a$ and $c$ are adjacent in $string_s$ and $b$ is not in $string_s$. Then, we generate a W-character $c$ for value $b$, and calls method $integrateIns(c,c_p,c_n)$ to put $c$ between $c_p$ and $c_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a$ and $c$ are in $string_s$, $a$ is before $c$ in $string_s$, and $b$ is not in $string_s$. Then, we generate a W-character $w$ for value $b$, and calls method $integrateIns(w_p,w,w_n)$ to put $w$ between $w_p$ and $w_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
 
-$integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $c$ is put after $c_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $c_p$ and $c_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$, and recursive call $integrateIns(c,F[i-1],F[i])$. We can see that, the minimal degree of the sub-sequence of $S$ between $F[i-1]$ and $F[i]$ is larger than that of the sub-sequence of $S$ between $c_p$ and $c_n$.
+$integrateIns(w_p,w,w_n)$ is a recursive method and works as follows: If there are no W-character between $w_p$ and $w_n$, then $w$ is put after $w_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $w_p$ and $w_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $w$, and recursive call $integrateIns(w_x,w,w_y)$ for some $w_x,w_y \in F \cup \{ w_p,w_n \}$. We can see that, the minimal degree of the sub-sequence of $S$ between $w_x$ and $w_y$ is larger than that of the sub-sequence of $S$ between $w_p$ and $w_n$.
 
 To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
 
@@ -354,62 +407,23 @@ To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a
 
 
 \section{Sequential Specifications}
-\label{sec:sequential specifications}
+\label{sec:sequential specifications} 
 
-%In this section we give several sequential specifications.
 
 
 \subsection{The Sequential Specification of Counter}
 \label{subsec:the sequential specification of counter}
 
-The sequential specification $\mathit{counter}_s$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows:
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $k \xRightarrow{\alabelshort[{\tt inc}]{}} k+1$
-\item[-] $k \xRightarrow{\alabelshort[{\tt dec}]{}} k-1$
-\item[-] $k \xRightarrow{\alabellong[{\tt read}]{}{k}{}} k$
-\end{itemize}
+The sequential specification $\specCounter$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows:
+\[
+  \begin{array}[rcl]{rcl}
+    k & \specarrow{\alabellong[\mathsf{inc}]{}{}} & k+1\\
+    k & \specarrow{\alabellong[\mathsf{dec}]{}{}} & k-1\\
+    k & \specarrow{\alabellong[\mathsf{read}]{}{k}} & k
+  \end{array}
+\]
 
-Here $\alabelshort[{\tt inc}]{}$ increase the counter by $1$, $\alabelshort[{\tt dec}]{}$ decrease the counter by $1$, and $\alabellong[{\tt read}]{}{k}{}$ returns the value of the counter.
-
-
-\subsection{The Sequential Specification of Multi-Value Register}
-\label{subsec:the sequential specification of multi-value register}
-
-The query-update rewriting of multi-value register is as follows: $\gamma( \alabelshort[{\tt write}]{a}) = ( \alabellong[{\tt readIds}]{}{S}{}, \alabelshort[{\tt write}]{a,id,S})$.
-
-
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{mvreg}_s$ of multi-value register is given with the transitions as follows:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\abstate \xRightarrow{\alabellong[{\tt readIds}]{}{\abstate}{}} \abstate$
-
-\item[-] $\big(\abstate\ |\ id \ is \ unique \big) \xRightarrow{ \alabelshort[{\tt write}]{a,id,S} }  \abstate \setminus S \cup \{ (a,id) \}$
-
-\item[-] $\abstate \xRightarrow{\alabellong[{\tt read}]{}{ S }{}} \abstate$, where $S = \{ a \vert \exists id, (a,id) \in \abstate \}$.
-\end{itemize}
-
-Here $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state, $\alabelshort[{\tt write}]{a,id,S}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of multi-value register.
-
-
-
-\subsection{The Sequential Specification of List with Add-Between Interface}
-\label{subsec:the sequential specification of list with add-between interface}
-
-Each abstract state $\abstate = (l,T)$ contains a sequence $l$ and a set $T$. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as tombstone. The sequential specification $\mathit{listBet}_s$ of list with add-between interface is given with the transitions as follows:
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\big((a_1 \cdot \ldots \cdot a_n,T)\ |\ 1 \leq i \leq k <j \leq n \wedge a \ is \ unique \big) \xrightharpoonup{ \alabelshort[{\tt addAfter}]{a_i,a,a_j} } (a_1 \cdot \ldots \cdot a_k \cdot a \cdot a_{k+1} \cdot \ldots \cdot a_n,T)$
-\item[-] $\big((a_1\cdot \ldots \cdot a_n,T)\ |\ 1 \leq k \leq n \big) \xrightharpoonup{ \alabelshort[{\tt remove}]{a_k} } (l,T \cup \{ a_k \})$
-\item[-] $(l,T) \xrightharpoonup{\alabellong[{\tt read}]{}{s}{}} (l,T)$, here $s$ is obtained from $l$ by removing values in $T$
-\end{itemize}
-
-Method $\alabelshort[{\tt addBetween}]{a_k,a}$ puts $a$ into a random position between $a_i$ and $a_j$ in $l$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ adds $a_k$ into $T$. $\alabellong[{\tt read}]{}{s}{}$ returns the list content not in $T$.
-
-Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value.
-
-
+Method $\alabelshort[{\tt inc}]{}$ increase the counter by $1$. Method $\alabelshort[{\tt dec}]{}$ decrease the counter by $1$. Method $\alabellong[{\tt read}]{}{k}{}$ returns the value of the counter.
 
 
 
@@ -418,37 +432,129 @@ Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\empt
 
 The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$.
 
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\mathit{OR-Set}_s$ of OR-Set is given by the transitions:
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\abstate \xrightharpoonup{\alabellong[{\tt readIds}]{a}{ S }{} } \abstate$, where $S = \{ (a,id) \vert (a,id) \in \abstate \}$
+% \gpwarning{I still don't like the pairs for OR-Set}
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specOrSet$ of OR-Set is given by the transitions:
+\[
+  \begin{array}{rcl}
+    \abstate
+    & \specarrow{\alabellong[\mathtt{readIds}]{a}{S}{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = \{ (a,id)\ \vert\ (a,id) \in \abstate\}]
+      \end{array}\\
+    \abstate &
+               \specarrow{\alabelshort[\mathtt{remove}]{a,S}}
+    & \abstate \setminus S \\
+    \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
+             & \specarrow{ \alabelshort[{\tt add}]{a,id} }
+    & \abstate \cup \{ (a,\mathtt{id}) \}\\
+    \abstate
+    & \specarrow{\alabellong[\mathtt{read}]{a}{ S }{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
+      \end{array}
+  \end{array}
+\]
 
-\item[-] $\abstate \xrightharpoonup{ \alabelshort[{\tt remove}]{a,S} }  \abstate \setminus S$
+Method $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$. Method $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state. Method $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
 
-\item[-] $\big(\abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\big) \xrightharpoonup{ \alabelshort[{\tt add}]{a,id} }  \abstate \cup \{ (a,\mathtt{id}) \}$
 
-\item[-] $\abstate \xrightharpoonup{\alabellong[{\tt read}]{a}{ S }{}} \abstate$, where $S = \{ a \vert \exists \mathtt{id}, (a,\mathtt{id}) \in \abstate \}$
-\end{itemize}
 
-Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
+
+\subsection{The Sequential Specification of Multi-Value Register}
+\label{subsec:the sequential specification of multi-value register} 
+
+The query-update rewriting of multi-value register is as follows: $\gamma( \alabelshort[{\tt write}]{a}) = ( \alabellong[{\tt readIds}]{}{S}{}, \alabelshort[{\tt write}]{a,id,S})$.
+
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specMVReg$ of multi-value register is given by the transitions: 
+
+\[
+  \begin{array}{rcl}
+    \abstate
+    & \specarrow{\alabellong[\mathtt{readIds}]{}{\abstate}{}}
+    & \abstate\\
+    \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
+             & \specarrow{ \alabelshort[{\tt write}]{a,id,S} }
+    & \abstate \setminus S \cup \{ (a,\mathtt{id}) \}\\
+    \abstate
+    & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
+      \end{array}
+  \end{array}
+\]
+
+Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\alabelshort[{\tt write}]{a,id,S}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the value of multi-value register.
 
 
 
 
 \subsection{The Sequential Specification of List with Add-After Interface}
-\label{subsec:the sequential specification of list with add-after interface}
+\label{subsec:the sequential specification of list with add-after interface} 
 
-Each abstract state $\abstate = (l,T)$ contains a sequence $l$ and a set $T$. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as tombstone. The sequential specification {$\mathit{listAft}_s$} of list with add-after interface is given with the transitions as follows:
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\big((a_1 \cdot \ldots \cdot a_n,T)\ |\ k \leq n \wedge a \ is \ unique \big) \xrightharpoonup{ \alabelshort[{\tt addAfter}]{a_k,a} } (a_1 \cdot \ldots \cdot a_k \cdot a \cdot a_{k+1} \cdot \ldots \cdot a_n,T)$
-\item[-] $\big((a_1\cdot \ldots \cdot a_n,T)\ |\ 1 \leq k \leq n \big) \xrightharpoonup{ \alabelshort[{\tt remove}]{a_k} } (l,T \cup \{ a_k \})$
-\item[-] $(l,T) \xrightharpoonup{\alabellong[{\tt read}]{}{s}{}} (l,T)$, here $s$ is obtained from $l$ by removing values in $T$
-\end{itemize}
+Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specRGA$ of list with add-after interface is given with the transitions as follows:
+\[
+  \begin{array}{rcl}
+    \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
+     & \specarrow{\alabelshort[\mathtt{addAfter}]{a_k,a}}
+     & (l_1 \cdot a_k \cdot a \cdot l_2,T)\\
+     \big(\ (l,T)\ |\ a_k\ \text{occurs in}\ l\ \big)
+     & \specarrow{\alabelshort[\mathtt{remove}]{a_k}}
+     & (l,T \cup \{a_k\})\\
+     (l,T)
+     & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
+     & (l,T)\
+       \left[\begin{array}{c}
+           \text{with $s$ is obtained from $l$}\\
+           \text{by removing the values in $T$}
+       \end{array}\right]
+   \end{array}
+\]
 
-Method $\alabelshort[{\tt addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$ in $l$, and we assume that each value is put into list at most once. $\alabelshort[{\tt remove}]{a_k}$ adds $a_k$ into $T$. $\alabellong[{\tt read}]{}{s}{}$ returns the list content not in $T$.
+Method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a_k}$ adds $a_k$ into $T$, hence removing $a_k$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
 
-Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
+
+
+
+
+\subsection{The Sequential Specification of List with Add-Between Interface}
+\label{subsec:the sequential specification of list with add-between interface} 
+
+Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specWooki$ of list with add-after interface is given with the transitions as follows:
+\[
+  \begin{array}{rcl}
+    \big(\ (l_1 \cdot a_1 \cdot l_2 \cdot l_3 \cdot a_2 \cdot l_4,T\big)\ |\ a\text{ is fresh}\ \big)
+     & \specarrow{\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}}
+     & (l_1 \cdot a_1 \cdot l_2 \cdot a \cdot l_3 \cdot a_2 \cdot l_4,T)\\
+     \big(\ (l,T)\ |\ a\ \text{occurs in}\ l\ \big)
+     & \specarrow{\alabelshort[\mathtt{remove}]{a}}
+     & (l,T \cup \{a\})\\
+     (l,T)
+     & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
+     & (l,T)\
+       \left[\begin{array}{c}
+           \text{with $s$ is obtained from $l$}\\
+           \text{by removing the values in $T$}
+       \end{array}\right]
+   \end{array}
+\]
+
+Method $\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}$ puts $a$ at some random position between $a_1$ and $a_2$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value. 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -465,8 +571,8 @@ Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is nev
 
 
 
-\subsection{Proof of Operation-Based Multi-Value Register}
-\label{subsec:proof of operation-based multi-value register}
+\subsection{Obtain Permutations by Swapping Adjacent and Concurrent Operations}
+\label{subsec:obtain permutations by swapping adjacent and concurrent operations}
 
 Given two sequences $l_1,l_2$  such that $l_2$ is a permutation of $l_1$, let $\mathit{diff}(l_1,l_2) = \{ (a,b) \vert$ the order of $a$ and $b$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $a$ and $b$ of $l$, let $\mathit{swap}(l,a,b)$ be a sequence obtained from $l$ by swapping $a$ and $b$. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
 
@@ -487,6 +593,11 @@ Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{
 
 Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of operations. This completes the proof of this lemma. $\qed$
 \end {proof}
+
+
+
+\subsection{Proof of Operation-Based Multi-Value Register}
+\label{subsec:proof of operation-based multi-value register} 
 
 
 Then, let us prove that the operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$.
@@ -600,13 +711,13 @@ Then, let us prove that the operation-based counter is \crdtlinearizable{} w.r.t
 
 \begin{lemma}
 \label{lemma:operation-based counter is correct}
-The operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$. 
+The operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$.
 \end{lemma}
 
-\begin {proof} 
-Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that concurrent effectors commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+\begin {proof}
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that concurrent effectors commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. Then, the effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt dec}]{}$. Applying the query $\alabellongind[{\tt read}]{}{ctr}{}$ on the replica state $\sigma$ should result in the same return value $ctr$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma=ctr$, which again holds trivially. 
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. Then, the effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt dec}]{}$. Applying the query $\alabellongind[{\tt read}]{}{ctr}{}$ on the replica state $\sigma$ should result in the same return value $ctr$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma=ctr$, which again holds trivially.
 
 Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification). Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order. More precisely, we have to show that for each query $\alabel_{\mathsf{qr}} = \alabellongind[{\tt read}]{}{k}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\specarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\specarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\specarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end {proof}
@@ -865,13 +976,13 @@ This completes the proof of this lemma. $\qed$
 
 
 
-
+\forget{
 \section{Non-Deterministic Specifications, Convergence, and Consistent Conflict Resolution}
 \label{subsec:appendix non-deterministic specifications, convergence, and consistent conflict resolution}
 
 A sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
-For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded. 
+For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded.
 
 \begin{figure}[t]
   \centering
@@ -892,7 +1003,7 @@ Given an execution $e$ of $\aobj$, we propose the following two property of $e$:
 
 We say an execution $e$ is ready for downstream, if given a local state $\sigma$ of $e$ which is of replica $\arep$, we can safely apply all the downstream that are still not visible to replica $\arep$ in any order consistent with visibility relation.
 
-Let us go back to \autoref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$. 
+Let us go back to \autoref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$.
 
 $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$
 
@@ -1161,7 +1272,7 @@ visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $
 
 This completes the proof of this lemma. $\qed$
 \end {proof}
-
+}
 
 
 
