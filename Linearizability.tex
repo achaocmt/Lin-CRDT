@@ -218,8 +218,10 @@ The transition relation between global configurations is defined in
 Figure~\ref{fig:crdt-opsem}.
 The first rule describes a replica $\arep$ in state $\astate$
 executing an invocation of method $\amethod$ with argument $\argv$.
-This transition first applies the \lstinline|atSource| function $\atsource$
-in the state of the origin replica, and as a result it outputs a
+We use a function $\atsource$ to represent the behavior of the generators of all methods collectively (the code under the \lstinline|atSource| labels),
+i.e., $\atsource(\sigma,\amethod,\argv)$ stands for applying the generator of $\amethod$ with argument $\argv$ on the
+replica state $\sigma$. Therefore, this transition applies the suitable generator, 
+which results in a 
 return value $\retv$, an effector state transformer $\effector$
 to be applied on all replicas, and possibly, a timestamp $\ats$.
 As mentioned above, $\ats=\bot$ for methods that don't generate
@@ -278,17 +280,16 @@ which do not modify the state from state-modifying methods, which we
 shall call updates (or effectful).
 %
 We say that a method $\amethod\in\methods$ of object $\aobj\in \objs$
-is a \emph{query} if it always results (by applying the {\tt atSource}
-function $\atsource$) in an identity effector $\effector$ (i.e.
+is a \emph{query} if it always results (by applying the generator) in an identity effector $\effector$ (i.e.
 $\delta(\sigma)=\sigma$ for all replica states
 $\sigma$).\footnote{While we could have defined a semantics in which a
   read-only operation doesn't generate any effector, we have preferred
   the current version for uniformity.}
-We shall call an \emph{update} to any method $\amethod$ which is not a
+We shall call an \emph{update} any method $\amethod$ which is not a
 query -- that is, whose effectors are not the identity function -- and
 whose resulting effector and return value do not depend on the
 initial state $\astate$ of the origin replica.
-That is, it's behavior is fully determined by its arguments.
+That is, its behavior is fully determined by its arguments.
 More formally, assuming a functional equivalence relation $\equiv$
 between effectors that relates any two effectors that have the same
 effect (modulo the values of timestamps or unique identifiers)
@@ -305,10 +306,13 @@ We denote by $\queries$, $\updates$, and $\queryupdates$, the sets of
 operation labels $\alabelobjind{\argv}{\retv}{i,\ats}$ where $\amethod$
 is a query, an update, or query-update respectively.
 We shall call them query, update, and query-update labels,
-respectively.
-\fxwarning[nomargin, inline]{EXAMPLES OF QUERIES, UPDATES,
-  QUERY-UPDATES.
-  PROBABLY DISCUSSED ALREADY ALSO IN THE OVERVIEW.}
+respectively. For instance, the methods \lstinline|addAfter| and
+\lstinline|remove| of RGA are updates, the method \lstinline|add| of OR-Set is an update as well,
+the method \lstinline|remove| of OR-Set is a query-update, and the \lstinline|read| methods of both the RGA and the OR-Set
+are queries.
+%\fxwarning[nomargin, inline]{EXAMPLES OF QUERIES, UPDATES,
+%  QUERY-UPDATES.
+%  PROBABLY DISCUSSED ALREADY ALSO IN THE OVERVIEW.}
 
 %Executions of an object $\aobj$ are defined as usual (as sequences of transitions in $\rightarrow$).
 An execution of the object $\aobj$ is a sequence of transitions $\aglobalstate_0\xrightarrow{\aact_0}\aglobalstate_1\xrightarrow{\aact_1}\ldots$.
@@ -322,13 +326,15 @@ Given an execution $e$ ending in a global configuration $(\gstates,
 \avisord, \downstreams)$, the \emph{history} of $e$, denoted by $\hist{e}$, is the pair
 $(\labeldom{\avisord}, \avisord)$. Note that the relation $\avisord$ is a strict partial order in this case.
 We will later allow a more general notion of history in order to deal
-with object compositions (see \autoref{sec:compositionality}).
+with object compositions (see Section~\ref{sec:compositionality}).
 Also, the history of a trace $\atrace$, denoted by $\hist{\atrace}$,
 is the history of the execution that corresponds to $\atrace$.
 The set of histories $\histories(\aobj)$ of an object $\aobj$ is the
-set of histories $h$ of an execution $e$ of $\aobj$.
+set of histories $h$ of an execution $e$ of $\aobj$. A pictorial representation
+of an execution (trace) can be found in Figure~\ref{fig:or-set-not-lin} while an example of a history
+can be found in Figure~\ref{fig:rga-history}.
 
-\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.} {\color {red} CW: \autoref{fig:an example run of semantics} shows two steps of a history of RGA, and we can see how history grow in this example. Do I need to draw another figure start from initial global configuration?}
+%\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.} {\color {red} CW: \autoref{fig:an example run of semantics} shows two steps of a history of RGA, and we can see how history grow in this example. Do I need to draw another figure start from initial global configuration?}
 
 %\ce{Need to talk about read/updates}
 %
