@@ -7,7 +7,7 @@ recently been proposed to address the problem of availability of a
 distributed application under the presence of network partitions.
 %
 CRDTs represent a methodological approach to the problem of retaining
-data-Consistency and Availability under network Partitions (CAP),
+some form of data-Consistency and Availability under network Partitions (CAP),
 famously known to be an impossible combination of requirements by the
 CAP theorem of~\citet{GilbertL02}.
 %
@@ -66,7 +66,7 @@ one replica goes off-line.
 Instead of this naive approach, RGA takes the liberty of allowing any
 of the replicas to modify the \emph{local} copy of the list immediately --
 and hence return control to the client -- and lazily propagate the
-updates to all the other replicas at later point in time.
+updates to all the other replicas at a later point in time.
 %
 For instance, assuming that we have an initial list containing the
 sequence $\mathtt{a \cdot b \cdot e \cdot f}$~\footnote{We will use
@@ -84,7 +84,7 @@ We have solved the availability problem but we have introduced
 inconsistent states across the system.
 %
 This problem is only exacerbated if we consider that any replica could
-serve any operation in this way at any point in time.
+serve any operation at any point in time.
 
 \paragraph{Convergence}
 
@@ -193,10 +193,9 @@ the verification of the implementations of CRDTs.
 %
 These are the problems we address in this paper.
 
-\gpnote{This par. is not of the same kind as the previous ones. Change}
-\paragraph{Paper Contributions}
 
-Inspired by Linearizability~\cite{HerlihyW90} and the literature of
+\paragraph{Paper Contributions}
+Inspired by linearizability~\cite{HerlihyW90} and the literature of
 shared-memory concurrency we propose a \emph{new consistency criterion
   for CRDTs}, which we call \emph{\CRDTLin{}} (\CRDTLinshort{}).
 %
@@ -207,22 +206,22 @@ To satisfy the \CRDTLinshort{} criterion a data type must be so that
 any execution of a client interacting with an instance of the data
 type
 \begin{inparaenum}
-\item \cenote*{I guess we should be more clear that we refer to ``final'' states. }{should result in a state that can be obtained as a sequence (or
+\item should result in a state that can be obtained as a sequence (or
   linearization) of its updates -- where we assume that all updates
-  are executed sequentially--, and}
+  are executed sequentially--, and
 \item any operation reading the state of the data type instance should
-  be reachable by executing only a \emph{sub-sequence} of the above
+  be justified by executing a \emph{sub-sequence} of the above
   mentioned sequence.
 \end{inparaenum}
 For instance, for the RGA example shown above, the state of the final
-list should be reachable by considering a sequence where all
+list (when all updates are delivered) should be reachable by considering a sequence where all
 \lstinline|addAfter| operations are executed sequentially.\footnote{We
   will come back to RGA to add \lstinline|remove|
-  in~\autoref{sec:overview}.}
+  in Section~\ref{sec:overview}.}
 %
 This definition shares some similarities with the one proposed
 in~\cite{PerrinMJ14}. We will address the main differences
-in~\autoref{sec:rel-work}.
+in Section~\ref{sec:rel-work}.
 
 Equipped with this criterion we show how many existing CRDTs can be
 shown to be \crdtlinearizable{}.
@@ -234,20 +233,22 @@ Encouragingly, most of the the CRDTs discussed by~\citet{ShapiroPBZ11}
 are \crdtlinearizable{}.
 
 Given that our criterion is inspired by
-linearizability~\cite{HerlihyW90} it is natural to ask whether it
-preserves the same modularity properties shown by~\citet{HerlihyW90}.
+linearizability, it is natural to ask whether it
+preserves the same compositionality properties, i.e.
+whether the composition of a set of RA-linearizable objects is also RA-linearizable.
 %
-We shown that this is in general not true, but we identify classes of
+We show that this is not true in general, but we identify classes of
 CRDT implementations, based on the conflict-resolution strategy that
-they implement, for which modularity can be achieved.
+they implement, for which compositionality can be achieved. Interestingly, the characterization of these 
+classes of objects stems naturally from the proof methodology we use to show that they are RA-linearizable.
 
 % \gpwarning[nomargin, inline]{Don't know if we should say more here.}
 
 The paper is structured as follows:
-\begin{inparaitem}
-\item \fxwarning[nomargin, inline]{TODO}
-\end{inparaitem}
-
+%\begin{inparaitem}
+%\item \fxwarning[nomargin, inline]{TODO}
+%\end{inparaitem}
+Section~\ref{sec:overview} gives an overview of our notion of RA-linearizability, Section~\ref{sec:distributed-lin} provides the formalization of the CRDT semantics and RA-linearizability, Section~\ref{sec:proofs} describes a proof methodology for establishing RA-linearizability, and Section~\ref{sec:compositionality} discusses compositionality properties. We discuss the related work in Section~\ref{sec:rel-work} and conclude in Section~\ref{}.
 
 % Here we introduce the problem of CRDTS:
 % \begin{inparaenum}
