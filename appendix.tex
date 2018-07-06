@@ -4,7 +4,7 @@
 
 
 \subsection{Multi-Value Register Implementation}
-\label{subsec:multi-value register implementation} 
+\label{subsec:multi-value register implementation}
 
 \cite{ShapiroPBZ11} shows how to obtain a state-based \crdtimp{} from a operation-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. To do an operation $f(a)$, we compute the state-based update and perform merge method in downstream. Here the precondition of downstream is empty because merge is always enabled.
 
@@ -43,7 +43,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
       let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
       let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
       let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ let lin' = lin@|$\,\cdot\,\alabellongind[readIds]{}{S}{}\,\cdot\,\alabelshort[write]{a,V',S}$|@
+      //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{}{S}{}\,\cdot\,\alabelshort[{\tt write}]{a,V',S}$|@
     downStream(a, V') :
       let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
@@ -52,8 +52,46 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
   read() :
     let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ let lin' = lin@|$\,\cdot\,\alabellongind[read]{}{S_1}{}$|@
+    //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{S_1}{}$|@
     return @|$S_1$|@
+\end{lstlisting}
+\end{figure}
+
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@    
+
+
+
+
+
+
+\subsection{Counter Implementation}
+\label{subsec:counter implementation}
+
+\cite{ShapiroPBZ11} gives a operation-based counter implementation, which is shown in Listing~\ref{lst:operation-based multi-value register}. A payload is a integer $ctr$. 
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based counter},
+captionpos=b,label={lst:operation-based counter}]
+  payload integer ctr
+  initial ctr = 0
+  initial lin = @|$\epsilon$|@
+
+  inc() :
+    atSource :
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt inc}]{} $|@
+    downStream(inc) :
+      ctr = ctr + 1 
+  
+  dec() :
+    atSource :
+      //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt dec}]{} $|@
+    downStream(dec) :
+      ctr = ctr - 1 
+
+  read() : 
+    //@ let lin' = lin@|$\,\cdot\,\alabellong[{\tt read}]{}{ ctr }{}$|@
+    return ctr 
 \end{lstlisting}
 \end{figure}
 
@@ -69,10 +107,10 @@ captionpos=b,label={lst:operation-based multi-value register}]
 The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. %Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
 Wooki algorithm is an optimized version of Woot \cite{DBLP:conf/cscw/OsterUMI06}. To make our introduction more clear, we borrow the notion of W-character and W-string from Woot algorithm.
 
-In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
-We use $degree(w)$ to denote the degree of $w$.
+In local state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $c$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $c$; $v$ is the value of $c$; $degree$ is the degree of $c$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $c$ and indicates whether $c$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
+We use $degree(c)$ to denote the degree of $c$.
 
-A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ldots \cdot w_n \cdot w_{end}$, where $w_{begin}$ and $w_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_b$ and $w_e$ are $\circ_b$ and $\circ_e$, respectively. The degree of $w_{begin}$ and $w_{end}$ are $0$. We define the following function for a W-string $str$:
+A W-string is an ordered sequence of W-characters $c_{begin} \cdot c_1 \cdot \ldots \cdot c_n \cdot c_{end}$, where $c_{begin}$ and $c_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $c_{begin}$ and $c_{end}$ are $\circ_{begin}$ and $\circ_{end}$, respectively. The degree of $c_{begin}$ and $c_{end}$ are $0$. We define the following function for a W-string $str$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -80,11 +118,11 @@ A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ld
 
 \item[-] $str[p]$ returns the W-character at position $p$ in $str$. Her we assume that the first element of $str$ is at position 0.
 
-\item[-] $pos(str,w)$ returns the position of W-character $w$ in $S$.
+\item[-] $pos(str,c)$ returns the position of W-character $c$ in $S$.
 
-\item[-] $insert(str,w,p)$ inserts W-character $w$ into $str$ at position $p$.
+\item[-] $insert(str,c,p)$ inserts W-character $c$ into $str$ at position $p$.
 
-\item[-] $subseq(str,w_1,w_2)$ returns the part of $str$ between the W-characters $w_1$ and $w_2$ (excluding $w_1$ and $w_2$).
+\item[-] $subseq(str,c_1,c_2)$ returns the part of $str$ between the W-characters $c_1$ and $c_2$ (excluding $c_1$ and $c_2$).
 
 \item[-] $contains(str,a)$ returns true if there exists a W-character in $str$ with value $a$.
 
@@ -97,7 +135,7 @@ A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ld
 
 %Note that only $values(str)$ distinguish whether a W-character is with flag $\mathit{true}$ or with flag $\mathit{false}$.
 
-A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
+A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $c_1,c_2$ of $str$, we write $c_1 <_{str} c_2$ to indicate that $pos(str,c_1) < pos(str,c_2)$.
 
 %A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
 
@@ -115,8 +153,8 @@ captionpos=b,label={lst:wooki algorithm}]
       let @|$c_p$|@ = @|$getWchar(string_s,a)$|@
       let @|$c_n$|@ = @|$getWchar(string_s,c)$|@
       //@ let lin' = lin@|$\,\cdot\,\alabelshort[{\tt addBetween}]{a,b,c}$|@
-    downStream((w,@|$c_p$|@,@|$c_n$|@)) : with @|$w = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
-      integrateIns(@|$c_p,w,c_n$|@)
+    downStream((c,@|$c_p$|@,@|$c_n$|@)) : with @|$c = (ts, a, max(degree(c_p),degree(c_n)) +1, \mathit{true})$|@
+      integrateIns(@|$c_p,c,c_n$|@)
 
   remove(a) :
     atSource :
@@ -157,9 +195,9 @@ $\\$ $\\$
 
 The payload of each replica is a W-string $string_s$.
 
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a$ and $c$ are adjacent in $string_s$ and $b$ is not in $string_s$. Then, we generate a W-character $w$ for value $b$, and calls method $integrateIns(w,c_p,c_n)$ to put $w$ between $c_p$ and $c_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a$ and $c$ are adjacent in $string_s$ and $b$ is not in $string_s$. Then, we generate a W-character $c$ for value $b$, and calls method $integrateIns(c,c_p,c_n)$ to put $c$ between $c_p$ and $c_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
 
-$integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $w$ is put after $c_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $c_p$ and $c_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$, and recursive call $integrateIns(c,F[i-1],F[i])$. We can see that, the minimal degree of the sub-sequence of $S$ between $F[i-1]$ and $F[i]$ is larger than that of the sub-sequence of $S$ between $c_p$ and $c_n$.
+$integrateIns(c,c_p,c_n)$ is a recursive method and works as follows: If there are no W-character between $c_p$ and $c_n$ (for example, in the current replica), then $c$ is put after $c_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $c_p$ and $c_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $c$, and recursive call $integrateIns(c,F[i-1],F[i])$. We can see that, the minimal degree of the sub-sequence of $S$ between $F[i-1]$ and $F[i]$ is larger than that of the sub-sequence of $S$ between $c_p$ and $c_n$.
 
 To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
 
@@ -555,6 +593,25 @@ This completes the proof of this lemma. $\qed$
 
 
 
+\subsection{Proof of Operation-Based Counter}
+\label{subsec:proof of operation-based counter}
+
+Then, let us prove that the operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$.
+
+\begin{lemma}
+\label{lemma:operation-based counter is correct}
+The operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$. 
+\end{lemma}
+
+\begin {proof} 
+Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that concurrent effectors commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. Then, the effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt dec}]{}$. Applying the query $\alabellongind[{\tt read}]{}{ctr}{}$ on the replica state $\sigma$ should result in the same return value $ctr$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma=ctr$, which again holds trivially. 
+
+Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification). Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order. More precisely, we have to show that for each query $\alabel_{\mathsf{qr}} = \alabellongind[{\tt read}]{}{k}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\specarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\specarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\specarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
+\end {proof}
+
+
 
 
 \subsection{Proof of Wooki}
@@ -779,8 +836,8 @@ Our proof proceeds as follows:
     \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on local state $\sigma$. Assume $\sigma = c_1 \cdot \ldots \cdot c_n$, and for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
     \end{itemize}
 
-    \item[-] Prove $\mathsf{\CRDTLinshort{}}$: Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. By the {\textred{causal delivery}} assumption, when we apply the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, the W-character of $a$ and $c$ is already in the local state, and the W-character is before the W-character of $c$ in local state; when we apply the downstream of $\alabelshort[{\tt remove}]{a}$, a W-character of $a$ is already in the local state. Thus, the projection of $\alinord$ on the updates is obviously admitted by the specification. 
-        
+    \item[-] Prove $\mathsf{\CRDTLinshort{}}$: Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with the visibility. By the {\textred{causal delivery}} assumption, when we apply the downstream of $\alabelshort[{\tt addBetween}]{a,b,c}$, the W-character of $a$ and $c$ is already in the local state, and the W-character is before the W-character of $c$ in local state; when we apply the downstream of $\alabelshort[{\tt remove}]{a}$, a W-character of $a$ is already in the local state. Thus, the projection of $\alinord$ on the updates is obviously admitted by the specification.
+
         Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order. More precisely, we have to show that for each query $\alabel_{\mathsf{qr}} = \alabellongind[{\tt read}]{}{s}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\xrightharpoonup{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\xrightharpoonup{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\xrightharpoonup{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
 \end{itemize}
 
@@ -810,9 +867,9 @@ This completes the proof of this lemma. $\qed$
 
 
 \section{Non-Deterministic Specifications, Convergence, and Consistent Conflict Resolution}
-\label{subsec:appendix non-deterministic specifications, convergence, and consistent conflict resolution} 
+\label{subsec:appendix non-deterministic specifications, convergence, and consistent conflict resolution}
 
-A sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic. 
+A sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
 For a non-deterministic specification Spec{}, it is possible that although a history $h$ is \crdtlinearizable{} w.r.t Spec{}, the behavior of $h$ is counterintuitive. An example $h$ of such history is shown in \autoref{fig:a wrong history w.r.t listbets}. If only $\alabellong[{\tt read}]{}{c \cdot b}{}$ or $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ exists in $h$, then each of them is reasonable, since $\alabelshort[{\tt remove}]{a_2,a_1,a_3}$ puts $a_1$ in a random position between $a_2$ and $a_3$. However, $\alabellong[{\tt read}]{}{c \cdot b}{}$ represents that $c$ is put before $b$, while $\alabellong[{\tt read}]{}{a \cdot b \cdot c}{}$ represents that $b$ is before $c$. This implies that different replica has ``different conflict resolution'', which violates the intuition of CRDT and should be excluded. 
 
@@ -822,31 +879,31 @@ For a non-deterministic specification Spec{}, it is possible that although a his
 \vspace{-10pt}
   \caption{A history w.r.t $\mathit{listBet}_s$ that should be excluded.}
   \label{fig:a wrong history w.r.t listbets}
-\end{figure} 
+\end{figure}
 
 Given an execution $e$ of $\aobj$, we propose the following two property of $e$: Given local state $\sigma_1$ and $\sigma_2$ of $e$, if $\sigma_1$ (resp., $\sigma_2$) is obtained from the initial local state by applying a sequence $s_1$ of downstream (resp., a sequence $s_2$ of downstream).
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Convergence: if $s_1 \cap \updates = s_2 \cap \updates$, then $\sigma_1 = \sigma_2$. 
+\item[-] Convergence: if $s_1 \cap \updates = s_2 \cap \updates$, then $\sigma_1 = \sigma_2$.
 
-\item[-] Consistent Conflict Resolution: if $s_1 \cap \updates$ is a sub-sequence of $s_2 \cap \updates$. Let $S$ be the set of downstream of update operations that are in $s_2$ and not in $s_1$, and let $s_3$ be a sequences of $S$ that is consistent with visibility relation. Then, we can obtain $\sigma_2$ from $\sigma_1$ by applying the downstream sequence $s_3$. 
-\end{itemize} 
+\item[-] Consistent Conflict Resolution: if $s_1 \cap \updates$ is a sub-sequence of $s_2 \cap \updates$. Let $S$ be the set of downstream of update operations that are in $s_2$ and not in $s_1$, and let $s_3$ be a sequences of $S$ that is consistent with visibility relation. Then, we can obtain $\sigma_2$ from $\sigma_1$ by applying the downstream sequence $s_3$.
+\end{itemize}
 
-We say an execution $e$ is ready for downstream, if given a local state $\sigma$ of $e$ which is of replica $\arep$, we can safely apply all the downstream that are still not visible to replica $\arep$ in any order consistent with visibility relation. 
+We say an execution $e$ is ready for downstream, if given a local state $\sigma$ of $e$ which is of replica $\arep$, we can safely apply all the downstream that are still not visible to replica $\arep$ in any order consistent with visibility relation.
 
 Let us go back to \autoref{fig:a wrong history w.r.t listbets}. Let $\sigma_1$ be the local state of $\arep_2$ after we do $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$, and let $\sigma_2$ be the local state of $\arep_2$ after we apply the downstream of $\alabelshort[{\tt addBetween}]{\circ_{begin},a,\circ_{end}}$. 
 
 $\alabelshort[{\tt addBetween}]{\circ_{begin},c,\circ_{end}}$
 
-$\alabellong[{\tt read}]{}{c \cdot b}{}$, 
+$\alabellong[{\tt read}]{}{c \cdot b}{}$,
 
 The following lemma states that, once we prove ready for downstream and downstream of concurrent operations commute, we can obtain convergence and consistent conflict resolution, no matter whether the \Spec{} is deterministic or non-deterministic.
 
 \begin{lemma}
-\label{lemma:execution-order linearization ensures convergence and consistent conflict resolution} 
-If $\aobj$ is \crdtlinearizable{} w.r.t \Spec{} and each of its execution is ready for downstream. 
-execution-order linearizations 
+\label{lemma:execution-order linearization ensures convergence and consistent conflict resolution}
+If $\aobj$ is \crdtlinearizable{} w.r.t \Spec{} and each of its execution is ready for downstream.
+execution-order linearizations
 
 When doing $\alabelshort[{\tt integreteIns}]{c_p,c,c_n}$, for each $i$, $F[i],F[i+1]$ are degree-$d_{min}$-adjacent.
 \end{lemma}
