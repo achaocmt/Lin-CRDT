@@ -583,7 +583,7 @@ Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\a
 
 \begin {proof}
 
-First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $l_1$ and $l_2$ are concurrent, and $l_1$ and $l_2$ are adjacent in $\aseqord_1$.
+First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel_1$ and $\alabel_2$ are concurrent, and $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$.
 
 We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$.
 
@@ -591,7 +591,7 @@ Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alab
 
 Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, by assumption we know that $\alabel$ and $\alabel'$ are not concurrent. Or we can say, $(\alabel,\alabel') \in \avisord \vee (\alabel',\alabel) \in \avisord$. This contradicts that both $\aseqord_1$ and $\aseqord_2$ are consistent with visibility relation. This completes the proof of the first part.
 
-Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of operations. This completes the proof of this lemma. $\qed$
+Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of adjacent and concurrent operations. This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
@@ -599,14 +599,12 @@ Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2
 \subsection{Proof of Operation-Based Multi-Value Register}
 \label{subsec:proof of operation-based multi-value register} 
 
-
-Then, let us prove that the operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$.
+The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$. 
 
 \begin{lemma}
 \label{lemma:multi-value register is correct}
-The operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\mathit{mvreg}_s$
+The operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\specMVReg$. 
 \end{lemma}
-
 
 \begin {proof}
 
@@ -614,8 +612,8 @@ Let us give two facts:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $fact1$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $V_1 < V_2$.
-\item[-] $fact2$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the downstream for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
+\item[-] $fact1$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $V_1 < V_2$.
+\item[-] $fact2$: Let $(a_1,V_1)$ and $(a_2,V_2)$ be the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
 
 %\item[-] $fact3$: Let $S$ be the payload of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$ is maximal w.r.t $\avisord$ among write operations applied in current replica $\}$.
 \end{itemize}
