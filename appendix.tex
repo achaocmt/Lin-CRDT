@@ -26,7 +26,7 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
 
 $\\$ $\\$
 
-\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is $reps()$. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
 Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
 
 
@@ -96,6 +96,48 @@ captionpos=b,label={lst:operation-based counter}]
 \end{figure}
 
 %//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
+
+
+
+
+
+\subsection{PN-Counter Implementation}
+\label{subsec:PN-counter implementation}
+
+\cite{ShapiroPBZ11} gives a state-based PN-counter implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $myRep()$ is a function that returns current replica identifier, and $reps()$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is $reps()$. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for downstream of $write(a)$.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based multi-value register},
+captionpos=b,label={lst:operation-based multi-value register}]
+  payload Set S
+  initial S = @|$\emptyset$|@
+  initial lin = @|$\epsilon$|@
+
+  write(a) :
+    atSource :
+      let g = myRep()
+      let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
+      let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
+      let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
+      //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt readIds}]{}{S}{}\,\cdot\,\alabelshort[{\tt write}]{a,V',S}$|@
+    downStream(a, V') :
+      let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
+      let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
+      S = A @|$\cup$|@ B
+      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabellongind[write]{\_,\_}{\bot}{*}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabelshort[write]{a,V'}) \in \avisord \vee \alabel = \alabelshort[write]{a,V'} \} \vert$|@
+
+  read() :
+    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
+    //@ let lin' = lin@|$\,\cdot\,\alabellongind[{\tt read}]{}{S_1}{}$|@
+    return @|$S_1$|@
+\end{lstlisting}
+\end{figure}
+
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
+
+
 
 
 
