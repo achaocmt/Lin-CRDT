@@ -106,7 +106,7 @@ totally-ordered domain $\timestampdomain$. The order relation on $\timestampdoma
 %Hence, a data type $\acrdttyp = (\amethodset, \adomain)$ is given by a
 %set of method names $\amethodset \subseteq \methods$ and a data domain
 %$\adomain \subseteq \datadomain$.
-
+P
 %The timestamp of such an operation label $\alabel$
 % We may omit the object $\aobj$ when it is understood from the context.
 We will use operation labels of the form
@@ -148,7 +148,7 @@ Figure~\ref{fig:crdt-opsem}, where $\globalstates$ is a set of
 global configurations, $\acts$ is the set of transition labels called \emph{actions},
 $\aglobalstate_0$ is the initial configuration, and
 $\rightarrow\subseteq \globalstates \times \acts\times \globalstates$ is the
-transition relation. 
+transition relation.
 We use the action $\src{\arep}{\alabel}$ to label the generator of $\alabel$ when executed at replica $\arep$,
 and $\dwn{\arep}{\alabel}$ to label the effector of $\alabel$ when executed at replica $\arep$.
 For readability, we use $\aglobalstate \xrightarrow{\aact} \aglobalstate'$
@@ -191,7 +191,7 @@ $\astate$ of a replica and the set $\alabelset$ of labels of
 operations that have been originated at this replica, or whose
 effectors have been executed (or applied) at this replica.
 When $\alabel\in \alabelset$, we say that $\alabel$ is \emph{visible}
-to the replica or that the replica \emph{sees} $\alabel$. 
+to the replica or that the replica \emph{sees} $\alabel$.
 The set of replica states $\astate$ is denoted by $\Sigma$.
 The relation $\avisord\subseteq \powerset{\labels \times \labels}$ is
 the \emph{visibility} relation between operations, i.e.,
@@ -220,8 +220,8 @@ The first rule describes a replica $\arep$ in state $\astate$
 executing an invocation of method $\amethod$ with argument $\argv$.
 We use a function $\atsource$ to represent the behavior of the generators of all methods collectively (the code under the \lstinline|atSource| labels),
 i.e., $\atsource(\sigma,\amethod,\argv)$ stands for applying the generator of $\amethod$ with argument $\argv$ on the
-replica state $\sigma$. Therefore, this transition applies the suitable generator, 
-which results in a 
+replica state $\sigma$. Therefore, this transition applies the suitable generator,
+which results in a
 return value $\retv$, an effector state transformer $\effector$
 to be applied on all replicas, and possibly, a timestamp $\ats$.
 As mentioned above, $\ats=\bot$ for methods that don't generate
@@ -254,7 +254,7 @@ $\alabel$ originated in a different replica.\footnote{We could
   simplify the first rule by not performing the effector immediately,
   but in general we assume no interleavings of operations within a
   single replica.}
-The rule requires that $\effector$ is a effector of a label that has
+The rule requires that $\effector$ is an effector of a label that has
 not yet been applied at $\arep$ (i.e., its corresponding label is not
 in the $\alabelset$ component of $\arep$'s configuration) and
 moreover, that it is a minimal one with respect to the order
@@ -388,7 +388,15 @@ can be found in Figure~\ref{fig:rga-history}.
 \subsection{Sequential Specifications}
 \label{subsec:sequential specification}
 
-\fxwarning[nomargin, inline]{INTRODUCE THIS SUBSECTION}
+An advantage of our correctness criterion is that since it reduces the
+concurrent execution to a sequential one, the specifications of
+objects can be given in terms of sequences of operations.
+%
+This is similar to the specification of objects in~\cite{HerlihyW90}.
+%
+Let us define the specifications for \CRDTLinshort{} formally.
+
+% \fxwarning[nomargin, inline]{INTRODUCE THIS SUBSECTION}
 
 %\gp{We should add the specifications (even non-deterministic here.)}
 \begin{definition}[Sequential Specification]
@@ -405,9 +413,9 @@ To that end, we will associate to specifications a notion of abstract
 state, which we shall generally denote by $\abstate$ and its domain
 shall be denoted by $\abstates$.
 Then, to each valid label $\alabel$ we will associate a transition
-relation \;$\specarrow{\alabel}$\; which, given a state and provided
-that the label can be applied into that state, produces a new abstract
-state.
+relation \;$\specarrow{\alabel}$\; which, given an abstract state and
+provided that the label can be applied into that state, produces a new
+abstract state.
 Hence, we denote by $\abstate \specarrow{\alabel}  \abstate'$
 %$\absopsem{\abstate} = \abstate'$
 the fact that the resulting state for label $\alabel$ with initial
@@ -419,47 +427,25 @@ abstract state $\abstate$ is $\abstate'$.
 In the specific case where the label $\alabel$ assumes a certain
 precondition $\apre$ over the initial abstract state $\abstate$ we
 will use Hoare-style preconditions and write
-\[ \big(\abstate\ |\ \apre(\abstate)\big) \specarrow{\alabel}  \abstate' \]
+\[ \big(\abstate\ |\ \apre(\abstate)\big) \specarrow{\alabel}
+  \abstate' \] In this way, a sequential specification then is the set
+of labels that are accepted by the successive application of the
+transition relation starting from some given initial state
+$\abstate_{0}$.
 
-A sequential specification then is the set of labels that are accepted
-by the successive application of the transition relation starting from
-some given initial state $\abstate_{0}$.
-
-%A label is called \emph{read-only} if it doesn't change the abstract state, and a \emph{modifier} otherwise.
-%The set of labels of a specification $\Spec$ is denoted by $\labelsspec\Spec$. The set of read-only, resp., modifier,
-%labels of a specification $\Spec$ is denoted by $\labelsspecrd\Spec$, resp., $\labelsspecmod\Spec$.
-
-% \fxwarning[nomargin, inline]{REWORK THESE EXAMPLES. DON'T WE NEED JUST
-%   TWO EXAMPLES, RGA AND OR-SET ?}
-% \gpnote[nomargin, inline]{Yes, I think so. Though it might be nice to
-%   show more specs, since it kinda proves that they are easy to
-%   read/write/understand.}
-
-% \gpwarning{Lots of rewriting to do here.}
-
-Let us consider the specification of a very simple counter object, and
-then the specifications of the RGA and OR-Set objects described above.
-
+To illustrate the definition we provide the sequential specification
+of a very simple counter object, as well as the RGA and OR-Set objects
+described before.
 \begin{example}[Sequential Specification of a Counter]
-\label{definition:sequential specification of counter}
-The sequential specification $\specCounter$ of counter is so
-that $\abstates = \mathbb{Z}$, that is the state will be an integer,
-and the transitions are given as follows:
+  \label{definition:sequential specification of counter} In this case
+  the state domain is $\abstates = \mathbb{Z}$, that is the state will
+  be an integer, and the transitions are given as follows:
 \[
-  \begin{array}[rcl]{rcl}
-    k & \specarrow{\alabellong[\mathsf{inc}]{}{}} & k+1\\
-    k & \specarrow{\alabellong[\mathsf{dec}]{}{}} & k-1\\
-    k & \specarrow{\alabellong[\mathsf{read}]{}{k}} & k
-  \end{array}
+  k & \specarrow{\alabellong[\mathsf{inc}]{}{}} & k+1\qquad\qquad
+  k & \specarrow{\alabellong[\mathsf{dec}]{}{}} & k-1\qquad\qquad
+  k & \specarrow{\alabellong[\mathsf{read}]{}{k}} & k
 \]
-% \begin{itemize}
-% \setlength{\itemsep}{0.5pt}
-% \item[-] $k \specarrow{\alabellong[\mathsf{inc}]{}{}} k+1$
-% \item[-] $k \specarrow{\alabellong[\mathsf{dec}]{}{}} k-1$
-% \item[-] $k \specarrow{\alabellong[\mathsf{read}]{}{k}} k$
-% \end{itemize}
 \end{example}
-
 
 \begin{example}[Sequential Specification of RGA-like List
   (with $\mathtt{addAfter}$ method)]
@@ -489,29 +475,29 @@ and the transitions are given as follows:
         \end{array}\right]
  \end{array}
   \]
-
-  Method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately
+The method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately
   after $a_k$ in $l$, assuming that each value is put into list at
   most once.
   Method $\alabelshort[\mathtt{remove}]{a_k}$ adds $a_k$ into $T$,
   hence removing $a_k$ from the list for subsequent calls to the
   $\mathtt{read}$ method.
-  Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content
+  Finally $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content
   excluding any element appearing in $T$.
   Assume that the initial value of list is $(\circ,\emptyset)$, and
   $\circ$ is never removed.
-  When the context is clear, in $\ensuremath{\tt read}$ operation, we
-  will omit $\circ$ in return value.
+  We will sometimes ignore the value $\circ$ from the return of
+  $\ensuremath{\tt read}$.
 \end{example}
 
 % {\color {red} CW: The sequential specification of OR-set and list with add-after interface}
 \begin{example}[Sequential Specification of OR-Set]
 \label{definition:sequential specification of or-set}
-The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$.
-
-
-% \gpwarning{I still don't like the pairs for OR-Set}
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$
+As illustrated in \figureautorefname~\ref{fig:or-set-lk-rem}, for
+OR-Set we consider $\mathtt{remove}$ to be a query-update operation.
+Then its rewriting is: $\gamma( \alabelshort[\mathtt{remove}]{a} ) = (
+\alabellong[\mathtt{readIds}]{a}{S}{}, \alabelshort[\mathtt{remove}]{a,S})$.
+%
+Then abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$
 is a data and $id$ is a identifier. The sequential specification
 $\specOrSet$ of OR-Set is given by the transitions:
 \[
@@ -536,11 +522,43 @@ $\specOrSet$ of OR-Set is given by the transitions:
       \end{array}
   \end{array}
 \]
-
-Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
+Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs
+with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the
+abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$
+into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns
+the value of the or-set.
 \end{example}
 
-\fxwarning[nomargin, inline]{TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.}
+This definition of specification of an object will be extended to a
+set of objects in \sectionautorefname~\ref{sec:compositionality}.
+%
+Another important aspect of specifications is whether they are
+deterministic or not.
+%
+For instance the Wooki~\cite{DBLP:conf/icdcs/PreguicaMSL09} CRDT of a
+List-like object provides a method $\mathtt{addBetween(a, b, c)}$
+which inserts $\mathtt{b}$ between $\mathtt{a}$ and $\mathtt{c}$
+to be present in the list.
+%
+In contrast with RGA, where the method $addAfter(a, b)$
+explicitly adds the element $\mathtt{b}$ after $\mathtt{a}$, in Wooki
+many positions are possible if $\mathtt{a}$ and $\mathtt{c}$ are not
+adjacent.
+%
+In this case, to allow for any deterministic resolution mechanism our
+specifications shall be non-deterministic.
+%
+This non-determinism in the specification has to be deterministically
+resolved by the implementations to ensure convergence.
+%
+Our definition of \CRDTLinshort{} can be extended to consider these
+specifications, but we leave the details to
+\sectionautorefname~\ref{sec:appendix RA-linearizability with
+  non-deterministic sequential specifications and its proof} for lack
+of space. 
+
+
+% \fxwarning[nomargin, inline]{TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.}
 
 \subsection{Definition of \CRDTLin{}}
 \label{subsec:definition of distributed linearizability}
@@ -665,26 +683,38 @@ that
   to it.
 \end{inparaenum}
 
-\fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW} {\color {red}CW: \autoref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its linearization step by step.}
+With this definition in mind it is not hard to check that the
+sequences of operations provided in
+\sectionautorefname~\ref{sec:rga-crdt-impl} and~\ref{sec:or-set-crdt}
+are \crdtlinearization{}s. 
+%
+Another example constructing a linearization step by step is shown
+under the label ``timestamp-order linearizations''
+of~\figureautorefname~\ref{fig:a history of RGA and its
+  RA-linearization}.
+
+% \fxwarning[nomargin, inline]{REFER TO AN EXAMPLE FROM THE OVERVIEW} {\color {red}CW: \autoref{fig:a history of RGA and its RA-linearization} gives a history of RGA and its linearization step by step.}
 
 We now consider the case where histories include query-updates.
-In such a case, we apply~\autoref{definition:ralinearizability1} on a
-rewriting of the original history where each query-update is
-decomposed into a label representing the query part and another label
-representing the update part.
-\gpnote*{Clarify this sentence. Not clear where the new labels come from}
-{This rewriting may introduce new labels, which do not correspond to
-original operations of the data type, but which have been extended to
-be taken into account by the specification.
-Also, other (update) operations of the object may be rewritten as
-well.}
-\fxwarning[nomargin, inline]{EXPLAIN THE OR-SET CASE.} {\color {red}CW: \autoref{fig:a history of OR-set, its update-query rewriting, and its RA-linearization} gives a history of OR-set, its query-update rewriting, and its \crdtlinearization{}.}
-
-TODO MODIFY $\gamma$ BECAUSE IT MAY REWRITE UPDATES AS WELL. DO WE NEED TO REWRITE QUERIES ?
-
+In such a case, we apply
+Definition~\ref{definition:ralinearizability1} on a rewriting of the 
+original history where each query-update is decomposed into a label
+representing the query part a another label representing the update
+part.
+%
+As shown in \figureautorefname~\ref{fig:or-set-lk-rem} this rewriting
+may introduce new labels of operations that have been added to the
+specification of the data type to provide specifications with no
+query-update operations.
 A mapping $\gamma:\labels\rightarrow \labels^{\leq 2}$, where $\labels^{\leq 2}$ is the set of labels and pairs of labels in $\labels$, is called a \emph{query-update rewriting}.
 %Labels mapped by $\gamma$ to singletons preserve their query or update status
-We assume that every query or update label is mapped by $\gamma$ to a singleton and that the $\gamma$ image of such a label preserves its status, i.e., $\gamma(\alabel)$ is a query, resp., update, whenever $\alabel$ is a query, resp., update. Also, query-updates labels $\alabel$ are mapped to pairs $\gamma(\alabel)=(\alabel_1,\alabel_2)$ where $\alabel_1$ is a query and $\alabel_2$ is an update. These assumptions are important when applying~\autoref{definition:ralinearizability1} on the rewriting of a history, since this definition relies on a partitioning of the labels into queries and updates.
+We assume that every query or update label is mapped by $\gamma$ to a
+singleton and that the $\gamma$ image of such a label preserves its
+status, i.e., $\gamma(\alabel)$ is a query, resp., update, whenever
+$\alabel$ is a query, resp., update. Also, query-updates labels
+$\alabel$ are mapped to pairs $\gamma(\alabel)=(\alabel_1,\alabel_2)$
+where $\alabel_1$ is a query and $\alabel_2$ is an update. These
+assumptions are important when applying Definition~\ref{definition:ralinearizability1} on the rewriting of a history, since this definition relies on a partitioning of the labels into queries and updates.
 %We say that $\gamma$ is \emph{consistent} with $\Spec$ when $\mathsf{image}(\gamma)\subseteq \labelsspec\Spec^{\leq 2}$ and for every label $\alabel$, if $\gamma(\alabel)=(\alabel_1,\alabel_2)$ then $\alabel_1$ is read-only and $\alabel_2$ is a modifier (of $\Spec$).
 %For $\alabel\in \queryupdates$ and $\gamma(\alabel)=(\alabel_1,\alabel_2)$, the label $\alabel_1$ is considered a query and $\alabel_2$ an update.
 For a history $h=(\alabelset,\avisord)$, its $\gamma$-rewriting is a
@@ -714,7 +744,7 @@ history $\gamma(h)=(\alabelset',\avisord')$ where
  second) projection when $\gamma(\alabel)$ is a pair.
 \end{itemize}
 The following definition
-extends~\autoref{definition:ralinearizability1} to arbitrary histories
+extends Definition~\ref{definition:ralinearizability1} to arbitrary histories
 using the rewriting defined above.
 % \gpnote[nomargin, inline]{I'd probably use $\Pi^*_i$ for the i-th
 %   projection of a tuple, or the singleton.}
