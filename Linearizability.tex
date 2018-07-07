@@ -51,18 +51,6 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
 \end{figure}
 
 
-To formalize the semantics of CRDT objects and our correctness
-criterion we will introduce the following semantic domains summarized
-in Figure~\ref{fig:sem-dom}.
-%
-We let $\aobj \in \objs$ be a CRDT object in the set of objects
-$\objs$.
-Similarly, $\arep \in \reps$ is a replica in the set of replicas
-$\reps$.
-%We assume that both objects and replicas are uniquely identified, and
-%therefore we will equate an object with its identifier, with the same
-%convention applying to replicas.
-
 \begin{wrapfigure}{r}{0.5\linewidth}
   \centering
   \(
@@ -87,6 +75,17 @@ $\reps$.
   \label{fig:sem-dom}
 \end{wrapfigure}
 
+To formalize the semantics of CRDT objects and our correctness
+criterion we will introduce the following semantic domains summarized
+in Figure~\ref{fig:sem-dom}.
+%
+We let $\aobj \in \objs$ be a CRDT object in the set of objects
+$\objs$.
+Similarly, $\arep \in \reps$ is a replica in the set of replicas
+$\reps$.
+%We assume that both objects and replicas are uniquely identified, and
+%therefore we will equate an object with its identifier, with the same
+%convention applying to replicas.
 
 We consider a set of method names $\amethod \in \methods$, and that
 each method has a number of arguments sampled from a data domain
