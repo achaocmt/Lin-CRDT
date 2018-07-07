@@ -599,11 +599,11 @@ Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2
 \subsection{Proof of Operation-Based Multi-Value Register}
 \label{subsec:proof of operation-based multi-value register}
 
-The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$. %For simplicity, in the proof of Lemma \ref{lemma:multi-value register is correct}, we use $\alabelshort[{\tt write}]{a,V}$ to represent the {\tt write} operation that generate effector $(a,V)$.
+The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$. 
 
 \begin{lemma}
 \label{lemma:multi-value register is correct}
-The operation-based multi-value register implementation is \crdtlinearizable{} w.r.t $\specMVReg$.
+The operation-based multi-value register is \crdtlinearizable{} w.r.t $\specMVReg$.
 \end{lemma}
 
 \begin {proof}
@@ -713,22 +713,38 @@ This completes the proof of this lemma. $\qed$
 
 
 \subsection{Proof of Operation-Based Counter}
-\label{subsec:proof of operation-based counter}
+\label{subsec:proof of operation-based counter} 
 
-Then, let us prove that the operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$.
+The following lemma states that the operation-based counter is \crdtlinearizable{} w.r.t. $\specCounter$. 
 
 \begin{lemma}
 \label{lemma:operation-based counter is correct}
-The operation-based counter is \crdtlinearizable{} w.r.t $\mathit{counter}_s$.
+The operation-based counter is \crdtlinearizable{} w.r.t $\specCounter$.
 \end{lemma}
 
 \begin {proof}
-Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that concurrent effectors commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. Then, the effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt dec}]{}$. Applying the query $\alabellongind[{\tt read}]{}{ctr}{}$ on the replica state $\sigma$ should result in the same return value $ctr$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma=ctr$, which again holds trivially.
+Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt in}]{}$ operation of the specification $\specMVReg$ has exactly the same effect. The same holds for that of {\tt dec}. Applying the query $\alabelshort[read]{}$ on the payload $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\refmap(\sigma)=\sigma$, which again holds trivially. 
 
-Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification). Then, we have to argue that queries can be explained by applying the updates visible to them in linearization order. More precisely, we have to show that for each query $\alabel_{\mathsf{qr}} = \alabellongind[{\tt read}]{}{k}{}$, the sequence $\alinord'\cdot \alabel_{\mathsf{qr}}$ where $\alinord'$ is the projection of $\alinord$ on the set of updates visible to $\alabel_{\mathsf{qr}}$ is admitted by the specification. First, by $\mathsf{ReplicaStates}$, the state $\sigma$ of the replica where $\alabel_{\mathsf{qr}}$ is applied is obtained by applying the effectors of the operations visible to $\alabel_{\mathsf{qr}}$ in the linearization order. Then, by $\mathsf{Refinement}$, every effector is simulated by the corresponding operation in the context of the specification. This implies that $\refmap(\sigma_0)\specarrow{\alinord'}\refmap(\sigma)$, where $\sigma_0$ is the initial replica state. The query $\alabel_{\mathsf{qr}}$ is also simulated by the same operation in the context of the specification, which implies that $\refmap(\sigma)\specarrow{\alabel_{\mathsf{qr}}}\refmap(\sigma)$. These two facts imply that $\refmap(\sigma_0)\specarrow{\alinord'\cdot \alabel_{\mathsf{qr}}}\refmap(\sigma)$ which means that $\alinord'\cdot \alabel_{\mathsf{qr}}$ is admitted by the specification.
-\end {proof}
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
+\end {proof} 
+
+
+
+
+\subsection{Proof of Operation-Based PN-Counter}
+\label{subsec:proof of operation-based PN-counter}
+
+The following lemma states that the operation-based counter is \crdtlinearizable{} w.r.t. $\specCounter$. 
+
+\begin{lemma}
+\label{lemma:operation-based PN-counter is correct}
+The operation-based PN-counter is \crdtlinearizable{} w.r.t $\specCounter$. 
+\end{lemma} 
+
+
+
 
 
 
