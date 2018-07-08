@@ -1,3 +1,4 @@
+%!TEX root = draft.tex
 \section{Related Work}
 \label{sec:rel-work}
 
@@ -6,17 +7,19 @@ CRDTs are hard to specify since concurrent interactions between
 replicas must be considered to provide accurate explanations for the
 conflict resolution and convergence properties they provide.
 %
-\citet{BurckhardtGYZ14, Burckhardt14} provide the one of the first formal
+\citet{BurckhardtGYZ14, Burckhardt14} provide one of the first formal
 frameworks where CRDTs and other weakly consistent replicated systems
 can be specified.
 %
 The specification language they provide uses event structures where
-operations are structured using partial orders (e.g. visibility), and
-axioms on these partial orders characterize the validity of invalidity
-of behaviours of operations.
+operations are structured using partial orders (e.g. visibility), and 
+the validity of the operations is characterized using a set of 
+axioms on these partial orders.
+% characterize the validity of invalidity
+%of behaviours of operations.
 %
 This specification style bears some similarities with the literature
-of weakly consistent shared memory systems~\cite{AlglaveMT14}.
+of weakly consistent shared memory systems, e.g.,~\cite{AlglaveMT14}.
 %
 While the specification language
 of~\cite{BurckhardtGYZ14,Burckhardt14} appears to be complete, this
@@ -27,25 +30,26 @@ function whose inputs are the operation name and its arguments
 together with a \emph{context} for the operation.
 %
 A context is a graph of operations equipped with two partial orders:
-visibility (similar to our visibility) and arbitration.
+visibility and arbitration (similar to our visibility and linearization, respectively,
+except that the visibility is existentially quantified and not extracted from the execution).
 %
-Arbitration is a total order over the operations whose purpose is to
-represent the deterministic conflict resolution of the algorithms.
+%Arbitration is a total order over the operations whose purpose is to
+%represent the deterministic conflict resolution of the algorithms.
 %
 The validity of an operation is given by a set of axioms relating the
 visibility and arbitration orders with the result value of the
 operation.
 %
 Therefore, to specify the behavior of a CRDT in this model one is
-forced to think about the context graph and the axioms that constraint
+forced to think about the context graph and the axioms that constrain
 them.
 %
 One of the goals of \CRDTLinshort{} is to simplify specifications and
 free the user from reasoning about complicated graphs resulting from
 concurrent operations.
 
-\paragraph{Linearizability for CRDTs}
-We are not the firsts to observe that CRDT specifications can be
+\paragraph{Sequential Specifications for CRDTs}
+We are not the first to observe that CRDT specifications can be
 simplified by considering sequential histories.
 %
 Two recent works~\cite{PerrinMJ14, JagadeesanR18} made similar
@@ -53,7 +57,7 @@ observations.
 %
 \citet{PerrinMJ14} provides a criterion called Update Consistency,
 which to the best of our knowledge is the first to consider a
-linearization of updates and queries as resulting from sub-sequences
+linearization of updates and reason about the validity of queries using sub-sequences
 of this linearization.
 %
 Unlike \CRDTLinshort{}, to show that a history is Update Consistent,
@@ -65,7 +69,7 @@ Hence, \CRDTLinshort{} preserves in the specification histories the
 causality of execution histories, whereas Update Consistency does not.
 %
 While their definition is similar to ours, they do not prove the
-correctness of CRDT implementations as we do.
+correctness of CRDT implementations or reason about compositionality as we do.
 
 % %
 % \gpnote[nomargin, inline]{They don't provide proofs of algorithms.
@@ -73,30 +77,29 @@ correctness of CRDT implementations as we do.
 %   consistent w.r.t. a Set spec.}
 
 \citet{JagadeesanR18} provide a correctness criterion for CRDTs under
-Eventual Consistency which they call SEC.
+Eventual Consistency called SEC.
 %
 SEC shares some similarities with~\cite{PerrinMJ14} but the
 formalization is quite different.
 There are some important differences between SEC and \CRDTLinshort{}:
 \begin{inparaenum}
-\item while \CRDTLinshort{} has three simple requirements, the
-  definition SEC is far from simple.
+\item While \CRDTLinshort{} has three simple requirements, the
+  definition of SEC is far from simple.
   %
   In particular, \CRDTLinshort{} as well as Update Consistency have a
   global total order for updates, which is not the case for
-  SEC.\footnote{At least this is not apparent from the definitions, nor
-    stated in the paper.}
+  SEC.%\footnote{At least this is not apparent from the definitions, nor stated in the paper.}
 \item
   \label{it-dependencies}
-  A second important difference is that in for the SEC framework CRDT
-  specifications are assumed to be parameterized by a given dependency
+  A second important difference is that CRDT
+  specifications in the SEC framework are assumed to be parameterized by a \emph{dependency}
   relation at the level of the type API.
   %
   Then, their definition assumes that all independent operations
-  commute (regardless whether these are issued by the same client or
-  not).
+  commute %(regardless whether these are issued by the same client or not) 
+  and disregard the order between them even if they were issued by the same client.
   %
-  It is unclear how such a specification could be adequately capture
+  It is unclear how such a specification could adequately capture
   systems enforcing (some of the) session guarantees
   of~\cite{TerryDPSTW94}.
   %
@@ -110,20 +113,29 @@ There are some important differences between SEC and \CRDTLinshort{}:
   This is certainly the case when we relabel query-update operations
   since the query usually provides arguments for the subsequent
   update.
-\item A last important difference concerns their compositionality
-  result.
-  %
-  While their compositionality result appears similar to ours, the
+\item While SEC is also proved to be compositional, 
+%A last important difference concerns their compositionality
+%  result.
+%  %
+%  While their compositionality result appears similar to ours, 
+  the
   fact that operations stemming from different objects are necessarily
   independent (the dependency relation is given at the level of the API
   of an object, hence no dependencies between objects) in conjunction
-  with the point~(\ref{it-dependencies}) above means that the interleaving
-  of specifications of two different objects is such that any two
-  operations on the different objects are independent.
-  %
-  Hence, the composition of specifications of two objects accepts any
-  interleaving, for example any interleaving of the linearizations
-  of~\autoref{fig:negative_composition} would be accepted.
+  with the point~(\ref{it-dependencies}) above means that a history of 
+  two different objects satisfying SEC is trivially SEC since the order between
+  operations of different objects is ignored completely. For instance, the
+  history in Figure~\ref{fig:negative_composition} will be SEC just because
+  any two operations of different OR-Set objects are independent and the
+  order in which they were executed by the replicas $\arep_1$ or $\arep_2$
+  is not taken into consideration.
+%   interleaving
+%  of specifications of two different objects is such that any two
+%  operations on the different objects are independent.
+%  %
+%  Hence, the composition of specifications of two objects accepts any
+%  interleaving, for example any interleaving of the per-object linearizations
+%  of~\autoref{fig:negative_composition} would be accepted.
   %
   We find this definition of composition counter-intuitive, but more
   problematically, the composition of specifications cannot capture
@@ -131,15 +143,14 @@ There are some important differences between SEC and \CRDTLinshort{}:
   pattern when writing distributed applications (e.g. for referential
   integrity in a key-value store).
   %
-  Our result is stronger since the composition of the specification of
-  two objects will respect the causality resulting from the client code as
-  illustrated by the failure to linearize the interleavings
-  in~\autoref{fig:negative_composition}.\footnote{Note that there
-    are other linearizations for which this composition is indeed
-    linearizable (see~\sectionautorefname~\ref{sec:compositionality}).}
+  Our result is stronger since the composition of a set of  
+  objects will respect the causality resulting from the client code as
+  illustrated by the failure to combine some per-object linearizations 
+  in Figure~\ref{fig:negative_composition}.\footnote{Note that there
+    exist per-object linearizations for this history which can be merged into a global linearization (see~\sectionautorefname~\ref{sec:compositionality}).}
   %
-  We show however in~\autoref{sec:compositionality} conditions on the
-  CRDTs under which the composition can always be linearized.
+%  We show however in~\autoref{sec:compositionality} conditions on the
+ % CRDTs under which the composition can always be linearized.
   % \gpnote{Is this clear?}
 \end{inparaenum}
 
