@@ -5,7 +5,7 @@
 % \gpnote[inline, nomargin]{Add an intuitive notion of history.}
 
 \begin{figure}[t]
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11}).},captionpos=b,label={lst:rga}]
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11}).},captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -34,7 +34,7 @@
 \end{lstlisting}
 \end{figure}
 
-In this section we will firstly describe the system and program model
+In this section we will firstly describe the system model
 we assume, and we will then illustrate our main contribution with two
 interesting CRDT implementations extracted from~\cite{ShapiroPBZ11}.
 
@@ -59,7 +59,7 @@ replicated among the participating nodes of the system -- which we shall call re
 % \gpwarning{Redraw pictures.}
 The execution model for an operation \lstinline|op(v)| on a replicated object is depicted in Figure~\ref{fig:sys-mod} and it proceeds as follows:
 \begin{itemize}
-\item A client, which is a program issuing calls to the object, connects
+\item A client, i.e., a program issuing calls to the object, connects
   to any one replica %(a node of the system holding a copy of the object)
   and performs the operation in that replica. We call such a
   replica the source or \emph{origin}. The source of \lstinline|op(v)|
@@ -89,8 +89,9 @@ The execution model for an operation \lstinline|op(v)| on a replicated object is
 % This model is depicted in~\autoref{fig:system-model}.
 % \fxwarning[nomargin, inline]{We need the picture}.
 
-\paragraph{CRDT implementations}
-
+%\smallskip
+\noindent
+{\bf CRDT implementations.}
 Following the description above, \citet{ShapiroPBZ11} present the code
 of a number of CRDT implementations.
 %
@@ -222,7 +223,7 @@ timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=1\textwidth]{figures/RGA-Trace}
+  \includegraphics[width=.7\textwidth]{figures/RGA-Trace}
 % \vspace{-10pt}
   \caption{Example of RGA conflict resolution.}
   \label{fig:rga-trace}
@@ -302,13 +303,15 @@ depicted.
 
 % \fxwarning[nomargin, inline]{We should already explain the issue of queries, the fact that RGA is not linearizable in the classical sense.}
 
-\begin{wrapfigure}{L}{.6\linewidth}
-  \includegraphics[scale=.8]{figures/history-RGA}
+\begin{wrapfigure}{L}{.5\linewidth}
+  \includegraphics[scale=.7]{figures/history-RGA}
   \caption{A history for the RGA object.}
   \label{fig:rga-history}
 \end{wrapfigure}
 
-\paragraph{Operations, histories and linearizability}
+\smallskip
+\noindent
+{\bf Operations, histories and linearizability.}
 Let us now consider a more abstract view of executions of a 
 CRDT object called \emph{history}.
 %
@@ -441,7 +444,9 @@ Let us now illustrate these intuitions through examples.
 % linearizability~\cite{HerlihyW90}).
 % %
 
-\paragraph{Intuition of RGA \CRDTLinshort{}}
+\smallskip
+\noindent
+{\bf Intuition of RGA \CRDTLinshort{}.}
 To simplify the argument which will be made precise in the following
 section we focus first on the linearization of two concurrent
 operations adding an element after a common element.
@@ -561,7 +566,7 @@ execution thereof.
 
 \begin{figure}[!t]
   \centering
-\begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT.},basicstyle=\ttfamily\footnotesize,captionpos=b,label={lst:or-set}]
+\begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT.},basicstyle=\ttfamily\scriptsize,captionpos=b,label={lst:or-set}]
   payload Set S
   initial S = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -591,9 +596,9 @@ execution thereof.
 \end{lstlisting}
 \end{figure}
 
-\begin{wrapfigure}{r}{.5\textwidth}
+\begin{wrapfigure}{r}{.4\textwidth}
   \centering
-  \includegraphics[width=0.45 \textwidth]{./figures/OR-Set-simple}
+  \includegraphics[width=0.35 \textwidth]{./figures/OR-Set-simple}
   \caption{Interleaving-based Set.}
   \label{fig:or-set-simple}
 \end{wrapfigure}
@@ -659,11 +664,10 @@ being we ignore the lines marked with \lstinline|//@| annotations.
 %   here we should focus more on the rewriting of labels}
 % \gpnote[nomargin, inline]{This is discussed just below, no?}
 
-\paragraph{Intuition of OR-Set Linearizability}
 % \gpnote{Add reads at the end of the pictures.}
 
 \begin{figure}[t]
-  \begin{subfigure}{1.0\linewidth}
+  \begin{subfigure}{.9\linewidth}
     \centering
     \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
     \caption{OR-Set non-linearizable execution.}
@@ -672,7 +676,7 @@ being we ignore the lines marked with \lstinline|//@| annotations.
   \bigskip
   \bigskip
 
-  \begin{subfigure}{1.0\linewidth}
+  \begin{subfigure}{.9\linewidth}
     \centering
     \includegraphics[width=0.95 \textwidth]{./figures/OR-Set-lk-rem}
     \caption{Label rewriting of an OR-Set execution.}
@@ -681,6 +685,9 @@ being we ignore the lines marked with \lstinline|//@| annotations.
   \caption{OR-Set Linearizability vs. \CRDTLinshort{}.}
 \end{figure}
 
+\smallskip
+\noindent
+{\bf Intuition of OR-Set Linearizability.}
 It is easy to find examples where the implementation of OR-Set can
 produce executions which cannot be justified by standard definition of
 linearizability (even with the relaxations discussed in Section~\ref{sec:rga-crdt-impl})
