@@ -31,7 +31,7 @@
 % %\hline
 % OR-set~\cite{ShapiroPBZ11}&\tzerolin&$\alabelshort[{\tt add}]{value}$, $\alabelshort[{\tt remove}]{value}$, $\alabellong[{\tt read}]{}{Set \ value}{}$\\
 % \hline
-% RGA~\cite{DBLP:journals/jpdc/RohJKL11}&\tonelin&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$,
+% RGA~\cite{RohJKL11}&\tonelin&$\alabelshort[{\tt addAfter}]{value,value}$, $\alabelshort[{\tt remove}]{value}$,
 %                 \\ & & $\alabellong[{\tt read}]{}{List \ value}{}$\\
 % \hline
 % Wooki~\cite{DBLP:conf/wise/WeissUM07}&\tzerolin&$\alabelshort[{\tt addBetween}]{value,value,value}$, $\alabelshort[{\tt remove}]{value}$,
@@ -154,7 +154,7 @@ In \autoref{fig:an example that shows RGA with addAt interface is not RAlineariz
 \end{figure} 
 
 
-Therefore, we can see that, such {\tt addAt} interface is not suitable. In \cite{DBLP:conf/podc/AttiyaBGMYZ16}, they use a more complex interface for RGA and other list implementations: $\alabellong[{\tt addAt}]{a,k}{s}{}, \alabellong[{\tt remove}]{a}{s}{},\alabellong[{\tt read}]{}{s}{}$: $\alabellong[{\tt addAt}]{a,k}{s}{}$ puts value $a$ in position $k$ of the list and returns the updated list $s$, $\alabellong[{\tt remove}]{a}{s}{}$ removes $a$ from the list and returns the updated list $s$, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. Similarly, such interface has the above drawbacks. 
+Therefore, we can see that, such {\tt addAt} interface is not suitable. In \cite{AttiyaBGMYZ16}, they use a more complex interface for RGA and other list implementations: $\alabellong[{\tt addAt}]{a,k}{s}{}, \alabellong[{\tt remove}]{a}{s}{},\alabellong[{\tt read}]{}{s}{}$: $\alabellong[{\tt addAt}]{a,k}{s}{}$ puts value $a$ in position $k$ of the list and returns the updated list $s$, $\alabellong[{\tt remove}]{a}{s}{}$ removes $a$ from the list and returns the updated list $s$, and $\alabellong[{\tt read}]{}{s}{}$ returns the list $s$. Similarly, such interface has the above drawbacks. 
 
 
 %The proof of $\mathsf{Refinement}$ relies on a \emph{refinement mapping}~\cite{AbadiL91} between replica states and states of the specification, denoted by $\refmap$. The proof goals require that for any two replica states $\sigma$ and $\sigma'$,
