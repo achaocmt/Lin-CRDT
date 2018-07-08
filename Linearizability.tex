@@ -387,13 +387,15 @@ can be found in Figure~\ref{fig:rga-history}.
 \subsection{Sequential Specifications}
 \label{subsec:sequential specification}
 
-An advantage of our correctness criterion is that since it reduces the
-concurrent execution to a sequential one, the specifications of
-objects can be given in terms of sequences of operations.
-%
-This is similar to the specification of objects in~\cite{HerlihyW90}.
-%
-Let us define the specifications for \CRDTLinshort{} formally.
+RA-linearizability provides an explanation for concurrent executions of CRDT objects in the form of linearizations, which can be constrained using standard sequential specifications.
+%that we define hereafter.
+%An advantage of our correctness criterion is that since it reduces the
+%concurrent execution to a sequential one, the specifications of
+%objects can be given in terms of sequences of operations.
+%%
+%This is similar to the specification of objects in~\cite{HerlihyW90}.
+%%
+%Let us define the specifications for \CRDTLinshort{} formally.
 
 % \fxwarning[nomargin, inline]{INTRODUCE THIS SUBSECTION}
 
@@ -491,12 +493,16 @@ The method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately
 % {\color {red} CW: The sequential specification of OR-set and list with add-after interface}
 \begin{example}[Sequential Specification of OR-Set]
 \label{definition:sequential specification of or-set}
-As illustrated in \figureautorefname~\ref{fig:or-set-lk-rem}, for
-OR-Set we consider $\mathtt{remove}$ to be a query-update operation.
-Then its rewriting is: $\gamma( \alabelshort[\mathtt{remove}]{a} ) = (
-\alabellong[\mathtt{readIds}]{a}{S}{}, \alabelshort[\mathtt{remove}]{a,S})$.
+As explained in \figureautorefname~\ref{fig:or-set-lk-rem}, the fact that the $\mathtt{remove}$
+method of the OR-Set is a query-update induces a rewriting of the operation labels in a
+history. This rewriting introduces update operations $\alabelshort[{\tt add}]{a,id}$, for some identifier ${\tt id}$, instead of simply $\alabelshort[{\tt add}]{a}$,
+and $\alabelshort[\mathtt{remove}]{a,S}$, for some set of identifiers ${\tt S}$, instead of $\alabelshort[{\tt remove}]{a}$,
+and a new query operation $\alabelshort[{\tt readIds}]{a}$ that returns a set of identifiers. These operations are specified as follows.
+%OR-Set we consider $\mathtt{remove}$ to be a query-update operation.
+%Then its rewriting is: $\gamma( \alabelshort[\mathtt{remove}]{a} ) = (
+%\alabellong[\mathtt{readIds}]{a}{S}{}, \alabelshort[\mathtt{remove}]{a,S})$.
 %
-Then abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$
+The abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$
 is a data and $id$ is a identifier. The sequential specification
 $\specOrSet$ of OR-Set is given by the transitions:
 \[
@@ -534,14 +540,14 @@ set of objects in \sectionautorefname~\ref{sec:compositionality}.
 Another important aspect of specifications is whether they are
 deterministic or not.
 %
-For instance the Wooki~\cite{DBLP:conf/icdcs/PreguicaMSL09} CRDT of a
-List-like object provides a method $\mathtt{addBetween(a, b, c)}$
-which inserts $\mathtt{b}$ between $\mathtt{a}$ and $\mathtt{c}$
-to be present in the list.
+For instance the Wooki~\cite{DBLP:conf/icdcs/PreguicaMSL09} CRDT is a
+list-like object that provides a method $\mathtt{addBetween(a, b, c)}$
+which inserts $\mathtt{b}$ between $\mathtt{a}$ and $\mathtt{c}$.
+%to be present in the list.
 %
-In contrast with RGA, where the method $addAfter(a, b)$
-explicitly adds the element $\mathtt{b}$ after $\mathtt{a}$, in Wooki
-many positions are possible if $\mathtt{a}$ and $\mathtt{c}$ are not
+In contrast with RGA, where the method $\mathtt{addAfter(a, b)}$
+adds the element $\mathtt{b}$ immediately after $\mathtt{a}$, in Wooki
+there are many possible positions where to insert $\mathtt{b}$ if $\mathtt{a}$ and $\mathtt{c}$ are not
 adjacent.
 %
 In this case, to allow for any deterministic resolution mechanism our
@@ -549,12 +555,13 @@ specifications shall be non-deterministic.
 %
 This non-determinism in the specification has to be deterministically
 resolved by the implementations to ensure convergence.
+We discuss this issue further in Section~\ref{subsec:time order of execution as linearization}.
 %
-Our definition of \CRDTLinshort{} can be extended to consider these
-specifications, but we leave the details to
-\sectionautorefname~\ref{sec:appendix RA-linearizability with
-  non-deterministic sequential specifications and its proof} for lack
-of space. 
+%Our definition of \CRDTLinshort{} can be extended to consider these
+%specifications, but we leave the details to
+%\sectionautorefname~\ref{sec:appendix RA-linearizability with
+%  non-deterministic sequential specifications and its proof} for lack
+%of space. 
 
 
 % \fxwarning[nomargin, inline]{TALK ABOUT SPECIFICATIONS OF A SET OF OBJECTS, OBTAINED AS A PRODUCT OF PER-OBJECT SPECIFICATIONS.}
@@ -590,7 +597,7 @@ The intuition of our notion of \crdtlin{} is that there is a \emph{global} seque
 (or linearization) of the update operations in an execution which can
 produce the state of \emph{each} replica when \emph{all} the updates are visible to them.
 In intermediate steps, any replica state should be the result of applying a subsequence of updates
-of this global sequence. This is because our semantical model allows replicas to see a subset of the updates
+of this global sequence. This is because replicas may see a subset of the updates
 performed up to some moment.
 %``explains'' the states of each replica,
 %i.e., any state observed by any replica should be the result of applying a subsequence of updates
@@ -651,13 +658,12 @@ To be precise:
    sequential specification
 %\gpnote*{First mention?}{deterministic}
   \Spec{}, if there exists a specification sequence
-  $(\alabelset, \aseqord) \in \Spec{}$, called the
-  \emph{\crdtlinearization{}} of $h$ -- where we remark that the set of labels
+  $(\alabelset, \aseqord) \in \Spec{}$ -- where we remark that the set of labels
   are identical -- such that %
   % \gpwarning*{}{This definition has to be worked out again}
   \begin{enumerate}[(i)]
-  \item \aseqord{} is consistent with  \avisord{}, that is: $(\avisord
-    \cup \aseqord)^{+}$ is acyclic,
+  \item \aseqord{} is consistent with  \avisord{}, that is: $\avisord
+    \cup \aseqord$ is acyclic,
   \item the projection of $\aseqord$ to \emph{updates} is
     admitted by $\Spec$, i.e.
     $\aseqord\!\downarrow_{\updates} \in \Spec$, where we denote by
@@ -677,7 +683,7 @@ that
   consistent with the visibility order of the history, that
 \item when restricted to update operations -- that is all the updates --, the sequence belongs to
   the specification, and that
-\item every query operations can be justified by the specification based only
+\item every query operation can be justified by the specification based only
   on the updates that precede it in the sequence and that are visible
   to it.
 \end{inparaenum}
@@ -698,7 +704,7 @@ We now consider the case where histories include query-updates.
 In such a case, we apply
 Definition~\ref{definition:ralinearizability1} on a rewriting of the 
 original history where each query-update is decomposed into a label
-representing the query part a another label representing the update
+representing the query part and another label representing the update
 part.
 %
 As shown in \figureautorefname~\ref{fig:or-set-lk-rem} this rewriting
@@ -723,8 +729,7 @@ history $\gamma(h)=(\alabelset',\avisord')$ where
   $\alabelset$ with $\gamma(\alabel)$ (a label may be replaced by two
   labels),
 \item whenever a (query-update) label $\alabel$ is mapped by $\gamma$
-  to a pair $(\alabel_1,\alabel_2)$ (i.e.
-  $\gamma(\alabel)=(\alabel_1,\alabel_2)$), we have that the query is
+  to a pair $(\alabel_1,\alabel_2)$, we have that the query is
   ordered before the update, formally $(\alabel_1,\alabel_2)\in \avisord'$,
 \item $\avisord'$ preserves the order between labels which are
   mapped to singletons, and
@@ -740,9 +745,9 @@ history $\gamma(h)=(\alabelset',\avisord')$ where
  \firstrep(\gamma(\alabel')))\in\avisord'$, where for a label $\alabel$,
  $\firstrep(\gamma(\alabel))$ (resp., $\secondrep(\gamma(\alabel))$), is
  $\gamma(\alabel)$ when $\gamma(\alabel)$ is a singleton, or its first (resp.,
- second) projection when $\gamma(\alabel)$ is a pair.
+ second) component when $\gamma(\alabel)$ is a pair.
 \end{itemize}
-The following definition
+The following
 extends Definition~\ref{definition:ralinearizability1} to arbitrary histories
 using the rewriting defined above.
 % \gpnote[nomargin, inline]{I'd probably use $\Pi^*_i$ for the i-th
@@ -767,19 +772,19 @@ $\histories(\aobj)$ is linearizable w.r.t. $\Spec$.
 
 % \fxwarning[nomargin, inline]{MOVE THE FOLLOWING WHEN WE NEED IT (WHEN WE TALK ABOUT SOME NONDETERMINISTIC SPECIFICATION, E.G., WOOT)}
 
-As we anticipated, our definition of \CRDTLinshort{} implies that if
-an implementation is \crdtlinearizable{} w.r.t. a deterministic
-specification, then it is also convergent.
-
-\begin{lemma}
-\label{lemma:distributed linarizability implies convergence}
-If a history $h$ is \crdtlinearizable{} w.r.t. a deterministic
-sequential specification \Spec, then $h$ is convergent.
-\end{lemma} 
-
-A similar lemma can be shown for non-deterministic
-specifications, but we relegate to the additional material for space
-reasons.
+%As we anticipated, our definition of \CRDTLinshort{} implies that if
+%an implementation is \crdtlinearizable{} w.r.t. a deterministic
+%specification, then it is also convergent.
+%
+%\begin{lemma}
+%\label{lemma:distributed linarizability implies convergence}
+%If a history $h$ is \crdtlinearizable{} w.r.t. a deterministic
+%sequential specification \Spec, then $h$ is convergent.
+%\end{lemma} 
+%
+%A similar lemma can be shown for non-deterministic
+%specifications, but we relegate to the additional material for space
+%reasons.
 % \gpnote{Ref to the appendix?}
 
 
