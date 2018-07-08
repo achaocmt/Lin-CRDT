@@ -25,7 +25,7 @@ captionpos=b,label={lst:operation-based counter}]
 
   dec() :
     atSource :
-      //@ lin = lin@|$\,\cdot\,$|@dec() 
+      //@ lin = lin@|$\,\cdot\,$|@dec()
     downStream(dec) :
       ctr = ctr - 1
 
@@ -35,13 +35,13 @@ captionpos=b,label={lst:operation-based counter}]
 \end{lstlisting}
 \end{figure}
 
-%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@ 
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
 
 
 
 
 \subsection{PN-Counter Implementation}
-\label{subsec:PN-counter implementation} 
+\label{subsec:PN-counter implementation}
 
 \cite{ShapiroPBZ11} introduces state-based \crdtimp{}, where an update occurs entirely at the source replica, and then propagates by transmitting the modified payload between replicas. When a replica receives a effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload. \cite{ShapiroPBZ11} also shows how to obtain a operation-based \crdtimp{} from a state-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. Since query operations do not change, we ignore query operations. To do a update operation $f(a)$, we compute the state-based update and perform merge in downstream. Here the precondition of downstream is empty because merge is always enabled.
 
@@ -105,7 +105,7 @@ captionpos=b,label={lst:operation-based PN-counter}]
 \end{lstlisting}
 \end{figure}
 
-%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@ 
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
 
 
 
@@ -119,18 +119,18 @@ Let us give the operation-based last-writer-win Register (LWW-Register) of \cite
 \begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of LWW-register},
 captionpos=b,label={lst:LWW-register}]
-  payload X x, timestamp @|$\ats$|@ 
+  payload X x, timestamp @|$\ats$|@
   initial @|$x_0$|@, @|$\ats_0$|@
   initial lin = @|$\epsilon$|@
 
   write(a) :
     atSource :
-      let @|$\ats'$|@ = getTimestamp() 
+      let @|$\ats'$|@ = getTimestamp()
       //@ lin = lin@|$\,\cdot\,$|@write(a)
       //@ lin = insert(lin, write(a), ts')
     downStream((a,@|$\ats'$|@)) :
       if (@|$\ats<\ats'$|@)
-        (x,@|$\ats$|@) = (a,@|$\ats'$|@)  
+        (x,@|$\ats$|@) = (a,@|$\ats'$|@)
       //@ Annotation1 : @|$\ats'$|@ = @|$max(\{ \ats'' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats''}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@.
 
   read() :
@@ -184,12 +184,79 @@ captionpos=b,label={lst:operation-based multi-value register}]
 
 
 
+\subsection{Two-phase Set (2P-Set) Implementation}
+\label{subsec:two-phase set (2P-set) implementation}
+
+\cite{ShapiroPBZ11} gives a two-phase set (2P-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:2P-set}. A payload $(A,R)$ contains a set $A$ to record the inserted values, and a set $R$ used as ``tombstone'' to record the removed values. Adding or removing a value twice has no effect, nor does adding an element that has already been removed.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of 2P-set},
+captionpos=b,label={lst:2P-set}]
+  payload Set A, Set R
+  initial @|$\emptyset$|@, @|$\emptyset$|@
+  initial lin = @|$\epsilon$|@
+
+  add(a) :
+    atSource :
+      //@ lin = lin@|$\,\cdot\,$|@add(a)
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@a@|$\}$|@, @|$R'$|@ = R
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
+      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
+
+  remove(a) :
+    atSource :
+      precondition :  @|$a \in A \wedge a \notin R$|@
+       //@ lin = lin@|$\,\cdot\,$|@remove(a)
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = R @|$\cup$|@ @|$\{$|@a@|$\}$|@,
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
+      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
+
+  read() :
+    let s = A @|$\,\setminus\,$|@ R
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
+    return s
+\end{lstlisting}
+\end{figure}
 
 
 
 
 
 
+
+\subsection{Last-Writer-Win-Element-Set (LWW-Element-Set) Implementation}
+\label{subsec:last-writer-win-element-set (LWW-element-set) implementation}
+
+Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. Each payload contains a data $x$ and the timestamp $ts$ of $x$. In applying effector, the local state will be updated if the timestamp of effector is larger than that of replica state. Here $x_0$ is a special initial data and $\ats_0$ is a special initial timestamp.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of LWW-element-set},
+captionpos=b,label={lst:LWW-element-set}]
+  payload Set A, Set R
+  initial @|$\emptyset$|@, @|$\emptyset$|@
+  initial lin = @|$\epsilon$|@ 
+
+  write(a) :
+    atSource :
+      let @|$\ats'$|@ = getTimestamp()
+      //@ lin = lin@|$\,\cdot\,$|@write(a)
+      //@ lin = insert(lin, write(a), ts')
+    downStream((a,@|$\ats'$|@)) :
+      if (@|$\ats<\ats'$|@)
+        (x,@|$\ats$|@) = (a,@|$\ats'$|@)
+      //@ Annotation1 : @|$\ats'$|@ = @|$max(\{ \ats'' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats''}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@.
+
+  read() :
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@x)
+    return x
+\end{lstlisting}
+\end{figure}
 
 
 
@@ -487,7 +554,7 @@ Each abstract state $\abstate$ is a data $a$. The sequential specification $\spe
   \end{array}
 \]
 
-Method $\alabelshort[{\tt write}]{a}$ update the abstract state into $a$. Method $\alabellong[{\tt read}]{}{\abstate}{}$ returns the value of the register. 
+Method $\alabelshort[{\tt write}]{a}$ update the abstract state into $a$. Method $\alabellong[{\tt read}]{}{\abstate}{}$ returns the value of the register.
 
 
 
@@ -521,6 +588,32 @@ Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\
 
 
 
+\subsection{The Sequential Specification of 2P-Set}
+\label{subsec:the sequential specification of 2P-set}
+
+Each abstract state $\abstate$ is $(A,T)$, where $A$ is a set of values used to store the inserted values, and $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specTwoPSet$ of 2P-set is given by the transitions:
+\[
+  \begin{array}{rcl}
+    (A,T) &
+               \specarrow{\alabelshort[\mathtt{add}]{a}}
+    & (A \cup \{ a \},T) \\
+    (A,T) &
+               \specarrow{\alabelshort[\mathtt{remove}]{a}}
+    & (A,T \cup \{a\}) \\
+    (A,T)
+    & \specarrow{\alabellong[\mathtt{read}]{}{ S_1 }{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = A \setminus T]
+      \end{array}
+  \end{array}
+\]
+
+Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $A$. Method $\alabelshort[{\tt remove}]{a}$ puts $a$ into $T$. Method $\alabellong[{\tt read}]{}{S_1}{}$ returns the contents of the 2P-set.
+
+
+
+
 
 
 \subsection{The Sequential Specification of OR-Set}
@@ -529,7 +622,7 @@ Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\
 The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$.
 
 % \gpwarning{I still don't like the pairs for OR-Set}
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specOrSet$ of OR-Set is given by the transitions:
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specOrSet$ of OR-set is given by the transitions:
 \[
   \begin{array}{rcl}
     \abstate
@@ -553,7 +646,7 @@ Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data 
   \end{array}
 \]
 
-Method $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$. Method $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state. Method $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the value of the or-set.
+Method $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$. Method $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state. Method $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the contents of the or-set.
 
 
 
@@ -667,7 +760,7 @@ Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2
 
 
 %\subsection{Obtain Permutations by Swapping Adjacent and Concurrent Operations with Same Timestamp}
-%\label{subsec:obtain permutations by swapping adjacent and concurrent operations with same timestamp} 
+%\label{subsec:obtain permutations by swapping adjacent and concurrent operations with same timestamp}
 
 %Similarly, when we deal with timestamp-order linearizations, we have a similar lemma of Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation and the timestamp order, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations with same timestamp.
 
@@ -680,7 +773,7 @@ Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2
 
 %First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel_1$ and $\alabel_2$ are concurrent, $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$, and $\alabel_1$ and $\alabel_2$ have a same ``real'' or ``virtual'' timestamp.
 
-%We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$, or $\alabel_1$ and $\alabel_2$ have different timestamps. 
+%We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$, or $\alabel_1$ and $\alabel_2$ have different timestamps.
 
 %Similarly as Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, we can prove that, $\alabel_1$ and $\alabel_2$ are concurrent, and $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$. Thus, the only possibility is that $\alabel_1$ and $\alabel_2$ have different timestamps, which contradicts the assumption that $\alabel_1$ and $\alabel_2$ are both consistent with the timestamp order. This completes the proof of the first part.
 
@@ -789,7 +882,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For the effector $(P_{\alabel},N_{\alabel})$ produced by $\alabel = \alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specMVReg$: Assume we obtain replica state $S'=(P',N')$ from $S=(P,N)$ by applying effector $(P_{\alabel},N_{\alabel})$; while in sequential specification have $\abstate \xrightarrow{\alabelshort[{\tt inc}]{}} \abstate+1$, and $\refmap((P,N)) = \abstate$. We need to prove that $\refmap((P',N')) = \abstate+1$.
+    \item[-] For the effector $(P_{\alabel},N_{\alabel})$ produced by $\alabel = \alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specMVReg$: Assume we obtain replica state $S'=(P',N')$ from $S=(P,N)$ by applying effector $(P_{\alabel},N_{\alabel})$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt inc}]{}} \abstate+1$, and $\refmap((P,N)) = \abstate$. We need to prove that $\refmap((P',N')) = \abstate+1$.
 
         Similarly as the above case, we can prove that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Therefore, $\refmap((P',N')) = \refmap((P,N))+1 = \abstate+1$.
 
@@ -811,43 +904,43 @@ This completes the proof of this lemma. $\qed$
 \subsection{Proof of LWW-Register}
 \label{subsec:proof of LWW-register}
 
-The following lemma states that the operation-based LWW-register is \crdtlinearizable{} w.r.t. $\specReg$. 
+The following lemma states that the operation-based LWW-register is \crdtlinearizable{} w.r.t. $\specReg$.
 
 \begin{lemma}
 \label{lemma:operation-based LWW-register is correct}
 The operation-based LWW-register is \crdtlinearizable{} w.r.t $\specReg$.
 \end{lemma}
 
-\begin {proof} 
-Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+\begin {proof}
+Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Given a replica state $S = (x,\ats)$. Then, $\ats$ = $max(\{ \ats'' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats''}{}$, the effector of $\alabel$ has already been applied in the local state $S \})$. 
-\end{itemize} 
+\item[-] Annotation2: Given a replica state $S = (x,\ats_x)$. Then, $\ats_x$ = $max(\{ \ats'' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats''}{}$, the effector of $\alabel$ has already been applied in the local state $S \})$.
+\end{itemize}
 
 Let we prove that the Annotation1 and Annotation2 is an inductive invariant. We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of $\alabelshort[{\tt write}]{a}$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume the effector is $(a,\ats_a)$. By Annotation 2, we can see that $\ats<\ats_a$, and then $(x',\ats')=(a,\ats_a)$. Then, we can see that Annotation1 holds for the effector $(a,\ats_a)$, and Annotation2 holds for the replica state $S'=(a,\ats_a)$. 
+\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume the effector is $(a,\ats_a)$. By the LWW-register algorithm, we can see that $\ats<\ats_a$, and then $(x',\ats')=(a,\ats_a)$. By Annotatioon2 of replica state $S$ and $\ats<\ats_a$, we can see that Annotation1 holds for the effector $(a,\ats_a)$, and Annotation2 holds for the replica state $S'=(a,\ats_a)$.
 
-\item[-] For case when replica $\arep$ apply effector $(a,\ats_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
-    
-    If $\ats_a < \ats$, then $(x',\ats') = (x,\ats)$, and Annotation2 holds for replica state $S'$. Else, if $\ats < \ats_a$, then $(x',\ats') = (a,\ats_a)$, and Annotation2 holds for replica state $S'$. 
-\end{itemize} 
+\item[-] For case when replica $\arep$ apply effector $(a,\ats_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
-Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(x,ts) = x$. 
+    If $\ats_a < \ats$, then $(x',\ats') = (x,\ats)$, and Annotation2 holds for replica state $S'$. Else, if $\ats < \ats_a$, then $(x',\ats') = (a,\ats_a)$, and Annotation2 holds for replica state $S'$.
+\end{itemize}
+
+Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(x,ts) = x$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Concerning effectors of $\alabellongind[{\tt write}]{a}{}{\ats_a}{}$ operations, we show that they are simulated by the corresponding specification operation $\alabelshort[{\tt write}]{a}$ only when the timestamp $\ats_a$ is strictly greater than all the timestamps of operations whose effector has been applied in the replica state. This is sufficient because, by $\mathsf{ReplicaStates}$, every replica state is obtained by applying effectors according to the linearization of their corresponding operations, and the linearization order is consistent with the timestamp order.
-    
-    Thus, let $S = (x,\ats_x)$ be a replica state such that $\ats_x < \ats_a$. By Annotation2, we know that for each operation $\alabel_y = \alabellongind[{\tt write}]{y}{}{\ats_y}{}$ whose effector has been applied in $S$, we have $\ats_y < \ats_a$. Assume we obtain replica state $S'$ from $S$ by applying effector $(a,\ats_a)$; while in sequential specification have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a}} \abstate'$, and $\refmap(x,\ats_x) = \abstate = x$. We can see that $S' = (a,\ats_a)$ and $\abstate' = a$, and then, $\refmap(S') = \abstate'$. 
 
-\item[-] Applying the query {\tt read} on the replica state $(x,\ats_x)$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(x,\ats_x) = x$, which again holds trivially. 
+    Thus, let $S = (x,\ats_x)$ be a replica state such that $\ats_x < \ats_a$. By Annotation2, we know that for each operation $\alabel_y = \alabellongind[{\tt write}]{y}{}{\ats_y}{}$ whose effector has been applied in $S$, we have $\ats_y < \ats_a$. Assume we obtain replica state $S'$ from $S$ by applying effector $(a,\ats_a)$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a}} \abstate'$, and $\refmap(x,\ats_x) = \abstate = x$. We can see that $S' = (a,\ats_a)$ and $\abstate' = a$, and then, $\refmap(S') = \abstate'$.
+
+\item[-] Applying the query {\tt read} on the replica state $(x,\ats_x)$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(x,\ats_x) = x$, which holds trivially.
 \end{itemize}
 
 
@@ -936,7 +1029,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     %For $(a,V')$ of downstream and $\alabelshort[{\tt write}]{a,V',S_1}$ in sequential specification:
 
-    Assume we obtain replica state $S'$ from $S$ by applying effector $(a,V')$; while in sequential specification have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a,V',S_1}} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
+    Assume we obtain replica state $S'$ from $S$ by applying effector $(a,V')$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a,V',S_1}} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
 
     By the causal delivery assumption, if $(\alabel,\alabel') \in \avisord$, then the effector of $\alabel'$ has not been applied yet in the replica of $S$. By Annotation2, $fact1$ and $fact2$, we can see that, $\forall (b,V) \in S$, $\neg(V > V')$. Therefore, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
 
@@ -967,6 +1060,77 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
 This completes the proof of this lemma. $\qed$
 \end {proof}
+
+
+
+
+
+\subsection{Proof of Operation-Based 2P-Set}
+\label{subsec:proof of operation-based 2P-set}
+
+The following lemma states that the operation-based 2P-set is \crdtlinearizable{} w.r.t. $\specTwoPSet$.
+
+\begin{lemma}
+\label{lemma:2P-set is correct}
+The operation-based 2P-set is \crdtlinearizable{} w.r.t $\specTwoPSet$.
+\end{lemma}
+
+\begin {proof}
+
+Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{a}$, the effector of $\alabel$ has already been applied in S $\}$, 
+    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{a}$, the effector of $\alabel$ has already been applied in S $\}$, 
+\end{itemize}
+
+Our proof of the lemma proceed as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
+Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+
+\item[-] Let we prove that the Annotation1 and Annotation2 are inductive invariant.
+
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of {\tt write} or {\tt remove}:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A'R')$ is the effector of $\alabel$. 
+        
+        By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds. 
+
+    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
+
+        By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$. 
+    
+    \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved. 
+    \end{itemize}
+
+\item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] For the effector $(A_a,R_a)$ produced by an operation $\alabel = \alabelshort[{\tt add}]{a}$ and the $\alabelshort[{\tt add}]{a}$ operation of the specification $\specTwoPSet$:
+
+    Assume we obtain replica state $S' = (A,'R')$ from replica state $S = (A,R)$ by applying effector $(A_a,R_a)$; while in sequential specification have $\abstate \xrightarrow{\alabelshort[{\tt add}]{a}} \abstate'$, and $\refmap(A,R) = \abstate$, or we can say, $(A,R) = \abstate$. Obviously $\abstate' = (A \cup \{ a \},R)$. We need to prove that $S' = \abstate'$.
+
+    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, we have that $S' = \abstate'$.
+
+    \item[-] The cases of {\tt remove} can be similarly proved. 
+
+    \item[-] Applying the query $\alabelshort[read]{}$ on the replica state $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
+    \end{itemize}
+
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+
 
 
 
