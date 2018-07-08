@@ -294,6 +294,8 @@ Its specification is in the same vein as the one of the OR-Set (in particular, a
 Counter, PN-Counter, Multi-Value Register, 2P-Set, OR-Set, Wooki, and Treedoc are RA-linearizable and admit execution-order linearizations.
 \end{theorem}
 
+We now discuss the issue of the non-deterministic specifications of Wooki and Treedoc, where an ${\tt addBetween(a,b,c)}$ operation inserts the element ${\tt b}$ at a random position between ${\tt a}$ and ${\tt c}$ (when ${\tt a}$ and ${\tt c}$ are not adjacent). The specification of the query ${\tt read}$ is however deterministic returning the whole list stored in the state (excluding tombstone elements). Although the specification of these objects is non-deterministic, the proof of $\mathsf{ReplicaStates}$ and $\mathsf{Refinement}$ imply that the objects are \emph{convergent}, in the sense that any two queries seeing the same set of updates return the same value. Indeed, by $\mathsf{ReplicaStates}$, the replica states where such queries are applied are the same (assuming that effectors are deterministic, which is the case in all the CRDTs we are aware of) and the existence of a refinement mapping implies that the specification states corresponding to these replica states are also the same. The fact that the queries are deterministic concludes the proof of convergence.
+
 \subsection{Timestamp-Order Linearizations}
 \label{subsec:time-stamp order as linearizabtion}
 
