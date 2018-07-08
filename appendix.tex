@@ -126,7 +126,6 @@ captionpos=b,label={lst:LWW-register}]
   write(a) :
     atSource :
       let @|$\ats'$|@ = getTimestamp()
-      //@ lin = lin@|$\,\cdot\,$|@write(a)
       //@ lin = insert(lin, write(a), ts')
     downStream((a,@|$\ats'$|@)) :
       if (@|$\ats<\ats'$|@)
@@ -187,7 +186,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
 \subsection{Two-phase Set (2P-Set) Implementation}
 \label{subsec:two-phase set (2P-set) implementation}
 
-\cite{ShapiroPBZ11} gives a two-phase set (2P-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:2P-set}. A payload $(A,R)$ contains a set $A$ to record the inserted values, and a set $R$ used as ``tombstone'' to record the removed values. Adding or removing a value twice has no effect, nor does adding an element that has already been removed.
+\cite{ShapiroPBZ11} gives a two-phase set (2P-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:2P-set}. A payload $(A,R)$ contains a set $A$ to record the inserted values, and a set $R$ stores the removed values and is used as \emph{tombstone}. Adding or removing a value twice has no effect, nor does adding an element that has already been removed.
 
 
 \begin{figure}[t]
@@ -232,7 +231,7 @@ captionpos=b,label={lst:2P-set}]
 \subsection{Last-Writer-Win-Element-Set (LWW-Element-Set) Implementation}
 \label{subsec:last-writer-win-element-set (LWW-element-set) implementation}
 
-Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. Each payload contains a data $x$ and the timestamp $ts$ of $x$. In applying effector, the local state will be updated if the timestamp of effector is larger than that of replica state. Here $x_0$ is a special initial data and $\ats_0$ is a special initial timestamp.
+Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ to record pairs of inserted values and their timestamp, and a set $R$ and stores the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$. 
 
 
 \begin{figure}[t]
@@ -242,19 +241,30 @@ captionpos=b,label={lst:LWW-element-set}]
   initial @|$\emptyset$|@, @|$\emptyset$|@
   initial lin = @|$\epsilon$|@ 
 
-  write(a) :
+  add(a) :
     atSource :
       let @|$\ats'$|@ = getTimestamp()
-      //@ lin = lin@|$\,\cdot\,$|@write(a)
-      //@ lin = insert(lin, write(a), ts')
-    downStream((a,@|$\ats'$|@)) :
-      if (@|$\ats<\ats'$|@)
-        (x,@|$\ats$|@) = (a,@|$\ats'$|@)
-      //@ Annotation1 : @|$\ats'$|@ = @|$max(\{ \ats'' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats''}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@.
+      //@ lin = insert(lin, add(a), ts')
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@, @|$R'$|@ = R
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@, 
+      @|$R'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@.
+  
+  remove(a) :
+    atSource :
+      let @|$\ats'$|@ = getTimestamp()
+      //@ lin = insert(lin, remove(a), ts')
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@ 
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@, 
+      @|$R'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@.
 
   read() :
-    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@x)
-    return x
+    let S = @|$\{ b \vert \exists (b,\ats_b) \in A, R$|@ does not contain @|$(b,\_)$|@, or @|$\forall (b,\ats'_b) \in R, \ats'_b < \ats_b \}$|@
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@S)
+    return S
 \end{lstlisting}
 \end{figure}
 
@@ -610,6 +620,33 @@ Each abstract state $\abstate$ is $(A,T)$, where $A$ is a set of values used to 
 \]
 
 Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $A$. Method $\alabelshort[{\tt remove}]{a}$ puts $a$ into $T$. Method $\alabellong[{\tt read}]{}{S_1}{}$ returns the contents of the 2P-set.
+
+
+
+
+
+
+
+\subsection{The Sequential Specification of LWW-Element-Set}
+\label{subsec:the sequential specification of LWW-element-set}
+
+Each abstract state $\abstate$ is a set $S$ of values. The sequential specification $\specLWWSet$ of LWW-element-set is given by the transitions:
+\[
+  \begin{array}{rcl}
+    S &
+               \specarrow{\alabelshort[\mathtt{add}]{a}}
+    & S \cup \{ a \} \\
+    S &
+               \specarrow{\alabelshort[\mathtt{remove}]{a}}
+    & S \setminus \{a\} \\
+    S
+    & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
+    & S 
+  \end{array}
+\]
+
+Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $S$. Method $\alabelshort[{\tt remove}]{a}$ removes $a$ from $S$. Method $\alabellong[{\tt read}]{}{S}{}$ returns the contents of the LWW-element-set. 
+
 
 
 
