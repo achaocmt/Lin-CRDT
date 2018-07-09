@@ -313,7 +313,7 @@ A total order $<_{id}$ is given for identifiers of W-characters for conflict res
 
 %A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
 
-\begin{figure}[t]
+\begin{figure}[!h]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
 captionpos=b,label={lst:wooki algorithm}]
   payload W-string @|$string_s$|@
@@ -393,7 +393,7 @@ To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths o
 For example, \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the T-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set $\{ w_b,w_c,w_d \}$ is a major node and we use a box containing $w_b,w_c,w_d$ to emphasize a major node. Similarly, the set $\{ w_e,w_f \}$, $\{ w_g,w_h \}$, $\{ w_j,w_k \}$ are also major nodes, respectively.
 
 
-\begin{figure}[t]
+\begin{figure}[!h]
   \centering
   \includegraphics[width=0.85 \textwidth]{figures/TreeDocExecutionandLocalState.pdf}
 \vspace{-10pt}
@@ -466,7 +466,7 @@ We define the following function for a T-tree $tree$:
 
 
 
-\begin{minipage}[t]{1.0\linewidth}
+\begin{figure}[!h]% {1.0\linewidth}
 \begin{lstlisting}[frame=top,caption={Pseudo-code of Tree-Doc algorithm},
 captionpos=b,label={lst:Tree-Doc algorithm}]
   payload T-tree @|$tree$|@
@@ -509,7 +509,8 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
       assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
       return @|$l_1 \cdot p \cdot (1,id)$|@
 \end{lstlisting}
-\end{minipage}
+\end{figure}
+% \end{minipage}
 
 $\\$ $\\$
 
