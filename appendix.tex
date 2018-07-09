@@ -231,7 +231,7 @@ captionpos=b,label={lst:2P-set}]
 \subsection{Last-Writer-Win-Element-Set (LWW-Element-Set) Implementation}
 \label{subsec:last-writer-win-element-set (LWW-element-set) implementation}
 
-Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ to record pairs of inserted values and their timestamp, and a set $R$ and stores the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$. 
+Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ to record pairs of inserted values and their timestamp, and a set $R$ and stores the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$.
 
 
 \begin{figure}[t]
@@ -239,7 +239,7 @@ Let us give the operation-based last-writer-win-element-set (LWW-element-set) of
 captionpos=b,label={lst:LWW-element-set}]
   payload Set A, Set R
   initial @|$\emptyset$|@, @|$\emptyset$|@
-  initial lin = @|$\epsilon$|@ 
+  initial lin = @|$\epsilon$|@
 
   add(a) :
     atSource :
@@ -250,12 +250,12 @@ captionpos=b,label={lst:LWW-element-set}]
       R = R @|$\cup \ R'$|@
       //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
       @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
-  
+
   remove(a) :
     atSource :
       let @|$\ats'$|@ = getTimestamp()
       //@ lin = insert(lin, remove(a), ts')
-    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@ 
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@
       A = A @|$\cup \ A'$|@
       R = R @|$\cup \ R'$|@
       //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
@@ -424,7 +424,7 @@ We say a set $T$ of T-characters is a T-tree, if:
     \end{itemize}
 \end{itemize}
 
-Given a T-tree, the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if one of the following cases holds 
+Given a T-tree, the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if one of the following cases holds
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -436,28 +436,28 @@ Given a T-tree, the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if one
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $x_1=p$, $x_2=0$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2=1)$,
+    \item[-] $x_1=p$, $x_2 \in \{ 0, (0,\_) \}$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2 \in \{ 1, (1,\_) \} )$,
 
-    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, %$y_1=(p,id')$, and $id<id'$, 
-        and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$, 
+    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, %$y_1=(p,id')$, and $id<id'$,
+        and $y_1 = (p,id') \wedge id<id'$,
 
-    \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$.
+    \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2 \in \{ 1, (1,\_) \})$.
     \end{itemize}
 \end{itemize}
 
 The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given minor node $n_a,n_b$ of a same major node, such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. We say T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
 
-We define the following function for a T-tree $tree$: 
+We define the following function for a T-tree $tree$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $contains(tree,a)$ returns true if there exists a T-character $(a,\_,a)$ in $tree$. 
+\item[-] $contains(tree,a)$ returns true if there exists a T-character $(a,\_,a)$ in $tree$.
 
-\item[-] $notAdded(tree,a)$ returns true, if there is no T-character $(\_,\_,a)$ in $tree$. Or we can say, if $a$ has not been added in $tree$. 
+\item[-] $notAdded(tree,a)$ returns true, if there is no T-character $(\_,\_,a)$ in $tree$. Or we can say, if $a$ has not been added in $tree$.
 
-\item[-] $getTchar(tree,a)$ returns the T-character whose value is $a$ in $tree$. 
+\item[-] $getTchar(tree,a)$ returns the T-character whose value is $a$ in $tree$.
 
-\item[-] $removeTChar(tree,tid)$ will find the T-character with T-identifier $tid$ in $tree$, and then set the value of this T-character into $nil$. 
+\item[-] $removeTChar(tree,tid)$ will find the T-character with T-identifier $tid$ in $tree$, and then set the value of this T-character into $nil$.
 
 \item[-] $values(tree)$ returns a sequence, which is obtained by walking the tree according to $<_t$ orders and consider only values of T-characters whose value are not $nil$.
 \end{itemize}
@@ -496,7 +496,7 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
     return s
 
   newID(@|$tid_1,tid_2,id$|@)
-      precondition : @|$tid_1 <_t tid_2$|@, and @|$\neg \exists (\_,tid,\_) \in tree, tid_1 <_t tid <_t tid_2$|@ 
+      precondition : @|$tid_1 <_t tid_2$|@, and @|$\neg \exists (\_,tid,\_) \in tree, tid_1 <_t tid <_t tid_2$|@
     if @|$tid_2$|@ is a descendant of @|$tid_1$|@
       assume @|$tid_2 = l_2 \cdot (p,id_2)$|@
       return @|$l_2 \cdot p \cdot (0,id)$|@
@@ -642,11 +642,11 @@ Each abstract state $\abstate$ is a set $S$ of values. The sequential specificat
     & S \setminus \{a\} \\
     S
     & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
-    & S 
+    & S
   \end{array}
 \]
 
-Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $S$. Method $\alabelshort[{\tt remove}]{a}$ removes $a$ from $S$. Method $\alabellong[{\tt read}]{}{S}{}$ returns the contents of the LWW-element-set. 
+Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $S$. Method $\alabelshort[{\tt remove}]{a}$ removes $a$ from $S$. Method $\alabellong[{\tt read}]{}{S}{}$ returns the contents of the LWW-element-set.
 
 
 
@@ -969,7 +969,7 @@ Let we prove that the Annotation1 and Annotation2 are inductive invariant. We pr
 \item[-] For case when replica $\arep$ apply effector $(a,\ats_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
     If $\ats_a < \ats$, then $(x',\ats') = (x,\ats)$, and Annotation2 holds for replica state $S'$. Else, if $\ats < \ats_a$, then $(x',\ats') = (a,\ats_a)$, and Annotation2 holds for replica state $S'$.
-\end{itemize} 
+\end{itemize}
 
 Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
@@ -1122,8 +1122,8 @@ Let us propose Annotation2, which is an annotation of replica state and obviousl
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{a}$, the effector of $\alabel$ has already been applied in S $\}$, 
-    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{a}$, the effector of $\alabel$ has already been applied in S $\}$, 
+\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{a}$, the effector of $\alabel$ has already been applied in S $\}$,
+    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{a}$, the effector of $\alabel$ has already been applied in S $\}$,
 \end{itemize}
 
 Our proof of the lemma proceed as follows:
@@ -1132,7 +1132,7 @@ Our proof of the lemma proceed as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 \item[-] Let we prove that the Annotation1 and Annotation2 are inductive invariant.
 
@@ -1140,15 +1140,15 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A'R')$ is the effector of $\alabel$. 
-        
-        By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds. 
+    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A'R')$ is the effector of $\alabel$.
 
-    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
+        By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds.
 
-        By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$. 
-    
-    \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved. 
+    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+
+        By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
+
+    \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
     \end{itemize}
 
 \item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function.
@@ -1161,7 +1161,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, we have that $S' = \abstate'$.
 
-    \item[-] The cases of {\tt remove} can be similarly proved. 
+    \item[-] The cases of {\tt remove} can be similarly proved.
 
     \item[-] Applying the query $\alabelshort[read]{}$ on the replica state $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
     \end{itemize}
@@ -1186,46 +1186,46 @@ The following lemma states that the operation-based LWW-element-set is \crdtline
 The operation-based LWW-element-set is \crdtlinearizable{} w.r.t $\specLWWSet$.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
 Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$,
-    $R$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$. 
+    $R$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$.
 \end{itemize}
 
-Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 Let we prove that the Annotation1 and Annotation2 are inductive invariant. We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of $\alabelshort[{\tt write}]{a}$ or $\alabelshort[{\tt remove}]{a}$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $(A',R') = (A \cup \{ (a,\ats_a) \},R)$ and the effector of $\alabel$ is $(A',R')$. 
+\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $(A',R') = (A \cup \{ (a,\ats_a) \},R)$ and the effector of $\alabel$ is $(A',R')$.
 
-    By Annotatioon2 of replica state $S$, we can see that Annotation1 holds for the effector $(A',R')$, and Annotation2 holds for the replica state $S'$. 
+    By Annotatioon2 of replica state $S$, we can see that Annotation1 holds for the effector $(A',R')$, and Annotation2 holds for the replica state $S'$.
 
-\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
-    
-    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$. 
+\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
-\item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved. 
+    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
+
+\item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
 \end{itemize}
 
-Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$. 
+Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Concerning effectors of $\alabellongind[{\tt add}]{a}{}{\ats_a}{}$ operations, we show that they are simulated by the corresponding specification operation $\alabelshort[{\tt add}]{a}$ only when the timestamp $\ats_a$ is strictly greater than all the timestamps of operations whose effector have been applied in the replica state. This is sufficient because, by $\mathsf{ReplicaStates}$, every replica state is obtained by applying effectors according to the linearization of their corresponding operations, and the linearization order is consistent with the timestamp order.
 
     Assume we obtain replica state $S' = (A',R')$ from replica state $S = (A,R)$ by applying effector $(A'',R'')$ of $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt add}]{a}} \abstate'$, and $\refmap(A,R) = \abstate$.
-    
-    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. 
-    
-    Since $\ats_a$ is greater than all the timestamps of operations whose effector have been applied in $S$, by Annotation2 of $S$, we can see that, for each $\ats \in \{ \ats' \vert (\_,\ats') \in S \}$, we have $\ats < \ats_a$. Therefore, we can see that $\refmap(A',R') = \refmap(A,R) \cup \{ a \} = \abstate'$. 
 
-\item[-] The cases of $\alabellongind[{\tt remove}]{a}{}{\ats_a}{}$ can be similarly proved. 
+    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$.
+
+    Since $\ats_a$ is greater than all the timestamps of operations whose effector have been applied in $S$, by Annotation2 of $S$, we can see that, for each $\ats \in \{ \ats' \vert (\_,\ats') \in S \}$, we have $\ats < \ats_a$. Therefore, we can see that $\refmap(A',R') = \refmap(A,R) \cup \{ a \} = \abstate'$.
+
+\item[-] The cases of $\alabellongind[{\tt remove}]{a}{}{\ats_a}{}$ can be similarly proved.
 
 \item[-] Applying the query {\tt read} on the replica state $(A,R)$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(A,R)$, which holds trivially.
 \end{itemize}
@@ -1272,7 +1272,7 @@ The following lemma states a property of degrees of the argument of {\tt integra
 
 \begin{lemma}
 \label{lemma:a property of degree of argument of integrateIns}
-If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{w_p,w_b,w_n}$, and that, for each time, we find $d_{min}^i$ and then recursively calls $\alabelshort[{\tt integrateIns}]{w_i,w_b,w'_i},\ldots$. Then the degree of $w_i$ and $w'_i$ is chosen from $\{ d_p,d_n,d_{min}^1,\ldots d_{min}^i \}$, where $d_p$ and $d_n$ is the degree of $c_p$ and $c_n$, respectively. 
+If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{w_p,w_b,w_n}$, and that, for each time, we find $d_{min}^i$ and then recursively calls $\alabelshort[{\tt integrateIns}]{w_i,w_b,w'_i},\ldots$. Then the degree of $w_i$ and $w'_i$ is chosen from $\{ d_p,d_n,d_{min}^1,\ldots d_{min}^i \}$, where $d_p$ and $d_n$ is the degree of $c_p$ and $c_n$, respectively.
 \end{lemma}
 
 
@@ -1363,7 +1363,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of
 \item[-] Else, we know that $w'_k <_{id} w_e <_{id} w_b <_{id} w'_{k+1}$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{w'_k$, $w_b,w'_{k+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{w_e,w_b,w'_{k+1}}$. We can see that the order of $\{ w'_1,\ldots,w'_n,w_b \}$ is the same for case $1$ and case $2$.
 \end{itemize}
 
-\noindent {\bf Induction situation:} Let us consider the inductive situations. 
+\noindent {\bf Induction situation:} Let us consider the inductive situations.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1377,7 +1377,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of
 
         By induction assumption, we can see that $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$.
 
-        Let us prove $w_e <_{id} w''_1$ by contradiction. Assume that $w''_1 <_{id} w_e$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $w''_1$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w_e <_{\sigma_e} w_x <_{\sigma_e} w''_1$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{\_,w_e,w_x}$. Since this time-point is before we reach degree $d'_{min1}$, we can see that the degree of $w_x$ is smaller than $w'_{min1}$. Therefore, $w'_{min1}$ should equal the degree of $w_x$, which brings a contradiction. 
+        Let us prove $w_e <_{id} w''_1$ by contradiction. Assume that $w''_1 <_{id} w_e$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $w''_1$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w_e <_{\sigma_e} w_x <_{\sigma_e} w''_1$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{\_,w_e,w_x}$. Since this time-point is before we reach degree $d'_{min1}$, we can see that the degree of $w_x$ is smaller than $w'_{min1}$. Therefore, $w'_{min1}$ should equal the degree of $w_x$, which brings a contradiction.
 
         We can see that $w_b <_{id} w_e <_{id} w''_1 <_{id} \ldots <_{id} w''_n$. Case $1$ recursively calls ${\tt integrateIns(}$ $w'_1,w_b,w''_1)$. Note that case $2$ does not concern this round and still wait in ${\tt integrateIns}(w'_1$, $w_b,w'_2)$. We can see that the order of $\{ w''_1,\ldots,w''_n,w_b \}$ is the same for case $1$ and case $2$.
 
@@ -1450,10 +1450,10 @@ Our proof proceeds as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the effectors of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the effector of concurrent {\tt remove} operations commute, since they both put some value into tombstone; Concurrent {\tt addBetween} and a {\tt remove} effectors commute because in this case, the W-character removed by {\tt remove} are different from the W-character added by the {\tt addBetween}.
 
-    Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
-    
+    Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
     Note that, by the causal delivery assumption and the preconditions of ${\tt addBetween}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ to the list, i.e., $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$; or that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains W-character of $a$ or $c$ while the effector requires to put $b$ between $a$ and $c$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a\_}$ or $\alabelshort[{\tt addBetween}]{\_,c\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain W-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$).
-    
+
 \item[-] Let us prove $\mathsf{Refinement}$:
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -1476,11 +1476,83 @@ This completes the proof of this lemma. $\qed$
 
 
 \subsection{Proof of Tree-Doc}
-\label{subsec:proof of tree-doc} 
+\label{subsec:proof of tree-doc}
 
+As shown in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, given a T-tree $tree$, we can draw a tree called major-node-tree of $tree$ as follows: This tree contains tuples $(N,parent)$, such that
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $N$ represents set of nodes. Each element in $Node$ is a list $w_1 \cdot \ldots \cdot w_n$ of a major node $\{ w_1,\ldots,w_n \}$ of $tree$, while $w_1,\ldots,w_n$ are ordered by their disambiguators.
 
+\item[-] $parent \in N \times N$ represents the parent relation. $(node_1,node_2) \in parent$, if the T-identifiers of T-characters of $node_1$ is of the form $c_1 \cdot \ldots \cdot c_n \cdot (p,\_)$, one of the following cases holds:
 
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] The T-identifiers of T-characters of $node_2$ is of the form $c_1 \cdot \ldots \cdot c_n \cdot p \cdot (p',\_)$. If $p'=0$, we say that $node_2$ is a ``left son'' of $node_1$; else, if $p'=1$, we say that $node_2$ is a ``right son'' of $node_1$. 
+
+    \item[-] The T-identifiers of T-characters of $node_2$ is of the form $c_1 \cdot \ldots \cdot c_n \cdot (p,id_p) \cdot (p',\_)$, while $c_1 \cdot \ldots \cdot c_n \cdot (p,id_p)$ is a T-identifier of T-characters $w_1$ of $node_1$. We say that $node2$ is a ``right son'' of $node_1$ as well as of $w_1$.  
+
+    \item[-] There exists $node_0 \in N$, such that the T-identifier of T-characters of $node_0$ is $\epsilon$.
+    \end{itemize}
+\end{itemize}
+
+According to the definition of T-tree, we can see that in the major-node-tree $(N,parent)$ of $tree$, each node can reach $node_0$ by several times of $parent$ relation, and the $parent$ relation is obviously acyclic.
+
+The following lemma state that, the order $<_t$ of a T-tree is a total and acyclic order.
+
+\begin{lemma}
+\label{lemma:the <t order is a total and acyclic order}
+Given a T-tree $tree$ and the order $<_t$ over T-identifiers of T-characters of $tree$, then, $<_t$ is a total and acyclic order.
+\end{lemma}
+
+\begin {proof}
+Let us prove that $<_t$ is a total order. Given T-identifiers $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$ and $tid_2 = 'c_1 \cdot \ldots \cdot c'_m \cdot (p',id')$.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $tid_1$ is a descendant of $tid_2$, then we have $tid_1 <_t tid_2 \vee tid_2 <_t tid_1$. Similarly, if $tid_2$ is a descendant of $tid_1$, then we have $tid_1 <_t tid_2 \vee tid_2 <_t tid_1$.
+
+\item[-] If $tid_1$ is not a descendant of $tid_1$ and $tid_1$ is not a descendant of $tid_2$. We can see that there exists $c''_1,\ldots,c''_k$, such that $tid_1 = c''_1 \cdot \ldots \cdot c''_k \cdot x_1 \cdot x_2 \cdot l_1$, $tid_2 = c''_1 \cdot \ldots \cdot c''_k \cdot y_1 \cdot y_2 \cdot l_2$, and $x_1 \neq y_1$. Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $x_1 \in \{ 0, (0,\_) \}$ and $y_1 \in \{ 0, (0,\_) \}$, then $tid_1 <_t tid_2$.
+
+    \item[-] Else, if $x_1=p_u$ and $y_1 = (p_u,id_u)$ for some $p_u \in \{ 0,1 \}$. Since $tid_1$ is not a descendant of $tid_1$ and $tid_1$ is not a descendant of $tid_2$, we can see that $x_2 \neq \epsilon \wedge y_2 \neq \epsilon$. Then,
+
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] If $x_2 \in \{ 0, (0,\_) \}$, we have $tid_1 <_t tid_2$,
+        \item[-] Else, if $x_2 \in \{ 1, (1,\_) \}$, we have $tid_2 <_t tid_1$.
+        \end{itemize}
+
+    \item[-] Else, $x_1 = (p_u,id_u)$, $y_1 = (p_u,id'_u)$, $p \in \{0,1 \}$ and $id_u \neq id'_u$. Then,
+
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] If $id_u < id'_u$, we have $tid_1 <_t tid_2$,
+        \item[-] Else, if $id'_u < id_u$, we have $tid_2 <_t tid_1$.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+Therefore, $<_t$ is a total order.
+
+Let us prove that $<_t$ is acyclic. Given the major-node-tree $(M,parent)$ of $tree$ and an element $node \in N$, assume $node = w_1 \cdot \ldots \cdot w_n$. Assume for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, it is easy to see that, 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $w^l <_t w_{right}$, where $w_{left}$ (resp., $w_{right}$) is a W-character belongs to a node that is a descendant of the ``left son'' of $node$ (resp., the ``right son'' of $node$).
+
+\item[-] $w^l <_t w^i$, where $w_{left}$ is a W-character that is a W-character belongs to a node that is a descendant of the ``left son'' of $node$, and $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$.
+
+\item[-] Given $i<j$, we have $w^i <_t w^j$, where and $w^i$ resp., ($w^j$) is either $w_i$ (resp., $w_j$), or a W-character belongs to a node that is a ``descendent'' of $w_i$ (a ``descendent'' of $w_j$).
+
+\item[-] $w^i <_t w^r$, where $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$, and $w_{right}$ is a W-character belongs to a node that is a descendant of the ``right son'' of $node$.
+\end{itemize} 
+
+Therefore, we can see that $<_t$ is a order for traverse the W-characters of the major-node-tree. For each node $node = w_1 \cdot \ldots \cdot w_n \in N$, we first traverse W-characters in its ``left son'' of $node$; then, for each $i$, we traverse $w_i$ and W-characters in nodes of its descendant; finally, we traverse W-characters in its ``right son'' of $node$. This process never goes back. Therefore, it is easy to see that $<_t$ is acyclic. This completes the proof of this lemma. $\qed$
+\end {proof}
 
 
 
