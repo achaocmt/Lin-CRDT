@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180702124632" modified="D:20180706083631"/>
+<info created="D:20180702124632" modified="D:20180709132347" pagemode="fullscreen"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -254,13 +254,13 @@ h
 <page>
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
-<path layer="alpha" matrix="1 0 0 1 -34.682 483.936" stroke="black">
+<path layer="alpha" matrix="0.80771 0 0 0.789474 11.8299 551.476" stroke="black">
 4 0 0 4 92 240 e
 </path>
-<path matrix="1 0 0 1 -34.682 460" stroke="black">
+<path matrix="0.80771 0 0 0.789474 11.8299 532.579" stroke="black">
 4 0 0 4 92 240 e
 </path>
-<group matrix="1 0 0 1 -22.221 259.88">
+<group matrix="0.80771 0 0 0.789474 21.8948 374.589">
 <path matrix="1 0 0 1 -28.4614 178" stroke="black">
 4 0 0 4 92 240 e
 </path>
@@ -268,320 +268,324 @@ h
 4 0 0 4 92 240 e
 </path>
 </group>
-<path matrix="1 0 0 1 -42 260" stroke="black">
+<path matrix="0.80771 0 0 0.789474 5.91912 374.684" stroke="black">
 99.1678 459.939 m
 99.1678 443.997 l
 99.1678 443.997 l
 </path>
-<path matrix="1 0 0 1 -42 260" stroke="black">
+<path matrix="0.80771 0 0 0.789474 5.91912 374.684" stroke="black">
 99.7334 436.022 m
 114.073 421.682 l
 114.073 421.682 l
 </path>
-<text matrix="1 0 0 1 -51.082 247.902" transformations="translations" pos="128 416" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">b : \mathtt{ts}_{b}</text>
-<text matrix="1 0 0 1 -92.257 281.007" transformations="translations" pos="128 416" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">a : \mathtt{ts}_{a}</text>
-<path matrix="1 0 0 1 -42 260" stroke="black">
+<text matrix="0.80771 0 0 0.789474 1.58349 362.133" transformations="translations" pos="128 416" stroke="black" type="label" width="31.295" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">b : \mathtt{ts}_{b}</text>
+<text matrix="0.80771 0 0 0.789474 -40.674 391.269" transformations="translations" pos="128 416" stroke="black" type="label" width="33.338" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">a : \mathtt{ts}_{a}</text>
+<path matrix="0.80771 0 0 0.789474 5.91912 374.684" stroke="black">
 99.7334 436.022 m
 85.1484 421.437 l
 85.1484 421.437 l
 </path>
-<text matrix="1 0 0 1 -38 257" transformations="translations" pos="112 464" stroke="black" type="label" width="18.265" height="6.42" depth="0" halign="center" valign="baseline" style="math">\circ: 0</text>
-<text matrix="1 0 0 1 -23 265" transformations="translations" pos="64 400" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">c: \mathtt{ts}_{c}</text>
-<path stroke="black">
+<text matrix="0.80771 0 0 0.789474 13.15 370.316" transformations="translations" pos="112 464" stroke="black" type="label" width="21.724" height="7.704" depth="0" halign="center" valign="baseline" size="large" style="math">\circ: 0</text>
+<text matrix="0.80771 0 0 0.789474 17.2656 375.632" transformations="translations" pos="64 400" stroke="black" type="label" width="31.401" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">c: \mathtt{ts}_{c}</text>
+<text matrix="0.80771 0 0 0.789474 -184.777 140.789" transformations="translations" pos="272 656" stroke="black" type="label" width="97.877" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b \Rightarrow}</text>
+<text matrix="0.80771 0 0 0.789474 -146.161 143.316" transformations="translations" pos="304 640" stroke="black" type="label" width="35.724" height="7.306" depth="0" valign="bottom" size="large" style="math">\mathtt{a \cdot b \cdot c}</text>
+<path matrix="0.80771 0 0 0.789474 156.228 479.056" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 156.228 460.159" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<group matrix="0.80771 0 0 0.789474 166.293 302.169">
+<path matrix="1 0 0 1 -28.4614 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 3.5386 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+</group>
+<path matrix="0.80771 0 0 0.789474 150.317 302.264" stroke="black">
+99.1678 459.939 m
+99.1678 443.997 l
+99.1678 443.997 l
+</path>
+<path matrix="0.80771 0 0 0.789474 150.317 302.264" stroke="black">
+99.7334 436.022 m
+114.073 421.682 l
+114.073 421.682 l
+</path>
+<text matrix="0.80771 0 0 0.789474 160.712 301.397" transformations="translations" pos="128 416" stroke="black" type="label" width="31.295" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">b : \mathtt{ts}_{b}</text>
+<text matrix="0.80771 0 0 0.789474 103.724 318.849" transformations="translations" pos="128 416" stroke="black" type="label" width="33.338" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">a : \mathtt{ts}_{a}</text>
+<path matrix="0.80771 0 0 0.789474 150.317 302.264" stroke="black">
+99.7334 436.022 m
+85.1484 421.437 l
+85.1484 421.437 l
+</path>
+<text matrix="0.80771 0 0 0.789474 157.548 299.896" transformations="translations" pos="112 464" stroke="black" type="label" width="21.724" height="7.704" depth="0" halign="center" valign="baseline" size="large" style="math">\circ: 0</text>
+<text matrix="0.80771 0 0 0.789474 145.125 314.896" transformations="translations" pos="64 400" stroke="black" type="label" width="31.401" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">c: \mathtt{ts}_{c}</text>
+<text matrix="0.80771 0 0 0.789474 -47.4564 72.7379" transformations="translations" pos="272 656" stroke="black" type="label" width="95.027" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
+<text matrix="0.80771 0 0 0.789474 -9.22505 74.2642" transformations="translations" pos="304 640" stroke="black" type="label" width="50.51" height="7.306" depth="0" valign="bottom" size="large" style="math">\mathtt{a \cdot b \cdot c \cdot e}</text>
+<path matrix="0.80771 0 0 0.789474 126.342 422.264" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 -67.765 97.0009" stroke="black">
+351.34 674.403 m
+332.161 655.997 l
+</path>
+<text matrix="0.80771 0 0 0.789474 171.191 292.317" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
+<text matrix="0.80771 0 0 0.789474 -42.0105 143.737" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
+<text matrix="0.80771 0 0 0.789474 95.3308 71.3158" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
+<path matrix="1 0 0 1 0 6" stroke="black" arrow="normal/small">
+138.308 735.955 m
+169.808 735.968 l
+</path>
+<path stroke="black" arrow="normal/small">
+138.308 639.998 m
+169.44 639.994 l
+</path>
+<text matrix="0.644326 0.476076 -0.487073 0.629778 151.8 262.344" transformations="translations" pos="320 544" stroke="black" type="label" width="74.685" height="8.965" depth="2.99" valign="baseline" size="large" style="math">\mathtt{addAfter}(c, d)</text>
+<path matrix="0.80771 0 0 0.789474 458.531 549.703" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 458.531 530.806" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<group matrix="0.80771 0 0 0.789474 468.596 372.817">
+<path matrix="1 0 0 1 -28.4614 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 3.5386 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+</group>
+<path matrix="0.80771 0 0 0.789474 452.62 372.911" stroke="black">
+99.1678 459.939 m
+99.1678 443.997 l
+99.1678 443.997 l
+</path>
+<path matrix="0.80771 0 0 0.789474 452.62 372.911" stroke="black">
+99.7334 436.022 m
+114.073 421.682 l
+114.073 421.682 l
+</path>
+<text matrix="0.80771 0 0 0.789474 466.208 372.044" transformations="translations" pos="128 416" stroke="black" type="label" width="31.295" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">b : \mathtt{ts}_{b}</text>
+<text matrix="0.80771 0 0 0.789474 408.027 389.496" transformations="translations" pos="128 416" stroke="black" type="label" width="33.338" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">a : \mathtt{ts}_{a}</text>
+<path matrix="0.80771 0 0 0.789474 452.62 372.911" stroke="black">
+99.7334 436.022 m
+85.1484 421.437 l
+85.1484 421.437 l
+</path>
+<text matrix="0.80771 0 0 0.789474 457.851 369.543" transformations="translations" pos="112 464" stroke="black" type="label" width="21.724" height="7.704" depth="0" halign="center" valign="baseline" size="large" style="math">\circ: 0</text>
+<text matrix="0.80771 0 0 0.789474 246.27 132.385" transformations="translations" pos="272 656" stroke="black" type="label" width="95.027" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
+<text matrix="0.80771 0 0 0.789474 292.424 123.806" transformations="translations" pos="304 640" stroke="black" type="label" width="50.51" height="7.306" depth="0" valign="bottom" size="large" style="math">\mathtt{a \cdot b \cdot c \cdot e}</text>
+<path matrix="0.80771 0 0 0.789474 428.646 492.911" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 234.538 167.648" stroke="black">
+351.34 674.403 m
+332.161 655.997 l
+</path>
+<text matrix="0.80771 0 0 0.789474 450.071 354.964" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
+<path matrix="0.80771 0 0 0.789474 460.386 493.298" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 234.538 167.648" stroke="black">
+355.153 674.326 m
+371.155 656.464 l
+</path>
+<text matrix="0.80771 0 0 0.789474 486.9 355.561" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
+<text matrix="0.80771 0 0 0.789474 289.309 120.49" transformations="translations" pos="272 656" stroke="black" type="label" width="65.095" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_d &lt; ts_e \Rightarrow}</text>
+<text matrix="0.80771 0 0 0.789474 388.914 131.332" transformations="translations" pos="96 624" stroke="black" type="label" width="40.005" height="8.965" depth="2.99" valign="baseline" size="large" style="math">\mathtt{T = \{d\}}</text>
+<text matrix="0.644326 0.476076 -0.487073 0.629778 148.778 122.218" transformations="translations" pos="320 544" stroke="black" type="label" width="74.028" height="8.965" depth="2.99" valign="baseline" size="large" style="math">\mathtt{addAfter}(c, e)</text>
+<path matrix="0.80771 0 0 0.789474 26.843 172.421" stroke="black">
+176 544 m
+176 544 l
+176 544 l
+176 544 l
+h
+</path>
+<text matrix="0.80771 0 0 0.789474 445.428 385.543" transformations="translations" pos="64 400" stroke="black" type="label" width="31.401" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">c: \mathtt{ts}_{c}</text>
+<path matrix="0.80771 0 0 0.789474 306.297 550.476" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 306.297 531.579" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<group matrix="0.80771 0 0 0.789474 316.362 373.589">
+<path matrix="1 0 0 1 -28.4614 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 3.5386 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+</group>
+<path matrix="0.80771 0 0 0.789474 300.386 373.684" stroke="black">
+99.1678 459.939 m
+99.1678 443.997 l
+99.1678 443.997 l
+</path>
+<path matrix="0.80771 0 0 0.789474 300.386 373.684" stroke="black">
+99.7334 436.022 m
+114.073 421.682 l
+114.073 421.682 l
+</path>
+<text matrix="0.80771 0 0 0.789474 313.782 372.817" transformations="translations" pos="128 416" stroke="black" type="label" width="31.295" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">b : \mathtt{ts}_{b}</text>
+<text matrix="0.80771 0 0 0.789474 254.793 390.269" transformations="translations" pos="128 416" stroke="black" type="label" width="33.338" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">a : \mathtt{ts}_{a}</text>
+<path matrix="0.80771 0 0 0.789474 300.386 373.684" stroke="black">
+99.7334 436.022 m
+85.1484 421.437 l
+85.1484 421.437 l
+</path>
+<text matrix="0.80771 0 0 0.789474 306.617 370.316" transformations="translations" pos="112 464" stroke="black" type="label" width="21.724" height="7.704" depth="0" halign="center" valign="baseline" size="large" style="math">\circ: 0</text>
+<text matrix="0.80771 0 0 0.789474 292.194 386.316" transformations="translations" pos="64 400" stroke="black" type="label" width="31.401" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">c: \mathtt{ts}_{c}</text>
+<text matrix="0.80771 0 0 0.789474 96.0362 132.158" transformations="translations" pos="272 656" stroke="black" type="label" width="95.027" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
+<text matrix="0.80771 0 0 0.789474 120.19 123.579" transformations="translations" pos="304 640" stroke="black" type="label" width="65.297" height="7.306" depth="0" valign="bottom" size="large" style="math">\mathtt{a \cdot b \cdot c \cdot d \cdot e}</text>
+<path matrix="0.80771 0 0 0.789474 276.412 493.684" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 82.3046 168.421" stroke="black">
+351.34 674.403 m
+332.161 655.997 l
+</path>
+<text matrix="0.80771 0 0 0.789474 296.837 354.737" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
+<path matrix="0.80771 0 0 0.789474 308.153 494.071" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 82.3046 168.421" stroke="black">
+355.153 674.326 m
+371.155 656.464 l
+</path>
+<text matrix="0.80771 0 0 0.789474 330.474 354.334" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
+<text matrix="0.80771 0 0 0.789474 133.075 120.263" transformations="translations" pos="272 656" stroke="black" type="label" width="65.095" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_d &lt; ts_e \Rightarrow}</text>
+<text matrix="0.80771 0 0 0.789474 238.68 131.105" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
+<path matrix="0.80771 0 0 0.789474 156.987 601.002" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 156.987 582.105" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<group matrix="0.80771 0 0 0.789474 167.052 424.116">
+<path matrix="1 0 0 1 -28.4614 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="1 0 0 1 3.5386 178" stroke="black">
+4 0 0 4 92 240 e
+</path>
+</group>
+<path matrix="0.80771 0 0 0.789474 151.076 424.211" stroke="black">
+99.1678 459.939 m
+99.1678 443.997 l
+99.1678 443.997 l
+</path>
+<path matrix="0.80771 0 0 0.789474 151.076 424.211" stroke="black">
+99.7334 436.022 m
+114.073 421.682 l
+114.073 421.682 l
+</path>
+<text matrix="0.80771 0 0 0.789474 162.472 421.344" transformations="translations" pos="128 416" stroke="black" type="label" width="31.295" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">b : \mathtt{ts}_{b}</text>
+<text matrix="0.80771 0 0 0.789474 103.483 440.795" transformations="translations" pos="128 416" stroke="black" type="label" width="33.338" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">a : \mathtt{ts}_{a}</text>
+<path matrix="0.80771 0 0 0.789474 151.076 424.211" stroke="black">
+99.7334 436.022 m
+85.1484 421.437 l
+85.1484 421.437 l
+</path>
+<text matrix="0.80771 0 0 0.789474 157.307 420.842" transformations="translations" pos="112 464" stroke="black" type="label" width="21.724" height="7.704" depth="0" halign="center" valign="baseline" size="large" style="math">\circ: 0</text>
+<text matrix="0.80771 0 0 0.789474 144.884 436.842" transformations="translations" pos="64 400" stroke="black" type="label" width="31.401" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">c: \mathtt{ts}_{c}</text>
+<text matrix="0.80771 0 0 0.789474 -47.0818 196.684" transformations="translations" pos="272 656" stroke="black" type="label" width="95.027" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
+<path matrix="0.80771 0 0 0.789474 158.842 544.597" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path matrix="0.80771 0 0 0.789474 -67.0057 218.947" stroke="black">
+355.153 674.326 m
+371.155 656.464 l
+</path>
+<text matrix="0.80771 0 0 0.789474 205.163 413.861" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
+<text matrix="0.80771 0 0 0.789474 96.0289 195.632" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
+<group matrix="1.16993 0 0 1.17117 11.5966 -126.868">
+<path matrix="0.80771 0 0 0.789474 17.843 168.421" stroke="black">
 0 736 m
 0 656 l
 112 655.414 l
 112 736 l
 h
 </path>
-<path stroke="black">
+<path matrix="0.80771 0 0 0.789474 17.843 168.421" stroke="black">
 0 656 m
 0 608 l
 112 608 l
 112 656 l
 h
 </path>
-<text matrix="1 0 0 1 -262 -16" transformations="translations" pos="272 656" stroke="black" type="label" width="83.288" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b \Rightarrow}</text>
-<text matrix="1 0 0 1 -234 -9" transformations="translations" pos="304 640" stroke="black" type="label" width="30.081" height="6.088" depth="0" valign="bottom" style="math">\mathtt{a \cdot b \cdot c}</text>
-<path matrix="1 0 0 1 285.318 483.936" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 285.318 460" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<group matrix="1 0 0 1 297.779 259.88">
-<path matrix="1 0 0 1 -28.4614 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 3.5386 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
 </group>
-<path matrix="1 0 0 1 278 260" stroke="black">
-99.1678 459.939 m
-99.1678 443.997 l
-99.1678 443.997 l
-</path>
-<path matrix="1 0 0 1 278 260" stroke="black">
-99.7334 436.022 m
-114.073 421.682 l
-114.073 421.682 l
-</path>
-<text matrix="1 0 0 1 285.918 258.902" transformations="translations" pos="128 416" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">b : \mathtt{ts}_{b}</text>
-<text matrix="1 0 0 1 227.743 281.007" transformations="translations" pos="128 416" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">a : \mathtt{ts}_{a}</text>
-<path matrix="1 0 0 1 278 260" stroke="black">
-99.7334 436.022 m
-85.1484 421.437 l
-85.1484 421.437 l
-</path>
-<text matrix="1 0 0 1 282 257" transformations="translations" pos="112 464" stroke="black" type="label" width="18.265" height="6.42" depth="0" halign="center" valign="baseline" style="math">\circ: 0</text>
-<text matrix="1 0 0 1 279 276" transformations="translations" pos="64 400" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">c: \mathtt{ts}_{c}</text>
-<path stroke="black">
+<group matrix="1.43404 0 0 1.14147 -211.226 -105.678">
+<path matrix="0.80771 0 0 0.789474 211.077 167.648" stroke="black">
 320 736 m
 320 640 l
 432 640 l
 432 736 l
 h
 </path>
-<path stroke="black">
+<path matrix="0.80771 0 0 0.789474 211.077 167.648" stroke="black">
 320 640 m
 320 592 l
 432 592 l
 432 640.066 l
 h
 </path>
-<text matrix="1 0 0 1 51 -32" transformations="translations" pos="272 656" stroke="black" type="label" width="81.074" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
-<text matrix="1 0 0 1 71 -34" transformations="translations" pos="304 640" stroke="black" type="label" width="54.932" height="6.088" depth="0" valign="bottom" style="math">\mathtt{a \cdot b \cdot c \cdot d \cdot e}</text>
-<path matrix="1 0 0 1 248.318 412" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 8 0" stroke="black">
-351.34 674.403 m
-332.161 655.997 l
-</path>
-<text matrix="1 0 0 1 294.653 255" transformations="translations" pos="64 400" stroke="black" type="label" width="27.68" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">e: \mathtt{ts}_{e}</text>
-<path matrix="1 0 0 1 287.615 412.49" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 8 0" stroke="black">
-355.153 674.326 m
-371.155 656.464 l
-</path>
-<text matrix="1 0 0 1 336.297 254.49" transformations="translations" pos="64 400" stroke="black" type="label" width="28.594" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">d: \mathtt{ts}_{d}</text>
-<path matrix="1 0 0 1 141.318 547.936" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 141.318 524" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<group matrix="1 0 0 1 153.779 323.88">
-<path matrix="1 0 0 1 -28.4614 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 3.5386 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
 </group>
-<path matrix="1 0 0 1 134 324" stroke="black">
-99.1678 459.939 m
-99.1678 443.997 l
-99.1678 443.997 l
-</path>
-<path matrix="1 0 0 1 134 324" stroke="black">
-99.7334 436.022 m
-114.073 421.682 l
-114.073 421.682 l
-</path>
-<text matrix="1 0 0 1 141.918 322.902" transformations="translations" pos="128 416" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">b : \mathtt{ts}_{b}</text>
-<text matrix="1 0 0 1 83.743 345.007" transformations="translations" pos="128 416" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">a : \mathtt{ts}_{a}</text>
-<path matrix="1 0 0 1 134 324" stroke="black">
-99.7334 436.022 m
-85.1484 421.437 l
-85.1484 421.437 l
-</path>
-<text matrix="1 0 0 1 138 321" transformations="translations" pos="112 464" stroke="black" type="label" width="18.265" height="6.42" depth="0" halign="center" valign="baseline" style="math">\circ: 0</text>
-<text matrix="1 0 0 1 135 340" transformations="translations" pos="64 400" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">c: \mathtt{ts}_{c}</text>
-<path matrix="1 0 0 1 17 0" stroke="black">
-160 800 m
-160 704 l
-272 704 l
-272 800 l
+<path matrix="1.10246 0 0 0.904859 -40.4776 83.4979" stroke="black">
+320 736 m
+320 640 l
+432 640 l
+432 736 l
+h
+320 640 m
+320 592 l
+432 592 l
+432 640 l
 h
 </path>
-<path matrix="1 0 0 1 17 0" stroke="black">
+<text matrix="1 0 0 1 -121 20" transformations="translations" pos="320 560" stroke="black" type="label" width="32.312" height="6.621" depth="1.79" valign="baseline" size="large" style="math">\mathtt{ts_e} \Rightarrow</text>
+<text matrix="0.80771 0 0 0.789474 -10.8505 198.211" transformations="translations" pos="304 640" stroke="black" type="label" width="50.51" height="7.306" depth="0" valign="bottom" size="large" style="math">\mathtt{a \cdot b \cdot c \cdot d}</text>
+<text matrix="1 0 0 1 8 0" transformations="translations" pos="192 704" stroke="black" type="label" width="32.312" height="6.621" depth="1.79" valign="baseline" size="large" style="math">\mathtt{ts_d}\Rightarrow</text>
+<path matrix="1 0 0 1 0 -2" stroke="black" arrow="normal/small">
+290.682 744 m
+312.31 744 l
+</path>
+<path stroke="black" arrow="normal/small">
+290.188 640.021 m
+312.31 639.985 l
+</path>
+<path matrix="1 0 0 1 0.0413635 118.319" stroke="black" arrow="normal/small">
+435.786 624 m
+462.121 624 l
+</path>
+<text matrix="0.644326 0.476076 -0.487073 0.629778 482.383 262.338" transformations="translations" pos="320 544" stroke="black" type="label" width="52.099" height="8.965" depth="2.99" valign="baseline" size="large" style="math">\mathtt{remove}(d)</text>
+<path stroke="black">
+169.808 800 m
+169.808 727 l
+290.682 727 l
+290.682 800 l
+h
+</path>
+<path matrix="1.07923 0 0 0.902256 -2.87869 91.8697" stroke="black">
 160 704 m
 160 656 l
 272 656 l
 272 704 l
 h
 </path>
-<text matrix="1 0 0 1 -94 32" transformations="translations" pos="272 656" stroke="black" type="label" width="111.235" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt; ts_d\Rightarrow}</text>
-<text matrix="1 0 0 1 -64 39" transformations="translations" pos="304 640" stroke="black" type="label" width="42.507" height="6.088" depth="0" valign="bottom" style="math">\mathtt{a \cdot b \cdot c \cdot d}</text>
-<path matrix="1 0 0 1 143.615 476.49" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 -136 64" stroke="black">
-355.153 674.326 m
-371.155 656.464 l
-</path>
-<text matrix="1 0 0 1 192.297 318.49" transformations="translations" pos="64 400" stroke="black" type="label" width="28.594" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">d: \mathtt{ts}_{d}</text>
-<path matrix="1 0 0 1 142.854 388.404" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 142.854 364.468" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<group matrix="1 0 0 1 155.315 164.348">
-<path matrix="1 0 0 1 -28.4614 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 3.5386 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
-</group>
-<path matrix="1 0 0 1 135.536 164.468" stroke="black">
-99.1678 459.939 m
-99.1678 443.997 l
-99.1678 443.997 l
-</path>
-<path matrix="1 0 0 1 135.536 164.468" stroke="black">
-99.7334 436.022 m
-114.073 421.682 l
-114.073 421.682 l
-</path>
-<text matrix="1 0 0 1 143.454 163.37" transformations="translations" pos="128 416" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">b : \mathtt{ts}_{b}</text>
-<text matrix="1 0 0 1 85.2793 185.475" transformations="translations" pos="128 416" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">a : \mathtt{ts}_{a}</text>
-<path matrix="1 0 0 1 135.536 164.468" stroke="black">
-99.7334 436.022 m
-85.1484 421.437 l
-85.1484 421.437 l
-</path>
-<text matrix="1 0 0 1 139.536 161.468" transformations="translations" pos="112 464" stroke="black" type="label" width="18.265" height="6.42" depth="0" halign="center" valign="baseline" style="math">\circ: 0</text>
-<text matrix="1 0 0 1 136.536 180.468" transformations="translations" pos="64 400" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">c: \mathtt{ts}_{c}</text>
-<path matrix="1 0 0 1 16.5363 -15.5322" stroke="black">
+<path matrix="1.07486 0 0 0.766884 -2.27975 174.977" stroke="black">
 160 656 m
 160 560 l
 272 560 l
 272 656 l
 h
 </path>
-<path stroke="black">
+<path matrix="1.07811 0 0 0.900225 -20.7972 114.289" stroke="black">
 176.536 544.468 m
 176.51 495.88 l
 288.54 495.95 l
 288.536 544.468 l
-h
-</path>
-<text matrix="1 0 0 1 -94.4637 -127.532" transformations="translations" pos="272 656" stroke="black" type="label" width="111.235" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt; ts_e \Rightarrow}</text>
-<text matrix="1 0 0 1 -64.4637 -120.532" transformations="translations" pos="304 640" stroke="black" type="label" width="42.507" height="6.088" depth="0" valign="bottom" style="math">\mathtt{a \cdot b \cdot c \cdot e}</text>
-<path matrix="1 0 0 1 105.854 316.468" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 -134.464 -95.5322" stroke="black">
-351.34 674.403 m
-332.161 655.997 l
-</path>
-<text matrix="1 0 0 1 155.189 159.468" transformations="translations" pos="64 400" stroke="black" type="label" width="27.68" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">e: \mathtt{ts}_{e}</text>
-<text matrix="1 0 0 1 82 -42" transformations="translations" pos="272 656" stroke="black" type="label" width="55.341" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_d &lt; ts_e \Rightarrow}</text>
-<text matrix="1 0 0 1 -86.4833 -11" transformations="translations" pos="96 624" stroke="black" type="label" width="23.495" height="7.475" depth="0.55" valign="baseline" style="math">\mathtt{T = \emptyset}</text>
-<text matrix="1 0 0 1 85.6569 37" transformations="translations" pos="96 624" stroke="black" type="label" width="23.495" height="7.475" depth="0.55" valign="baseline" style="math">\mathtt{T = \emptyset}</text>
-<text matrix="1 0 0 1 86.0306 -123" transformations="translations" pos="96 624" stroke="black" type="label" width="23.495" height="7.475" depth="0.55" valign="baseline" style="math">\mathtt{T = \emptyset}</text>
-<text matrix="1 0 0 1 228.841 -27" transformations="translations" pos="96 624" stroke="black" type="label" width="23.495" height="7.475" depth="0.55" valign="baseline" style="math">\mathtt{T = \emptyset}</text>
-<path stroke="black" arrow="normal/small">
-112 672.132 m
-177 752 l
-</path>
-<path stroke="black" arrow="normal/small">
-112 671.122 m
-176.536 592.468 l
-</path>
-<path stroke="black" arrow="normal/small">
-289 752 m
-320 665.065 l
-</path>
-<path stroke="black" arrow="normal/small">
-288.536 592.468 m
-320 663.199 l
-</path>
-<path stroke="black" arrow="normal/small">
-432 672.78 m
-480 673.179 l
-</path>
-<text matrix="0.797719 0.603029 -0.603029 0.797719 185.208 129.387" transformations="translations" pos="320 544" stroke="black" type="label" width="63.516" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{addAfter}(c, d)</text>
-<path matrix="1 0 0 1 445.318 482.957" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 445.318 459.021" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<group matrix="1 0 0 1 457.779 258.901">
-<path matrix="1 0 0 1 -28.4614 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 3.5386 178" stroke="black">
-4 0 0 4 92 240 e
-</path>
-</group>
-<path matrix="1 0 0 1 438 259.021" stroke="black">
-99.1678 459.939 m
-99.1678 443.997 l
-99.1678 443.997 l
-</path>
-<path matrix="1 0 0 1 438 259.021" stroke="black">
-99.7334 436.022 m
-114.073 421.682 l
-114.073 421.682 l
-</path>
-<text matrix="1 0 0 1 444.918 257.923" transformations="translations" pos="128 416" stroke="black" type="label" width="27.04" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">b : \mathtt{ts}_{b}</text>
-<text matrix="1 0 0 1 387.743 280.028" transformations="translations" pos="128 416" stroke="black" type="label" width="28.848" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">a : \mathtt{ts}_{a}</text>
-<path matrix="1 0 0 1 438 259.021" stroke="black">
-99.7334 436.022 m
-85.1484 421.437 l
-85.1484 421.437 l
-</path>
-<text matrix="1 0 0 1 442 256.021" transformations="translations" pos="112 464" stroke="black" type="label" width="18.265" height="6.42" depth="0" halign="center" valign="baseline" style="math">\circ: 0</text>
-<text matrix="1 0 0 1 439 275.021" transformations="translations" pos="64 400" stroke="black" type="label" width="27.133" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">c: \mathtt{ts}_{c}</text>
-<path matrix="1 0 0 1 160 -0.979" stroke="black">
-320 736 m
-320 640 l
-432 640 l
-432 736 l
-h
-</path>
-<path matrix="1 0 0 1 160 -0.979" stroke="black">
-320 640 m
-320 592 l
-432 592 l
-432 640.066 l
-h
-</path>
-<text matrix="1 0 0 1 211 -32.979" transformations="translations" pos="272 656" stroke="black" type="label" width="81.074" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
-<text matrix="1 0 0 1 231 -34.979" transformations="translations" pos="304 640" stroke="black" type="label" width="42.507" height="6.088" depth="0" valign="bottom" style="math">\mathtt{a \cdot b \cdot c \cdot e}</text>
-<path matrix="1 0 0 1 408.318 411.021" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 168 -0.979" stroke="black">
-351.34 674.403 m
-332.161 655.997 l
-</path>
-<text matrix="1 0 0 1 454.653 254.021" transformations="translations" pos="64 400" stroke="black" type="label" width="27.68" height="5.519" depth="1.49" halign="center" valign="baseline" style="math">e: \mathtt{ts}_{e}</text>
-<path matrix="1 0 0 1 447.615 411.511" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="1 0 0 1 168 -0.979" stroke="black">
-355.153 674.326 m
-371.155 656.464 l
-</path>
-<text matrix="1 0 0 1 495.297 253.511" transformations="translations" pos="64 400" stroke="black" type="label" width="28.594" height="6.923" depth="1.49" halign="center" valign="baseline" style="math">d: \mathtt{ts}_{d}</text>
-<text matrix="1 0 0 1 242 -42.979" transformations="translations" pos="272 656" stroke="black" type="label" width="55.341" height="5.519" depth="1.49" valign="bottom" style="math">\mathtt{ts_d &lt; ts_e \Rightarrow}</text>
-<text matrix="1 0 0 1 388.841 -27.979" transformations="translations" pos="96 624" stroke="black" type="label" width="33.707" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{T = \{d\}}</text>
-<text matrix="0.797719 0.603029 -0.603029 0.797719 184.392 -52.1904" transformations="translations" pos="320 544" stroke="black" type="label" width="62.97" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{addAfter}(c, e)</text>
-<text matrix="0.797719 0.603029 -0.603029 0.797719 506.812 54.1545" transformations="translations" pos="320 544" stroke="black" type="label" width="44.316" height="7.473" depth="2.49" valign="baseline" style="math">\mathtt{remove}(d)</text>
-<path stroke="black">
-176 544 m
-176 544 l
-176 544 l
-176 544 l
 h
 </path>
 </page>
