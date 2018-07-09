@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180620002658"/>
+<info created="D:20151003110714" modified="D:20180709114429"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -256,87 +256,87 @@ h
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
 <text layer="alpha" matrix="1 0 0 1 -32.795 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
-<text matrix="1 0 0 1 -32.795 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
 <use matrix="1 0 0 1 -152 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
 <path matrix="1 0 0 1 -36 -32" stroke="black">
 92 272 m
 112 272 l
 </path>
-<text matrix="1 0 0 1 -8.795 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="66.117" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .\ensuremath{\mathsf{add}}(c,\circ,\mathit{ts}_1)$</text>
-<use matrix="1 0 0 1 -64 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 71.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="66.445" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .\ensuremath{\mathsf{add}}(e,\circ,\mathit{ts}_3)$</text>
-<path stroke="black">
-84 240 m
-164 240 l
-</path>
-<text matrix="1 0 0 1 155.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="67.072" height="7.54" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .\ensuremath{\mathsf{add}}(a,\circ,\mathit{ts}&apos;_1)$</text>
-<path matrix="1 0 0 1 -64 0" stroke="black">
+<text matrix="1 0 0 1 -8.795 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="96.258" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$c)\stackrel{ \ensuremath{\mathtt{ts}}_1 }{\Longrightarrow}$  </text>
+<use matrix="1 0 0 1 -44 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 91.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="96.585" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$e)\stackrel{ \ensuremath{\mathtt{ts}}_3 }{\Longrightarrow}$  </text>
+<text matrix="1 0 0 1 195.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="97.213" height="13.525" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .{\tt addAfter}(\circ$,$a)\stackrel{ \ensuremath{\mathtt{ts}}&apos;_1 }{\Longrightarrow}$  </text>
+<path matrix="1 0 0 1 -24 0" stroke="black">
 4 0 0 4 316 240 e
 </path>
-<path stroke="black">
-172 240 m
-248 240 l
-</path>
-<path matrix="1 0 0 1 -208 -32" stroke="black">
-4 0 0 4 316 240 e
-</path>
-<path stroke="black">
-56 208 m
-104 208 l
-</path>
-<text matrix="1 0 0 1 -32.795 -264" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_3:$</text>
-<use matrix="1 0 0 1 -20 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<path stroke="black">
-112 208 m
-208 208 l
-</path>
-<use matrix="1 0 0 1 16 -68" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<path stroke="black">
-56 176 m
-244 176 l
-</path>
-<path stroke="black" arrow="normal/normal">
-84 240 m
-112 176 l
-</path>
-<path stroke="black" arrow="normal/normal">
-112 208 m
-128 176 l
-</path>
-<path stroke="black" arrow="normal/normal">
-172 240 m
-196 176 l
-</path>
-<text matrix="1 0 0 1 143.205 -276" transformations="translations" pos="64 436" stroke="black" type="label" width="82.006" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .\ensuremath{\mathsf{read}}() \Rightarrow e \cdot d \cdot c$</text>
-<path stroke="black" arrow="normal/normal">
-256 240 m
-280 176 l
-</path>
-<path stroke="black" arrow="normal/normal">
-216 208 m
-228 176 l
-</path>
-<path matrix="1 0 0 1 20 -64" stroke="black">
-4 0 0 4 316 240 e
-</path>
-<text matrix="1 0 0 1 239.205 -276" transformations="translations" pos="64 436" stroke="black" type="label" width="70.217" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .\ensuremath{\mathsf{read}}() \Rightarrow b \cdot a$</text>
-<path stroke="black">
-252 176 m
-332 176 l
-</path>
-<path stroke="black">
+<path matrix="1 0 0 1 40 0" stroke="black">
 256 240 m
 368 240 l
 </path>
 <path stroke="black">
-216 208 m
-368 208 l
+84 240 m
+184 240 l
 </path>
 <path stroke="black">
+192 240 m
+288 240 l
+</path>
+<text matrix="1 0 0 1 -32.795 -224" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<use matrix="1 0 0 1 0 -32" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 -196 -28" stroke="black">
+4 0 0 4 316 240 e
+</path>
+<text matrix="1 0 0 1 31.205 -216" transformations="translations" pos="64 436" stroke="black" type="label" width="96.222" height="13.525" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .{\tt addAfter}(\circ$,$b)\stackrel{ \ensuremath{\mathtt{ts}}&apos;_2 }{\Longrightarrow}$  </text>
+<text matrix="1 0 0 1 139.205 -216" transformations="translations" pos="64 436" stroke="black" type="label" width="93.811" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$d)\stackrel{ \ensuremath{\mathtt{ts}}_2 }{\Longrightarrow}$</text>
+<path matrix="1 0 0 1 0 4" stroke="black">
+56 208 m
+116 208 l
+</path>
+<path matrix="1 0 0 1 0 4" stroke="black">
+124 208 m
+228 208 l
+</path>
+<path matrix="1 0 0 1 0 4" stroke="black">
+236 208 m
+408 208 l
+</path>
+<text matrix="1 0 0 1 -32.795 -256" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_3:$</text>
+<use matrix="1 0 0 1 56 -60" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 60 -56" stroke="black">
+4 0 0 4 316 240 e
+</path>
+<path matrix="1 0 0 1 40 8" stroke="black">
+252 176 m
+332 176 l
+</path>
+<path matrix="1 0 0 1 40 8" stroke="black">
 340 176 m
 368 176 l
 </path>
-<text matrix="1 0 0 1 123.205 -220" transformations="translations" pos="64 436" stroke="black" type="label" width="66.991" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .\ensuremath{\mathsf{add}}(d,\circ,\mathit{ts}_2)$</text>
-<text matrix="1 0 0 1 19.205 -220" transformations="translations" pos="64 436" stroke="black" type="label" width="66.081" height="7.54" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .\ensuremath{\mathsf{add}}(b,\circ,\mathit{ts}&apos;_2)$</text>
+<text matrix="1 0 0 1 163.205 -268" transformations="translations" pos="64 436" stroke="black" type="label" width="85.161" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2.{\tt read}()\Rightarrow e \cdot d \cdot c$</text>
+<path matrix="1 0 0 1 0 8" stroke="black">
+56 176 m
+284 176 l
+</path>
+<text matrix="1 0 0 1 271.205 -268" transformations="translations" pos="64 436" stroke="black" type="label" width="73.371" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1.{\tt read}()\Rightarrow b \cdot a$</text>
+<path stroke="black" arrow="normal/normal">
+84 240 m
+104 184 l
+</path>
+<path stroke="black" arrow="normal/normal">
+124 212 m
+136 184 l
+</path>
+<path matrix="1 0 0 1 108 0" stroke="black" arrow="normal/normal">
+84 240 m
+104 184 l
+</path>
+<path matrix="1 0 0 1 112 0" stroke="black" arrow="normal/normal">
+124 212 m
+136 184 l
+</path>
+<path matrix="1 0 0 1 212 0" stroke="black" arrow="normal/normal">
+84 240 m
+104 184 l
+</path>
 </page>
 </ipe>
