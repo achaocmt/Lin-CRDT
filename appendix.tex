@@ -390,12 +390,12 @@ T-identifiers are the unique identifiers of T-characters. The requirement of T-i
 
 To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths of a binary tree as T-identifier, and the order $<_t$ can be considered as ``walking the tree in infix order''. However, this is insufficient for concurrent edit, as users might concurrently insert two different T-character at the same position of a binary tree. To address this issue, when there are multiple T-character ``at a same position of the binary tree'', we call the set of these T-characters a major node, and call each of them a minor node.
 
-For example, \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the W-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set of T-characters of $w_a,w_b,w_c$ are a major node and we use a box containing $w_a,w_b,w_c$ to emphasize a major node. Similarly, the set of T-characters of $w_e$ and $w_f$, $w_g$ and $w_h$, $w_j$ and $w_k$ are also major nodes, respectively.
+For example, \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the T-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set $\{ w_b,w_c,w_d \}$ is a major node and we use a box containing $w_b,w_c,w_d$ to emphasize a major node. Similarly, the set $\{ w_e,w_f \}$, $\{ w_g,w_h \}$, $\{ w_j,w_k \}$ are also major nodes, respectively.
 
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.8 \textwidth]{figures/TreeDocExecutionandLocalState.pdf}
+  \includegraphics[width=0.85 \textwidth]{figures/TreeDocExecutionandLocalState.pdf}
 \vspace{-10pt}
   \caption{An execution of tree-doc, the replica state of replica $\arep_1$ after execution, and the T-identifiers of T-characters.}
   \label{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}
@@ -414,7 +414,7 @@ We say a set $T$ of T-characters is a T-tree, if:
 
 \item[-] Each value of T-character is unique, and each T-character has a unique disambiguator.
 
-\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that,for each $1 \leq i \leq n$,
+\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that, for each $1 \leq i \leq n$,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -424,7 +424,7 @@ We say a set $T$ of T-characters is a T-tree, if:
     \end{itemize}
 \end{itemize}
 
-Given a T-tree, we the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if
+Given a T-tree, the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if one of the following cases holds 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -438,27 +438,28 @@ Given a T-tree, we the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if
     \setlength{\itemsep}{0.5pt}
     \item[-] $x_1=p$, $x_2=0$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2=1)$,
 
-    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, $y_1=(p,id')$, and $id<id'$,
+    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, %$y_1=(p,id')$, and $id<id'$, 
+        and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$, 
 
     \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$.
     \end{itemize}
 \end{itemize}
 
-The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given minor node $n_a,n_b$ of a same major node, such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. Here T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
+The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given minor node $n_a,n_b$ of a same major node, such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. We say T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
 
-We define the following function for a set $tree$ of T-characters:
+We define the following function for a T-tree $tree$: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $contains(tree,a)$ returns true if there exists a T-character $(\_,\_,a)$ in $tree$.
+\item[-] $contains(tree,a)$ returns true if there exists a T-character $(a,\_,a)$ in $tree$. 
 
-\item[-] $getTchar(tree,a)$ returns the T-character with (ghost) value $a$ in $tree$.
+\item[-] $notAdded(tree,a)$ returns true, if there is no T-character $(\_,\_,a)$ in $tree$. Or we can say, if $a$ has not been added in $tree$. 
 
-\item[-] $notRemoved(tree,a)$ returns true, if there exists a T-character $(a,\_,a)$ in $tree$.
+\item[-] $getTchar(tree,a)$ returns the T-character whose value is $a$ in $tree$. 
 
-\item[-] $removeTChar(tree,a)$ first find a T-character $w=(\_,\_,a)$ in $tree$, and then set the value of $w$ into $nil$.
+\item[-] $removeTChar(tree,tid)$ will find the T-character with T-identifier $tid$ in $tree$, and then set the value of this T-character into $nil$. 
 
-\item[-] $values(tree)$ returns a sequence, which is obtained by walking the tree according to $<_t$ orders and consider only values of node whose value is not $nil$.
+\item[-] $values(tree)$ returns a sequence, which is obtained by walking the tree according to $<_t$ orders and consider only values of T-characters whose value are not $nil$.
 \end{itemize}
 
 
@@ -468,42 +469,41 @@ We define the following function for a set $tree$ of T-characters:
 \begin{minipage}[t]{1.0\linewidth}
 \begin{lstlisting}[frame=top,caption={Pseudo-code of Tree-Doc algorithm},
 captionpos=b,label={lst:Tree-Doc algorithm}]
-  payload Set @|$tree$|@
+  payload T-tree @|$tree$|@
   initial @|$tree$|@ = @|$\emptyset$|@
   initial lin = @|$\epsilon$|@
 
   addBetween(a,b,c) :
     atSource :
-      precondition :  @|$contains(tree,a) \wedge contains(tree,c)\wedge \neg contains(tree,b)$|@, and @|$ \neg \exists (\_,tid,\_) \in tree, tid_a <_t tid <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c, respectively.
+      precondition :  @|$contains(tree,a) \wedge contains(tree,c)\wedge notAdded(tree,b)$|@, @|$tid_a <_t tid_c$|@, and @|$ \neg \exists (\_,tid,\_) \in tree, tid_a <_t tid <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c, respectively.
       let id = getTimestamp()
-      let @|$w_a$|@ = @|$getTchar(tree,a)$|@
-      let @|$w_c$|@ = @|$getTchar(tree,c)$|@
-      let @|$w_b$|@ = @|$(b,newID(w_a,w_c,id),b)$|@
+      let @|$w_b$|@ = @|$(b,newID(tid_a,tid_c,id),b)$|@
       //@ lin = lin@|$\,\cdot\,$|@addBetween(a,b,c)
     downStream(@|$w_b$|@) :
       @|$tree$|@ = @|$tree \cup \{ w_b \}$|@
 
   remove(a) :
     atSource :
-      precondition : @|$contains(tree,a) \wedge notRemoved(tree,a)$|@
+      precondition : @|$contains(tree,a)$|@
+      assume @|$getTchar(tree,a) = (a,tid,a)$|@
       //@ lin = lin@|$\,\cdot\,$|@remove(a)
-    downStream(a) :
-      @|$removeTChar(tree,a)$|@
+    downStream(tid) :
+      @|$removeTChar(tree,tid)$|@
 
   read() :
     let s = @|$values(string_s)$|@
     //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
     return s
 
-  newID(@|$w_1,w_2,id$|@)
-      precondition : @|$ \neg \exists (\_,tid,\_) \in tree, tid_1 <_t tid <_t tid_2$|@, where @|$tid_1$|@ and @|$tid_2$|@ are the T-identifiers of @|$w_1$|@ and @|$w_2$|@, respectively.
+  newID(@|$tid_1,tid_2,id$|@)
+      precondition : @|$tid_1 <_t tid_2$|@, and @|$\neg \exists (\_,tid,\_) \in tree, tid_1 <_t tid <_t tid_2$|@ 
     if @|$tid_2$|@ is a descendant of @|$tid_1$|@
       assume @|$tid_2 = l_2 \cdot (p,id_2)$|@
       return @|$l_2 \cdot p \cdot (0,id)$|@
     else if @|$tid_1$|@ is a descendant of @|$tid_2$|@
       assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
       return @|$l_1 \cdot p \cdot (1,id)$|@
-    else if @|$tid_1 = l\cdot (p,id_1)$|@, @|$tid_2 = l\cdot (p,id_2)$|@, and @|$tid_1 < tid_2$|@
+    else if @|$tid_1 = l\cdot (p,id_1)$|@, @|$tid_2 = l\cdot (p,id_2)$|@, and @|$id_1 < id_2$|@
       return @|$l \cdot (p,id_1) \cdot (1,id)$|@
     else
       assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
@@ -513,13 +513,13 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
 
 $\\$ $\\$
 
-The payload of each replica is a set $tree$ of T-characters.
+The payload of each replica is a T-tree $tree$.
 
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that the T-identifier of $a$ and $c$ are adjacent in $tree$, and no T-character in $tree$ has value $b$. Then, we calls method $newID(w_a,w_c,id)$ to generate a new T-identifier between that of $a$ and $c$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$.
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure $tree$ contains T-characters of $a$ and $c$, $tid_a$ and $tid_c$ are adjacent in $tree$, and no T-character in $tree$ has value $b$. Then, we calls method $newID(tid_a,tid_c,id)$ to generate a new T-identifier that is with disambiguator $id$ and its T-identifier is between $tid_a$ and $tid_c$ in $<_t$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$. Here $tid_a$ and $tid_c$ are the T-identifiers of T-characters of $a$ and $c$, respectively.
 
-$newID(w_1,w_2,id)$ require that $tid_1$ and $tid_2$ are adjacent according to $<_t$, where $tid_1$ and $tid_2$ are the T-identifiers of $w_1$ and $w_2$, respectively. It will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
+$newID(tid_1,tid_2,id)$ require that $tid_1$ and $tid_2$ are adjacent according to $<_t$ in $tree$, and it will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
 
-To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
+To do $\alabelshort[{\tt remove}]{a}$, we first find the T-identifier $tid$ of T-character with value $a$ in $tree$, and then set the value of T-character with T-identifier $tid$ to be $nil$. To do ${\tt read}$, we return $values(tree)$.
 
 
 
@@ -1468,6 +1468,28 @@ Our proof proceeds as follows:
 
 This completes the proof of this lemma. $\qed$
 \end {proof}
+
+
+
+
+
+
+\subsection{Proof of Tree-Doc}
+\label{subsec:proof of tree-doc} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
