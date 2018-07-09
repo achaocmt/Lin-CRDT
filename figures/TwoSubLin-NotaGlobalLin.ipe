@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180620000107"/>
+<info created="D:20151003110714" modified="D:20180709113115"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -271,27 +271,27 @@ h
 184 240 m
 216 240 l
 </path>
-<path stroke="black">
+<text matrix="1 0 0 1 -12.795 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
+<text matrix="1 0 0 1 27.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="40.484" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1.\ensuremath{\mathsf{add}}(d)$</text>
+<text matrix="1 0 0 1 95.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="40.564" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2.\ensuremath{\mathsf{add}}(a)$</text>
+<path matrix="1 0 0 1 0 8" stroke="black">
 80 208 m
 124 208 l
 </path>
-<text matrix="1 0 0 1 -12.795 -196" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_1:$</text>
-<text matrix="1 0 0 1 -12.795 -228" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
-<path matrix="1 0 0 1 -120 -32" stroke="black">
+<text matrix="1 0 0 1 -12.795 -220" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
+<path matrix="1 0 0 1 -120 -24" stroke="black">
 4 0 0 4 316 240 e
 </path>
-<use matrix="1 0 0 1 -104 -36" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<path stroke="black">
+<use matrix="1 0 0 1 -104 -28" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<path matrix="1 0 0 1 0 8" stroke="black">
 132 208 m
 192 208 l
 </path>
-<path stroke="black">
+<path matrix="1 0 0 1 0 8" stroke="black">
 200 208 m
 216 208 l
 </path>
-<text matrix="1 0 0 1 27.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="40.484" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1.\ensuremath{\mathsf{add}}(d)$</text>
-<text matrix="1 0 0 1 95.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="40.564" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2.\ensuremath{\mathsf{add}}(a)$</text>
-<text matrix="1 0 0 1 43.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="39.574" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .\ensuremath{\mathsf{add}}(b)$</text>
-<text matrix="1 0 0 1 111.205 -244" transformations="translations" pos="64 436" stroke="black" type="label" width="39.61" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1. \ensuremath{\mathsf{add}}(c)$</text>
+<text matrix="1 0 0 1 43.205 -236" transformations="translations" pos="64 436" stroke="black" type="label" width="39.574" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .\ensuremath{\mathsf{add}}(b)$</text>
+<text matrix="1 0 0 1 111.205 -236" transformations="translations" pos="64 436" stroke="black" type="label" width="39.61" height="7.473" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1. \ensuremath{\mathsf{add}}(c)$</text>
 </page>
 </ipe>
