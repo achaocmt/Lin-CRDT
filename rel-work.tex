@@ -88,19 +88,19 @@ There are some important differences between SEC and \CRDTLinshort{}:
   %
   In particular, \CRDTLinshort{} as well as Update Consistency have a
   global total order for updates, which is not the case for
-  SEC.%\footnote{At least this is not apparent from the definitions, nor stated in the paper.}
+  SEC. %\footnote{At least this is not apparent from the definitions, nor stated in the paper.}
 \item
   \label{it-dependencies}
   A second important difference is that CRDT
   specifications in the SEC framework are assumed to be parameterized by a \emph{dependency}
-  relation at the level of the type API.
+  relation at the level of the type's API.
   %
   Then, their definition assumes that all independent operations
   commute %(regardless whether these are issued by the same client or not) 
   and disregard the order between them even if they were issued by the same client.
   %
   It is unclear how such a specification could adequately capture
-  systems enforcing (some of the) session guarantees
+  systems enforcing (any or all) the session guarantees
   of~\cite{TerryDPSTW94}.
   %
   With \CRDTLinshort{} we strive to preserve the guarantees enforced by the
