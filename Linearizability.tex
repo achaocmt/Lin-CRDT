@@ -21,7 +21,7 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
 \subsection{The Semantics of CRDT objects}\label{ssec:semantics}
 
 \begin{figure}
-\small
+\footnotesize
 \[
   \inferrule[\text{\sc Operation}]
   {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
@@ -52,6 +52,7 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
 
 
 \begin{wrapfigure}{r}{0.5\linewidth}
+\vspace{-4mm}
   \centering
   \(
   \begin{array}[t]{rcll}

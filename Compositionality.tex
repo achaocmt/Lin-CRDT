@@ -95,8 +95,7 @@ The composition of a set of \crdtlinearizable{} objects that admit execution-ord
   \centering
   \includegraphics[width=0.7 \textwidth]{figures/LWWReg-LWWReg-NoSTS.pdf}
 %\vspace{-10pt}
-  \caption{A history showing that the unrestricted composition $\otimes$ of two RGA objects is not \crdtlinearizable{}.
-  \fxwarning[nomargin, inline]{The labels in this figure are not correct}}
+  \caption{A history showing that the composition $\otimes$ of two RGA objects is not \crdtlinearizable{}.}
   \label{fig:negative_ts_composition}
 \end{figure}
 
@@ -129,9 +128,9 @@ Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\S
 
 \begin{figure}[t]
   \centering
-  \small
+  \footnotesize
 \[
-  \inferrule[\text{\sc generator}]
+  \inferrule[\text{\sc Operation}]
   {\alabel = \aobj_k.\alabellongind{\argv}{\retv}{(i,\ats)}\mbox{ with } k\in \{1,2\} \\ (\gstates_k, \avisord_k, \downstreams_k) \xrightarrow{\src{\arep}{\alabel}}_{k} (\gstates_k', \avisord_k', \downstreams_k') \\
   (\gstates'_{k'}, \avisord'_{k'}, \downstreams'_{k'}) = (\gstates_{k'}, \avisord_{k'}, \downstreams_{k'})\mbox{ for $k'\neq k$} \\
   \gstates_1(\arep) = (\alabelset_1, \astate_1) \\ \gstates_2(\arep) = (\alabelset_2, \astate_2) \\
