@@ -42,8 +42,8 @@ a \emph{new} operation arrives, therefore only during the execution of the code 
 \lstinline|atSource| label\footnote{For readers familiars with proving classical
   linearizability for concurrent objects, this is akin to assuming that
   \lstinline|atSource| is a ``fixed'' linearization point.
-  However, differently from the classical case, the operation may not
-  be necessarily placed at the end of the current linearization.},
+  However, in our case the operation will not
+  always be placed at the end of the current linearization.},
 by adding the current operation at some specific position in the
 linearization being constructed.
 %
@@ -85,9 +85,7 @@ defined as the conjunction of two properties:
   in $\alabelset$ (that have been delivered to $\arep$) \emph{in the order
   defined by $\alinord$} (that is, for any two effectors $\effector_1$ and $\effector_2$ produced by two operations $\alabel_1$ and $\alabel_2$,  
   $\effector_1$ is applied  before $\effector_2$ if $\alabel_1$ is linearized before $\alabel_2$), and
-\item[-] $\mathsf{\CRDTLinshort{}}$: requiring that the sequence
-  $\alinord$ is an \crdtlinearization{} of the current history (w.r.t.
-  $\Spec{}$).
+\item[-] $\mathsf{\CRDTLinshort{}}$: requiring that $\alinord$ is an \crdtlinearization{} of the history (w.r.t. $\Spec{}$).
 % is \crdtlinearizable{} w.r.t \Spec{} and $\mathit{lin}$ is a
 % linearization. Here $\alabelset$ is the set of labels in domain of
 % $\downstreams$.
@@ -101,9 +99,9 @@ examples in the following subsections), joint with a proof that:
   $\alabel$, respectively each query $\alabel$, is simulated by the
   execution of $\alabel$ in the specification $\Spec$. 
 \end{itemize}
-Essentially, this last requirements establishes a strong
-correspondence between the implementation of the algorithm and its
-specification. Actually, when using query-updates rewritings $\gamma$, $\mathsf{Refinement}$ requires that 
+This last requirements establishes a strong
+correspondence between the implementation of the CRDT and its
+specification. When using query-updates rewritings $\gamma$, $\mathsf{Refinement}$ requires that 
 the effector produced by an operation $\alabel$ be simulated by $\secondrep(\gamma(\alabel))$ 
 (the update label in the image of $\alabel$ w.r.t. $\gamma$) in the specification. 
 
@@ -252,7 +250,8 @@ them through the query-update rewriting $\gamma$ show in the example of~\ref{fig
 The annotations under \lstinline|downStream| specify the behavior of the effectors, e.g., characterizing the result of applying them based on the set of operations visible to the replica where they were generated
 % at the moment of applying the corresponding generator 
 %this operation has originated 
-(at the time when the corresponding generator has been executed). These annotations are written as two-vocabulary formulas, the primed, resp. unprimed, variables denoting values of variables after, resp. before, the execution of the effector. Concretely, the characterization of the effectors corresponding to an {\tt add} operation is self-explanatory (just a logical interpretation of the code under the specific \lstinline|downStream| label) while the characterization of {\tt remove} effectors is more involved. The latter is expressing the fact that 
+(at the time when the corresponding generator has been executed). 
+These annotations are written as two-vocabulary formulas, the primed, resp. unprimed, variables denoting values of variables after, resp. before, the execution of the effector. Concretely, the characterization of the effectors corresponding to an {\tt add} operation is self-explanatory (just a logical interpretation of the code under the specific \lstinline|downStream| label) while the characterization of {\tt remove} effectors is more involved. The latter is expressing the fact that 
 a {\tt remove} effector removes the set of element-id pairs added by {\tt add} operations visible at the replica $\arep$ where the {\tt remove} originated, and which were not ``canceled'' by other {\tt remove}s visible at $\arep$ ({\tt remove}s that saw those {\tt add} operations).\footnote{This characterization of the set of element-id pairs removed by a {\tt remove} effector is written on the first annotation line under \lstinline|downStream(R)|.}
 
 In the following, we show that the $\mathsf{ReplicaStates}$ property described above is an inductive invariant for OR-Set. Since every operation is appended to the linearization when it executes \lstinline|atSource| it clearly follows, in the linearization order, all operations visible to it. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. 
@@ -264,7 +263,7 @@ It is important to recall at this point that concurrent operations can be applie
 Importantly, a fundamental property of CRDTs~\cite{ShapiroPBZ11} is that the effectors of concurrent operations should \emph{commute}. In other words, applying them in any order leads to the same state.
 The fact that concurrent effectors commute is an easy consequence of the annotations under \lstinline|downStream|: two {\tt add} or two {\tt remove} effectors commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} effector commute when they are concurrent because in this case, the element-id pairs removed by the {\tt remove} effector are different from the pair added by the {\tt add} effector (since the {\tt add} is not visible to {\tt remove}).
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. For instance, the effector produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{As we mentioned in \sectionautorefname~\ref{ssec:proof-methodology}, whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, then the effector produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the effector produced by $\alabel$ must be simulated by the operation $\alabel_2$ in the specification.} and the $\alabelshort[{\tt add}]{a,k}$ operation of the specification $\specOrSet$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases. First, whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, the query $\alabellong[{\tt readIds}]{a}{R}{}$ introduced by the query-update rewriting should be enabled in the specification state $\refmap(\sigma)=\sigma$. This clearly holds because the output ${\tt R}$ of ${\tt readIds(a)}$ in the specification is computed exactly as the variable ${\tt R}$ in \lstinline|atSource|.
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. For instance, the effector produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{As we mentioned in \sectionautorefname~\ref{ssec:proof-methodology}, whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, the effector produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the effector produced by $\alabel$ must be simulated by $\alabel_2$ in the specification.} and the $\alabelshort[{\tt add}]{a,k}$ operation of the specification $\specOrSet$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases. First, whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, the query $\alabellong[{\tt readIds}]{a}{R}{}$ introduced by the query-update rewriting should be enabled in the specification state $\refmap(\sigma)=\sigma$. This clearly holds because the output ${\tt R}$ of ${\tt readIds(a)}$ in the specification is computed exactly as the variable ${\tt R}$ in \lstinline|atSource|.
 % the computation of $R$ in \lstinline|atSource| and as the output of $\alabelshort[{\tt readIds}]{a}$ in the specification state $\sigma$ are exactly the same, and (2) 
 Second, applying the query $\alabellongind[{\tt read}]{}{A}{}$ on the replica state $\sigma$ should result in the same return value ${\tt A}$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma$, which again holds trivially.
 

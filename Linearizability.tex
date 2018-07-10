@@ -89,24 +89,24 @@ $\reps$.
 %convention applying to replicas.
 %
 We consider a set of method names $\amethod \in \methods$, and that
-each method has a number of arguments sampled from a data domain
-$\datadomain$, and a return value also from the data domain.
+each method has a number of arguments and a return value sampled from
+a data domain $\datadomain$.
 %
-We assume the existence of a special value $\bot \in \datadomain$
-which we shall use to represent the absence of a value (for instance
+We assume that the domain contains a special value $\bot \in
+\datadomain$ used to represent the absence of a value (for instance
 the return type of procedures).
 %
 %We will generally omit writing this value since it is generally of no
 %importance.
 %
-Furthermore, we ignore here the issues of typing which should be
+Furthermore, we ignore typing issues which should be
 addressed by an underlying programming language.
 Also, some methods, e.g., the method {\tt addAfter} of the RGA object, generate timestamps from a
 totally-ordered domain $\timestampdomain$. The order relation on $\timestampdomain$ is denoted by $<$.
 %Hence, a data type $\acrdttyp = (\amethodset, \adomain)$ is given by a
 %set of method names $\amethodset \subseteq \methods$ and a data domain
 %$\adomain \subseteq \datadomain$.
-P
+%
 %The timestamp of such an operation label $\alabel$
 % We may omit the object $\aobj$ when it is understood from the context.
 We will use operation labels of the form
@@ -118,8 +118,9 @@ Abusing our notations, we assume that the set $\timestampdomain$
 contains a distinguished element $\bot$ which we shall use for
 operations that do not generate a timestamp as the method {\tt remove}
 of the RGA.
-In that case the meta-variable $\ats$ adopts the value $\bot$. We extend the order
-relation $<$ on timestamps to include $\bot$ as a minimal element.
+% In that case the meta-variable $\ats$ adopts the value $\bot$. 
+We extend the order relation $<$ on timestamps to include $\bot$ as a
+minimal element.
 The timestamp $\ats$ of an operation label $\alabel=\alabelobjind{\argv}{\retv}{i,\ats}$
 is denoted by $\tsof(\alabel)$.
 We may omit the object $\aobj$, the timestamp $\ats$, or the return
@@ -208,7 +209,7 @@ each operation label $\alabel \in \alabelset$ an effector
 $\effector\in [\states \rightarrow \states]$, which is the replica
 state transformer generated when the operation was executed at the
 origin replica ($\Delta$ denotes the set of effectors).
-
+%
 For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
 
 %\fxwarning[nomargin, inline]{ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.}
@@ -281,9 +282,10 @@ shall call updates (or effectful).
 We say that a method $\amethod\in\methods$ of object $\aobj\in \objs$
 is a \emph{query} if it always results (by applying the generator) in an identity effector $\effector$ (i.e.
 $\delta(\sigma)=\sigma$ for all replica states
-$\sigma$).\footnote{While we could have defined a semantics in which a
-  read-only operation doesn't generate any effector, we have preferred
-  the current version for uniformity.}
+$\sigma$).
+ % \footnote{While we could have defined a semantics in which a
+  % read-only operation doesn't generate any effector, we have preferred
+  % the current version for uniformity.}
 We shall call an \emph{update} any method $\amethod$ which is not a
 query -- that is, whose effectors are not the identity function -- and
 whose resulting effector and return value do not depend on the
@@ -315,7 +317,7 @@ are queries.
 
 %Executions of an object $\aobj$ are defined as usual (as sequences of transitions in $\rightarrow$).
 An execution of the object $\aobj$ is a sequence of transitions $\aglobalstate_0\xrightarrow{\aact_0}\aglobalstate_1\xrightarrow{\aact_1}\ldots$.
-A \emph{trace} $\atrace$ is the sequence of actions $\aact_0\aact_1\ldots$ labeling the transitions of an execution.
+A \emph{trace} $\atrace$ is the sequence of actions $\aact_0 \cdot \aact_1\ldots$ labeling the transitions of an execution.
 The set of traces of an object $\aobj$ is denoted by $\traces(\aobj)$.
 A \emph{history} is a pair $(\alabelset,\avisord)$ where
 $\avisord\subseteq \alabelset\times\alabelset$ is an acyclic relation over the set of labels $\alabelset$.
@@ -414,13 +416,14 @@ To that end, we will associate to specifications a notion of abstract
 state, which we shall generally denote by $\abstate$ and its domain
 shall be denoted by $\abstates$.
 Then, to each valid label $\alabel$ we will associate a transition
-relation \;$\specarrow{\alabel}$\; which, given an abstract state and
-provided that the label can be applied into that state, produces a new
-abstract state.
-Hence, we denote by $\abstate \specarrow{\alabel}  \abstate'$
-%$\absopsem{\abstate} = \abstate'$
-the fact that the resulting state for label $\alabel$ with initial
-abstract state $\abstate$ is $\abstate'$.
+relation $\abstate \specarrow{\alabel}  \abstate'$ which, given an
+abstract state $\abstate$ and
+provided that the label $\alabel$ can be applied in $\abstate$, produces a new
+abstract state $\abstate'$.
+% Hence, we denote by $\abstate \specarrow{\alabel}  \abstate'$
+% %$\absopsem{\abstate} = \abstate'$
+% the fact that the resulting state for label $\alabel$ with initial
+% abstract state $\abstate$ is $\abstate'$.
 %
 %To simplify our descriptions, we will use a shortcut notation for
 %$\absopsem{\abstate} = \abstate'$ and will write it as:
@@ -429,7 +432,7 @@ In the specific case where the label $\alabel$ assumes a certain
 precondition $\apre$ over the initial abstract state $\abstate$ we
 will use Hoare-style preconditions and write
 \[ \big(\abstate\ |\ \apre(\abstate)\big) \specarrow{\alabel}
-  \abstate' \] In this way, a sequential specification then is the set
+  \abstate' \] In this way, a sequential specification is the set
 of labels that are accepted by the successive application of the
 transition relation starting from some given initial state
 $\abstate_{0}$.
@@ -448,7 +451,7 @@ described before.
 \]
 \end{example}
 
-\begin{example}[Sequential Specification of RGA-like List
+\begin{example}[Sequential Specification of RGA 
   (with $\mathtt{addAfter}$ method)]
   \label{definition:sequential specification of rga}
   Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of
@@ -540,7 +543,7 @@ set of objects in \sectionautorefname~\ref{sec:compositionality}.
 Another important aspect of specifications is whether they are
 deterministic or not.
 %
-For instance the Wooki~\cite{DBLP:conf/icdcs/PreguicaMSL09} CRDT is a
+For instance the Wooki CRDT~\cite{DBLP:conf/icdcs/PreguicaMSL09} is a
 list-like object that provides a method $\mathtt{addBetween(a, b, c)}$
 which inserts $\mathtt{b}$ between $\mathtt{a}$ and $\mathtt{c}$.
 %to be present in the list.
@@ -596,11 +599,11 @@ either queries or updates (the case of query-updates is considered later in this
 The intuition of our notion of \crdtlin{} is that there is a \emph{global} sequence
 (or linearization) of the update operations in an execution which can
 produce the state of \emph{each} replica when \emph{all} the updates are visible to them.
-In intermediate steps, any replica state should be the result of applying a subsequence of updates
+In intermediate steps, any replica state should be the result of applying a sub-sequence of updates
 of this global sequence. This is because replicas may see a subset of the updates
 performed up to some moment.
 %``explains'' the states of each replica,
-%i.e., any state observed by any replica should be the result of applying a subsequence of updates
+%i.e., any state observed by any replica should be the result of applying a sub-sequence of updates
 %in this sequence, and eventually, when all the updates are delivered at a replica~\footnote{Their corresponding downstreams are executed on that replica.}, its state is the result of applying this sequence of updates.
 %%for update
 %%operations there is a global linear sequence (or history) which can
@@ -659,7 +662,7 @@ To be precise:
 %\gpnote*{First mention?}{deterministic}
   \Spec{}, if there exists a specification sequence
   $(\alabelset, \aseqord) \in \Spec{}$ -- where we remark that the set of labels
-  are identical -- such that %
+  are identical -- such that: %
   % \gpwarning*{}{This definition has to be worked out again}
   \begin{enumerate}[(i)]
   \item \aseqord{} is consistent with  \avisord{}, that is: $\avisord
@@ -669,7 +672,7 @@ To be precise:
     $\aseqord\!\downarrow_{\updates} \in \Spec$, where we denote by
     $\aseqord\downarrow_{S}$ the restriction of the order $\aseqord$ to
     the set $S$, and
-  \item\label{it:query} for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the subsequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ is itself admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
+  \item\label{it:query} for each query $\alabel_{\mathsf{qr}}\in \alabelset$, the sub-sequence of updates visible to $\alabel_{\mathsf{qr}}$ together with $\alabel_{\mathsf{qr}}$ is itself admitted by $\Spec$, i.e., $\aseqord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\
     \alabel_{\mathsf{qr}} \in \Spec$.
 \end{enumerate}
 In this case we say that $(\alabelset, \aseqord)$ is an \emph{\crdtlinearization{}} of $h$ w.r.t. $\Spec{}$.
@@ -687,7 +690,7 @@ that
   on the updates that precede it in the sequence and that are visible
   to it.
 \end{inparaenum}
-
+%
 With this definition in mind it is not hard to check that the
 sequences of operations provided in
 \sectionautorefname~\ref{sec:rga-crdt-impl} and~\ref{sec:or-set-crdt}
