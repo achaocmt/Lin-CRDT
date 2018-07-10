@@ -40,11 +40,12 @@ interesting CRDT implementations extracted from~\cite{AttiyaBGMYZ16,ShapiroPBZ11
 
 \subsection{System Model}
 \label{sec:sys-model}
-
 \begin{wrapfigure}{r}{0.5\textwidth}
   \centering
   \includegraphics[scale=.9]{figures/sys-mod}
+  % \vspace{-20pt}
   \caption{CRDT System Model.}
+  % \vspace{-20pt}
   \label{fig:sys-mod}
 \end{wrapfigure}
 
@@ -564,6 +565,14 @@ execution thereof.
 
 \subsection{OR-Set CRDT Implementation}
 \label{sec:or-set-crdt}
+\begin{wrapfigure}{r}{.4\textwidth}
+  \centering
+  \includegraphics[width=0.35 \textwidth]{./figures/OR-Set-simple}
+  \vspace{-5pt}
+  \caption{Interleaving-based Set.}
+  \vspace{-5pt}
+  \label{fig:or-set-simple}
+\end{wrapfigure}
 
 \begin{figure}[!t]
   \centering
@@ -597,13 +606,7 @@ execution thereof.
 \end{lstlisting}
 \end{figure}
 
-\begin{wrapfigure}{r}{.4\textwidth}
-  \centering
-  \includegraphics[width=0.35 \textwidth]{./figures/OR-Set-simple}
-  \caption{Interleaving-based Set.}
-  \label{fig:or-set-simple}
-\end{wrapfigure}
-The Observed-Remove Set (OR-Set) is another CRDT~\cite{ShapiroPBZ11},
+The Observed-Remove Set (OR-Set)~\cite{ShapiroPBZ11} is another CRDT,
 this time implementing a Set interface with methods: \lstinline|add(a)|,
 \lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
   we could provide an interface with the method \lstinline|lookup(a)|

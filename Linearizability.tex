@@ -19,6 +19,32 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
 %\fxwarning[nomargin, inline]{MAKE A SUMMARY OF THIS SECTION.}
 
 \subsection{The Semantics of CRDT objects}\label{ssec:semantics}
+\begin{wrapfigure}{r}{0.5\linewidth}
+  \centering
+  \vspace{-10pt}
+  \(
+  \begin{array}[t]{rcll}
+    \aobj & \in  & \objs & \text{Objects} \\
+    \arep & \in & \reps & \text{Replicas} \\
+    \amethod & \in & \methods & \text{Methods}\\
+    \argv, \retv & \in & \datadomain & \text{Data Domain} \\
+    \ats & \in & \timestampdomain & \text{Timestamp Domain} \\
+    % \acrdttyp & \in & \powerset{\methods} \times \powerset{\adomain} & \text{CRDT definition} \\
+    % \astate & \in & \states & \text{States} \\
+    % \amesg & \in & \messages & \text{Messages} \\
+    % \amesgset & \subseteq & \messages & \text{Message Set} \\
+    % \aop & \in & \ops \equiv \opids & \text{Operations}\ (ID) \\
+    \alabel \equiv \alabelobjind{\argv}{\retv}{i,\ats} & \in & \labels & \text{Operation Label} \\
+    \alabelset & \subseteq & \labels & \text{Label Set}\\
+    % \arepord & \subseteq & \ops \times \ops & \text{Replica Order} \\
+    % \avisord & \subseteq & \ops \times \ops & \text{Visibility Order}
+  \end{array}
+  \)
+  \vspace{-5pt}
+  \caption{Semantic Domains.}
+  \vspace{-5pt}
+  \label{fig:sem-dom}
+\end{wrapfigure}
 
 \begin{figure}
 \small
@@ -49,31 +75,6 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
 }
 \label{fig:crdt-opsem}
 \end{figure}
-
-
-\begin{wrapfigure}{r}{0.5\linewidth}
-  \centering
-  \(
-  \begin{array}[t]{rcll}
-    \aobj & \in  & \objs & \text{Objects} \\
-    \arep & \in & \reps & \text{Replicas} \\
-    \amethod & \in & \methods & \text{Methods}\\
-    \argv, \retv & \in & \datadomain & \text{Data Domain} \\
-    \ats & \in & \timestampdomain & \text{Timestamp Domain} \\
-    % \acrdttyp & \in & \powerset{\methods} \times \powerset{\adomain} & \text{CRDT definition} \\
-    % \astate & \in & \states & \text{States} \\
-    % \amesg & \in & \messages & \text{Messages} \\
-    % \amesgset & \subseteq & \messages & \text{Message Set} \\
-    % \aop & \in & \ops \equiv \opids & \text{Operations}\ (ID) \\
-    \alabel \equiv \alabelobjind{\argv}{\retv}{i,\ats} & \in & \labels & \text{Operation Label} \\
-    \alabelset & \subseteq & \labels & \text{Label Set}\\
-    % \arepord & \subseteq & \ops \times \ops & \text{Replica Order} \\
-    % \avisord & \subseteq & \ops \times \ops & \text{Visibility Order}
-  \end{array}
-  \)
-  \caption{Semantic Domains.}
-  \label{fig:sem-dom}
-\end{wrapfigure}
 
 To formalize the semantics of CRDT objects and our correctness
 criterion we will introduce the following semantic domains summarized
