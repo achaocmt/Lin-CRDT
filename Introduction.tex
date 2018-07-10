@@ -32,8 +32,8 @@ List-like CRDT object (usually used for text-editing applications).
 %
 We will base our discussion on the Replicated Growing Array (RGA) due
 to~\cite{RohJKL11}.\footnote{We use a variation of code extracted
-  from~\cite{ShapiroPBZ11} to be consistent with the rest of the
-  paper.}
+  from~\cite{AttiyaBGMYZ16}.}
+%  to be consistent with the rest of the paper.}
 %
 RGA supports three simple operations:
 \begin{inparaenum}
@@ -68,7 +68,7 @@ one replica goes off-line.
 Instead of this naive approach, RGA takes the liberty of allowing any
 of the replicas to modify the \emph{local} copy of the list immediately --
 and hence return control to the client -- and lazily propagate the
-updates to all the other replicas at a later point in time.
+updates to the other replicas at a later point in time.
 %
 For instance, assuming that we have an initial list containing the
 sequence $\mathtt{a \cdot b \cdot e \cdot f}$~\footnote{We will use
@@ -153,7 +153,7 @@ equal timestamps.
 For this reason in the rest of the paper we will assume that metadata
 provides a strict ordering relation to abstract this detail away.
 
-At this point we can know that if the effects of all operations are
+If the effects of all operations are
 delivered to all replicas eventually, the replicas will converge to
 the same state -- assuming a quiescent period of time where no new
 operations are performed.
@@ -180,7 +180,7 @@ type under conflicts.
 Unfortunately this is not an easy task.
 %
 Many times the programmer has no option but to read the implementation
-of the data type to understand how the metadata is used to detect and
+of the data type to understand how the metadata is used to 
 resolve conflicts, for instance by reading the algorithms
 in~\cite{ShapiroPBZ11} (an exceptional case where the algorithms are
 particularly well documented).

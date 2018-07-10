@@ -3,9 +3,9 @@
 \label{sec:overview}
 
 % \gpnote[inline, nomargin]{Add an intuitive notion of history.}
-
+% (adapted from~\cite{ShapiroPBZ11})
 \begin{figure}[t]
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Replicated Growing Array (RGA) CRDT pseudo-code (adapted from~\cite{ShapiroPBZ11}).},captionpos=b,label={lst:rga}]
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Replicated Growing Array (RGA) CRDT pseudo-code.},captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -34,31 +34,39 @@
 \end{lstlisting}
 \end{figure}
 
-In this section we will firstly describe the system model
-we assume, and we will then illustrate our main contribution with two
+We give an informal description of the system model
+we assume, and illustrate our main contribution with two
 interesting CRDT implementations extracted from~\cite{AttiyaBGMYZ16,ShapiroPBZ11}.
 
 \subsection{System Model}
 \label{sec:sys-model}
+<<<<<<< HEAD
 \begin{wrapfigure}{r}{0.5\textwidth}
   \centering
   \includegraphics[scale=.9]{figures/sys-mod}
   % \vspace{-20pt}
+=======
+
+\begin{wrapfigure}{r}{0.42\textwidth}
+\vspace{-4mm}
+  \centering
+  \includegraphics[scale=.7]{figures/sys-mod}
+>>>>>>> origin/master
   \caption{CRDT System Model.}
   % \vspace{-20pt}
   \label{fig:sys-mod}
 \end{wrapfigure}
-
 We assume that the system is comprised of multiple nodes in a network.
 In this work we will be concerned with the implementation of CRDTs,
 and we will usually concentrate our discussion to the behaviors
 allowed for \emph{an instance} of the data type.
 We will generically call such an instance an \emph{object}.
 As mentioned in Section~\ref{sec:introduction} we assume that objects are
-replicated among the participating nodes of the system -- which we shall call replicas.
+replicated among the participating nodes of the system -- called replicas.
 
 % \gpwarning{Redraw pictures.}
-The execution model for an operation \lstinline|op(v)| on a replicated object is depicted in Figure~\ref{fig:sys-mod} and it proceeds as follows:
+% on a replicated object
+The execution model for an operation \lstinline|op(v)| is depicted in Figure~\ref{fig:sys-mod} and it proceeds as follows:
 \begin{itemize}
 \item A client, i.e., a program issuing calls to the object, connects
   to any one replica %(a node of the system holding a copy of the object)
@@ -93,19 +101,20 @@ The execution model for an operation \lstinline|op(v)| on a replicated object is
 %\smallskip
 \noindent
 {\bf CRDT implementations.}
-Following the description above, \citet{ShapiroPBZ11} present the code
-of a number of CRDT implementations.
+We write the code of CRDT implementations using the syntax introduced in \citet{ShapiroPBZ11}.
+%Following the description above, \citet{ShapiroPBZ11} present the code
+%of a number of CRDT implementations.
 %
-Here we consider the code of the RGA algorithm presented
-in Listing~\ref{lst:rga}, where we ignore the lines starting with the
-annotation \lstinline|//@| for the moment (this is a version of
-the RGA algorithm introduced in~\cite{AttiyaBGMYZ16}).
+For instance, Listing~\ref{lst:rga} shows the code of the RGA algorithm, 
+where the lines starting with \lstinline|//@| should be ignored for the moment 
+(this is a version of the RGA algorithm introduced in~\cite{AttiyaBGMYZ16}
+which we believe is simpler to understand).
 %
 Let us first consider the structure of the data type implementation:
 \begin{itemize}
 \item The keyword \lstinline|payload| introduces the state that is
   used to represent the object. This is akin to the fields of a class
-  declaration in an object oriented language such as Java. In the
+  in an object oriented language such as Java. In the
   case of RGA we have a variable \lstinline|N| of type
   \lstinline|Ti-Tree| (to be discussed later), and a variable
   \lstinline|Tomb| of type \lstinline|Set|.
@@ -120,8 +129,8 @@ Let us first consider the structure of the data type implementation:
   \lstinline|atSource| is executed only at the origin replica and it
   generates the arguments that the code under \lstinline|downStream|
   will execute in each of the replicas (including the origin).
-\item We can also notice that under the labels there are
-  \lstinline|precondition| annotations indicating facts that are
+\item The 
+  \lstinline|precondition| annotations indicate facts that are
   assumed about the state of the object upon execution of either of
   the generator or effector of the operation.
 \end{itemize}
@@ -225,7 +234,7 @@ timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=1\textwidth]{figures/RGA-Trace}
+  \includegraphics[width=.8\textwidth]{figures/RGA-Trace}
 % \vspace{-10pt}
   \caption{Example of RGA conflict resolution.}
   \label{fig:rga-trace}
@@ -456,7 +465,7 @@ operations adding an element after a common element.
 Let us say that we have two concurrent \lstinline|addAfter(a,b)| and
 \lstinline|addAfter(a,c)| operations.
 %
-This example corresponds to the first three nodes
+This example corresponds to a history formed of the first three nodes
 of Figure~\ref{fig:rga-history} from left to right.
 %
 Because these operations are concurrent they are not related by
@@ -606,6 +615,16 @@ execution thereof.
 \end{lstlisting}
 \end{figure}
 
+<<<<<<< HEAD
+=======
+\begin{wrapfigure}{r}{.4\textwidth}
+\vspace{-4mm}
+  \centering
+  \includegraphics[width=0.35 \textwidth]{./figures/OR-Set-simple}
+  \caption{Interleaving-based Set.}
+  \label{fig:or-set-simple}
+\end{wrapfigure}
+>>>>>>> origin/master
 The Observed-Remove Set (OR-Set)~\cite{ShapiroPBZ11} is another CRDT,
 this time implementing a Set interface with methods: \lstinline|add(a)|,
 \lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
@@ -651,13 +670,13 @@ already seen.
 %
 For instance, in the example above, the remove of \lstinline|a| will
 only remove the element that has been previously added by the same
-replica, since this item as been observed by the \lstinline|remove|
+replica, since this item has been observed by the \lstinline|remove|
 operation -- and thus its identifier is known to it --. However, the
 concurrent \lstinline|add(a)| operation will have an identifier that
 has not been observed by the \lstinline|remove| (since they are
 concurrent).
 %
-Therefore the item will not be removed, even in the case where the
+Therefore the item will not be removed, even if the
 effectors of the two adds are performed in a replica before the effector
 of the remove.
 %

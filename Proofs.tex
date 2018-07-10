@@ -341,7 +341,7 @@ The following theorem shows the set of objects we have proved to be RA-lineariza
 LWW-Register, LWW-Set, and RGA are RA-linearizable and admit timestamp-order linearizations.
 \end{theorem}
 
-\fxwarning[nomargin, inline]{TODO SAY THAT RGA WITH ADDAT IS NOT RA-LINEARIZABLE}
+The interface of a CRDT has an impact on whether it is RA-linearizable. For instance, a slight variation of the RGA in Listing~\ref{lst:rga} that has the same state, but a different interface, i.e., adding elements to the list is done using a method \lstinline|addAt(a,k)| inserting an element \lstinline|a| at an index \lstinline|k|, introduced in~\cite{AttiyaBGMYZ16}, would not be RA-linearizable w.r.t. an appropriate sequential specification. See the supplementary material for an example. 
 
 %%% Local Variables:
 %%% mode: latex

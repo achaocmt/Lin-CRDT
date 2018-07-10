@@ -1,6 +1,65 @@
-\section{\crdtimp{}}
-\label{sec:crdt implementation}
+%\subsection{The Sequential Specification of OR-Set}
+%\label{subsec:the sequential specification of or-set}
 
+%The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$.
+
+%Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specOrSet$ of OR-set is given by the transitions:
+%\[
+%  \begin{array}{rcl}
+%    \abstate
+%    & \specarrow{\alabellong[\mathtt{readIds}]{a}{S}{}}
+%    & \abstate\
+%      \begin{array}{c}
+%        [\text{with}\ S = \{ (a,id)\ \vert\ (a,id) \in \abstate\}]
+%      \end{array}\\
+%    \abstate &
+%               \specarrow{\alabelshort[\mathtt{remove}]{a,S}}
+%    & \abstate \setminus S \\
+%    \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
+%             & \specarrow{ \alabelshort[{\tt add}]{a,id} }
+%    & \abstate \cup \{ (a,\mathtt{id}) \}\\
+%    \abstate
+%    & \specarrow{\alabellong[\mathtt{read}]{a}{ S }{}}
+%    & \abstate\
+%      \begin{array}{c}
+%        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
+%      \end{array}
+%  \end{array}
+%\]
+
+%Method $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$. Method $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state. Method $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the contents of the or-set.
+
+
+
+
+%\subsection{The Sequential Specification of List with Add-After Interface}
+%\label{subsec:the sequential specification of list with add-after interface}
+
+%Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specRGA$ of list with add-after interface is given with the transitions as follows:
+%\[
+%  \begin{array}{rcl}
+%    \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
+%     & \specarrow{\alabelshort[\mathtt{addAfter}]{a_k,a}}
+%     & (l_1 \cdot a_k \cdot a \cdot l_2,T)\\
+%     \big(\ (l,T)\ |\ a_k\ \text{occurs in}\ l\ \big)
+%     & \specarrow{\alabelshort[\mathtt{remove}]{a_k}}
+%     & (l,T \cup \{a_k\})\\
+%     (l,T)
+%     & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
+%     & (l,T)\
+%       \left[\begin{array}{c}
+%           \text{with $s$ is obtained from $l$}\\
+%           \text{by removing the values in $T$}
+%       \end{array}\right]
+%   \end{array}
+%\]
+
+%Method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a_k}$ adds $a_k$ into $T$, hence removing $a_k$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
+
+
+
+\section{Implementation, Sequential Specification, and Proof of Counter}
+\label{sec:implementation, sequential specification, and proof of counter} 
 
 
 
@@ -8,7 +67,6 @@
 \label{subsec:counter implementation}
 
 \cite{ShapiroPBZ11} gives a operation-based counter implementation, which is shown in Listing~\ref{lst:operation-based counter}. A payload is a integer $ctr$.
-
 
 \begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based counter},
@@ -35,8 +93,78 @@ captionpos=b,label={lst:operation-based counter}]
 \end{lstlisting}
 \end{figure}
 
-%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
 
+
+
+\subsection{The Sequential Specification of Counter}
+\label{subsec:the sequential specification of counter}
+
+The sequential specification $\specCounter$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows:
+\[
+  \begin{array}[rcl]{rcl}
+    k & \specarrow{\alabellong[\mathsf{inc}]{}{}} & k+1\\
+    k & \specarrow{\alabellong[\mathsf{dec}]{}{}} & k-1\\
+    k & \specarrow{\alabellong[\mathsf{read}]{}{k}} & k
+  \end{array}
+\]
+
+Method $\alabelshort[{\tt inc}]{}$ increase the counter by $1$. Method $\alabelshort[{\tt dec}]{}$ decrease the counter by $1$. Method $\alabellong[{\tt read}]{}{k}{}$ returns the value of the counter.
+
+
+
+
+\subsection{Obtain Permutations by Swapping Adjacent and Concurrent Operations}
+\label{subsec:obtain permutations by swapping adjacent and concurrent operations}
+
+Given two sequences $l_1,l_2$  such that $l_2$ is a permutation of $l_1$, let $\mathit{diff}(l_1,l_2) = \{ (a,b) \vert$ the order of $a$ and $b$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $a$ and $b$ of $l$, let $\mathit{swap}(l,a,b)$ be a sequence obtained from $l$ by swapping $a$ and $b$. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
+
+\begin{lemma}
+\label{lemma:given two sequence consistent with visibility order, one can be obtained from the other}
+Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are both consistent with $\avisord$. If $\aseqord_1 \neq \aseqord_2$, then we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
+\end{lemma}
+
+\begin {proof}
+
+First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel_1$ and $\alabel_2$ are concurrent, and $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$.
+
+We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1$, $\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$.
+
+Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alabel')$ be a element of $\mathit{diff}(\aseqord_1,\aseqord_2)$, and the distance of $\alabel$ and $\alabel'$ is minimal in $\{$ the distance between $\alabel_1$ and $\alabel_2 \vert (\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2) \}$. Let us prove that $\alabel$ and $\alabel'$ are adjacent by contradiction: If there exists $\alabel''$ between $\alabel$ and $\alabel'$. Assume that in $\aseqord_1$, $\alabel$ is before $\alabel''$, and $\alabel''$ is before $\alabel'$. By assumption, the order between $\alabel$ and $\alabel''$, and between $\alabel''$ and $\alabel'$ is the same in $\aseqord_1$ and in $\aseqord_2$. This implies that $\alabel$ is still before $\alabel'$ in $\aseqord_2$, which contradicts the fact that $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$.
+
+Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, by assumption we know that $\alabel$ and $\alabel'$ are not concurrent. Or we can say, $(\alabel,\alabel') \in \avisord \vee (\alabel',\alabel) \in \avisord$. This contradicts that both $\aseqord_1$ and $\aseqord_2$ are consistent with visibility relation. This completes the proof of the first part.
+
+Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of adjacent and concurrent operations. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+\subsection{Proof of Operation-Based Counter}
+\label{subsec:proof of operation-based counter}
+
+The following lemma states that the operation-based counter is \crdtlinearizable{} w.r.t. $\specCounter$.
+
+\begin{lemma}
+\label{lemma:operation-based counter is correct}
+The operation-based counter is \crdtlinearizable{} w.r.t $\specCounter$.
+\end{lemma}
+
+\begin {proof}
+Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
+Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt in}]{}$ operation of the specification $\specMVReg$ has exactly the same effect. The same holds for that of {\tt dec}. Applying the query {\tt read} on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\refmap(\sigma)=\sigma$, which again holds trivially.
+
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
+\end {proof}
+
+
+
+
+
+
+
+
+\section{Implementation and Proof of Operation-Based PN-Counter}
+\label{sec:implementation and proof of operation-based PN-counter}
 
 
 
@@ -104,745 +232,6 @@ captionpos=b,label={lst:operation-based PN-counter}]
     return c
 \end{lstlisting}
 \end{figure}
-
-%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
-
-
-
-
-\subsection{Last-Writer-Win Register (LWW-Register) Implementation}
-\label{subsec:last-writer-win regiseter (LWW-register) implementation}
-
-Let us give the operation-based last-writer-win Register (LWW-Register) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-register}. Each payload contains a data $x$ and the timestamp $ts$ of $x$. In applying effector, the replica state will be updated if the timestamp of effector is larger than that of replica state. Here $x_0$ is a special initial data and $\ats_0$ is a special initial timestamp.
-
-
-\begin{figure}[t]
-\begin{lstlisting}[frame=top,caption={Pseudo-code of LWW-register},
-captionpos=b,label={lst:LWW-register}]
-  payload X x, timestamp @|$\ats$|@
-  initial @|$x_0$|@, @|$\ats_0$|@
-  initial lin = @|$\epsilon$|@
-
-  write(a) :
-    atSource :
-      let @|$\ats'$|@ = getTimestamp()
-      //@ lin = insert(lin, write(a), ts')
-    downStream((a,@|$\ats'$|@)) :
-      if (@|$\ats<\ats'$|@)
-        (x,@|$\ats$|@) = (a,@|$\ats'$|@)
-      //@ Annotation1 : @|$\ats'$|@ = @|$max(\{ \ats'' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats''}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
-
-  read() :
-    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@x)
-    return x
-\end{lstlisting}
-\end{figure}
-
-
-
-
-\subsection{Multi-Value Register Implementation}
-\label{subsec:multi-value register implementation}
-
-
-\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is the number of replicas in distributed system. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
-Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for effector of $write(a)$.
-
-
-\begin{figure}[t]
-\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based multi-value register},
-captionpos=b,label={lst:operation-based multi-value register}]
-  payload Set S
-  initial S = @|$\emptyset$|@
-  initial lin = @|$\epsilon$|@
-
-  write(a) :
-    atSource :
-      let g = myRep()
-      let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
-      let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
-      let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
-      //@ lin = lin@|$\,\cdot\,( $|@readIds()@|$\,\Rightarrow\,$|@S@|$ )\,\cdot\,$|@write(a,@|$V'$|@,S)
-    downStream(@|$(a,V')$|@) :
-      let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
-      let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
-      S = A @|$\cup$|@ B
-      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt write}]{\_}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \} \vert$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(a,V')$|@
-
-  read() :
-    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
-    //@ lin = lin@|$\,\cdot\,( $|@read()@|$\,\Rightarrow\,S_1)$|@
-    return @|$S_1$|@
-\end{lstlisting}
-\end{figure}
-
-%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
-
-
-
-
-
-
-\subsection{Two-phase Set (2P-Set) Implementation}
-\label{subsec:two-phase set (2P-set) implementation}
-
-\cite{ShapiroPBZ11} gives a two-phase set (2P-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:2P-set}. A payload $(A,R)$ contains a set $A$ to record the inserted values, and a set $R$ stores the removed values and is used as \emph{tombstone}. Adding or removing a value twice has no effect, nor does adding an element that has already been removed.
-
-
-\begin{figure}[t]
-\begin{lstlisting}[frame=top,caption={Pseudo-code of 2P-set},
-captionpos=b,label={lst:2P-set}]
-  payload Set A, Set R
-  initial @|$\emptyset$|@, @|$\emptyset$|@
-  initial lin = @|$\epsilon$|@
-
-  add(a) :
-    atSource :
-      //@ lin = lin@|$\,\cdot\,$|@add(a)
-    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@a@|$\}$|@, @|$R'$|@ = R
-      A = A @|$\cup \ A'$|@
-      R = R @|$\cup \ R'$|@
-      //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
-      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
-
-  remove(a) :
-    atSource :
-      precondition :  @|$a \in A \wedge a \notin R$|@
-       //@ lin = lin@|$\,\cdot\,$|@remove(a)
-    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = R @|$\cup$|@ @|$\{$|@a@|$\}$|@,
-      A = A @|$\cup \ A'$|@
-      R = R @|$\cup \ R'$|@
-      //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
-      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
-
-  read() :
-    let s = A @|$\,\setminus\,$|@ R
-    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
-    return s
-\end{lstlisting}
-\end{figure}
-
-
-
-
-
-
-
-\subsection{Last-Writer-Win-Element-Set (LWW-Element-Set) Implementation}
-\label{subsec:last-writer-win-element-set (LWW-element-set) implementation}
-
-Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ to record pairs of inserted values and their timestamp, and a set $R$ and stores the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$. 
-
-
-\begin{figure}[t]
-\begin{lstlisting}[frame=top,caption={Pseudo-code of LWW-element-set},
-captionpos=b,label={lst:LWW-element-set}]
-  payload Set A, Set R
-  initial @|$\emptyset$|@, @|$\emptyset$|@
-  initial lin = @|$\epsilon$|@ 
-
-  add(a) :
-    atSource :
-      let @|$\ats'$|@ = getTimestamp()
-      //@ lin = insert(lin, add(a), ts')
-    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@, @|$R'$|@ = R
-      A = A @|$\cup \ A'$|@
-      R = R @|$\cup \ R'$|@
-      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
-      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
-  
-  remove(a) :
-    atSource :
-      let @|$\ats'$|@ = getTimestamp()
-      //@ lin = insert(lin, remove(a), ts')
-    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@ 
-      A = A @|$\cup \ A'$|@
-      R = R @|$\cup \ R'$|@
-      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
-      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
-
-  read() :
-    let S = @|$\{ b \vert \exists (b,\ats_b) \in A, R$|@ does not contain @|$(b,\_)$|@, or @|$\forall (b,\ats'_b) \in R, \ats'_b < \ats_b \}$|@
-    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@S)
-    return S
-\end{lstlisting}
-\end{figure}
-
-
-
-
-
-
-
-
-\subsection{The Wooki Algorithm}
-\label{subsec:the Wooki algorithm}
-
-The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. %Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
-Wooki algorithm is an optimized version of Woot \cite{DBLP:conf/cscw/OsterUMI06}. To make our introduction more clear, we borrow the notion of W-character and W-string from Woot algorithm.
-
-In replica state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
-We use $degree(w)$ to denote the degree of $c$.
-
-A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ldots \cdot w_n \cdot w_{end}$, where $w_{begin}$ and $w_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_{begin}$ and $w_{end}$ are $\circ_{begin}$ and $\circ_{end}$, respectively. The degree of $w_{begin}$ and $w_{end}$ are $0$. We never remove $\circ_{begin}$ or $\circ_{end}$, and never put value after $\circ_{end}$. We define the following function for a W-string $str$:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $\vert str \vert$ returns the length of $str$,
-
-\item[-] $str[p]$ returns the W-character at position $p$ in $str$. Here we assume that the first element of $str$ is at position 0.
-
-\item[-] $pos(str,w)$ returns the position of W-character $w$ in $S$.
-
-\item[-] $insert(str,w,p)$ inserts W-character $w$ into $str$ at position $p$.
-
-\item[-] $subseq(str,w_1,w_2)$ returns the part of $str$ between the W-characters $w_1$ and $w_2$ (excluding $w_1$ and $w_2$).
-
-\item[-] $contains(str,a)$ returns true if there exists a W-character in $str$ with value $a$.
-
-\item[-] $values(str)$ returns the sequence of visible (with $\mathit{true}$ flag) values of $str$.
-
-\item[-] $getWchar(str,a)$ returns the W-character with value $a$ in $str$.
-
-\item[-] $changeFlag(str,pos,f)$ changes the flag of $str[pos]$ into $f$.
-\end{itemize}
-
-%Note that only $values(str)$ distinguish whether a W-character is with flag $\mathit{true}$ or with flag $\mathit{false}$.
-
-A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $w_1,w_2$ of $str$, we write $w_1 <_{str} w_2$ to indicate that $pos(str,w_1) < pos(str,w_2)$.
-
-%A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
-
-\begin{figure}[!h]
-\begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
-captionpos=b,label={lst:wooki algorithm}]
-  payload W-string @|$string_s$|@
-  initial @|$string_s$|@ = @|$\epsilon$|@
-  initial lin = @|$\epsilon$|@
-
-  addBetween(a,b,c) :
-    atSource :
-      precondition : @|$a \neq \circ_{end}$|@ @|$\wedge$|@ @|$contains(string_s,a)$|@ @|$\wedge$|@ @|$contains(string_s,c)$|@ @|$\wedge$|@ @|$pos(string_s,c) > pos(string_s,a)$|@ @|$\wedge$|@ @|$\neg contains(string_s,b)$|@
-      let @|$\ats$|@ = getTimestamp()
-      let @|$w_p$|@ = @|$getWchar(string_s,a)$|@
-      let @|$w_n$|@ = @|$getWchar(string_s,c)$|@
-      //@ lin = lin@|$\,\cdot\,$|@addBetween(a,b,c)
-    downStream((w,@|$w_p$|@,@|$w_n$|@)) : with @|$w$|@ = @|$(\ats,a,max(degree(w_p),degree(w_n))+1,\mathit{true})$|@
-      integrateIns(@|$w_p,w,w_n$|@)
-
-  remove(a) :
-    atSource :
-      precondition : @|$a \neq \circ_{begin} \wedge a \neq \circ_{end} \wedge contains(string_s,a)$|@
-      let w = @|$getWchar(string_s,a)$|@
-      //@ lin = lin@|$\,\cdot\,$|@remove(a)
-    downStream(w) :
-      let p = @|$pos(string_s,w)$|@
-      @|$changeFlag(string_s,p,\mathit{false})$|@
-
-  read() :
-    let s = @|$values(string_s)$|@
-    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
-    return s
-
-  integrateIns(@|$w_p,w,w_n$|@)
-    let @|$S$|@ = @|$string_s$|@
-    let @|$S'$|@ = @|$subseq(S,w_p,w_n)$|@
-    if @|$S' = \epsilon$|@
-      then  @|$insert(S,w,pos(S,w_n))$|@
-    else
-      Let i = 0
-      Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@
-      Let F be projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@
-      if (@|$w<_{id} F[0]$|@)
-        integrateIns(@|$w_p,w,F[0]$|@)
-      else
-        while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} w$|@) do
-            i = i+1
-        if (@|$i = \vert F \vert -1 \wedge F[i] <_{id} w$|@)
-            integrateIns(@|$F[i],w,w_n$|@)
-        else
-            integrateIns(@|$F[i-1],w,F[i]$|@)
-\end{lstlisting}
-\end{figure}
-
-$\\$ $\\$
-
-The payload of each replica is a W-string $string_s$.
-
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a \neq \circ_{end}$, $a$ and $c$ are in $string_s$, $a$ is before $c$ in $string_s$, and $b$ is not in $string_s$. Then, we generate a W-character $w$ for value $b$, and calls method $integrateIns(w_p,w,w_n)$ to put $w$ between $w_p$ and $w_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
-
-$integrateIns(w_p,w,w_n)$ is a recursive method and works as follows: If there are no W-character between $w_p$ and $w_n$, then $w$ is put after $w_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $w_p$ and $w_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $w$, and recursive call $integrateIns(w_x,w,w_y)$ for some $w_x,w_y \in F \cup \{ w_p,w_n \}$. We can see that, the minimal degree of the sub-sequence of $S$ between $w_x$ and $w_y$ is larger than that of the sub-sequence of $S$ between $w_p$ and $w_n$.
-
-To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
-
-
-
-
-
-\subsection{The Tree-Doc Algorithm}
-\label{subsec:the Tree-Doc algorithm}
-
-The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. The tree-doc algorithm of Listing~\ref{lst:Tree-Doc algorithm} can be considered as the tree-doc with ``unique disambiguator'' in \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784}, and we do not consider optimizations, such as balancing tree.
-
-In replica state of each replica, tree-doc algorithm stores the list as a set of T-characters. A T-character $w$ is a tuple $(v,tid,gv)$, where $v$ is the value of $w$, and $tid$ is a T-identifier of $w$. Here $gv$ is a ``ghost field'' of $w$ and also stores the value of $w$. The reason of introducing $gv$ is that, the $\alabelshort[{\tt remove}]{a}$ method will find the T-character $w$ of value $a$ and set the value of $w$ into a special value $nil$; while in the proof, it will be convenient if we can always remember the value of $w$. Therefore, when $w$ is initialized, the value of $w$ is put both in $v$ and $gv$, while the value in $gv$ is never changed afterward.
-
-T-identifiers are the unique identifiers of T-characters. The requirement of T-identifier are as follows: there should be a total order $<_t$ over the T-identifiers, and the T-identifiers are designed to satisfy a ``dense'' property: for each T-identifier $tid_1,tid_2$, assume $tid_1 <_t tid_2$, then, there must exists a T-identifier $tid_3$, such that $tid_1 <_t tid_2 <_t tid_3$.
-
-To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths of a binary tree as T-identifier, and the order $<_t$ can be considered as ``walking the tree in infix order''. However, this is insufficient for concurrent edit, as users might concurrently insert two different T-character at the same position of a binary tree. To address this issue, when there are multiple T-character ``at a same position of the binary tree'', we call the set of these T-characters a major node, and call each of them a minor node.
-
-For example, \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the T-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set $\{ w_b,w_c,w_d \}$ is a major node and we use a box containing $w_b,w_c,w_d$ to emphasize a major node. Similarly, the set $\{ w_e,w_f \}$, $\{ w_g,w_h \}$, $\{ w_j,w_k \}$ are also major nodes, respectively.
-
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.85 \textwidth]{figures/TreeDocExecutionandLocalState.pdf}
-\vspace{-10pt}
-  \caption{An execution of tree-doc, the replica state of replica $\arep_1$ after execution, and the T-identifiers of T-characters.}
-  \label{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}
-\end{figure}
-
-
-A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $1 \leq i \leq n$, $c_i \in \{ 0,1,(1,id')\}$. We call such $id$ the disambiguator of $w$, and require disambiguator to be unique for each T-character. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current (major) node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``right sons'' of a minor node with identifier $id'$. The path to the root is fixed to be $\epsilon$.
-
-For example, in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son (could be a major node)''; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
-
-We say a set $T$ of T-characters is a T-tree, if:
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] There exists a T-character of $T$ with T-identifier $(\epsilon,\_)$.
-
-\item[-] Each value of T-character is unique, and each T-character has a unique disambiguator.
-
-\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that, for each $1 \leq i \leq n$,
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] If $c_i \in \{ 0,1 \}$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (c_i,\_) ) \in T$,
-
-    \item[-] Else, if $c_i = (p_i,id_i)$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id_i) ) \in T$, and there exists another T-character $w'' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id'_i) ) \in T$ and $id_i < id'_i$. Or we can say, $w'$ and $w''$ is contained in a same major node, and the disambiguator of $w'$ is less that that of $w''$.
-    \end{itemize}
-\end{itemize}
-
-Given a T-tree, the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if one of the following cases holds 
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $(tid_2 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l) \vee (tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot x \cdot l)$, and $x=1 \vee x=(1,\_)$.
-
-\item[-] If $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l$, and $x=0 \vee x=(0,\_)$.
-
-\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot x_1 \cdot x_2 \cdot l_1$, $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot y_1 \cdot y_2 \cdot l_2$, and one of the following cases holds for some $p \in \{ 0,1 \}$ and $id,id'$:
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] $x_1=p$, $x_2=0$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2=1)$,
-
-    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, %$y_1=(p,id')$, and $id<id'$, 
-        and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$, 
-
-    \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2=1)$.
-    \end{itemize}
-\end{itemize}
-
-The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given minor node $n_a,n_b$ of a same major node, such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. We say T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
-
-We define the following function for a T-tree $tree$: 
-
-\begin{itemize}
-\setlength{\itemsep}{0.5pt}
-\item[-] $contains(tree,a)$ returns true if there exists a T-character $(a,\_,a)$ in $tree$. 
-
-\item[-] $notAdded(tree,a)$ returns true, if there is no T-character $(\_,\_,a)$ in $tree$. Or we can say, if $a$ has not been added in $tree$. 
-
-\item[-] $getTchar(tree,a)$ returns the T-character whose value is $a$ in $tree$. 
-
-\item[-] $removeTChar(tree,tid)$ will find the T-character with T-identifier $tid$ in $tree$, and then set the value of this T-character into $nil$. 
-
-\item[-] $values(tree)$ returns a sequence, which is obtained by walking the tree according to $<_t$ orders and consider only values of T-characters whose value are not $nil$.
-\end{itemize}
-
-
-
-
-
-\begin{figure}[!h]% {1.0\linewidth}
-\begin{lstlisting}[frame=top,caption={Pseudo-code of Tree-Doc algorithm},
-captionpos=b,label={lst:Tree-Doc algorithm}]
-  payload T-tree @|$tree$|@
-  initial @|$tree$|@ = @|$\emptyset$|@
-  initial lin = @|$\epsilon$|@
-
-  addBetween(a,b,c) :
-    atSource :
-      precondition :  @|$contains(tree,a) \wedge contains(tree,c)\wedge notAdded(tree,b)$|@, @|$tid_a <_t tid_c$|@, and @|$ \neg \exists (\_,tid,\_) \in tree, tid_a <_t tid <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c, respectively.
-      let id = getTimestamp()
-      let @|$w_b$|@ = @|$(b,newID(tid_a,tid_c,id),b)$|@
-      //@ lin = lin@|$\,\cdot\,$|@addBetween(a,b,c)
-    downStream(@|$w_b$|@) :
-      @|$tree$|@ = @|$tree \cup \{ w_b \}$|@
-
-  remove(a) :
-    atSource :
-      precondition : @|$contains(tree,a)$|@
-      assume @|$getTchar(tree,a) = (a,tid,a)$|@
-      //@ lin = lin@|$\,\cdot\,$|@remove(a)
-    downStream(tid) :
-      @|$removeTChar(tree,tid)$|@
-
-  read() :
-    let s = @|$values(string_s)$|@
-    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
-    return s
-
-  newID(@|$tid_1,tid_2,id$|@)
-      precondition : @|$tid_1 <_t tid_2$|@, and @|$\neg \exists (\_,tid,\_) \in tree, tid_1 <_t tid <_t tid_2$|@ 
-    if @|$tid_2$|@ is a descendant of @|$tid_1$|@
-      assume @|$tid_2 = l_2 \cdot (p,id_2)$|@
-      return @|$l_2 \cdot p \cdot (0,id)$|@
-    else if @|$tid_1$|@ is a descendant of @|$tid_2$|@
-      assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
-      return @|$l_1 \cdot p \cdot (1,id)$|@
-    else if @|$tid_1 = l\cdot (p,id_1)$|@, @|$tid_2 = l\cdot (p,id_2)$|@, and @|$id_1 < id_2$|@
-      return @|$l \cdot (p,id_1) \cdot (1,id)$|@
-    else
-      assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
-      return @|$l_1 \cdot p \cdot (1,id)$|@
-\end{lstlisting}
-\end{figure}
-% \end{minipage}
-
-$\\$ $\\$
-
-The payload of each replica is a T-tree $tree$.
-
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure $tree$ contains T-characters of $a$ and $c$, $tid_a$ and $tid_c$ are adjacent in $tree$, and no T-character in $tree$ has value $b$. Then, we calls method $newID(tid_a,tid_c,id)$ to generate a new T-identifier that is with disambiguator $id$ and its T-identifier is between $tid_a$ and $tid_c$ in $<_t$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$. Here $tid_a$ and $tid_c$ are the T-identifiers of T-characters of $a$ and $c$, respectively.
-
-$newID(tid_1,tid_2,id)$ require that $tid_1$ and $tid_2$ are adjacent according to $<_t$ in $tree$, and it will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
-
-To do $\alabelshort[{\tt remove}]{a}$, we first find the T-identifier $tid$ of T-character with value $a$ in $tree$, and then set the value of T-character with T-identifier $tid$ to be $nil$. To do ${\tt read}$, we return $values(tree)$.
-
-
-
-
-
-
-
-\section{Sequential Specifications}
-\label{sec:sequential specifications}
-
-
-
-\subsection{The Sequential Specification of Counter}
-\label{subsec:the sequential specification of counter}
-
-The sequential specification $\specCounter$ of counter is so that $\abstates = \mathbb{Z}$, that is the state will be an integer, and the transitions are given as follows:
-\[
-  \begin{array}[rcl]{rcl}
-    k & \specarrow{\alabellong[\mathsf{inc}]{}{}} & k+1\\
-    k & \specarrow{\alabellong[\mathsf{dec}]{}{}} & k-1\\
-    k & \specarrow{\alabellong[\mathsf{read}]{}{k}} & k
-  \end{array}
-\]
-
-Method $\alabelshort[{\tt inc}]{}$ increase the counter by $1$. Method $\alabelshort[{\tt dec}]{}$ decrease the counter by $1$. Method $\alabellong[{\tt read}]{}{k}{}$ returns the value of the counter.
-
-
-
-\subsection{The Sequential Specification of Register}
-\label{subsec:the sequential specification of register}
-
-Each abstract state $\abstate$ is a data $a$. The sequential specification $\specReg$ of register is given by the transitions:
-
-\[
-  \begin{array}{rcl}
-    \abstate
-    & \specarrow{\alabelshort[\mathtt{write}]{a}}
-    & a\\
-    \abstate
-    & \specarrow{\alabellong[\mathtt{read}]{}{\abstate}{}}
-    & \abstate
-  \end{array}
-\]
-
-Method $\alabelshort[{\tt write}]{a}$ update the abstract state into $a$. Method $\alabellong[{\tt read}]{}{\abstate}{}$ returns the value of the register.
-
-
-
-
-\subsection{The Sequential Specification of Multi-Value Register}
-\label{subsec:the sequential specification of multi-value register}
-
-The query-update rewriting of multi-value register is as follows: $\gamma( \alabelshort[{\tt write}]{a}) = ( \alabellong[{\tt readIds}]{}{S}{}, \alabelshort[{\tt write}]{a,id,S})$.
-
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specMVReg$ of multi-value register is given by the transitions:
-
-\[
-  \begin{array}{rcl}
-    \abstate
-    & \specarrow{\alabellong[\mathtt{readIds}]{}{\abstate}{}}
-    & \abstate\\
-    \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
-             & \specarrow{ \alabelshort[{\tt write}]{a,id,S} }
-    & \abstate \setminus S \cup \{ (a,\mathtt{id}) \}\\
-    \abstate
-    & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
-    & \abstate\
-      \begin{array}{c}
-        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
-      \end{array}
-  \end{array}
-\]
-
-Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\alabelshort[{\tt write}]{a,id,S}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the value of multi-value register.
-
-
-
-
-\subsection{The Sequential Specification of 2P-Set}
-\label{subsec:the sequential specification of 2P-set}
-
-Each abstract state $\abstate$ is $(A,T)$, where $A$ is a set of values used to store the inserted values, and $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specTwoPSet$ of 2P-set is given by the transitions:
-\[
-  \begin{array}{rcl}
-    (A,T) &
-               \specarrow{\alabelshort[\mathtt{add}]{a}}
-    & (A \cup \{ a \},T) \\
-    (A,T) &
-               \specarrow{\alabelshort[\mathtt{remove}]{a}}
-    & (A,T \cup \{a\}) \\
-    (A,T)
-    & \specarrow{\alabellong[\mathtt{read}]{}{ S_1 }{}}
-    & \abstate\
-      \begin{array}{c}
-        [\text{with}\ S = A \setminus T]
-      \end{array}
-  \end{array}
-\]
-
-Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $A$. Method $\alabelshort[{\tt remove}]{a}$ puts $a$ into $T$. Method $\alabellong[{\tt read}]{}{S_1}{}$ returns the contents of the 2P-set.
-
-
-
-
-
-
-
-\subsection{The Sequential Specification of LWW-Element-Set}
-\label{subsec:the sequential specification of LWW-element-set}
-
-Each abstract state $\abstate$ is a set $S$ of values. The sequential specification $\specLWWSet$ of LWW-element-set is given by the transitions:
-\[
-  \begin{array}{rcl}
-    S &
-               \specarrow{\alabelshort[\mathtt{add}]{a}}
-    & S \cup \{ a \} \\
-    S &
-               \specarrow{\alabelshort[\mathtt{remove}]{a}}
-    & S \setminus \{a\} \\
-    S
-    & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
-    & S 
-  \end{array}
-\]
-
-Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $S$. Method $\alabelshort[{\tt remove}]{a}$ removes $a$ from $S$. Method $\alabellong[{\tt read}]{}{S}{}$ returns the contents of the LWW-element-set. 
-
-
-
-
-
-
-
-\subsection{The Sequential Specification of OR-Set}
-\label{subsec:the sequential specification of or-set}
-
-The query-update rewriting of OR-set is as follows: $\gamma( \alabelshort[{\tt remove}]{a} ) = ( \alabellong[{\tt readIds}]{a}{S}{}, \alabelshort[{\tt remove}]{a,S})$.
-
-% \gpwarning{I still don't like the pairs for OR-Set}
-Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specOrSet$ of OR-set is given by the transitions:
-\[
-  \begin{array}{rcl}
-    \abstate
-    & \specarrow{\alabellong[\mathtt{readIds}]{a}{S}{}}
-    & \abstate\
-      \begin{array}{c}
-        [\text{with}\ S = \{ (a,id)\ \vert\ (a,id) \in \abstate\}]
-      \end{array}\\
-    \abstate &
-               \specarrow{\alabelshort[\mathtt{remove}]{a,S}}
-    & \abstate \setminus S \\
-    \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
-             & \specarrow{ \alabelshort[{\tt add}]{a,id} }
-    & \abstate \cup \{ (a,\mathtt{id}) \}\\
-    \abstate
-    & \specarrow{\alabellong[\mathtt{read}]{a}{ S }{}}
-    & \abstate\
-      \begin{array}{c}
-        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
-      \end{array}
-  \end{array}
-\]
-
-Method $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs with data $a$. Method $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the abstract state. Method $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the contents of the or-set.
-
-
-
-
-
-\subsection{The Sequential Specification of List with Add-After Interface}
-\label{subsec:the sequential specification of list with add-after interface}
-
-Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specRGA$ of list with add-after interface is given with the transitions as follows:
-\[
-  \begin{array}{rcl}
-    \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
-     & \specarrow{\alabelshort[\mathtt{addAfter}]{a_k,a}}
-     & (l_1 \cdot a_k \cdot a \cdot l_2,T)\\
-     \big(\ (l,T)\ |\ a_k\ \text{occurs in}\ l\ \big)
-     & \specarrow{\alabelshort[\mathtt{remove}]{a_k}}
-     & (l,T \cup \{a_k\})\\
-     (l,T)
-     & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
-     & (l,T)\
-       \left[\begin{array}{c}
-           \text{with $s$ is obtained from $l$}\\
-           \text{by removing the values in $T$}
-       \end{array}\right]
-   \end{array}
-\]
-
-Method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately after $a_k$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a_k}$ adds $a_k$ into $T$, hence removing $a_k$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ is never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value.
-
-
-
-
-
-\subsection{The Sequential Specification of List with Add-Between Interface}
-\label{subsec:the sequential specification of list with add-between interface}
-
-Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specWooki$ of list with add-after interface is given with the transitions as follows:
-\[
-  \begin{array}{rcl}
-    \big(\ (l_1 \cdot a_1 \cdot l_2 \cdot l_3 \cdot a_2 \cdot l_4,T\big)\ |\ a\text{ is fresh}\ \big)
-     & \specarrow{\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}}
-     & (l_1 \cdot a_1 \cdot l_2 \cdot a \cdot l_3 \cdot a_2 \cdot l_4,T)\\
-     \big(\ (l,T)\ |\ a\ \text{occurs in}\ l\ \big)
-     & \specarrow{\alabelshort[\mathtt{remove}]{a}}
-     & (l,T \cup \{a\})\\
-     (l,T)
-     & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
-     & (l,T)\
-       \left[\begin{array}{c}
-           \text{with $s$ is obtained from $l$}\\
-           \text{by removing the values in $T$}
-       \end{array}\right]
-   \end{array}
-\]
-
-Method $\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}$ puts $a$ at some random position between $a_1$ and $a_2$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\section{Proofs of \crdtimp}
-\label{sec:appendix proofs of crdt implementations}
-
-
-
-\subsection{Obtain Permutations by Swapping Adjacent and Concurrent Operations}
-\label{subsec:obtain permutations by swapping adjacent and concurrent operations}
-
-Given two sequences $l_1,l_2$  such that $l_2$ is a permutation of $l_1$, let $\mathit{diff}(l_1,l_2) = \{ (a,b) \vert$ the order of $a$ and $b$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $a$ and $b$ of $l$, let $\mathit{swap}(l,a,b)$ be a sequence obtained from $l$ by swapping $a$ and $b$. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
-
-\begin{lemma}
-\label{lemma:given two sequence consistent with visibility order, one can be obtained from the other}
-Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are both consistent with $\avisord$. If $\aseqord_1 \neq \aseqord_2$, then we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
-\end{lemma}
-
-\begin {proof}
-
-First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel_1$ and $\alabel_2$ are concurrent, and $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$.
-
-We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1$, $\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$.
-
-Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alabel')$ be a element of $\mathit{diff}(\aseqord_1,\aseqord_2)$, and the distance of $\alabel$ and $\alabel'$ is minimal in $\{$ the distance between $\alabel_1$ and $\alabel_2 \vert (\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2) \}$. Let us prove that $\alabel$ and $\alabel'$ are adjacent by contradiction: If there exists $\alabel''$ between $\alabel$ and $\alabel'$. Assume that in $\aseqord_1$, $\alabel$ is before $\alabel''$, and $\alabel''$ is before $\alabel'$. By assumption, the order between $\alabel$ and $\alabel''$, and between $\alabel''$ and $\alabel'$ is the same in $\aseqord_1$ and in $\aseqord_2$. This implies that $\alabel$ is still before $\alabel'$ in $\aseqord_2$, which contradicts the fact that $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$.
-
-Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, by assumption we know that $\alabel$ and $\alabel'$ are not concurrent. Or we can say, $(\alabel,\alabel') \in \avisord \vee (\alabel',\alabel) \in \avisord$. This contradicts that both $\aseqord_1$ and $\aseqord_2$ are consistent with visibility relation. This completes the proof of the first part.
-
-Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of adjacent and concurrent operations. This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
-
-
-
-%\subsection{Obtain Permutations by Swapping Adjacent and Concurrent Operations with Same Timestamp}
-%\label{subsec:obtain permutations by swapping adjacent and concurrent operations with same timestamp}
-
-%Similarly, when we deal with timestamp-order linearizations, we have a similar lemma of Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation and the timestamp order, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations with same timestamp.
-
-%\begin{lemma}
-%\label{lemma:given two sequence consistent with visibility order and timestamp order, one can be obtained from the other}
-%Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are both consistent with $\avisord$ and the timestamp order. If $\aseqord_1 \neq \aseqord_2$, then we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations with same timestamp.
-%\end{lemma}
-
-%\begin {proof}
-
-%First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel_1$ and $\alabel_2$ are concurrent, $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$, and $\alabel_1$ and $\alabel_2$ have a same ``real'' or ``virtual'' timestamp.
-
-%We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$, or $\alabel_1$ and $\alabel_2$ have different timestamps.
-
-%Similarly as Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, we can prove that, $\alabel_1$ and $\alabel_2$ are concurrent, and $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$. Thus, the only possibility is that $\alabel_1$ and $\alabel_2$ have different timestamps, which contradicts the assumption that $\alabel_1$ and $\alabel_2$ are both consistent with the timestamp order. This completes the proof of the first part.
-
-%Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$, and $\alabel_1$ and $\alabel_2$ have a same timestamp. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of adjacent and concurrent operations. This completes the proof of this lemma. $\qed$
-%\end {proof}
-
-
-
-
-
-
-\subsection{Proof of Operation-Based Counter}
-\label{subsec:proof of operation-based counter}
-
-The following lemma states that the operation-based counter is \crdtlinearizable{} w.r.t. $\specCounter$.
-
-\begin{lemma}
-\label{lemma:operation-based counter is correct}
-The operation-based counter is \crdtlinearizable{} w.r.t $\specCounter$.
-\end{lemma}
-
-\begin {proof}
-Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
-
-Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt in}]{}$ operation of the specification $\specMVReg$ has exactly the same effect. The same holds for that of {\tt dec}. Applying the query {\tt read} on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\refmap(\sigma)=\sigma$, which again holds trivially.
-
-We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
-\end {proof}
-
-
-
 
 
 
@@ -939,6 +328,65 @@ This completes the proof of this lemma. $\qed$
 
 
 
+
+
+
+\section{Implementation, Sequential Specification, and Proof of Last-Writer-Win Register (LWW-Register)}
+\label{sec:implementation, sequential specification, and proof of last-writer-win register (LWW-register)}
+
+
+
+\subsection{LWW-Register Implementation}
+\label{subsec:LWW-register implementation}
+
+Let us give the operation-based last-writer-win Register (LWW-Register) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-register}. Each payload contains a data $x$ and the timestamp $ts$ of $x$. In applying effector, the replica state will be updated if the timestamp of effector is larger than that of replica state. Here $x_0$ is a special initial data and $\ats_0$ is a special initial timestamp.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of LWW-register},
+captionpos=b,label={lst:LWW-register}]
+  payload X x, timestamp @|$\ats$|@
+  initial @|$x_0$|@, @|$\ats_0$|@
+  initial lin = @|$\epsilon$|@
+
+  write(a) :
+    atSource :
+      let @|$\ats'$|@ = getTimestamp()
+      //@ lin = insert(lin, write(a), ts')
+    downStream((a,@|$\ats'$|@)) :
+      if (@|$\ats<\ats'$|@)
+        (x,@|$\ats$|@) = (a,@|$\ats'$|@)
+      //@ Annotation1 : @|$\ats'$|@ = @|$max(\{ \ats'' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats''}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
+
+  read() :
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@x)
+    return x
+\end{lstlisting}
+\end{figure}
+
+
+
+\subsection{The Sequential Specification of Register}
+\label{subsec:the sequential specification of register}
+
+Each abstract state $\abstate$ is a data $a$. The sequential specification $\specReg$ of register is given by the transitions:
+
+\[
+  \begin{array}{rcl}
+    \abstate
+    & \specarrow{\alabelshort[\mathtt{write}]{a}}
+    & a\\
+    \abstate
+    & \specarrow{\alabellong[\mathtt{read}]{}{\abstate}{}}
+    & \abstate
+  \end{array}
+\]
+
+Method $\alabelshort[{\tt write}]{a}$ update the abstract state into $a$. Method $\alabellong[{\tt read}]{}{\abstate}{}$ returns the value of the register.
+
+
+
+
 \subsection{Proof of LWW-Register}
 \label{subsec:proof of LWW-register}
 
@@ -969,7 +417,7 @@ Let we prove that the Annotation1 and Annotation2 are inductive invariant. We pr
 \item[-] For case when replica $\arep$ apply effector $(a,\ats_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
     If $\ats_a < \ats$, then $(x',\ats') = (x,\ats)$, and Annotation2 holds for replica state $S'$. Else, if $\ats < \ats_a$, then $(x',\ats') = (a,\ats_a)$, and Annotation2 holds for replica state $S'$.
-\end{itemize} 
+\end{itemize}
 
 Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
@@ -989,6 +437,78 @@ We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant an
 \end {proof}
 
 
+
+
+
+
+\section{Implementation, Sequential Specification, and Proof of Operation-Based Multi-Value Register}
+\label{sec:implementation, sequential specification, and proof of opeation-based multi-value register}
+
+
+\subsection{Multi-Value Register Implementation}
+\label{subsec:multi-value register implementation}
+
+
+\cite{ShapiroPBZ11} gives a state-based multi-value register implementation. Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is the number of replicas in distributed system. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
+Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for effector of $write(a)$.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based multi-value register},
+captionpos=b,label={lst:operation-based multi-value register}]
+  payload Set S
+  initial S = @|$\emptyset$|@
+  initial lin = @|$\epsilon$|@
+
+  write(a) :
+    atSource :
+      let g = myRep()
+      let @|$\mathcal{V}$|@ = @|$\{ V \vert \exists x, (x,V) \in S \}$|@
+      let @|$V'$|@ = @|$[ max_{V \in \mathcal{V}} V[j]]_{j \neq g}$|@
+      let @|$V'[g]$|@ = @|$max_{V \in \mathcal{V}} V[g]$|@ + 1
+      //@ lin = lin@|$\,\cdot\,( $|@readIds()@|$\,\Rightarrow\,$|@S@|$ )\,\cdot\,$|@write(a,@|$V'$|@,S)
+    downStream(@|$(a,V')$|@) :
+      let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
+      let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
+      S = A @|$\cup$|@ B
+      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt write}]{\_}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \} \vert$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(a,V')$|@
+
+  read() :
+    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
+    //@ lin = lin@|$\,\cdot\,( $|@read()@|$\,\Rightarrow\,S_1)$|@
+    return @|$S_1$|@
+\end{lstlisting}
+\end{figure}
+
+%//@ Annotation1 : S =  @|$\{ (a,V) \vert \exists \alabel = \alabellongind[write]{a,V}{\bot}{*}, \alabel$|@ is maximal w.r.t @|$\avisord$|@ among write operations applied in current replica @|$\}$|@
+
+
+
+\subsection{The Sequential Specification of Multi-Value Register}
+\label{subsec:the sequential specification of multi-value register}
+
+The query-update rewriting of multi-value register is as follows: $\gamma( \alabelshort[{\tt write}]{a}) = ( \alabellong[{\tt readIds}]{}{S}{}, \alabelshort[{\tt write}]{a,id,S})$.
+
+Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data and $id$ is a identifier. The sequential specification $\specMVReg$ of multi-value register is given by the transitions:
+
+\[
+  \begin{array}{rcl}
+    \abstate
+    & \specarrow{\alabellong[\mathtt{readIds}]{}{\abstate}{}}
+    & \abstate\\
+    \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
+             & \specarrow{ \alabelshort[{\tt write}]{a,id,S} }
+    & \abstate \setminus S \cup \{ (a,\mathtt{id}) \}\\
+    \abstate
+    & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
+      \end{array}
+  \end{array}
+\]
+
+Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\alabelshort[{\tt write}]{a,id,S}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the value of multi-value register.  
 
 
 
@@ -1106,6 +626,79 @@ This completes the proof of this lemma. $\qed$
 
 
 
+
+
+
+\section{Implementation, Sequential Specification, and Proof of Two-phase Set (2P-Set)}
+\label{sec:implementation, sequential specification, and proof of two-phase set (2P-set)}
+
+
+\subsection{2P-Set Implementation}
+\label{subsec:2P-set implementation}
+
+\cite{ShapiroPBZ11} gives a two-phase set (2P-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:2P-set}. A payload $(A,R)$ contains a set $A$ to record the inserted values, and a set $R$ stores the removed values and is used as \emph{tombstone}. Adding or removing a value twice has no effect, nor does adding an element that has already been removed.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of 2P-set},
+captionpos=b,label={lst:2P-set}]
+  payload Set A, Set R
+  initial @|$\emptyset$|@, @|$\emptyset$|@
+  initial lin = @|$\epsilon$|@
+
+  add(a) :
+    atSource :
+      //@ lin = lin@|$\,\cdot\,$|@add(a)
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@a@|$\}$|@, @|$R'$|@ = R
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
+      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
+
+  remove(a) :
+    atSource :
+      precondition :  @|$a \in A \wedge a \notin R$|@
+       //@ lin = lin@|$\,\cdot\,$|@remove(a)
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = R @|$\cup$|@ @|$\{$|@a@|$\}$|@,
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
+      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
+
+  read() :
+    let s = A @|$\,\setminus\,$|@ R
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
+    return s
+\end{lstlisting}
+\end{figure} 
+
+
+
+\subsection{The Sequential Specification of 2P-Set}
+\label{subsec:the sequential specification of 2P-set}
+
+Each abstract state $\abstate$ is $(A,T)$, where $A$ is a set of values used to store the inserted values, and $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specTwoPSet$ of 2P-set is given by the transitions:
+\[
+  \begin{array}{rcl}
+    (A,T) &
+               \specarrow{\alabelshort[\mathtt{add}]{a}}
+    & (A \cup \{ a \},T) \\
+    (A,T) &
+               \specarrow{\alabelshort[\mathtt{remove}]{a}}
+    & (A,T \cup \{a\}) \\
+    (A,T)
+    & \specarrow{\alabellong[\mathtt{read}]{}{ S_1 }{}}
+    & \abstate\
+      \begin{array}{c}
+        [\text{with}\ S = A \setminus T]
+      \end{array}
+  \end{array}
+\]
+
+Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $A$. Method $\alabelshort[{\tt remove}]{a}$ puts $a$ into $T$. Method $\alabellong[{\tt read}]{}{S_1}{}$ returns the contents of the 2P-set.
+
+
+
 \subsection{Proof of Operation-Based 2P-Set}
 \label{subsec:proof of operation-based 2P-set}
 
@@ -1122,8 +715,8 @@ Let us propose Annotation2, which is an annotation of replica state and obviousl
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{a}$, the effector of $\alabel$ has already been applied in S $\}$, 
-    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{a}$, the effector of $\alabel$ has already been applied in S $\}$, 
+\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{a}$, the effector of $\alabel$ has already been applied in S $\}$,
+    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{a}$, the effector of $\alabel$ has already been applied in S $\}$,
 \end{itemize}
 
 Our proof of the lemma proceed as follows:
@@ -1132,7 +725,7 @@ Our proof of the lemma proceed as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] We need to prove that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 \item[-] Let we prove that the Annotation1 and Annotation2 are inductive invariant.
 
@@ -1140,15 +733,15 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A'R')$ is the effector of $\alabel$. 
-        
-        By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds. 
+    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A'R')$ is the effector of $\alabel$.
 
-    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
+        By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds.
 
-        By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$. 
-    
-    \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved. 
+    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+
+        By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
+
+    \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
     \end{itemize}
 
 \item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function.
@@ -1161,7 +754,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, we have that $S' = \abstate'$.
 
-    \item[-] The cases of {\tt remove} can be similarly proved. 
+    \item[-] The cases of {\tt remove} can be similarly proved.
 
     \item[-] Applying the query $\alabelshort[read]{}$ on the replica state $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
     \end{itemize}
@@ -1176,6 +769,75 @@ This completes the proof of this lemma. $\qed$
 
 
 
+
+\section{Implementation, Sequential Specification, and Proof of Last-Writer-Win-Element-Set (LWW-Element-Set)}
+\label{sec:implementation, sequential specification, and proof of last-writer-win-element-set (LWW-element-set)}
+
+
+\subsection{LWW-Element-Set Implementation}
+\label{subsec:LWW-element-set implementation}
+
+Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ to record pairs of inserted values and their timestamp, and a set $R$ and stores the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$.
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of LWW-element-set},
+captionpos=b,label={lst:LWW-element-set}]
+  payload Set A, Set R
+  initial @|$\emptyset$|@, @|$\emptyset$|@
+  initial lin = @|$\epsilon$|@
+
+  add(a) :
+    atSource :
+      let @|$\ats'$|@ = getTimestamp()
+      //@ lin = insert(lin, add(a), ts')
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@, @|$R'$|@ = R
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
+      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
+
+  remove(a) :
+    atSource :
+      let @|$\ats'$|@ = getTimestamp()
+      //@ lin = insert(lin, remove(a), ts')
+    downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@
+      A = A @|$\cup \ A'$|@
+      R = R @|$\cup \ R'$|@
+      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
+      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
+
+  read() :
+    let S = @|$\{ b \vert \exists (b,\ats_b) \in A, R$|@ does not contain @|$(b,\_)$|@, or @|$\forall (b,\ats'_b) \in R, \ats'_b < \ats_b \}$|@
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@S)
+    return S
+\end{lstlisting}
+\end{figure}
+
+
+
+\subsection{The Sequential Specification of LWW-Element-Set}
+\label{subsec:the sequential specification of LWW-element-set}
+
+Each abstract state $\abstate$ is a set $S$ of values. The sequential specification $\specLWWSet$ of LWW-element-set is given by the transitions:
+\[
+  \begin{array}{rcl}
+    S &
+               \specarrow{\alabelshort[\mathtt{add}]{a}}
+    & S \cup \{ a \} \\
+    S &
+               \specarrow{\alabelshort[\mathtt{remove}]{a}}
+    & S \setminus \{a\} \\
+    S
+    & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
+    & S
+  \end{array}
+\]
+
+Method $\alabelshort[{\tt add}]{a}$ puts $a$ into $S$. Method $\alabelshort[{\tt remove}]{a}$ removes $a$ from $S$. Method $\alabellong[{\tt read}]{}{S}{}$ returns the contents of the LWW-element-set.
+
+
+
 \subsection{Proof of LWW-Element-Set}
 \label{subsec:proof of LWW-element-set}
 
@@ -1186,56 +848,189 @@ The following lemma states that the operation-based LWW-element-set is \crdtline
 The operation-based LWW-element-set is \crdtlinearizable{} w.r.t $\specLWWSet$.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
 Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$,
-    $R$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$. 
+    $R$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$.
 \end{itemize}
 
-Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 Let we prove that the Annotation1 and Annotation2 are inductive invariant. We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of $\alabelshort[{\tt write}]{a}$ or $\alabelshort[{\tt remove}]{a}$:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $(A',R') = (A \cup \{ (a,\ats_a) \},R)$ and the effector of $\alabel$ is $(A',R')$. 
+\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $(A',R') = (A \cup \{ (a,\ats_a) \},R)$ and the effector of $\alabel$ is $(A',R')$.
 
-    By Annotatioon2 of replica state $S$, we can see that Annotation1 holds for the effector $(A',R')$, and Annotation2 holds for the replica state $S'$. 
+    By Annotatioon2 of replica state $S$, we can see that Annotation1 holds for the effector $(A',R')$, and Annotation2 holds for the replica state $S'$.
 
-\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
-    
-    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$. 
+\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
-\item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved. 
+    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
+
+\item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
 \end{itemize}
 
-Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$. 
+Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Concerning effectors of $\alabellongind[{\tt add}]{a}{}{\ats_a}{}$ operations, we show that they are simulated by the corresponding specification operation $\alabelshort[{\tt add}]{a}$ only when the timestamp $\ats_a$ is strictly greater than all the timestamps of operations whose effector have been applied in the replica state. This is sufficient because, by $\mathsf{ReplicaStates}$, every replica state is obtained by applying effectors according to the linearization of their corresponding operations, and the linearization order is consistent with the timestamp order.
 
     Assume we obtain replica state $S' = (A',R')$ from replica state $S = (A,R)$ by applying effector $(A'',R'')$ of $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt add}]{a}} \abstate'$, and $\refmap(A,R) = \abstate$.
-    
-    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. 
-    
-    Since $\ats_a$ is greater than all the timestamps of operations whose effector have been applied in $S$, by Annotation2 of $S$, we can see that, for each $\ats \in \{ \ats' \vert (\_,\ats') \in S \}$, we have $\ats < \ats_a$. Therefore, we can see that $\refmap(A',R') = \refmap(A,R) \cup \{ a \} = \abstate'$. 
 
-\item[-] The cases of $\alabellongind[{\tt remove}]{a}{}{\ats_a}{}$ can be similarly proved. 
+    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$.
+
+    Since $\ats_a$ is greater than all the timestamps of operations whose effector have been applied in $S$, by Annotation2 of $S$, we can see that, for each $\ats \in \{ \ats' \vert (\_,\ats') \in S \}$, we have $\ats < \ats_a$. Therefore, we can see that $\refmap(A',R') = \refmap(A,R) \cup \{ a \} = \abstate'$.
+
+\item[-] The cases of $\alabellongind[{\tt remove}]{a}{}{\ats_a}{}$ can be similarly proved.
 
 \item[-] Applying the query {\tt read} on the replica state $(A,R)$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(A,R)$, which holds trivially.
 \end{itemize}
 
 
 We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
-\end {proof}
+\end {proof} 
 
 
 
+
+
+
+\section{Implementation, Sequential Specification, and Proof of Wooki}
+\label{sec:implementation, sequential specification, and proof of wooki}
+
+
+
+\subsection{The Wooki Algorithm}
+\label{subsec:the Wooki algorithm}
+
+The Wooki algorithm of \cite{DBLP:conf/wise/WeissUM07} is given in Listing~\ref{lst:wooki algorithm}. %Note that here $integrateIns$ is a recursive method used by $addBetween$ method.
+Wooki algorithm is an optimized version of Woot \cite{DBLP:conf/cscw/OsterUMI06}. To make our introduction more clear, we borrow the notion of W-character and W-string from Woot algorithm.
+
+In replica state of each replica, Wooki algorithm stores the list as a sequence of W-characters. A W-character $w$ is a tuple $(id,v,degree,flag)$, where $id$ is the identifier of $w$; $v$ is the value of $w$; $degree$ is the degree of $w$; $flag \in \{ \mathit{true},\mathit{false} \}$ is the flag of $w$ and indicates whether $w$ is ``visible'' in list. A identifier $id$ of W-character is a unique timestamp. %tuple $(ctr,\arep)$, where $ctr \in \mathbb{N}$.
+We use $degree(w)$ to denote the degree of $c$.
+
+A W-string is an ordered sequence of W-characters $w_{begin} \cdot w_1 \cdot \ldots \cdot w_n \cdot w_{end}$, where $w_{begin}$ and $w_{end}$ are special W-characters that mark the beginning and the ending of the sequence. The values of $w_{begin}$ and $w_{end}$ are $\circ_{begin}$ and $\circ_{end}$, respectively. The degree of $w_{begin}$ and $w_{end}$ are $0$. We never remove $\circ_{begin}$ or $\circ_{end}$, and never put value after $\circ_{end}$. We define the following function for a W-string $str$:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\vert str \vert$ returns the length of $str$,
+
+\item[-] $str[p]$ returns the W-character at position $p$ in $str$. Here we assume that the first element of $str$ is at position 0.
+
+\item[-] $pos(str,w)$ returns the position of W-character $w$ in $S$.
+
+\item[-] $insert(str,w,p)$ inserts W-character $w$ into $str$ at position $p$.
+
+\item[-] $subseq(str,w_1,w_2)$ returns the part of $str$ between the W-characters $w_1$ and $w_2$ (excluding $w_1$ and $w_2$).
+
+\item[-] $contains(str,a)$ returns true if there exists a W-character in $str$ with value $a$.
+
+\item[-] $values(str)$ returns the sequence of visible (with $\mathit{true}$ flag) values of $str$.
+
+\item[-] $getWchar(str,a)$ returns the W-character with value $a$ in $str$.
+
+\item[-] $changeFlag(str,pos,f)$ changes the flag of $str[pos]$ into $f$.
+\end{itemize}
+
+%Note that only $values(str)$ distinguish whether a W-character is with flag $\mathit{true}$ or with flag $\mathit{false}$.
+
+A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution ($<_{id}$ is just the total order of timestamp). Given a W-string $str$ and two W-characters $w_1,w_2$ of $str$, we write $w_1 <_{str} w_2$ to indicate that $pos(str,w_1) < pos(str,w_2)$.
+
+%A total order $<_{id}$ is given for identifiers of W-characters for conflict resolution. Given two identifiers $(ctr_1,\arep_1)$ and $(ctr_2,\arep_2)$, we have $(ctr_1,\arep_1) <{id} (ctr_2,\arep_2)$, if $\arep_1 < \arep_2 \vee (\arep_1 = \arep_2 \wedge ctr_1 < ctr_2)$. Given a W-string $str$ and two W-characters $a,b$ of $str$, we write $a <_{str} b$ to indicate that $pos(str,a) < pos(str,b)$.
+
+\begin{figure}[!h]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of Wooki algorithm},
+captionpos=b,label={lst:wooki algorithm}]
+  payload W-string @|$string_s$|@
+  initial @|$string_s$|@ = @|$\epsilon$|@
+  initial lin = @|$\epsilon$|@
+
+  addBetween(a,b,c) :
+    atSource :
+      precondition : @|$a \neq \circ_{end}$|@ @|$\wedge$|@ @|$contains(string_s,a)$|@ @|$\wedge$|@ @|$contains(string_s,c)$|@ @|$\wedge$|@ @|$pos(string_s,c) > pos(string_s,a)$|@ @|$\wedge$|@ @|$\neg contains(string_s,b)$|@
+      let @|$\ats$|@ = getTimestamp()
+      let @|$w_p$|@ = @|$getWchar(string_s,a)$|@
+      let @|$w_n$|@ = @|$getWchar(string_s,c)$|@
+      //@ lin = lin@|$\,\cdot\,$|@addBetween(a,b,c)
+    downStream((w,@|$w_p$|@,@|$w_n$|@)) : with @|$w$|@ = @|$(\ats,a,max(degree(w_p),degree(w_n))+1,\mathit{true})$|@
+      integrateIns(@|$w_p,w,w_n$|@)
+
+  remove(a) :
+    atSource :
+      precondition : @|$a \neq \circ_{begin} \wedge a \neq \circ_{end} \wedge contains(string_s,a)$|@
+      let w = @|$getWchar(string_s,a)$|@
+      //@ lin = lin@|$\,\cdot\,$|@remove(a)
+    downStream(w) :
+      let p = @|$pos(string_s,w)$|@
+      @|$changeFlag(string_s,p,\mathit{false})$|@
+
+  read() :
+    let s = @|$values(string_s)$|@
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
+    return s
+
+  integrateIns(@|$w_p,w,w_n$|@)
+    let @|$S$|@ = @|$string_s$|@
+    let @|$S'$|@ = @|$subseq(S,w_p,w_n)$|@
+    if @|$S' = \epsilon$|@
+      then  @|$insert(S,w,pos(S,w_n))$|@
+    else
+      Let i = 0
+      Let @|$d_{min}$|@ be the minimal degree of W-characters in @|$S'$|@
+      Let F be projection of @|$S'$|@ into W-characters with degree @|$d_{min}$|@
+      if (@|$w<_{id} F[0]$|@)
+        integrateIns(@|$w_p,w,F[0]$|@)
+      else
+        while (@|$i < \vert F \vert -1 \wedge F[i] <_{id} w$|@) do
+            i = i+1
+        if (@|$i = \vert F \vert -1 \wedge F[i] <_{id} w$|@)
+            integrateIns(@|$F[i],w,w_n$|@)
+        else
+            integrateIns(@|$F[i-1],w,F[i]$|@)
+\end{lstlisting}
+\end{figure}
+
+$\\$ $\\$
+
+The payload of each replica is a W-string $string_s$.
+
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure that $a \neq \circ_{end}$, $a$ and $c$ are in $string_s$, $a$ is before $c$ in $string_s$, and $b$ is not in $string_s$. Then, we generate a W-character $w$ for value $b$, and calls method $integrateIns(w_p,w,w_n)$ to put $w$ between $w_p$ and $w_n$, which are the W-characters of $a$ and $c$ in $string_s$, respectively.
+
+$integrateIns(w_p,w,w_n)$ is a recursive method and works as follows: If there are no W-character between $w_p$ and $w_n$, then $w$ is put after $w_p$. Else, Wooki selects a sequence $F$ of W-characters, such that each W-character of $F$ is between $w_p$ and $w_n$, and has minimal degree. It can be proved that W-characters in $F$ are sorted by the $<_{id}$ order. Then, we choose the position of $w$, and recursive call $integrateIns(w_x,w,w_y)$ for some $w_x,w_y \in F \cup \{ w_p,w_n \}$. We can see that, the minimal degree of the sub-sequence of $S$ between $w_x$ and $w_y$ is larger than that of the sub-sequence of $S$ between $w_p$ and $w_n$.
+
+To do $\alabelshort[{\tt remove}]{a}$, we just set the flag of W-character of $a$ in $string_s$ to be $\mathit{false}$. To do ${\tt read}$, we return $values(string_s)$.
+
+
+
+\subsection{The Sequential Specification of List with Add-Between Interface}
+\label{subsec:the sequential specification of list with add-between interface}
+
+Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specWooki$ of list with add-after interface is given with the transitions as follows:
+\[
+  \begin{array}{rcl}
+    \big(\ (l_1 \cdot a_1 \cdot l_2 \cdot l_3 \cdot a_2 \cdot l_4,T\big)\ |\ a\text{ is fresh}\ \big)
+     & \specarrow{\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}}
+     & (l_1 \cdot a_1 \cdot l_2 \cdot a \cdot l_3 \cdot a_2 \cdot l_4,T)\\
+     \big(\ (l,T)\ |\ a\ \text{occurs in}\ l\ \big)
+     & \specarrow{\alabelshort[\mathtt{remove}]{a}}
+     & (l,T \cup \{a\})\\
+     (l,T)
+     & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
+     & (l,T)\
+       \left[\begin{array}{c}
+           \text{with $s$ is obtained from $l$}\\
+           \text{by removing the values in $T$}
+       \end{array}\right]
+   \end{array}
+\]
+
+Method $\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}$ puts $a$ at some random position between $a_1$ and $a_2$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value. 
 
 
 
@@ -1272,7 +1067,7 @@ The following lemma states a property of degrees of the argument of {\tt integra
 
 \begin{lemma}
 \label{lemma:a property of degree of argument of integrateIns}
-If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{w_p,w_b,w_n}$, and that, for each time, we find $d_{min}^i$ and then recursively calls $\alabelshort[{\tt integrateIns}]{w_i,w_b,w'_i},\ldots$. Then the degree of $w_i$ and $w'_i$ is chosen from $\{ d_p,d_n,d_{min}^1,\ldots d_{min}^i \}$, where $d_p$ and $d_n$ is the degree of $c_p$ and $c_n$, respectively. 
+If $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{w_p,w_b,w_n}$, and that, for each time, we find $d_{min}^i$ and then recursively calls $\alabelshort[{\tt integrateIns}]{w_i,w_b,w'_i},\ldots$. Then the degree of $w_i$ and $w'_i$ is chosen from $\{ d_p,d_n,d_{min}^1,\ldots d_{min}^i \}$, where $d_p$ and $d_n$ is the degree of $c_p$ and $c_n$, respectively.
 \end{lemma}
 
 
@@ -1363,7 +1158,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of
 \item[-] Else, we know that $w'_k <_{id} w_e <_{id} w_b <_{id} w'_{k+1}$, case $1$ recursively calls $\alabelshort[{\tt integrateIns}]{w'_k$, $w_b,w'_{k+1}}$, and case $2$ recursively calls $\alabelshort[{\tt integrateIns}]{w_e,w_b,w'_{k+1}}$. We can see that the order of $\{ w'_1,\ldots,w'_n,w_b \}$ is the same for case $1$ and case $2$.
 \end{itemize}
 
-\noindent {\bf Induction situation:} Let us consider the inductive situations. 
+\noindent {\bf Induction situation:} Let us consider the inductive situations.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1377,7 +1172,7 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of
 
         By induction assumption, we can see that $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$.
 
-        Let us prove $w_e <_{id} w''_1$ by contradiction. Assume that $w''_1 <_{id} w_e$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $w''_1$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w_e <_{\sigma_e} w_x <_{\sigma_e} w''_1$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{\_,w_e,w_x}$. Since this time-point is before we reach degree $d'_{min1}$, we can see that the degree of $w_x$ is smaller than $w'_{min1}$. Therefore, $w'_{min1}$ should equal the degree of $w_x$, which brings a contradiction. 
+        Let us prove $w_e <_{id} w''_1$ by contradiction. Assume that $w''_1 <_{id} w_e$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $w''_1$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w_e <_{\sigma_e} w_x <_{\sigma_e} w''_1$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{\_,w_e,w_x}$. Since this time-point is before we reach degree $d'_{min1}$, we can see that the degree of $w_x$ is smaller than $w'_{min1}$. Therefore, $w'_{min1}$ should equal the degree of $w_x$, which brings a contradiction.
 
         We can see that $w_b <_{id} w_e <_{id} w''_1 <_{id} \ldots <_{id} w''_n$. Case $1$ recursively calls ${\tt integrateIns(}$ $w'_1,w_b,w''_1)$. Note that case $2$ does not concern this round and still wait in ${\tt integrateIns}(w'_1$, $w_b,w'_2)$. We can see that the order of $\{ w''_1,\ldots,w''_n,w_b \}$ is the same for case $1$ and case $2$.
 
@@ -1450,10 +1245,10 @@ Our proof proceeds as follows:
 \setlength{\itemsep}{0.5pt}
 \item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the effectors of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the effector of concurrent {\tt remove} operations commute, since they both put some value into tombstone; Concurrent {\tt addBetween} and a {\tt remove} effectors commute because in this case, the W-character removed by {\tt remove} are different from the W-character added by the {\tt addBetween}.
 
-    Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
-    
+    Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
     Note that, by the causal delivery assumption and the preconditions of ${\tt addBetween}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ to the list, i.e., $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$; or that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains W-character of $a$ or $c$ while the effector requires to put $b$ between $a$ and $c$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a\_}$ or $\alabelshort[{\tt addBetween}]{\_,c\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain W-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$).
-    
+
 \item[-] Let us prove $\mathsf{Refinement}$:
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -1468,30 +1263,349 @@ Our proof proceeds as follows:
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
-\end {proof}
+\end {proof} 
 
 
+
+
+
+
+
+
+
+\section{Implementation and Proof of Tree-Doc}
+\label{sec:implementation and proof of tree-doc} 
+
+
+\subsection{The Tree-Doc Algorithm}
+\label{subsec:the Tree-Doc algorithm}
+
+The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. The tree-doc algorithm of Listing~\ref{lst:Tree-Doc algorithm} can be considered as the tree-doc with ``unique disambiguator'' in \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784}, and we do not consider optimizations, such as balancing tree.
+
+In replica state of each replica, tree-doc algorithm stores the list as a set of T-characters. A T-character $w$ is a tuple $(v,tid,gv)$, where $v$ is the value of $w$, and $tid$ is a T-identifier of $w$. Here $gv$ is a ``ghost field'' of $w$ and also stores the value of $w$. The reason of introducing $gv$ is that, the $\alabelshort[{\tt remove}]{a}$ method will find the T-character $w$ of value $a$ and set the value of $w$ into a special value $nil$; while in the proof, it will be convenient if we can always remember the value of $w$. Therefore, when $w$ is initialized, the value of $w$ is put both in $v$ and $gv$, while the value in $gv$ is never changed afterward.
+
+T-identifiers are the unique identifiers of T-characters. The requirement of T-identifier are as follows: there should be a total order $<_t$ over the T-identifiers, and the T-identifiers are designed to satisfy a ``dense'' property: for each T-identifier $tid_1,tid_2$, assume $tid_1 <_t tid_2$, then, there must exists a T-identifier $tid_3$, such that $tid_1 <_t tid_2 <_t tid_3$.
+
+To satisfy this ``dense'' property, intuitively, tree-doc algorithm uses paths of a binary tree as T-identifier, and the order $<_t$ can be considered as ``walking the tree in infix order''. However, this is insufficient for concurrent edit, as users might concurrently insert two different T-character at the same position of a binary tree. To address this issue, when there are multiple T-character ``at a same position of the binary tree'', we call the set of these T-characters a major node, and call each of them a minor node.
+
+For example, \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters} shows an execution of tree-doc. Let $w_a,\ldots,w_k$ be the T-character of $a,\ldots,k$. We can see that $w_b,w_c,w_d$ are all inserted as ``left son'' of $w_a$. Therefore, the set $\{ w_b,w_c,w_d \}$ is a major node and we use a box containing $w_b,w_c,w_d$ to emphasize a major node. Similarly, the set $\{ w_e,w_f \}$, $\{ w_g,w_h \}$, $\{ w_j,w_k \}$ are also major nodes, respectively.
+
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.85 \textwidth]{figures/TreeDocExecutionandLocalState.pdf}
+\vspace{-10pt}
+  \caption{An execution of tree-doc, the replica state of replica $\arep_1$ after execution, and the T-identifiers of T-characters.}
+  \label{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}
+\end{figure}
+
+
+A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $1 \leq i \leq n$, $c_i \in \{ 0,1,(1,id')\}$. We call such $id$ the disambiguator of $w$, and require disambiguator to be unique for each T-character. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current (major) node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``right sons'' of a minor node with identifier $id'$. The path to the root is fixed to be $\epsilon$.
+
+For example, in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son (could be a major node)''; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
+
+We say a set $T$ of T-characters is a T-tree, if:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] There exists a T-character of $T$ with T-identifier $(\epsilon,\_)$.
+
+\item[-] Each ghost value of T-character is unique, and each T-character has a unique disambiguator.
+
+\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that, for each $1 \leq i \leq n$,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $c_i \in \{ 0,1 \}$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (c_i,\_) ) \in T$,
+
+    \item[-] Else, if $c_i = (p_i,id_i)$, then there exists a T-character $w' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id_i) ) \in T$, and there exists another T-character $w'' = (\_, c_1 \cdot \ldots \cdot c_{i-1} \cdot (p_i,id'_i) ) \in T$ and $id_i < id'_i$. Or we can say, $w'$ and $w''$ is contained in a same major node, and the disambiguator of $w'$ is less that that of $w''$.
+    \end{itemize}
+\end{itemize}
+
+Given a T-tree, the order $<_t$, called T-identifier order of this T-tree, is defined as follows: $tid_1 <_t tid_2$, if one of the following cases holds
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $(tid_2 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l) \vee (tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot x \cdot l)$, and $x=1 \vee x=(1,\_)$.
+
+\item[-] If $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot x \cdot l$, and $x=0 \vee x=(0,\_)$.
+
+\item[-] If $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot x_1 \cdot x_2 \cdot l_1$, $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot y_1 \cdot y_2 \cdot l_2$, and one of the following cases holds for some $p \in \{ 0,1 \}$ and $id,id'$:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $x_1=p$, $x_2 \in \{ 0, (0,\_) \}$, and $y_1=(p,\_) \vee (y_1=p \wedge y_2 \in \{ 1, (1,\_) \} )$,
+
+    \item[-] $x_1=(p,id)$, $x_2 \cdot l_1 = \epsilon$, %$y_1=(p,id')$, and $id<id'$,
+        and $y_1 = (p,id') \wedge id<id'$,
+
+    \item[-] $x_1=(p,id)$, $x_2 \neq \epsilon$, and $(y_1 = (p,id') \wedge id<id') \vee (y_1=p \wedge y_2 \in \{ 1, (1,\_) \})$.
+    \end{itemize}
+\end{itemize}
+
+The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given minor node $n_a,n_b$ of a same major node, such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. We say T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
+
+We define the following function for a set $tree$ of T-charcaters:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $contains(tree,a)$ returns true if there exists a T-character $(a,\_,a)$ in $tree$.
+
+%\item[-] $notAdded(tree,a)$ returns true, if there is no T-character $(\_,\_,a)$ in $tree$. Or we can say, if $a$ has not been added in $tree$.
+
+\item[-] $getTchar(tree,a)$ returns the T-character whose value is $a$ in $tree$.
+
+\item[-] $removeTChar(tree,tid)$ will find the T-character with T-identifier $tid$ in $tree$, and then set the value of this T-character into $nil$.
+
+\item[-] $values(tree)$ returns a sequence, which is obtained by walking the tree according to $<_t$ orders and consider only values of T-characters whose value are not $nil$.
+\end{itemize}
+
+
+
+
+
+\begin{figure}[!h]% {1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Pseudo-code of Tree-Doc algorithm},
+captionpos=b,label={lst:Tree-Doc algorithm}]
+  payload Set @|$tree$|@
+  initial @|$tree$|@ = @|$\emptyset$|@
+  initial lin = @|$\epsilon$|@
+
+  addBetween(a,b,c) :
+    atSource :
+      precondition :  @|$contains(tree,a) \wedge contains(tree,c)$|@, @|$tid_a <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c in @|$tree$|@, respectively.
+      let @|$tid$|@ be a T-identifier of a T-character in @|$tree$|@, such that, @|$tid_a <_t tid \leq_t tid_c$|@, @|$ \neg \exists (\_,tid',\_) \in tree, tid_a <_t tid' <_t tid$|@ 
+      let id = getTimestamp()
+      let @|$w_b$|@ = @|$(b,newID(tid_a,tid,id),b)$|@
+      //@ lin = lin@|$\,\cdot\,$|@addBetween(a,b,c)
+    downStream(@|$w_b$|@) :
+      @|$tree$|@ = @|$tree \cup \{ w_b \}$|@
+
+  remove(a) :
+    atSource :
+      precondition : @|$contains(tree,a)$|@
+      assume @|$getTchar(tree,a) = (a,tid,a)$|@
+      //@ lin = lin@|$\,\cdot\,$|@remove(a)
+    downStream(tid) :
+      @|$removeTChar(tree,tid)$|@
+
+  read() :
+    let s = @|$values(string_s)$|@
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
+    return s
+
+  newID(@|$tid_1,tid_2,id$|@)
+      precondition : @|$tid_1 <_t tid_2$|@, and @|$\neg \exists (\_,tid,\_) \in tree, tid_1 <_t tid <_t tid_2$|@
+    if @|$tid_2$|@ is a descendant of @|$tid_1$|@
+      assume @|$tid_2 = l_2 \cdot (p,id_2)$|@
+      return @|$l_2 \cdot p \cdot (0,id)$|@
+    else if @|$tid_1$|@ is a descendant of @|$tid_2$|@
+      assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
+      return @|$l_1 \cdot p \cdot (1,id)$|@
+    else if @|$tid_1 = l\cdot (p,id_1)$|@, @|$tid_2 = l\cdot (p,id_2)$|@, and @|$id_1 < id_2$|@
+      return @|$l \cdot (p,id_1) \cdot (1,id)$|@
+    else
+      assume @|$tid_1 = l_1 \cdot (p,id_1)$|@
+      return @|$l_1 \cdot p \cdot (1,id)$|@
+\end{lstlisting}
+\end{figure}
+% \end{minipage}
+
+$\\$ $\\$
+
+The payload of each replica is a set $tree$ of T-characters. Later we will prove that each replica state $tree$ of replicas during the execution is a T-tree. 
+
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure $tree$ contains T-characters of $a$ and $c$, $tid_a <_t tid_c$, where $tid_a$ and $tid_c$ are the T-identifiers of T-characters with value a and c in $tree$, respectively. Then, we find a T-identifier $tid$ of some T-character of $tree$, such that $tid_a <_t tid \leq_t tid_c$, and $tid_a$ and $tid$ are adjacent w.r.t $<_t$. Then, we calls method $newID(tid_a,tid,id)$ to generate a new T-identifier that is with disambiguator $id$ and its T-identifier is between $tid_a$ and $tid$ w.r.t $<_t$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$. 
+
+$newID(tid_1,tid_2,id)$ require that $tid_1$ and $tid_2$ are adjacent w.r.t $<_t$, and it will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
+
+To do $\alabelshort[{\tt remove}]{a}$, we first find the T-identifier $tid$ of T-character with value $a$ in $tree$, and then set the value of T-character with T-identifier $tid$ to be $nil$. To do ${\tt read}$, we return $values(tree)$.
 
 
 
 
 \subsection{Proof of Tree-Doc}
-\label{subsec:proof of tree-doc} 
+\label{subsec:proof of tree-doc}
+
+As shown in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, given a T-tree $tree$, we can draw a tree called major-node-tree of $tree$ as follows: This tree contains tuples $(N,parent)$, such that
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $N$ represents set of nodes. Each element in $Node$ is a list $w_1 \cdot \ldots \cdot w_n$ of a major node $\{ w_1,\ldots,w_n \}$ of $tree$, while $w_1,\ldots,w_n$ are ordered by their disambiguators.
+
+\item[-] $parent \in N \times N$ represents the parent relation. $(node_1,node_2) \in parent$, if the T-identifiers of T-characters of $node_1$ is of the form $c_1 \cdot \ldots \cdot c_n \cdot (p,\_)$, one of the following cases holds:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] The T-identifiers of T-characters of $node_2$ is of the form $c_1 \cdot \ldots \cdot c_n \cdot p \cdot (p',\_)$. If $p'=0$, we say that $node_2$ is a ``left son'' of $node_1$; else, if $p'=1$, we say that $node_2$ is a ``right son'' of $node_1$.
+
+    \item[-] The T-identifiers of T-characters of $node_2$ is of the form $c_1 \cdot \ldots \cdot c_n \cdot (p,id_p) \cdot (p',\_)$, while $c_1 \cdot \ldots \cdot c_n \cdot (p,id_p)$ is a T-identifier of T-characters $w_1$ of $node_1$. We say that $node2$ is a ``right son'' of $w_1$.
+
+    \item[-] There exists $node_0 \in N$, such that the T-identifier of T-characters of $node_0$ is $\epsilon$.
+    \end{itemize}
+\end{itemize}
+
+According to the definition of T-tree, in the major-node-tree $(N,parent)$ of $tree$, it is easy to see that, 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] For each $node_2 \in N$, if the T-identifier of T-characters of $node_2$ is not $\epsilon$, then, there exists only one $node_1 \in N$, such that $(node_1,node_2) \in parent$. Or we can say, for each node, if it is not the root, then it has only one parent.
+
+\item[-] Given $node_2 \in N$, if the T-identifier of T-characters of $node_2$ is $\epsilon$, then, there does not exist $node_1 \in N$, such that $(node_1,node_2) \in parent$. Or we can say, the root node has no parent. 
+
+\item[-] The relation $parent$ is acyclic. 
+\end{itemize} 
+
+The following lemma state that, the order $<_t$ of a T-tree is a total and acyclic order.
+
+\begin{lemma}
+\label{lemma:the <t order is a total and acyclic order}
+Given a T-tree $tree$ and the T-identifier order $<_t$ of $tree$, then, $<_t$ is a total and acyclic order.
+\end{lemma}
+
+\begin {proof}
+Let us prove that $<_t$ is a total order. Given T-identifiers $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$ and $tid_2 = 'c_1 \cdot \ldots \cdot c'_m \cdot (p',id')$.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $tid_1$ is a descendant of $tid_2$, then we have $tid_1 <_t tid_2 \vee tid_2 <_t tid_1$. Similarly, if $tid_2$ is a descendant of $tid_1$, then we have $tid_1 <_t tid_2 \vee tid_2 <_t tid_1$.
+
+\item[-] If $tid_1$ is not a descendant of $tid_1$ and $tid_1$ is not a descendant of $tid_2$. We can see that there exists $c''_1,\ldots,c''_k$, such that $tid_1 = c''_1 \cdot \ldots \cdot c''_k \cdot x_1 \cdot x_2 \cdot l_1$, $tid_2 = c''_1 \cdot \ldots \cdot c''_k \cdot y_1 \cdot y_2 \cdot l_2$, and $x_1 \neq y_1$. Then,
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $x_1 \in \{ 0, (0,\_) \}$ and $y_1 \in \{ 1, (1,\_) \}$, then $tid_1 <_t tid_2$.
+
+    \item[-] Else, if $x_1=p_u$ and $y_1 = (p_u,id_u)$ for some $p_u \in \{ 0,1 \}$. Since $tid_1$ is not a descendant of $tid_1$ and $tid_1$ is not a descendant of $tid_2$, we can see that $x_2 \neq \epsilon \wedge y_2 \neq \epsilon$. Then,
+
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] If $x_2 \in \{ 0, (0,\_) \}$, we have $tid_1 <_t tid_2$,
+        \item[-] Else, if $x_2 \in \{ 1, (1,\_) \}$, we have $tid_2 <_t tid_1$.
+        \end{itemize}
+
+    \item[-] Else, $x_1 = (p_u,id_u)$, $y_1 = (p_u,id'_u)$, $p \in \{0,1 \}$ and $id_u \neq id'_u$. Then,
+
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] If $id_u < id'_u$, we have $tid_1 <_t tid_2$,
+        \item[-] Else, if $id'_u < id_u$, we have $tid_2 <_t tid_1$.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+Therefore, $<_t$ is a total order.
+
+Let us prove that $<_t$ is acyclic. Given the major-node-tree $(M,parent)$ of $tree$ and an element $node \in N$, assume $node = w_1 \cdot \ldots \cdot w_n$. Assume for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, it is easy to see that,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $w^l <_t w^r$, where $w^l$ is a W-character belongs to a node that is (a descendant of) the ``left son'' of $node$, and $w^r$ is a W-character belongs to a node that is (a descendant of) the ``right son'' of $node$.
+
+\item[-] $w^l <_t w^i$, where $w^l$ is a W-character belongs to a node that is (a descendant of) the ``left son'' of $node$, and $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$.
+
+\item[-] Given $i<j$, we have $w^i <_t w^j$, where $w^i$ (resp., $w^j$) is either $w_i$ (resp., $w_j$), or a W-character belongs to a node that is a ``descendent'' of $w_i$ (a ``descendent'' of $w_j$).
+
+\item[-] $w^i <_t w^r$, where $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$, and $w^r$ is a W-character belongs to a node that is (a descendant of) the ``right son'' of $node$.
+\end{itemize}
+
+Therefore, we can see that $<_t$ is a order for traverse the W-characters of the major-node-tree. For each node $node = w_1 \cdot \ldots \cdot w_n \in N$, we first traverse W-characters in its ``left son'' of $node$ and its descendant; then, for each $i$, we traverse $w_i$ and W-characters in nodes of its descendant; finally, we traverse W-characters in its ``right son'' of $node$ and its descendant. This process never goes back. Therefore, it is easy to see that $<_t$ is acyclic. This completes the proof of this lemma. $\qed$
+\end {proof}
 
 
+The following lemma state that, if we add a T-character (an effector) into a T-tree, then, we obtain another T-tree. 
+
+\begin{lemma}
+\label{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}
+Given an effector $w_b = (b,tid_b,b)$ of an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume $\alabel$ calls $\alabelshort[{\tt newID}]{tid_a,tid_c,id}$ to generate effector $w_b$. Given a T-tree $tree$, assume that $(\_,tid_a,a),(\_,tid_c,c) \in tree$, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$. Then, $tree \cup \{ w_b \}$ is a T-tree.
+\end{lemma}
+
+\begin {proof}
+Assume that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c'_1 \cdot \ldots \cdot c'_m \cdot (p_c,id_c)$. Then, according to the method {\tt newID}, we can see that $tid_b \in \{ c'_1 \cdot \ldots \cdot c'_m \cdot p_c \cdot (0,id), c_1 \cdot \ldots \cdot c_n \cdot p_a \cdot (1,id), c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id) \}$. When $tid_b = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id)$, according to method {\tt neweID}, we can see that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c_1 \cdot \ldots \cdot c_n \cdot (p_c,id_c)$, and $id_a < id_c$. Since $tree$ is already a T-tree, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$, then, for each possible value of $tid_b$, it is easy to see that $tree \cup \{ w_b \}$ is a T-tree. $\qed$
+\end {proof}
+
+The following lemma state that, when we do $\alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $(b,tid_b,b)$, then $tid_b$ is between T-identifiers of T-characters of $a$ and $c$. 
+
+\begin{lemma}
+\label{lemma:when we do addBetween(a,b,c) and generate an effector (b,tid_b,b), then tid_b is between T-identifiers of T-characters of a and c} 
+Assume the current replica state is a T-tree $tree$, we do an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $w_b = (b,tid_b,b)$, and this process calls $\alabelshort[{\tt newID}]{tid_a,tid,id}$. Let $<_t$ be the T-identifier order of the T-tree $tree \cup \{ w_b \}$. Then, we have that, $tid_a <_t tid_b <_t tid$. 
+\end{lemma}
+
+\begin {proof}
+Since we assume each value is put only once, and $\alabelshort[{\tt getTimestamp}]{}$ always return a unique disambiguator, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $tree \cup \{ w_b \}$ is a T-tree. 
+
+By the tree-doc algorithm, it is obvious that $(a,tid_a,a),(c,\_,c) \in tree$, $tid$ is a T-identifier of a T-character in $tree$, $tid_a <_t tid \leq_t tid_c$, $ \neg \exists (\_,tid',\_) \in tree$, such that $tid_a <_t tid' <_t tid$.
+
+Let us consider all possible cases of $tid_a$ and $tid$, and shows that $tid_a <_t tid'' <_t tid$, where $tid''$ is the return value of $\alabelshort[{\tt newID}]{tid_a,tid,id}$. 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $tid$ is a descendant of $tid_a$: Then, $tid$ is either a ``right son'' of $tid_a$, or a descendant of a ``right son'' of $tid_a$. We can see that $tid_2$ does not have ``left son''. 
+    
+    Assume that $tid = l_2 \cdot (p_2,id_2)$, then, $tid'' = l_2 \cdot p_2 \cdot (0,id)$. We can see that $tid''$ is a descendant of a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $tid''$ is a ``left son'' of $tid$, we can see that $tid'' <_t tid$.
+
+\item[-] If $tid_a$ is a descendant of $tid$: Then, $tid_a$ is either a ``left son'' of $tid$, or a descendant of a ``left son'' of $tid$. We can see that $tid_a$ does not have ``right son''. 
+    
+    Assume that $tid_a = l_1 \cdot (p_1,id_1)$, then, $tid'' = l_1 \cdot p_1 \cdot (1,id)$. We can see that $tid''$ is a descendant of a ``left son'' of $tid$, and thus, $tid'' <_t tid$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. 
+
+\item[-] Otherwise, there are two possibilities: 
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $tid_a = l \cdot (p,id_1)$, $tid = l \cdot (p,id_2)$, and $id_1 < id_2$: We can see that $tid_a$ does not have ``right son''. 
+    
+    $tid'' = l \cdot (p,id_1) \cdot (1,id)$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. Since $id_1 < id_2$, we can see that $tid'' <_t tid$.
+    
+    \item[-] There exists $tid_0$, such that $tid_0 = l \cdot (p,id_0)$, $tid = l \cdot (p,id_2)$, $id_0 < id_2$, and $tid_a$ is a descendant of $tid_0$: We can see that $tid_a$ does not have ``right son''. 
+    
+    Assume that $tid_a = l_1 \cdot (p_1,id_1)$, then, $tid'' = l_1 \cdot p_1 \cdot (1,id)$. We can see that $tid''$ is a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $id_0 < id_2$, we can see that $tid'' <_t tid$. 
+    \end{itemize}
+
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
 
 
+Then, let us prove that tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+
+\begin{lemma}
+\label{lemma:tree-doc is correct}
+Tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+\end{lemma}
+
+\begin {proof}
+By the causal delivery assumption and Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that each replica state is a T-tree. 
 
 
+A refinement mapping $\refmap$ is given as follows:
 
+Given a replica state $\sigma$ that is a T-tree. Assume that $\sigma = \{ w_1,\ldots,w_n\}$, and for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, the refinement mapping $\refmap(\sigma) = (l,T)$, where $l$ is obtained by walking $\sigma$ and read ghost value of each T-characters according to $<_t$, and $T = \{ gv_i \vert v_i = nil \}$.
 
+Our proof proceeds as follows:
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effector of {\tt addBetween} only do set union, and the effector of {\tt remove} only set the value into $nil$,  
+    
+    We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
+    Note that, by the causal delivery assumption and the preconditions of ${\tt addBetween}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ to the list, i.e., $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$; or that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains W-character of $a$ or $c$ while the effector requires to put $b$ between $a$ and $c$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a\_}$ or $\alabelshort[{\tt addBetween}]{\_,c\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain W-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$).
 
+\item[-] Let us prove $\mathsf{Refinement}$:
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt addBetween}]{a,b,c}$. By the {\textred{causal delivery}} assumption, we can see that the W-character of $a$ and $c$ is already in $\sigma$, and then, $a,c \in l$. It is obvious that the W-character of $a$ is before the W-character of $c$ in $\sigma$, and then, $a$ is before $c$ in $l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by inserting a W-character $(\_,b,\_,\mathit{true})$ of $b$ at some position between the W-character of $a$ and the W-character of $c$. Let $\refmap(\sigma') = (l',T')$. It is obvious that $T=T'$, and $l'$ is obtained from $l$ by adding $b$ at some position between $a$ and $c$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$.
 
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt remove}]{a}$. By the {\textred{causal delivery}} assumption, we can see that a W-character $w_a$ of $a$ is already in $\sigma$, and then, $a \in l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by setting the flag of $w_a$ into $\mathit{false}$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $l=l'$, and $T' = T \cup \{ a \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt remove}]{a}} \refmap(\sigma')$.
 
+    \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on replica state $\sigma$. Assume $\sigma = w_1 \cdot \ldots \cdot w_n$, and for each $i$, $w_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
+    \end{itemize}
 
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\end{itemize}
 
+This completes the proof of this lemma. $\qed$
+\end {proof} 
 
 
 
