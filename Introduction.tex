@@ -127,7 +127,7 @@ comparing the replica identifiers and their timestamps.
 %
 In fact, this is a sound over-approximation of conflict since two
 concurrent \lstinline|addAfter| operations have a real conflict only
-if their first arguments are the same (eg. the element \lstinline|a|
+if their first arguments are the same (eg. the element \lstinline|b|
 in the example aforementioned).
 %
 In such case, the strategy to resolve the conflict will always chose
@@ -182,7 +182,7 @@ Unfortunately this is not an easy task.
 Many times the programmer has no option but to read the implementation
 of the data type to understand how the metadata is used to 
 resolve conflicts, for instance by reading the algorithms
-in~\cite{ShapiroPBZ11} (an exceptional case where the algorithms are
+by~\citet{ShapiroPBZ11} (an exceptional case where the algorithms are
 particularly well documented).
 %
 Recently Burckhardt et al.~\cite{BurckhardtGYZ14, Burckhardt14} have
@@ -217,26 +217,26 @@ type
   are executed sequentially--, and
 \item any operation reading the state of the data type instance should
   be justified by executing a \emph{sub-sequence} of the above
-  mentioned sequence.
+  mentioned sequence of updates.
 \end{inparaenum}
-For instance, for the RGA example shown above, the state of the final
+For instance, for the RGA example, the state of the final
 list (when all updates are delivered) should be reachable by considering a sequence where all
-\lstinline|addAfter| operations are executed sequentially.\footnote{We
+\lstinline|addAfter| and  operations are executed sequentially.\footnote{We
   will come back to RGA to add \lstinline|remove|
   in Section~\ref{sec:overview}.}
 %
-This definition shares some similarities with the one proposed
-in~\cite{PerrinMJ14}. We will address the main differences
-in Section~\ref{sec:rel-work}.
+This definition shares some similarities with~\citet{PerrinMJ14}. 
+%
+We address the main differences in Section~\ref{sec:rel-work}.
 
-Equipped with this criterion we show how many existing CRDTs can be
-shown to be \crdtlinearizable{}.
+Equipped with this criterion we show that multiple existing CRDTs are
+\crdtlinearizable{}.
 %
-We provide both, their specification as \CRDTLinshort{}, and proofs
-showing that an implementation is faithful to this specification.
+We provide both, their \CRDTLinshort{} specification, and proofs
+showing that implementations respect the specification.
 %
-Encouragingly, most of the the CRDTs discussed by~\citet{ShapiroPBZ11}
-are \crdtlinearizable{}.
+Encouragingly, this is true for most of the CRDTs
+by~\citet{ShapiroPBZ11}.
 
 Given that our criterion is inspired by
 linearizability, it is natural to ask whether it

@@ -49,30 +49,29 @@ interesting CRDT implementations extracted from~\cite{AttiyaBGMYZ16,ShapiroPBZ11
 
 We assume that the system is comprised of multiple nodes in a network.
 In this work we will be concerned with the implementation of CRDTs,
-and we will usually concentrate our discussion to the behaviors
-allowed for \emph{an instance} of the data type.
-We will generically call such an instance an \emph{object}.
-As mentioned in Section~\ref{sec:introduction} we assume that objects are
-replicated among the participating nodes of the system -- called replicas.
+and we will concentrate our discussion to the behaviors
+allowed for \emph{an instance} of the data type, generically called an
+\emph{object}.
+We assume that objects are replicated among the nodes of the system,
+called replicas.
 
 % \gpwarning{Redraw pictures.}
 % on a replicated object
 The execution model for an operation \lstinline|op(v)| is depicted in Figure~\ref{fig:sys-mod} and it proceeds as follows:
 \begin{itemize}
-\item A client, i.e., a program issuing calls to the object, connects
+\item A client, i.e. a program issuing calls to the object, connects
   to any one replica %(a node of the system holding a copy of the object)
   and performs the operation in that replica. We call such a
   replica the source or \emph{origin}. The source of \lstinline|op(v)|
   in Figure~\ref{fig:sys-mod} is the replica $\arep_1$ on the top.
   Then, executing an operation is done in two phases.
 \item Assuming that the operation requires reading and updating the
-  state of the object, the state of the object in the origin replica is
-  read first.
+  state of the object, the state of the object is read only in the origin replica.
   We shall sometimes refer to this part of the operation as the
   \emph{generator} following~\cite{ShapiroPBZ11}.
   Then, if the state needs to be changed as part of the operation --
-  e.g. an \lstinline|addAfter| operation of RGA -- an update is
-  generated which shall be executed in all the replicas holding copies of the
+  e.g. \lstinline|addAfter|for RGA -- an update is
+  generated which shall be executed in all the replicas for the
   object.
   We shall refer to the update as the \emph{effector}.
   We assume throughout this paper that effectors are executed
@@ -80,9 +79,8 @@ The execution model for an operation \lstinline|op(v)| is depicted in Figure~\re
   This is represented by the dot at the origin replica
   in Figure~\ref{fig:sys-mod}.
 \item Finally, as the system progresses, the effector of the operation
-  will be delivered to each of the replicas holding a copy of the
-  object, and the state of each of the replicas will be updated
-  consequently.
+  will be delivered to each of the replicas, and their state will be
+  updated consequently.
   This is represented by the target of the arrows
   in Figure~\ref{fig:sys-mod}.
 \end{itemize}
@@ -96,21 +94,19 @@ We write the code of CRDT implementations using the syntax introduced in \citet{
 %Following the description above, \citet{ShapiroPBZ11} present the code
 %of a number of CRDT implementations.
 %
-For instance, Listing~\ref{lst:rga} shows the code of the RGA algorithm, 
+For instance, Listing~\ref{lst:rga} shows the code of RGA, 
 where the lines starting with \lstinline|//@| should be ignored for the moment 
 (this is a version of the RGA algorithm introduced in~\cite{AttiyaBGMYZ16}
 which we believe is simpler to understand).
 %
 Let us first consider the structure of the data type implementation:
 \begin{itemize}
-\item The keyword \lstinline|payload| introduces the state that is
+\item The keyword \lstinline|payload| declares the state that is
   used to represent the object. This is akin to the fields of a class
-  in an object oriented language such as Java. In the
-  case of RGA we have a variable \lstinline|N| of type
-  \lstinline|Ti-Tree| (to be discussed later), and a variable
-  \lstinline|Tomb| of type \lstinline|Set|.
-\item After that we find the definitions of the three operations we
-  discussed in the introduction: \lstinline|addAfter|,
+  in an object-oriented language such as Java. For RGA we have a
+  variable \lstinline|N| of type \lstinline|Ti-Tree| (to be discussed
+  later), and a variable \lstinline|Tomb| of type \lstinline|Set|.
+\item After that we find the definitions of the operations: \lstinline|addAfter|,
   \lstinline|remove| and \lstinline|read|.
 \item The effectful operations \lstinline|addAfter| and
   \lstinline|remove| have two labels marked in red:
@@ -125,13 +121,12 @@ Let us first consider the structure of the data type implementation:
   assumed about the state of the object upon execution of either of
   the generator or effector of the operation.
 \end{itemize}
-Reconsidering Figure~\ref{fig:sys-mod} the
-source of the arrows in a replica represents the execution of an
-\lstinline|atSource| jointly with the \lstinline|downStream| of the
-operation at the origin replica.
-%
-The target of the arrows represents the delivery and execution of the
-effector of the operation in a replica other than the origin.
+Reconsidering \figureautorefname~\ref{fig:sys-mod} the
+source of the arrows represents the execution of an
+\lstinline|atSource| jointly with the \lstinline|downStream| at
+replica $\arep_1$, and the target of the arrows represents the
+delivery and execution of the effector at replicas $\arep_2$ and
+$\arep_3$.
 
 
 In the rest of this section we consider two examples of CRDT
@@ -158,9 +153,9 @@ character \lstinline|b|), and a timestamp associated to it
 %
 We will encode the tree as a set containing triples (corresponding to
 nodes) of the form \mbox{(\lstinline|a|, \lstinline|ts|$_{\mathtt{b}}$, \lstinline|b|)}
-representing the fact that there is an element \lstinline|b| in the
+representing an element \lstinline|b| in the
 tree with timestamp \lstinline|ts|$_{\mathtt{b}}$ and whose parent is
-the item \lstinline|a| also present in the tree.
+item \lstinline|a| also present in the tree.
 %
 The tree-ness property is ensured by construction.
 
@@ -171,25 +166,24 @@ The tree-ness property is ensured by construction.
 %   \caption{RGA Ti-tree example.}
 %   \label{fig:rga-tree}
 % \end{wrapfigure}
-If we look at the \lstinline|atSource| portion of the
-\lstinline|addAfter(a,b)| method we can see that the precondition requires
-the element \lstinline|a| to exist in the tree before the insertion of
-\lstinline|b| after it.
+The \lstinline|atSource| portion of \lstinline|addAfter(a,b)| has
+a precondition requiring \lstinline|a| to exist in the tree before the
+insertion of \lstinline|b| after it.
 %
 We remark at this point that the data structure is initialized with a
-preexisting initial element denoted by $\circ$.
+preexisting initial element denoted $\circ$.
 %
 The generator then samples a timestamp \lstinline|t|$_{\mathtt{b}}$
 for \lstinline|b| which is assumed to be larger than any
 timestamp presently occurring in the \lstinline|Ti-Tree|
-\lstinline|N| of the origin replica~\footnote{Also, \lstinline|t|$_{\mathtt{b}}$ cannot 
+\lstinline|N| of the origin replica.\footnote{Also, \lstinline|t|$_{\mathtt{b}}$ cannot 
 be sampled by another replica invoking \lstinline|addAfter| (as we discussed
-in Section~\ref{sec:introduction} this can be ensured by tagging the timestamps with replica identifiers).}.
+in Section~\ref{sec:introduction} this can be ensured by tagging the timestamps with replica identifiers).}
 %
-Looking at the \lstinline|downStream| portion of
-\lstinline|addAfter(a,b)| we see that the effect of the operation is
-to add the triple \lstinline|(a,ts|$_{\mathtt{b}}$\lstinline|,b)|
-in the replica's own copy of \lstinline|N|.
+The \lstinline|downStream| portion of \lstinline|addAfter(a,b)|
+encodes the effect of the operation: adding the triple
+\lstinline|(a,ts|$_{\mathtt{b}}$\lstinline|,b)| in the replica's own
+copy of \lstinline|N|.
 %
 This ensures that the tree structure is consistent with the causality
 of insertions in the data structure.
@@ -236,19 +230,19 @@ Let us consider the case of two concurrent operations:
 two different replicas starting both with the state depicted on the
 left of Figure~\ref{fig:rga-trace}.
 %
-following the code in Listing~\ref{lst:rga} we obtain the trees in the
+Following the code in Listing~\ref{lst:rga} we obtain the trees in the
 second column of Figure~\ref{fig:rga-trace} where we assume that the
 top tree is the result of \lstinline|addAfter(c,d)| in one of the
 replicas, and the bottom tree is the result of executing
-\lstinline|addAfter(c,e)| in the other replica.
+\lstinline|addAfter(c,e)| in the other.
 %
-As it can be seen, the two trees result in different lists in each
+Then, the two trees result in different lists in each
 replica before the operations are mutually propagated.
 %
 In the third column of Figure~\ref{fig:rga-trace} we obtain the
 result of propagating the operations between the replicas -- indeed
 the propagation of any of the operations to any of the replicas
-engenders this tree, since the result would be the same (c.f. the
+renders this tree, since the result would be the same (c.f. the
 commutativity of CRDT).
 %
 It is clear now that the result of the list is $\mathtt{a \cdot b
@@ -263,37 +257,37 @@ We have so far ignored the \lstinline|remove| operation.
 %
 Consider the case where a client issues an \lstinline|addAfter(a, b)|
 on a replica while another client issues a \lstinline|remove(a)|
-operation in another replica.
+operation in a second replica.
 %
 If the effector of \lstinline|remove(a)| reaches every replica after
-the effector of \lstinline|addAfter(a, b)| there is no problem since
-the semantics is obvious, the element \lstinline|a| is removed after
+the effector of \lstinline|addAfter(a,b)| there is no problem since
+the semantics is clear: the element \lstinline|a| is removed after
 the element \lstinline|b| has been added.
 %
 However, if the operations reach some replica in the opposite order
-(recall that these are concurrent operations) we have a problem since
-the precondition of the effector of \lstinline|addAfter(a, b)|
+(recall that these are concurrent operations) there is a problem since
+the precondition of the effector of \lstinline|addAfter(a,b)|
 requires that the element \lstinline|a| be present in the
 \lstinline|Ti-tree| of the replica.
-
+%
 To avoid this kind of conflict, thus rendering these operations
 commutative (c.f. CRDT), RGA does not really erase elements from the
 \lstinline|Ti-tree|.
 %
-Instead, an additional data structure called a tombstone is used to
+Instead, an additional data structure called a \emph{tombstone} is used to
 keep track of elements that have been conceptually erased and should
-not be considered when reading the data structure via \lstinline|read|.
+not be considered when reading the list via \lstinline|read|.
 %
 In our case the tombstone is simply a set \lstinline|Tomb| of
 elements.
 %
-With this explanation the code of the \lstinline|remove| operation
-in Listing~\ref{lst:rga} should be self-explanatory.
+This, the code of the \lstinline|remove| operation
+in Listing~\ref{lst:rga} is self-explanatory.
 %
 The last column of Figure~\ref{fig:rga-trace} shows the result of
 removing item $\mathtt{d}$ from the list.
 
-Then, the implementation of \lstinline|read| performs the pre-order
+The implementation of \lstinline|read| performs the pre-order
 traversal as explained before, where all the elements in the tombstone
 \lstinline|Tomb| are ignored from the output list.
 %
@@ -315,7 +309,7 @@ depicted.
 \noindent
 {\bf Operations, histories and linearizability.}
 Let us now consider a more abstract view of executions of a 
-CRDT object called \emph{history}.
+CRDT object called a \emph{history}.
 %
 Informally a history is a set of operations with a partial order
 representing the ordering constraints imposed on the execution of each
@@ -323,15 +317,15 @@ of the operations.
 %
 We will represent the execution of an operation with a label of the
 form $\alabellong{\argv}{\retv}$ representing a call to method
-$\amethod$ with arguments $\argv$ and whose return value is $\retv$.
+$\amethod$ with arguments $\argv$ and returning the value $\retv$.
 %
 When the values are unimportant we shall use the meta-variable
-$\alabel$ to denote a label~\footnote{We can assume here that each of these labels is uniquely identified.}.
+$\alabel$ to denote a label.\footnote{We can assume here that each of these labels is uniquely identified.}
 %
 The partial order mentioned above represents the \emph{visibility} relation among operations, where we say that an
-operation with label $\alabel_1$ is visible to another operation with
-label $\alabel_2$ if at the time when $\alabel_2$ was first executed
-at the origin replica, the effects of $\alabel_1$ where incorporated
+operation with label $\alabel_1$ is visible to an operation with
+label $\alabel_2$ if at the time when $\alabel_2$ was executed
+at the origin replica, the effects of $\alabel_1$ had been applied
 in the state of the replica executing $\alabel_2$.
 %
 Then, a history is a pair $(\alabelset, \prec)$ containing a
@@ -346,11 +340,12 @@ is presented in Figure~\ref{fig:rga-history}.
 %explained in~\autoref{fig:rga-trace}. 
 %
 Each node of the history represents a label in the set $\alabelset$
-and the arrows represent that the operation corresponding to the
-source is visible to the operation at the target.
+and arrows represent that the operation at the source of the arrow
+is visible to the operation at the target.
 %
 Since we assume that the visibility is transitive we ignore
-redundant arrows derivable from transitivity.
+redundant arrows.
+ % derivable from transitivity.
 
 A similar notion of history is used in the context of \emph{linearizability}~\cite{HerlihyW90}, 
 the de-facto correctness condition of concurrent data structures.
@@ -416,7 +411,7 @@ In the specific case of CRDTs, we need to accommodate for the fact
 that operations are propagated lazily, so two replicas can see
 non-coinciding sets of operations.
 %
-Hence we relax linearizability to adapt it to CRDTs as follows:
+We relax linearizability to adapt it to CRDTs as follows:
 \begin{inparaenum}
 \item we require that the sequential history be consistent with
 the visibility relation among operations instead of the returns-before order, and
@@ -533,8 +528,8 @@ Hence, we can now consider the linearization
 \]
 where the last call to $\mathtt{read}$ ignores the label
 {\color{red} $\mathtt{addAfter}(a, c)$} marked in red.
-
-While these are only two of the cases of conflicting concurrent
+%
+These are only two of the cases of conflicting concurrent
 operations, in Section~\ref{sec:proofs} we show that all operations
 can be ordered in such a way that they correspond to a sequential
 execution thereof.
@@ -606,12 +601,13 @@ execution thereof.
 \end{lstlisting}
 \end{figure}
 
-The Observed-Remove Set (OR-Set)~\cite{ShapiroPBZ11} is another CRDT,
-this time implementing a Set interface with methods: \lstinline|add(a)|,
+The Observed-Remove Set (OR-Set)~\cite{ShapiroPBZ11} is a CRDT
+implementing a Set interface with operations: \lstinline|add(a)|,
 \lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
   we could provide an interface with the method \lstinline|lookup(a)|
   returning a boolean with the same consequences as the
-  \lstinline|read()|. This choice is of no consequence to our results.}
+  \lstinline|read()|.
+  This choice is of no consequence to our results.}
 %
 
 The meaning of these methods is self-evident from their names.
@@ -661,8 +657,8 @@ Therefore the item will not be removed, even if the
 effectors of the two adds are performed in a replica before the effector
 of the remove.
 %
-The code of OR-Set is shown in Listing~\ref{lst:or-set} where for the time
-being we ignore the lines marked with \lstinline|//@| annotations.
+The code of OR-Set is shown in Listing~\ref{lst:or-set} (ignoring
+\lstinline|//@| annotations). 
 
 % \fxwarning[nomargin, inline]{If queries are discussed already for RGA,
 %   here we should focus more on the rewriting of labels}
