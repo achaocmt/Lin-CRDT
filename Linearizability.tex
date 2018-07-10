@@ -441,7 +441,7 @@ described before.
   \label{definition:sequential specification of counter} In this case
   the state domain is $\abstates = \mathbb{Z}$, that is the state will
   be an integer, and the transitions are given as follows:
-\[
+\[\small
   k \specarrow{\alabellong[\mathsf{inc}]{}{}} k+1\qquad\qquad
   k \specarrow{\alabellong[\mathsf{dec}]{}{}} k-1\qquad\qquad
   k \specarrow{\alabellong[\mathsf{read}]{}{k}} k
@@ -459,7 +459,7 @@ described before.
   \emph{tombstone}.
   The sequential specification $\specRGA$ of list with add-after interface is
   given with the transitions as follows:
-  \[
+  \[\small
     \begin{array}{rcl}
       \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
       & \specarrow{\alabelshort[\mathtt{addAfter}]{a_k,a}}
@@ -505,7 +505,7 @@ and a new query operation $\alabelshort[{\tt readIds}]{a}$ that returns a set of
 The abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$
 is a data and $id$ is a identifier. The sequential specification
 $\specOrSet$ of OR-Set is given by the transitions:
-\[
+\[\small
   \begin{array}{rcl}
     \abstate
     & \specarrow{\alabellong[\mathtt{readIds}]{a}{S}{}}

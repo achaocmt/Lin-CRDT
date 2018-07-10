@@ -37,7 +37,7 @@ to~\cite{RohJKL11}.\footnote{We use a variation of code extracted
 %
 RGA supports three simple operations:
 \begin{inparaenum}
-\item \lstinline|addAfter(a, b)| which adds the character
+\item \lstinline|addAfter(a,b)| which adds the character
   \lstinline|b| -- the concrete type is inconsequential here --
   immediately after the occurrence of the character \lstinline|a|
   assumed to already be present in the list,\footnote{To simplify the
@@ -76,8 +76,8 @@ sequence $\mathtt{a \cdot b \cdot e \cdot f}$~\footnote{We will use
   $s_1$ throughout the paper.}
 and two replicas, $\arep_1$ and $\arep_2$, if $\arep_1$ inserts the
 letter \lstinline|c| after \lstinline|b| (by calling
-\lstinline|addAfter(b, c)|), while $\arep_2$ concurrently inserts the
-letter \lstinline|d| after \lstinline|b| (\lstinline|addAfter(b, d)|)
+\lstinline|addAfter(b,c)|), while $\arep_2$ concurrently inserts the
+letter \lstinline|d| after \lstinline|b| (\lstinline|addAfter(b,d)|)
 the replicas will have the states $\mathtt{a \cdot b \cdot c \cdot e
   \cdot f}$ and $\mathtt{a \cdot b \cdot d \cdot e \cdot f}$
 respectively.
@@ -254,7 +254,7 @@ The paper is structured as follows:
 %\begin{inparaitem}
 %\item \fxwarning[nomargin, inline]{TODO}
 %\end{inparaitem}
-Section~\ref{sec:overview} gives an overview of our notion of RA-linearizability, Section~\ref{sec:distributed-lin} provides the formalization of the CRDT semantics and RA-linearizability, Section~\ref{sec:proofs} describes a proof methodology for establishing RA-linearizability, and Section~\ref{sec:compositionality} discusses compositionality properties. We discuss the related work in Section~\ref{sec:rel-work} and conclude in Section~\ref{}.
+Section~\ref{sec:overview} gives an overview of our notion of RA-linearizability, Section~\ref{sec:distributed-lin} provides the formalization of the CRDT semantics and RA-linearizability, Section~\ref{sec:proofs} describes a proof methodology for establishing RA-linearizability, and Section~\ref{sec:compositionality} discusses compositionality properties. We discuss the related work in Section~\ref{sec:rel-work} and conclude in Section~\ref{sec:conclusion}.
 
 % Here we introduce the problem of CRDTS:
 % \begin{inparaenum}

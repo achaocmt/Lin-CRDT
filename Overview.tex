@@ -157,7 +157,7 @@ character \lstinline|b|), and a timestamp associated to it
 (\lstinline|t|$_{\mathtt{b}}$) used to resolve conflicts.
 %
 We will encode the tree as a set containing triples (corresponding to
-nodes) of the form (\lstinline|a|, \lstinline|ts|$_{\mathtt{b}}$, \lstinline|b|)
+nodes) of the form \mbox{(\lstinline|a|, \lstinline|ts|$_{\mathtt{b}}$, \lstinline|b|)}
 representing the fact that there is an element \lstinline|b| in the
 tree with timestamp \lstinline|ts|$_{\mathtt{b}}$ and whose parent is
 the item \lstinline|a| also present in the tree.
@@ -188,7 +188,7 @@ in Section~\ref{sec:introduction} this can be ensured by tagging the timestamps 
 %
 Looking at the \lstinline|downStream| portion of
 \lstinline|addAfter(a,b)| we see that the effect of the operation is
-to add the triple \lstinline|(a, ts|$_{\mathtt{b}}$\lstinline|, b)|
+to add the triple \lstinline|(a,ts|$_{\mathtt{b}}$\lstinline|,b)|
 in the replica's own copy of \lstinline|N|.
 %
 This ensures that the tree structure is consistent with the causality
@@ -231,12 +231,12 @@ timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
   \label{fig:rga-trace}
 \end{figure}
 
-Let us now consider the case of two concurrent operations:
+Let us consider the case of two concurrent operations:
 \lstinline|addAfter(c,d)| and \lstinline|addAfter(c,e)| executing in
 two different replicas starting both with the state depicted on the
 left of Figure~\ref{fig:rga-trace}.
 %
-Following the code in Listing~\ref{lst:rga} we obtain the trees in the
+following the code in Listing~\ref{lst:rga} we obtain the trees in the
 second column of Figure~\ref{fig:rga-trace} where we assume that the
 top tree is the result of \lstinline|addAfter(c,d)| in one of the
 replicas, and the bottom tree is the result of executing
