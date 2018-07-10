@@ -1310,7 +1310,7 @@ We say a set $T$ of T-characters is a T-tree, if:
 \setlength{\itemsep}{0.5pt}
 \item[-] There exists a T-character of $T$ with T-identifier $(\epsilon,\_)$.
 
-\item[-] Each value of T-character is unique, and each T-character has a unique disambiguator.
+\item[-] Each ghost value of T-character is unique, and each T-character has a unique disambiguator.
 
 \item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that, for each $1 \leq i \leq n$,
 
@@ -1322,7 +1322,7 @@ We say a set $T$ of T-characters is a T-tree, if:
     \end{itemize}
 \end{itemize}
 
-Given a T-tree, the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if one of the following cases holds
+Given a T-tree, the order $<_t$, called T-identifier order of this T-tree, is defined as follows: $tid_1 <_t tid_2$, if one of the following cases holds
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1345,13 +1345,13 @@ Given a T-tree, the order $<_t$ is defined as follows: $tid_1 <_t tid_2$, if one
 
 The major node's left descendant is before any minor node and its descendant in $<_t$; minor node are ordered by disambiguator in $<_t$; given minor node $n_a,n_b$ of a same major node, such that the disambiguator of $n_a$ is less than that of $n_b$, then $n_a$ and descendant of $n_a$ is before $n_b$ and descendant of $n_b$ in $<_t$; $n_a$ and descendant of $n_a$ is before the major node's right descendant in $<_t$. We say T-identifier $tid_1$ is a descendant of T-identifier $tid_2$, if $tid_2 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, and $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot p \cdot l \vee tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id) \cdot l$.
 
-We define the following function for a T-tree $tree$:
+We define the following function for a set $tree$ of T-charcaters:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] $contains(tree,a)$ returns true if there exists a T-character $(a,\_,a)$ in $tree$.
 
-\item[-] $notAdded(tree,a)$ returns true, if there is no T-character $(\_,\_,a)$ in $tree$. Or we can say, if $a$ has not been added in $tree$.
+%\item[-] $notAdded(tree,a)$ returns true, if there is no T-character $(\_,\_,a)$ in $tree$. Or we can say, if $a$ has not been added in $tree$.
 
 \item[-] $getTchar(tree,a)$ returns the T-character whose value is $a$ in $tree$.
 
@@ -1367,15 +1367,16 @@ We define the following function for a T-tree $tree$:
 \begin{figure}[!h]% {1.0\linewidth}
 \begin{lstlisting}[frame=top,caption={Pseudo-code of Tree-Doc algorithm},
 captionpos=b,label={lst:Tree-Doc algorithm}]
-  payload T-tree @|$tree$|@
+  payload Set @|$tree$|@
   initial @|$tree$|@ = @|$\emptyset$|@
   initial lin = @|$\epsilon$|@
 
   addBetween(a,b,c) :
     atSource :
-      precondition :  @|$contains(tree,a) \wedge contains(tree,c)\wedge notAdded(tree,b)$|@, @|$tid_a <_t tid_c$|@, and @|$ \neg \exists (\_,tid,\_) \in tree, tid_a <_t tid <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c, respectively.
+      precondition :  @|$contains(tree,a) \wedge contains(tree,c)$|@, @|$tid_a <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c in @|$tree$|@, respectively.
+      let @|$tid$|@ be a T-identifier of a T-character in @|$tree$|@, such that, @|$tid_a <_t tid \leq_t tid_c$|@, @|$ \neg \exists (\_,tid',\_) \in tree, tid_a <_t tid' <_t tid$|@ 
       let id = getTimestamp()
-      let @|$w_b$|@ = @|$(b,newID(tid_a,tid_c,id),b)$|@
+      let @|$w_b$|@ = @|$(b,newID(tid_a,tid,id),b)$|@
       //@ lin = lin@|$\,\cdot\,$|@addBetween(a,b,c)
     downStream(@|$w_b$|@) :
       @|$tree$|@ = @|$tree \cup \{ w_b \}$|@
@@ -1412,11 +1413,11 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
 
 $\\$ $\\$
 
-The payload of each replica is a T-tree $tree$.
+The payload of each replica is a set $tree$ of T-characters. Later we will prove that each replica state $tree$ of replicas during the execution is a T-tree. 
 
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure $tree$ contains T-characters of $a$ and $c$, $tid_a$ and $tid_c$ are adjacent in $tree$, and no T-character in $tree$ has value $b$. Then, we calls method $newID(tid_a,tid_c,id)$ to generate a new T-identifier that is with disambiguator $id$ and its T-identifier is between $tid_a$ and $tid_c$ in $<_t$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$. Here $tid_a$ and $tid_c$ are the T-identifiers of T-characters of $a$ and $c$, respectively.
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure $tree$ contains T-characters of $a$ and $c$, $tid_a <_t tid_c$, where $tid_a$ and $tid_c$ are the T-identifiers of T-characters with value a and c in $tree$, respectively. Then, we find a T-identifier $tid$ of some T-character of $tree$, such that $tid_a <_t tid \leq_t tid_c$, and $tid_a$ and $tid$ are adjacent w.r.t $<_t$. Then, we calls method $newID(tid_a,tid,id)$ to generate a new T-identifier that is with disambiguator $id$ and its T-identifier is between $tid_a$ and $tid$ w.r.t $<_t$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$. 
 
-$newID(tid_1,tid_2,id)$ require that $tid_1$ and $tid_2$ are adjacent according to $<_t$ in $tree$, and it will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
+$newID(tid_1,tid_2,id)$ require that $tid_1$ and $tid_2$ are adjacent w.r.t $<_t$, and it will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
 
 To do $\alabelshort[{\tt remove}]{a}$, we first find the T-identifier $tid$ of T-character with value $a$ in $tree$, and then set the value of T-character with T-identifier $tid$ to be $nil$. To do ${\tt read}$, we return $values(tree)$.
 
@@ -1444,21 +1445,22 @@ As shown in \autoref{fig:an execution of tree-doc, the local state of replica r1
     \end{itemize}
 \end{itemize}
 
-According to the definition of T-tree, we can see that in the major-node-tree $(N,parent)$ of $tree$, 
+According to the definition of T-tree, in the major-node-tree $(N,parent)$ of $tree$, it is easy to see that, 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] 
-\end{itemize}
+\item[-] For each $node_2 \in N$, if the T-identifier of T-characters of $node_2$ is not $\epsilon$, then, there exists only one $node_1 \in N$, such that $(node_1,node_2) \in parent$. Or we can say, for each node, if it is not the root, then it has only one parent.
 
+\item[-] Given $node_2 \in N$, if the T-identifier of T-characters of $node_2$ is $\epsilon$, then, there does not exist $node_1 \in N$, such that $(node_1,node_2) \in parent$. Or we can say, the root node has no parent. 
 
-each node can reach $node_0$ by several times of $parent$ relation, and the $parent$ relation is obviously acyclic.
+\item[-] The relation $parent$ is acyclic. 
+\end{itemize} 
 
 The following lemma state that, the order $<_t$ of a T-tree is a total and acyclic order.
 
 \begin{lemma}
 \label{lemma:the <t order is a total and acyclic order}
-Given a T-tree $tree$ and the order $<_t$ over T-identifiers of T-characters of $tree$, then, $<_t$ is a total and acyclic order.
+Given a T-tree $tree$ and the T-identifier order $<_t$ of $tree$, then, $<_t$ is a total and acyclic order.
 \end{lemma}
 
 \begin {proof}
@@ -1472,7 +1474,7 @@ Let us prove that $<_t$ is a total order. Given T-identifiers $tid_1 = c_1 \cdot
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] If $x_1 \in \{ 0, (0,\_) \}$ and $y_1 \in \{ 0, (0,\_) \}$, then $tid_1 <_t tid_2$.
+    \item[-] If $x_1 \in \{ 0, (0,\_) \}$ and $y_1 \in \{ 1, (1,\_) \}$, then $tid_1 <_t tid_2$.
 
     \item[-] Else, if $x_1=p_u$ and $y_1 = (p_u,id_u)$ for some $p_u \in \{ 0,1 \}$. Since $tid_1$ is not a descendant of $tid_1$ and $tid_1$ is not a descendant of $tid_2$, we can see that $x_2 \neq \epsilon \wedge y_2 \neq \epsilon$. Then,
 
@@ -1498,28 +1500,112 @@ Let us prove that $<_t$ is acyclic. Given the major-node-tree $(M,parent)$ of $t
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $w^l <_t w_{right}$, where $w_{left}$ (resp., $w_{right}$) is a W-character belongs to a node that is a descendant of the ``left son'' of $node$ (resp., the ``right son'' of $node$).
+\item[-] $w^l <_t w^r$, where $w^l$ is a W-character belongs to a node that is (a descendant of) the ``left son'' of $node$, and $w^r$ is a W-character belongs to a node that is (a descendant of) the ``right son'' of $node$.
 
-\item[-] $w^l <_t w^i$, where $w_{left}$ is a W-character that is a W-character belongs to a node that is a descendant of the ``left son'' of $node$, and $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$.
+\item[-] $w^l <_t w^i$, where $w^l$ is a W-character belongs to a node that is (a descendant of) the ``left son'' of $node$, and $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$.
 
-\item[-] Given $i<j$, we have $w^i <_t w^j$, where and $w^i$ resp., ($w^j$) is either $w_i$ (resp., $w_j$), or a W-character belongs to a node that is a ``descendent'' of $w_i$ (a ``descendent'' of $w_j$).
+\item[-] Given $i<j$, we have $w^i <_t w^j$, where $w^i$ (resp., $w^j$) is either $w_i$ (resp., $w_j$), or a W-character belongs to a node that is a ``descendent'' of $w_i$ (a ``descendent'' of $w_j$).
 
-\item[-] $w^i <_t w^r$, where $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$, and $w_{right}$ is a W-character belongs to a node that is a descendant of the ``right son'' of $node$.
+\item[-] $w^i <_t w^r$, where $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$, and $w^r$ is a W-character belongs to a node that is (a descendant of) the ``right son'' of $node$.
 \end{itemize}
 
-Therefore, we can see that $<_t$ is a order for traverse the W-characters of the major-node-tree. For each node $node = w_1 \cdot \ldots \cdot w_n \in N$, we first traverse W-characters in its ``left son'' of $node$; then, for each $i$, we traverse $w_i$ and W-characters in nodes of its descendant; finally, we traverse W-characters in its ``right son'' of $node$. This process never goes back. Therefore, it is easy to see that $<_t$ is acyclic. This completes the proof of this lemma. $\qed$
+Therefore, we can see that $<_t$ is a order for traverse the W-characters of the major-node-tree. For each node $node = w_1 \cdot \ldots \cdot w_n \in N$, we first traverse W-characters in its ``left son'' of $node$ and its descendant; then, for each $i$, we traverse $w_i$ and W-characters in nodes of its descendant; finally, we traverse W-characters in its ``right son'' of $node$ and its descendant. This process never goes back. Therefore, it is easy to see that $<_t$ is acyclic. This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
+The following lemma state that, if we add a T-character (an effector) into a T-tree, then, we obtain another T-tree. 
+
+\begin{lemma}
+\label{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}
+Given an effector $w_b = (b,tid_b,b)$ of an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume $\alabel$ calls $\alabelshort[{\tt newID}]{tid_a,tid_c,id}$ to generate effector $w_b$. Given a T-tree $tree$, assume that $(\_,tid_a,a),(\_,tid_c,c) \in tree$, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$. Then, $tree \cup \{ w_b \}$ is a T-tree.
+\end{lemma}
+
+\begin {proof}
+Assume that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c'_1 \cdot \ldots \cdot c'_m \cdot (p_c,id_c)$. Then, according to the method {\tt newID}, we can see that $tid_b \in \{ c'_1 \cdot \ldots \cdot c'_m \cdot p_c \cdot (0,id), c_1 \cdot \ldots \cdot c_n \cdot p_a \cdot (1,id), c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id) \}$. When $tid_b = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id)$, according to method {\tt neweID}, we can see that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c_1 \cdot \ldots \cdot c_n \cdot (p_c,id_c)$, and $id_a < id_c$. Since $tree$ is already a T-tree, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$, then, for each possible value of $tid_b$, it is easy to see that $tree \cup \{ w_b \}$ is a T-tree. $\qed$
+\end {proof}
+
+The following lemma state that, when we do $\alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $(b,tid_b,b)$, then $tid_b$ is between T-identifiers of T-characters of $a$ and $c$. 
+
+\begin{lemma}
+\label{lemma:when we do addBetween(a,b,c) and generate an effector (b,tid_b,b), then tid_b is between T-identifiers of T-characters of a and c} 
+Assume the current replica state is a T-tree $tree$, we do an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $w_b = (b,tid_b,b)$, and this process calls $\alabelshort[{\tt newID}]{tid_a,tid,id}$. Let $<_t$ be the T-identifier order of the T-tree $tree \cup \{ w_b \}$. Then, we have that, $tid_a <_t tid_b <_t tid$. 
+\end{lemma}
+
+\begin {proof}
+Since we assume each value is put only once, and $\alabelshort[{\tt getTimestamp}]{}$ always return a unique disambiguator, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $tree \cup \{ w_b \}$ is a T-tree. 
+
+By the tree-doc algorithm, it is obvious that $(a,tid_a,a),(c,\_,c) \in tree$, $tid$ is a T-identifier of a T-character in $tree$, $tid_a <_t tid \leq_t tid_c$, $ \neg \exists (\_,tid',\_) \in tree$, such that $tid_a <_t tid' <_t tid$.
+
+Let us consider all possible cases of $tid_a$ and $tid$, and shows that $tid_a <_t tid'' <_t tid$, where $tid''$ is the return value of $\alabelshort[{\tt newID}]{tid_a,tid,id}$. 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] If $tid$ is a descendant of $tid_a$: Then, $tid$ is either a ``right son'' of $tid_a$, or a descendant of a ``right son'' of $tid_a$. We can see that $tid_2$ does not have ``left son''. 
+    
+    Assume that $tid = l_2 \cdot (p_2,id_2)$, then, $tid'' = l_2 \cdot p_2 \cdot (0,id)$. We can see that $tid''$ is a descendant of a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $tid''$ is a ``left son'' of $tid$, we can see that $tid'' <_t tid$.
+
+\item[-] If $tid_a$ is a descendant of $tid$: Then, $tid_a$ is either a ``left son'' of $tid$, or a descendant of a ``left son'' of $tid$. We can see that $tid_a$ does not have ``right son''. 
+    
+    Assume that $tid_a = l_1 \cdot (p_1,id_1)$, then, $tid'' = l_1 \cdot p_1 \cdot (1,id)$. We can see that $tid''$ is a descendant of a ``left son'' of $tid$, and thus, $tid'' <_t tid$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. 
+
+\item[-] Otherwise, there are two possibilities: 
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $tid_a = l \cdot (p,id_1)$, $tid = l \cdot (p,id_2)$, and $id_1 < id_2$: We can see that $tid_a$ does not have ``right son''. 
+    
+    $tid'' = l \cdot (p,id_1) \cdot (1,id)$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. Since $id_1 < id_2$, we can see that $tid'' <_t tid$.
+    
+    \item[-] There exists $tid_0$, such that $tid_0 = l \cdot (p,id_0)$, $tid = l \cdot (p,id_2)$, $id_0 < id_2$, and $tid_a$ is a descendant of $tid_0$: We can see that $tid_a$ does not have ``right son''. 
+    
+    Assume that $tid_a = l_1 \cdot (p_1,id_1)$, then, $tid'' = l_1 \cdot p_1 \cdot (1,id)$. We can see that $tid''$ is a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $id_0 < id_2$, we can see that $tid'' <_t tid$. 
+    \end{itemize}
+
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
 
 
+Then, let us prove that tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+
+\begin{lemma}
+\label{lemma:tree-doc is correct}
+Tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+\end{lemma}
+
+\begin {proof}
+By the causal delivery assumption and Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that each replica state is a T-tree. 
 
 
+A refinement mapping $\refmap$ is given as follows:
 
+Given a replica state $\sigma$ that is a T-tree. Assume that $\sigma = \{ w_1,\ldots,w_n\}$, and for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, the refinement mapping $\refmap(\sigma) = (l,T)$, where $l$ is obtained by walking $\sigma$ and read ghost value of each T-characters according to $<_t$, and $T = \{ gv_i \vert v_i = nil \}$.
 
+Our proof proceeds as follows:
 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effector of {\tt addBetween} only do set union, and the effector of {\tt remove} only set the value into $nil$,  
+    
+    We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
+    Note that, by the causal delivery assumption and the preconditions of ${\tt addBetween}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ to the list, i.e., $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$; or that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains W-character of $a$ or $c$ while the effector requires to put $b$ between $a$ and $c$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a\_}$ or $\alabelshort[{\tt addBetween}]{\_,c\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain W-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$).
 
+\item[-] Let us prove $\mathsf{Refinement}$:
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt addBetween}]{a,b,c}$. By the {\textred{causal delivery}} assumption, we can see that the W-character of $a$ and $c$ is already in $\sigma$, and then, $a,c \in l$. It is obvious that the W-character of $a$ is before the W-character of $c$ in $\sigma$, and then, $a$ is before $c$ in $l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by inserting a W-character $(\_,b,\_,\mathit{true})$ of $b$ at some position between the W-character of $a$ and the W-character of $c$. Let $\refmap(\sigma') = (l',T')$. It is obvious that $T=T'$, and $l'$ is obtained from $l$ by adding $b$ at some position between $a$ and $c$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$.
+
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt remove}]{a}$. By the {\textred{causal delivery}} assumption, we can see that a W-character $w_a$ of $a$ is already in $\sigma$, and then, $a \in l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by setting the flag of $w_a$ into $\mathit{false}$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $l=l'$, and $T' = T \cup \{ a \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt remove}]{a}} \refmap(\sigma')$.
+
+    \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on replica state $\sigma$. Assume $\sigma = w_1 \cdot \ldots \cdot w_n$, and for each $i$, $w_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
+    \end{itemize}
+
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof} 
 
 
 
