@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180709114429"/>
+<info created="D:20151003110714" modified="D:20180710112216"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -262,31 +262,12 @@ h
 112 272 l
 </path>
 <text matrix="1 0 0 1 -8.795 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="96.258" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$c)\stackrel{ \ensuremath{\mathtt{ts}}_1 }{\Longrightarrow}$  </text>
-<use matrix="1 0 0 1 -44 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
-<text matrix="1 0 0 1 91.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="96.585" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$e)\stackrel{ \ensuremath{\mathtt{ts}}_3 }{\Longrightarrow}$  </text>
-<text matrix="1 0 0 1 195.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="97.213" height="13.525" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .{\tt addAfter}(\circ$,$a)\stackrel{ \ensuremath{\mathtt{ts}}&apos;_1 }{\Longrightarrow}$  </text>
-<path matrix="1 0 0 1 -24 0" stroke="black">
-4 0 0 4 316 240 e
-</path>
-<path matrix="1 0 0 1 40 0" stroke="black">
-256 240 m
-368 240 l
-</path>
-<path stroke="black">
-84 240 m
-184 240 l
-</path>
-<path stroke="black">
-192 240 m
-288 240 l
-</path>
 <text matrix="1 0 0 1 -32.795 -224" transformations="translations" pos="64 436" stroke="black" type="label" width="15.234" height="4.294" depth="1.49" valign="baseline">$\ensuremath{\mathtt{r}}_2:$</text>
 <use matrix="1 0 0 1 0 -32" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
 <path matrix="1 0 0 1 -196 -28" stroke="black">
 4 0 0 4 316 240 e
 </path>
 <text matrix="1 0 0 1 31.205 -216" transformations="translations" pos="64 436" stroke="black" type="label" width="96.222" height="13.525" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .{\tt addAfter}(\circ$,$b)\stackrel{ \ensuremath{\mathtt{ts}}&apos;_2 }{\Longrightarrow}$  </text>
-<text matrix="1 0 0 1 139.205 -216" transformations="translations" pos="64 436" stroke="black" type="label" width="93.811" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$d)\stackrel{ \ensuremath{\mathtt{ts}}_2 }{\Longrightarrow}$</text>
 <path matrix="1 0 0 1 0 4" stroke="black">
 56 208 m
 116 208 l
@@ -326,17 +307,36 @@ h
 124 212 m
 136 184 l
 </path>
-<path matrix="1 0 0 1 108 0" stroke="black" arrow="normal/normal">
-84 240 m
-104 184 l
-</path>
 <path matrix="1 0 0 1 112 0" stroke="black" arrow="normal/normal">
 124 212 m
 136 184 l
 </path>
-<path matrix="1 0 0 1 212 0" stroke="black" arrow="normal/normal">
+<path matrix="1 0 0 1 116 0" stroke="black" arrow="normal/normal">
 84 240 m
 104 184 l
+</path>
+<use matrix="1 0 0 1 -32 -4" name="mark/disk(sx)" pos="232 244" size="large" stroke="black"/>
+<text matrix="1 0 0 1 103.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="96.585" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$e)\stackrel{ \ensuremath{\mathtt{ts}}_3 }{\Longrightarrow}$  </text>
+<path matrix="1 0 0 1 224 0" stroke="black" arrow="normal/normal">
+84 240 m
+104 184 l
+</path>
+<text matrix="1 0 0 1 215.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="97.213" height="13.525" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_1 .{\tt addAfter}(\circ$,$a)\stackrel{ \ensuremath{\mathtt{ts}}&apos;_1 }{\Longrightarrow}$  </text>
+<path matrix="1 0 0 1 -4 0" stroke="black">
+4 0 0 4 316 240 e
+</path>
+<text matrix="1 0 0 1 143.205 -216" transformations="translations" pos="64 436" stroke="black" type="label" width="93.811" height="10.616" depth="2.49" valign="baseline">$\ensuremath{\mathtt{o}}_2 .{\tt addAfter}(\circ$,$d)\stackrel{ \ensuremath{\mathtt{ts}}_2 }{\Longrightarrow}$</text>
+<path stroke="black">
+84 240 m
+196 240 l
+</path>
+<path stroke="black">
+204 240 m
+308 240 l
+</path>
+<path stroke="black">
+316 240 m
+408 240 l
 </path>
 </page>
 </ipe>

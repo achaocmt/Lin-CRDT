@@ -59,7 +59,7 @@
 
 
 \section{Implementation, Sequential Specification, and Proof of Counter}
-\label{sec:implementation, sequential specification, and proof of counter} 
+\label{sec:implementation, sequential specification, and proof of counter}
 
 
 
@@ -287,7 +287,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
         It is easy to see that $P'=P[r:P[r]+1]$ and $N'=N$. By Annotation2 of replica state $S$, we can see that Annotation1 for effector $(P',N')$ holds, and Annotation2 for replica state $S'$ holds.
 
-    \item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$: We only need to prove Annotation2. Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$.
+    \item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$.
 
         By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$.
 
@@ -414,7 +414,7 @@ Let we prove that the Annotation1 and Annotation2 are inductive invariant. We pr
 \setlength{\itemsep}{0.5pt}
 \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume the effector is $(a,\ats_a)$. By the LWW-register algorithm, we can see that $\ats<\ats_a$, and then $(x',\ats')=(a,\ats_a)$. By Annotatioon2 of replica state $S$ and $\ats<\ats_a$, we can see that Annotation1 holds for the effector $(a,\ats_a)$, and Annotation2 holds for the replica state $S'=(a,\ats_a)$.
 
-\item[-] For case when replica $\arep$ apply effector $(a,\ats_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+\item[-] For case when replica $\arep$ apply effector $(a,\ats_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$ originated in a different replica: We only need to prove Annotation2. Let $S=(x,\ats)$ and $S'=(x',\ats')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
     If $\ats_a < \ats$, then $(x',\ats') = (x,\ats)$, and Annotation2 holds for replica state $S'$. Else, if $\ats < \ats_a$, then $(x',\ats') = (a,\ats_a)$, and Annotation2 holds for replica state $S'$.
 \end{itemize}
@@ -508,7 +508,7 @@ Each abstract state $\abstate$ is a set of tuples $(a,id)$, where $a$ is a data 
   \end{array}
 \]
 
-Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\alabelshort[{\tt write}]{a,id,S}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the value of multi-value register.  
+Method $\alabellong[{\tt readIds}]{}{S}{}$ returns the abstract state. Method $\alabelshort[{\tt write}]{a,id,S}$ removes $S$ from the abstract state and puts $\{ (a,id) \}$ into the abstract state. Method $\alabellong[{\tt read}]{}{S'}{}$ returns the value of multi-value register.
 
 
 
@@ -577,7 +577,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
         Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. It is easy to prove that, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of {\tt write} operations happen on replica $\arep'$ and has been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. Then, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds in $\aglobalstate'$.
 
-    \item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$: We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+    \item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
         By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet. By Annotation2, $fact1$ and $fact2$, we know that, $\forall (b,V) \in S$, we have $\neg(V > V')$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. By $fact1$ and $fact2$, each element in $\{ (b,V) \vert (b,V) \in S \wedge V < V' \}$ is visible to $\alabel$, and they are not in $S'$. Therefore, Annotation2 still holds in $\aglobalstate'$.
     \end{itemize}
@@ -670,7 +670,7 @@ captionpos=b,label={lst:2P-set}]
     //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@s)
     return s
 \end{lstlisting}
-\end{figure} 
+\end{figure}
 
 
 
@@ -737,7 +737,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
         By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds.
 
-    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
         By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
 
@@ -868,7 +868,7 @@ Let we prove that the Annotation1 and Annotation2 are inductive invariant. We pr
 
     By Annotatioon2 of replica state $S$, we can see that Annotation1 holds for the effector $(A',R')$, and Annotation2 holds for the replica state $S'$.
 
-\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
     By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
 
@@ -894,7 +894,7 @@ Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping 
 
 
 We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
-\end {proof} 
+\end {proof}
 
 
 
@@ -1030,7 +1030,7 @@ Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a 
    \end{array}
 \]
 
-Method $\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}$ puts $a$ at some random position between $a_1$ and $a_2$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value. 
+Method $\alabelshort[\mathtt{addAfter}]{a_1,a,a_2}$ puts $a$ at some random position between $a_1$ and $a_2$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ_{begin} \cdot \circ_{end},\emptyset)$, and $\circ_{begin}$ and $\circ_{end}$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ_{begin}$ and $\circ_{end}$ in return value.
 
 
 
@@ -1247,14 +1247,14 @@ Our proof proceeds as follows:
 
     Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-    Note that, by the causal delivery assumption and the preconditions of ${\tt addBetween}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ to the list, i.e., $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$; or that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains W-character of $a$ or $c$ while the effector requires to put $b$ between $a$ and $c$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a\_}$ or $\alabelshort[{\tt addBetween}]{\_,c\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain W-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$).
+    Note that, by the causal delivery assumption and the preconditions of ${\tt addBetween}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ to the list, i.e., $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$; or that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains W-character of $a$ or $c$ while the effector requires to put $b$ between $a$ and $c$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain W-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$).
 
 \item[-] Let us prove $\mathsf{Refinement}$:
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt addBetween}]{a,b,c}$. By the {\textred{causal delivery}} assumption, we can see that the W-character of $a$ and $c$ is already in $\sigma$, and then, $a,c \in l$. It is obvious that the W-character of $a$ is before the W-character of $c$ in $\sigma$, and then, $a$ is before $c$ in $l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by inserting a W-character $(\_,b,\_,\mathit{true})$ of $b$ at some position between the W-character of $a$ and the W-character of $c$. Let $\refmap(\sigma') = (l',T')$. It is obvious that $T=T'$, and $l'$ is obtained from $l$ by adding $b$ at some position between $a$ and $c$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$.
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt addBetween}]{a,b,c}$. By the causal delivery assumption, we can see that the W-character of $a$ and $c$ is already in $\sigma$, and then, $a,c \in l$. It is obvious that the W-character of $a$ is before the W-character of $c$ in $\sigma$, and then, $a$ is before $c$ in $l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by inserting a W-character $(\_,b,\_,\mathit{true})$ of $b$ at some position between the W-character of $a$ and the W-character of $c$. Let $\refmap(\sigma') = (l',T')$. It is obvious that $T=T'$, and $l'$ is obtained from $l$ by adding $b$ at some position between $a$ and $c$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$.
 
-    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt remove}]{a}$. By the {\textred{causal delivery}} assumption, we can see that a W-character $w_a$ of $a$ is already in $\sigma$, and then, $a \in l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by setting the flag of $w_a$ into $\mathit{false}$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $l=l'$, and $T' = T \cup \{ a \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt remove}]{a}} \refmap(\sigma')$.
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt remove}]{a}$. By the causal delivery assumption, we can see that a W-character $w_a$ of $a$ is already in $\sigma$, and then, $a \in l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by setting the flag of $w_a$ into $\mathit{false}$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $l=l'$, and $T' = T \cup \{ a \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt remove}]{a}} \refmap(\sigma')$.
 
     \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on replica state $\sigma$. Assume $\sigma = w_1 \cdot \ldots \cdot w_n$, and for each $i$, $w_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
     \end{itemize}
@@ -1263,7 +1263,7 @@ Our proof proceeds as follows:
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
-\end {proof} 
+\end {proof}
 
 
 
@@ -1274,13 +1274,13 @@ This completes the proof of this lemma. $\qed$
 
 
 \section{Implementation and Proof of Tree-Doc}
-\label{sec:implementation and proof of tree-doc} 
+\label{sec:implementation and proof of tree-doc}
 
 
 \subsection{The Tree-Doc Algorithm}
 \label{subsec:the Tree-Doc algorithm}
 
-The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. The tree-doc algorithm of Listing~\ref{lst:Tree-Doc algorithm} can be considered as the tree-doc with ``unique disambiguator'' in \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784}, and we do not consider optimizations, such as balancing tree.
+The tree-doc algorithm of \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784} is given in Listing~\ref{lst:Tree-Doc algorithm}. The tree-doc algorithm of Listing~\ref{lst:Tree-Doc algorithm} can be considered as the tree-doc with ``unique disambiguator'' in \cite{DBLP:conf/icdcs/PreguicaMSL09,DBLP:journals/corr/abs-0710-1784}, and we do not consider optimizations, such as balancing tree. To make our introduction of tree-doc algorithm clear, we introduce the notion of T-characters, T-identfiers, and T-identifier order.
 
 In replica state of each replica, tree-doc algorithm stores the list as a set of T-characters. A T-character $w$ is a tuple $(v,tid,gv)$, where $v$ is the value of $w$, and $tid$ is a T-identifier of $w$. Here $gv$ is a ``ghost field'' of $w$ and also stores the value of $w$. The reason of introducing $gv$ is that, the $\alabelshort[{\tt remove}]{a}$ method will find the T-character $w$ of value $a$ and set the value of $w$ into a special value $nil$; while in the proof, it will be convenient if we can always remember the value of $w$. Therefore, when $w$ is initialized, the value of $w$ is put both in $v$ and $gv$, while the value in $gv$ is never changed afterward.
 
@@ -1374,7 +1374,7 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
   addBetween(a,b,c) :
     atSource :
       precondition :  @|$contains(tree,a) \wedge contains(tree,c)$|@, @|$tid_a <_t tid_c$|@, where @|$tid_a$|@ and @|$tid_c$|@ are the T-identifiers of T-characters with value a and c in @|$tree$|@, respectively.
-      let @|$tid$|@ be a T-identifier of a T-character in @|$tree$|@, such that, @|$tid_a <_t tid \leq_t tid_c$|@, @|$ \neg \exists (\_,tid',\_) \in tree, tid_a <_t tid' <_t tid$|@ 
+      let @|$tid$|@ be a T-identifier of a T-character in @|$tree$|@, such that, @|$tid_a <_t tid \leq_t tid_c$|@, @|$ \neg \exists (\_,tid',\_) \in tree, tid_a <_t tid' <_t tid$|@
       let id = getTimestamp()
       let @|$w_b$|@ = @|$(b,newID(tid_a,tid,id),b)$|@
       //@ lin = lin@|$\,\cdot\,$|@addBetween(a,b,c)
@@ -1413,9 +1413,9 @@ captionpos=b,label={lst:Tree-Doc algorithm}]
 
 $\\$ $\\$
 
-The payload of each replica is a set $tree$ of T-characters. Later we will prove that each replica state $tree$ of replicas during the execution is a T-tree. 
+The payload of each replica is a set $tree$ of T-characters. Later we will prove that each replica state $tree$ of replicas during the execution is a T-tree.
 
-To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure $tree$ contains T-characters of $a$ and $c$, $tid_a <_t tid_c$, where $tid_a$ and $tid_c$ are the T-identifiers of T-characters with value a and c in $tree$, respectively. Then, we find a T-identifier $tid$ of some T-character of $tree$, such that $tid_a <_t tid \leq_t tid_c$, and $tid_a$ and $tid$ are adjacent w.r.t $<_t$. Then, we calls method $newID(tid_a,tid,id)$ to generate a new T-identifier that is with disambiguator $id$ and its T-identifier is between $tid_a$ and $tid$ w.r.t $<_t$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$. 
+To do $\alabelshort[{\tt addBetween}]{a,b,c}$, we first ensure $tree$ contains T-characters of $a$ and $c$, $tid_a <_t tid_c$, where $tid_a$ and $tid_c$ are the T-identifiers of T-characters with value a and c in $tree$, respectively. Then, we find a T-identifier $tid$ of some T-character of $tree$, such that $tid_a <_t tid \leq_t tid_c$, and $tid_a$ and $tid$ are adjacent w.r.t $<_t$. Then, we calls method $newID(tid_a,tid,id)$ to generate a new T-identifier that is with disambiguator $id$ and its T-identifier is between $tid_a$ and $tid$ w.r.t $<_t$, and use this T-identifier to generate a new T-character $w_b$, and put $w_b$ into $tree$.
 
 $newID(tid_1,tid_2,id)$ require that $tid_1$ and $tid_2$ are adjacent w.r.t $<_t$, and it will generate a T-identifier $tid'$, such that $tid_1 <_t tid' <_t tid_2$.
 
@@ -1431,7 +1431,7 @@ As shown in \autoref{fig:an execution of tree-doc, the local state of replica r1
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $N$ represents set of nodes. Each element in $Node$ is a list $w_1 \cdot \ldots \cdot w_n$ of a major node $\{ w_1,\ldots,w_n \}$ of $tree$, while $w_1,\ldots,w_n$ are ordered by their disambiguators.
+\item[-] $N$ represents set of nodes. Each element in $Node$ is a list $w_1 \cdot \ldots \cdot w_n$ of a major node $\{ w_1,\ldots,w_n \}$ of $tree$, while $w_1,\ldots,w_n$ are ordered by their disambiguators. 
 
 \item[-] $parent \in N \times N$ represents the parent relation. $(node_1,node_2) \in parent$, if the T-identifiers of T-characters of $node_1$ is of the form $c_1 \cdot \ldots \cdot c_n \cdot (p,\_)$, one of the following cases holds:
 
@@ -1445,18 +1445,18 @@ As shown in \autoref{fig:an execution of tree-doc, the local state of replica r1
     \end{itemize}
 \end{itemize}
 
-According to the definition of T-tree, in the major-node-tree $(N,parent)$ of $tree$, it is easy to see that, 
+According to the definition of T-tree, in the major-node-tree $(N,parent)$ of $tree$, it is easy to see that,
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] For each $node_2 \in N$, if the T-identifier of T-characters of $node_2$ is not $\epsilon$, then, there exists only one $node_1 \in N$, such that $(node_1,node_2) \in parent$. Or we can say, for each node, if it is not the root, then it has only one parent.
 
-\item[-] Given $node_2 \in N$, if the T-identifier of T-characters of $node_2$ is $\epsilon$, then, there does not exist $node_1 \in N$, such that $(node_1,node_2) \in parent$. Or we can say, the root node has no parent. 
+\item[-] Given $node_2 \in N$, if the T-identifier of T-characters of $node_2$ is $\epsilon$, then, there does not exist $node_1 \in N$, such that $(node_1,node_2) \in parent$. Or we can say, the root node has no parent.
 
-\item[-] The relation $parent$ is acyclic. 
-\end{itemize} 
+\item[-] The relation $parent$ is acyclic.
+\end{itemize}
 
-The following lemma state that, the order $<_t$ of a T-tree is a total and acyclic order.
+The following lemma state that, the T-identifier order $<_t$ of a T-tree is a total and acyclic order.
 
 \begin{lemma}
 \label{lemma:the <t order is a total and acyclic order}
@@ -1509,55 +1509,55 @@ Let us prove that $<_t$ is acyclic. Given the major-node-tree $(M,parent)$ of $t
 \item[-] $w^i <_t w^r$, where $w^i$ is either $w_i$, or a W-character belongs to a node that is a ``descendent'' of $w_i$, and $w^r$ is a W-character belongs to a node that is (a descendant of) the ``right son'' of $node$.
 \end{itemize}
 
-Therefore, we can see that $<_t$ is a order for traverse the W-characters of the major-node-tree. For each node $node = w_1 \cdot \ldots \cdot w_n \in N$, we first traverse W-characters in its ``left son'' of $node$ and its descendant; then, for each $i$, we traverse $w_i$ and W-characters in nodes of its descendant; finally, we traverse W-characters in its ``right son'' of $node$ and its descendant. This process never goes back. Therefore, it is easy to see that $<_t$ is acyclic. This completes the proof of this lemma. $\qed$
+Therefore, we can see that $<_t$ is a order for traversing the W-characters of the major-node-tree. For each node $node = w_1 \cdot \ldots \cdot w_n \in N$, we first traverse W-characters in its ``left son'' of $node$ and the descendant of this ``left son''; then, for each $i$, we traverse $w_i$ and W-characters in nodes of descendant of $w_i$; finally, we traverse W-characters in its ``right son'' of $node$ and the descendant of this ``right son''. This process never goes back. Therefore, it is easy to see that $<_t$ is acyclic. This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
-The following lemma state that, if we add a T-character (an effector) into a T-tree, then, we obtain another T-tree. 
+The following lemma state that, if we add a T-character (an effector) into a T-tree, then, we obtain another T-tree.
 
 \begin{lemma}
 \label{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}
-Given an effector $w_b = (b,tid_b,b)$ of an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume $\alabel$ calls $\alabelshort[{\tt newID}]{tid_a,tid_c,id}$ to generate effector $w_b$. Given a T-tree $tree$, assume that $(\_,tid_a,a),(\_,tid_c,c) \in tree$, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$. Then, $tree \cup \{ w_b \}$ is a T-tree.
+Given an effector $w_b = (b,tid_b,b)$ of an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$, assume $\alabel$ calls $\alabelshort[{\tt newID}]{tid_a,tid,id}$ to generate effector $w_b$. Given a T-tree $tree$, assume that $(\_,tid_a,a),(\_,tid,\_) \in tree$, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$. Then, $tree \cup \{ w_b \}$ is a T-tree.
 \end{lemma}
 
 \begin {proof}
 Assume that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c'_1 \cdot \ldots \cdot c'_m \cdot (p_c,id_c)$. Then, according to the method {\tt newID}, we can see that $tid_b \in \{ c'_1 \cdot \ldots \cdot c'_m \cdot p_c \cdot (0,id), c_1 \cdot \ldots \cdot c_n \cdot p_a \cdot (1,id), c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id) \}$. When $tid_b = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id)$, according to method {\tt neweID}, we can see that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c_1 \cdot \ldots \cdot c_n \cdot (p_c,id_c)$, and $id_a < id_c$. Since $tree$ is already a T-tree, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$, then, for each possible value of $tid_b$, it is easy to see that $tree \cup \{ w_b \}$ is a T-tree. $\qed$
 \end {proof}
 
-The following lemma state that, when we do $\alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $(b,tid_b,b)$, then $tid_b$ is between T-identifiers of T-characters of $a$ and $c$. 
+The following lemma state that, when we do $\alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $(b,tid_b,b)$, then $tid_b$ is between T-identifiers of T-characters of $a$ and $c$.
 
 \begin{lemma}
-\label{lemma:when we do addBetween(a,b,c) and generate an effector (b,tid_b,b), then tid_b is between T-identifiers of T-characters of a and c} 
-Assume the current replica state is a T-tree $tree$, we do an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $w_b = (b,tid_b,b)$, and this process calls $\alabelshort[{\tt newID}]{tid_a,tid,id}$. Let $<_t$ be the T-identifier order of the T-tree $tree \cup \{ w_b \}$. Then, we have that, $tid_a <_t tid_b <_t tid$. 
+\label{lemma:when we do addBetween(a,b,c) and generate an effector (b,tid_b,b) with newID(tid_a,tid_x,id), then tid_b is between tid_a and tid_x}
+Assume the current replica state is a T-tree $tree$, we do an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $w_b = (b,tid_b,b)$, and this process calls $\alabelshort[{\tt newID}]{tid_a,tid,id}$. Let $<_t$ be the T-identifier order of the T-tree $tree \cup \{ w_b \}$. Then, we have that, $tid_a <_t tid_b <_t tid$.
 \end{lemma}
 
 \begin {proof}
-Since we assume each value is put only once, and $\alabelshort[{\tt getTimestamp}]{}$ always return a unique disambiguator, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $tree \cup \{ w_b \}$ is a T-tree. 
+Since we assume each value is put only once, and $\alabelshort[{\tt getTimestamp}]{}$ always return a unique disambiguator, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $tree \cup \{ w_b \}$ is a T-tree.
 
 By the tree-doc algorithm, it is obvious that $(a,tid_a,a),(c,\_,c) \in tree$, $tid$ is a T-identifier of a T-character in $tree$, $tid_a <_t tid \leq_t tid_c$, $ \neg \exists (\_,tid',\_) \in tree$, such that $tid_a <_t tid' <_t tid$.
 
-Let us consider all possible cases of $tid_a$ and $tid$, and shows that $tid_a <_t tid'' <_t tid$, where $tid''$ is the return value of $\alabelshort[{\tt newID}]{tid_a,tid,id}$. 
+Let us consider all possible cases of $tid_a$ and $tid$, and shows that $tid_a <_t tid'' <_t tid$, where $tid''$ is the return value of $\alabelshort[{\tt newID}]{tid_a,tid,id}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] If $tid$ is a descendant of $tid_a$: Then, $tid$ is either a ``right son'' of $tid_a$, or a descendant of a ``right son'' of $tid_a$. We can see that $tid_2$ does not have ``left son''. 
-    
-    Assume that $tid = l_2 \cdot (p_2,id_2)$, then, $tid'' = l_2 \cdot p_2 \cdot (0,id)$. We can see that $tid''$ is a descendant of a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $tid''$ is a ``left son'' of $tid$, we can see that $tid'' <_t tid$.
+\item[-] If $tid$ is a descendant of $tid_a$: Then, $tid$ is either a ``right son'' of $tid_a$, or a descendant of a ``right son'' of $tid_a$ (or its minor node). We can see that $tid_2$ does not have ``left son''.
 
-\item[-] If $tid_a$ is a descendant of $tid$: Then, $tid_a$ is either a ``left son'' of $tid$, or a descendant of a ``left son'' of $tid$. We can see that $tid_a$ does not have ``right son''. 
-    
-    Assume that $tid_a = l_1 \cdot (p_1,id_1)$, then, $tid'' = l_1 \cdot p_1 \cdot (1,id)$. We can see that $tid''$ is a descendant of a ``left son'' of $tid$, and thus, $tid'' <_t tid$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. 
+    Assume that $tid = l_2 \cdot (p_2,id_2)$, then, $tid'' = l_2 \cdot p_2 \cdot (0,id)$. We can see that $tid''$ is a ``son'' of ``right son'' of $tid_a$, or a ``son'' of a descendant of ``right son'' of $tid_a$ (or its minor node), and thus, $tid_a <_t tid''$. Since $tid''$ is a ``left son'' of $tid$, we can see that $tid'' <_t tid$.
 
-\item[-] Otherwise, there are two possibilities: 
+\item[-] If $tid_a$ is a descendant of $tid$: Then, $tid_a$ is either a ``left son'' of $tid$, or a descendant of a ``left son'' of $tid$ (or its minor node). We can see that $tid_a$ does not have ``right son''.
+
+    Assume that $tid_a = l_1 \cdot (p_1,id_1)$, then, $tid'' = l_1 \cdot p_1 \cdot (1,id)$. We can see that $tid''$ is a ``son'' of ``left son'' of $tid$, or a ``son'' of a descendant of ``left son'' of $tid$ (or its minor node), and thus, $tid'' <_t tid$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$.
+
+\item[-] Otherwise, there are two possibilities:
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] If $tid_a = l \cdot (p,id_1)$, $tid = l \cdot (p,id_2)$, and $id_1 < id_2$: We can see that $tid_a$ does not have ``right son''. 
-    
+    \item[-] If $tid_a = l \cdot (p,id_1)$, $tid = l \cdot (p,id_2)$, and $id_1 < id_2$: We can see that $tid_a$ does not have ``right son''.
+
     $tid'' = l \cdot (p,id_1) \cdot (1,id)$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. Since $id_1 < id_2$, we can see that $tid'' <_t tid$.
-    
-    \item[-] There exists $tid_0$, such that $tid_0 = l \cdot (p,id_0)$, $tid = l \cdot (p,id_2)$, $id_0 < id_2$, and $tid_a$ is a descendant of $tid_0$: We can see that $tid_a$ does not have ``right son''. 
-    
-    Assume that $tid_a = l_1 \cdot (p_1,id_1)$, then, $tid'' = l_1 \cdot p_1 \cdot (1,id)$. We can see that $tid''$ is a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $id_0 < id_2$, we can see that $tid'' <_t tid$. 
+
+    \item[-] There exists $tid_0$, such that $tid_0 = l \cdot (p,id_0)$, $tid = l \cdot (p,id_2)$, $id_0 < id_2$, and $tid_a$ is a descendant of $tid_0$: We can see that $tid_a$ does not have ``right son''.
+
+    Assume that $tid_a = l \cdot (p,id_1) \cdot l_2 \cdot (p',id'_1)$, then, $tid'' = l \cdot (p,id_1) \cdot l_2 \cdot p' \cdot (1,id)$. We can see that $tid''$ is a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $id_0 < id_2$, we can see that $tid'' <_t tid$.
     \end{itemize}
 
 \end{itemize}
@@ -1571,41 +1571,60 @@ Then, let us prove that tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_
 \begin{lemma}
 \label{lemma:tree-doc is correct}
 Tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
-\end{lemma}
+\end{lemma} 
 
-\begin {proof}
-By the causal delivery assumption and Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that each replica state is a T-tree. 
+\begin {proof} 
 
+Let us first prove that, during the executions, each replica state is a T-tree. Recall that each value is put only once, and $\alabelshort[{\tt getTimestamp}]{}$ always return a unique disambiguator. 
 
-A refinement mapping $\refmap$ is given as follows:
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] The initial replica state for each replica is obviously a T-tree. 
 
-Given a replica state $\sigma$ that is a T-tree. Assume that $\sigma = \{ w_1,\ldots,w_n\}$, and for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, the refinement mapping $\refmap(\sigma) = (l,T)$, where $l$ is obtained by walking $\sigma$ and read ghost value of each T-characters according to $<_t$, and $T = \{ gv_i \vert v_i = nil \}$.
+\item[-] When a replica do generator of an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ and then apply its effector: Assume the original replica state is $\sigma$, the effector of $\alabel$ is $(b,tid_b,b)$, and we call $\alabelshort[{\tt newID}]{tid_a,tid,id}$ to generate $tid_b$. By tree-doc algorithm, it is obvious that, $(,tid_a,a),(\_,$ $tid,\_) \in \sigma$. It is obvious that after we apply the effector, the replica state is $\sigma \cup \{ (b,tid_b,b) \}$. Then, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $\sigma \cup \{ (b,tid_b,b) \}$ is a T-tree. 
+
+\item[-] When a replica $\arep$ apply effector that corresponds to an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ originated in a different replica: Assume the original replica state of replica $\arep$ is $\sigma$, the effector of $\alabel$ is $(b,tid_b,b)$. Assume $\alabel$ is done in replica $\arep'$, and we call $\alabelshort[{\tt newID}]{tid_a,tid,id}$ to generate $tid_b$. By tree-doc algorithm, it is obvious that, $(,tid_a,a),(\_,$ $tid,\_)$ is in the replica state of $\arep'$ when $(b,tid_b,b)$ is applied in replica $\arep'$. By the causal delivery assumption, we can see that $(,tid_a,a),(\_,$ $tid,\_)$ is in the replica state of replica $\arep$ before $(b,tid_b,b)$ is applied. It is obvious that after we apply the effector in replica $\arep$, the replica state is $\sigma \cup \{ (b,tid_b,b) \}$. Then, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $\sigma \cup \{ (b,tid_b,b) \}$ is a T-tree.
+\end{itemize} 
+
+Therefore, during the executions, each replica state is a T-tree. 
+
+A refinement mapping $\refmap$ is given as follows: Given a replica state $\sigma$ that is a T-tree. Assume that $\sigma = \{ w_1,\ldots,w_n\}$, and for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, the refinement mapping $\refmap(\sigma) = (l,T)$, where $l$ is obtained by walking $\sigma$ and read ghost value of each T-characters according to the T-identifier order $<_t$ of $\sigma$, and $T = \{ gv_i \vert v_i = nil \}$. By Lemma \ref{lemma:the <t order is a total and acyclic order}, we know that $<_t$ is a total and acyclic order. Therefore, our construction of $\refmap$ has definition. 
 
 Our proof proceeds as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effector of {\tt addBetween} only do set union, and the effector of {\tt remove} only set the value into $nil$,  
-    
-    We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+\item[-] Since the effector of {\tt addBetween} do set union, we can see that the effectors of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the effector of concurrent {\tt remove} operations commute, since they both set the value of some T-characters into $nil$. Concurrent {\tt addBetween} and a {\tt remove} effectors commute, since the T-character changed by {\tt remove} are different from the T-character added by the {\tt addBetween}.
 
-    Note that, by the causal delivery assumption and the preconditions of ${\tt addBetween}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ to the list, i.e., $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$; or that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains W-character of $a$ or $c$ while the effector requires to put $b$ between $a$ and $c$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a\_}$ or $\alabelshort[{\tt addBetween}]{\_,c\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain W-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$).
+    Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
+    Note that, by the causal delivery assumption and tree-doc algorithm, it cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ between ${\tt a}$ and ${\tt c}$ is concurrent with an operation that adds ${\tt a}$ or ${\tt c}$ or ${\tt x}$ to the list, where the T-identifier of T-character of $x$ is $tid_x$ and we use $\alabelshort[{\tt newID}]{tid_a,tid_x,id}$ to generate the effector of $\alabelshort[{\tt addBetween}]{a,b,c}$. It cannot happen that an $\alabelshort[{\tt addBetween}]{a,b,c}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors doesn't lead to ``invalid'' replica states such as the replica state does not contains T-character of $a$ or $c$ or $x$ while the effector requires to put $b$ between $a$ and $c$ and use $\alabelshort[{\tt newID}]{tid_a,tid_x,id}$ to generate the effector of $\alabelshort[{\tt addBetween}]{a,b,c}$ (which would happen if $\alabelshort[{\tt addBetween}]{\_,a,\_}$ or $\alabelshort[{\tt addBetween}]{\_,c,\_}$ or $\alabelshort[{\tt addBetween}]{\_,x,\_}$ is delivered before $\alabelshort[{\tt addBetween}]{a,b,c}$), or a replica state does not contain T-character of $b$ when effector requires to remove $b$ (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{\_,b,\_}$). 
 
 \item[-] Let us prove $\mathsf{Refinement}$:
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt addBetween}]{a,b,c}$. By the {\textred{causal delivery}} assumption, we can see that the W-character of $a$ and $c$ is already in $\sigma$, and then, $a,c \in l$. It is obvious that the W-character of $a$ is before the W-character of $c$ in $\sigma$, and then, $a$ is before $c$ in $l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by inserting a W-character $(\_,b,\_,\mathit{true})$ of $b$ at some position between the W-character of $a$ and the W-character of $c$. Let $\refmap(\sigma') = (l',T')$. It is obvious that $T=T'$, and $l'$ is obtained from $l$ by adding $b$ at some position between $a$ and $c$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$.
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$. Assume the effector is $w_b = (b,tid_b,b)$. Obviously, $\sigma' = \sigma \cup \{ w_b \}$ and $\sigma'$ is also a T-tree. We need to prove that $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$. 
+        
+        Assume in the source replica of $\alabel$, it calls $\alabelshort[{\tt newID}]{tid_a,tid_x,id}$ to generate $tid_b$. Let $tid_c$ be the T-identifier of T-character with value $c$ in the source replica of $\alabel$, and let $<'_t$ be the T-identifier order in the source replica of $\alabel$ when $w_b$ is applied. By Lemma \ref{lemma:when we do addBetween(a,b,c) and generate an effector (b,tid_b,b) with newID(tid_a,tid_x,id), then tid_b is between tid_a and tid_x}, we can see that $tid_a <'_t tid_b <'_t tid_x$. According to tree-doc algorithm, we can see that $tid_a <'_t tid_x <'_t tid_c$. 
+        
+        It is easy to see that, given T-trees $tree_1$ and $tree_2$, if the T-identifiers of T-characters of $tree_1$ is a subset of that of $tree_2$, then the T-identifier order of $tree_1$ is a subset of that of $tree_2$. 
+        
+        Let $tree_b$ be the replica state in the source replica of $\alabel$ when $w_b$ is applied. By the causal delivery assumption, we can see that all T-characters (effectors) of $tree_b$ have already been applied in $\sigma'$. Let $<_{t\sigma'}$ be the T-identifier order of $\sigma'$. Then, we can see that, $tid_a <_{t\sigma'} tid_b <_{t\sigma'} tid_x <_{t\sigma'} tid_c$. 
+        
+        Assume $\refmap(\sigma') = (l',T')$. Then, it is easy to see that $T = T'$, and $l'$ is obtained from $l$ by putting $b$ into some postiion between $a$ and $c$. Therefore, $\refmap(\sigma) \specarrow{\alabelshort[{\tt addBetween}]{a,b,c}} \refmap(\sigma')$. 
+    
+    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt remove}]{a}$. By the causal delivery assumption, we can see that a T-character $w_a$ with ghost value $a$ is already in $\sigma$, and then, $a \in l$. By the tree-doc algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by setting the value of $w_a$ into $nil$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $l=l'$, and $T' = T \cup \{ a \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt remove}]{a}} \refmap(\sigma')$.
 
-    \item[-] Assume $\refmap(\sigma) = (l,T)$. If $\sigma'$ is obtained from $\sigma$ by applying an effector $\delta$ produced by an operation $\alabelshort[{\tt remove}]{a}$. By the {\textred{causal delivery}} assumption, we can see that a W-character $w_a$ of $a$ is already in $\sigma$, and then, $a \in l$. By the Wooki algorithm, we can see that $\sigma'$ is obtained from $\sigma$ by setting the flag of $w_a$ into $\mathit{false}$. Let $\refmap(\sigma) = (l',T')$. It is obvious that $l=l'$, and $T' = T \cup \{ a \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabelshort[{\tt remove}]{a}} \refmap(\sigma')$.
-
-    \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on replica state $\sigma$. Assume $\sigma = w_1 \cdot \ldots \cdot w_n$, and for each $i$, $w_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
+    \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on replica state $\sigma$. Assume $\sigma = \{w_1,\ldots,w_n\}$, and for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, $s$ is obtained by walking $\sigma$ and read value of each T-characters according to the T-identifier order $<_t$ of $\sigma$, and ignoring all $nil$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l$ is obtained by walking $\sigma$ and read ghost value of each T-characters according to the T-identifier order $<_t$ of $\sigma$, and $T = \{ gv_i \vert v_i = nil \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
     \end{itemize}
 
 \item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
-\end {proof} 
+\end {proof}
+
+
 
 
 
