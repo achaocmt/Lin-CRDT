@@ -13,8 +13,8 @@ frameworks where CRDTs and other weakly consistent replicated systems
 can be specified.
 %
 The specification language they provide uses event structures where
-operations are structured using partial orders (e.g. visibility), and 
-the validity of the operations is characterized using a set of 
+operations are structured using partial orders (e.g. visibility), and
+the validity of the operations is characterized using a set of
 axioms on these partial orders.
 % characterize the validity of invalidity
 %of behaviours of operations.
@@ -99,7 +99,7 @@ There are some important differences between SEC and \CRDTLinshort{}:
   relation at the level of the type's API.
   %
   Then, their definition assumes that all independent operations
-  commute %(regardless whether these are issued by the same client or not) 
+  commute %(regardless whether these are issued by the same client or not)
   and disregard the order between them even if they were issued by the same client.
   %
   It is unclear how such a specification could adequately capture
@@ -116,16 +116,16 @@ There are some important differences between SEC and \CRDTLinshort{}:
   This is certainly the case when we relabel query-update operations
   since the query usually provides arguments for the subsequent
   update.
-\item While SEC is also proved to be compositional, 
+\item While SEC is also proved to be compositional,
 %A last important difference concerns their compositionality
 %  result.
 %  %
-%  While their compositionality result appears similar to ours, 
+%  While their compositionality result appears similar to ours,
   the
   fact that operations stemming from different objects are necessarily
   independent (the dependency relation is given at the level of the API
   of an object, hence no dependencies between objects) in conjunction
-  with the point~(\ref{it-dependencies}) above means that a history of 
+  with the point~(\ref{it-dependencies}) above means that a history of
   two different objects satisfying SEC is trivially SEC since the order between
   operations of different objects is ignored completely. For instance, the
   history in Figure~\ref{fig:negative_composition} will be SEC just because
@@ -146,9 +146,9 @@ There are some important differences between SEC and \CRDTLinshort{}:
   pattern when writing distributed applications (e.g. for referential
   integrity in a key-value store).
   %
-  Our result is stronger since the composition of a set of  
+  Our result is stronger since the composition of a set of
   objects will respect the causality resulting from the client code as
-  illustrated by the failure to combine some per-object linearizations 
+  illustrated by the failure to combine some per-object linearizations
   in Figure~\ref{fig:negative_composition}.\footnote{Note that there
     exist per-object linearizations for this history which can be merged into a global linearization (see~\sectionautorefname~\ref{sec:compositionality}).}
   %
@@ -189,6 +189,38 @@ The main difference with these works is that they do not provide a
 consistency criterion, and their proofs are similar to the simulations
 of~\cite{BurckhardtGYZ14}, albeit using a different -- but similar
 -- specification language based on partial orders of operations.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented \CRDTLin{}, a correctness criterion for CRDTs
+inspired by linearizability which simplifies the specification of the
+data types by resorting to sequential reasoning for the
+specifications.
+%
+We provide proof methodologies to show \CRDTLinshort{} for a number of
+well documented CRDTs.
+%
+Moreover we prove that under certain conditions these proofs guarantee
+compositionality of \CRDTLinshort{}, hence enabling modular reasoning
+for systems with multiple CRDT objects.
+%
+
+While in this work we have concentrated on the proof of
+operation-based CRDTs (c.f. our system model in
+\sectionautorefname~\ref{sec:overview}), we have initial results
+showing that the same techniques apply to state-based CRDTs
+(see~\cite{ShapiroPBZ11} for a definition).
+%
+However, due to space reasons this extension is not included in this
+paper.
+%
+On a similar vein, while we have assumed Causal Consistency for this
+paper, there is no reason why our results should not apply for weaker
+system models.
+%
+We will explore this in future work.
+
 
 %%% Local Variables:
 %%% mode: latex
