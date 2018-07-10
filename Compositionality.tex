@@ -49,11 +49,8 @@ However, this is not true for our notion of RA-linearizability. An example of a 
 
 \subsection{Composing Objects That Admit Execution-Order Linearizations}
 
-<<<<<<< HEAD
-Although not all per-object \crdtlinearization{s} can be combined into global \crdtlinearization{s}, this may still be true in particular cases. For instance, let us consider again the history in \figureautorefname~\ref{fig:negative_composition}. The operations of $\aobj_1$ can also be linearized to $\aobj_1.\alabelshort[{\tt add}]{d}\cdot \aobj_1.\alabelshort[{\tt add}]{c}$ which enables a global \crdtlinearization{} $\aobj_1.\alabelshort[{\tt add}]{d}\cdot \aobj_2.\alabelshort[{\tt add}]{a}\cdot \aobj_2.\alabelshort[{\tt add}]{b}\cdot \aobj_1.\alabelshort[{\tt add}]{c}$ whose projection on individual objects is consistent with the per-object linearizations (for $\aobj_2$, we consider the same linearization $\aobj_2.\alabelshort[{\tt add}]{a}\cdot \aobj_2.\alabelshort[{\tt add}]{b}$ as above).
-=======
+
 Although not all per-object \crdtlinearization{s} can be combined into global \crdtlinearization{s}, this may still be true in some cases. For instance, let us consider again the history in \autoref{fig:negative_composition}. The operations of $\aobj_1$ can also be linearized to $\aobj_1.\alabelshort[{\tt add}]{d}\cdot \aobj_1.\alabelshort[{\tt add}]{c}$ which enables a global \crdtlinearization{} $\aobj_1.\alabelshort[{\tt add}]{d}\cdot \aobj_2.\alabelshort[{\tt add}]{a}\cdot \aobj_2.\alabelshort[{\tt add}]{b}\cdot \aobj_1.\alabelshort[{\tt add}]{c}$ whose projection on individual objects is consistent with the per-object linearizations (we consider the same linearization $\aobj_2.\alabelshort[{\tt add}]{a}\cdot \aobj_2.\alabelshort[{\tt add}]{b}$ for $\aobj_2$).
->>>>>>> origin/master
 
 We show that in the case of \crdtlinearizable{} objects that admit execution-order linearizations, there always exist per-object \crdtlinearization{s} that can be combined into global \crdtlinearization{s}, which implies that their composition is \crdtlinearizable{}. Moreover, their composition also admits execution-order linearizations. A first preliminary result states that the order in which concurrent operations are executed at the origin replica can be permuted arbitrarily while still leading to a valid trace. More precisely, for every linearization $\alinord$ of the visibility in the history of a trace, there exists another valid trace where operations are executed at the origin replica in the order defined by $\alinord$.
 
