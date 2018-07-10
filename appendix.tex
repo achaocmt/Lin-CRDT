@@ -1226,11 +1226,11 @@ We can see that $w_e$ is not an argument of $\alabelshort[{\tt integrateIns}]{w_
 
 
 
-Then, let us prove that Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+Then, let us prove that Wooki is \crdtlinearizable{} w.r.t $\specWooki$.
 
 \begin{lemma}
 \label{lemma:Wooki is correct}
-Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+Wooki is \crdtlinearizable{} w.r.t $\specWooki$.
 \end{lemma}
 
 \begin {proof}
@@ -1566,11 +1566,11 @@ This completes the proof of this lemma. $\qed$
 \end {proof}
 
 
-Then, let us prove that tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+Then, let us prove that tree-doc is \crdtlinearizable{} w.r.t $\specWooki$.
 
 \begin{lemma}
 \label{lemma:tree-doc is correct}
-Tree-doc is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
+Tree-doc is \crdtlinearizable{} w.r.t $\specWooki$.
 \end{lemma} 
 
 \begin {proof} 
@@ -1627,6 +1627,100 @@ This completes the proof of this lemma. $\qed$
 
 
 
+
+
+
+
+
+
+
+\section{Discussion about List with {\tt addAt} Interface}
+\label{sec:discussion about list with addAt interface} 
+
+
+
+
+
+
+
+\subsection{List with {\tt addAt} Interface}
+\label{subsec:list with addAt interface}
+
+~\cite{AttiyaBGMYZ16} use another interface for list and is shown below: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\alabellong[{\tt addAt}]{a,k}{s}{}$: Inserts value $a$ into position $k$ of the replica state, and returns the updated list content of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
+
+\item[-] $\alabellong[{\tt remove}]{a}{s}{}$: Remove value $a$ from list of the replica state, and returns the updated list content of the replica state. 
+
+\item[-] $\alabellong[{\tt read}]{}{s}{}$: Returns the list content of the replica state. 
+\end{itemize} 
+
+In ``strong list specification'' of ~\cite{AttiyaBGMYZ16}, a transitive, irreflexive and total order over all input values called list-order is used to record the list content where each replica should converge into. For each operation, its return value will be checked w.r.t this list-order.
+
+The return value of {\tt addAt} is a ``local information'' of replica state, and seems play no role when considering \crdtlin{}. \autoref{fig:an example history shows that addAt should not have return value} shows an example history $h$, which is a possible history of RGA with {\tt addAt} interface. The possible linearizations of $h$ are $\alabellong[{\tt addAt}]{a,1}{a}{} \cdot \alabellong[{\tt addAt}]{b,1}{b}{} \cdot \alabellong[{\tt read}]{}{a \cdot b}{}$ and $\alabellong[{\tt addAt}]{b,1}{b}{} \cdot \alabellong[{\tt addAt}]{a,1}{a}{} \cdot \alabellong[{\tt read}]{}{a \cdot b}{}$. Take $\alabellong[{\tt addAt}]{b,1}{b}{} \cdot \alabellong[{\tt addAt}]{a,1}{a}{} \cdot \alabellong[{\tt read}]{}{a \cdot b}{}$ for an example. After we do $\alabellong[{\tt addAt}]{a,1}{a}{}$, the list should contain both $a$ and $b$, and the return value $a$ could be ignored here. 
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.6 \textwidth]{figures/addAtshouldnotHaveReturnValue.pdf}
+\vspace{-10pt}
+  \caption{An example history shows that {\tt addAt} should not have return value.}
+  \label{fig:an example history shows that addAt should not have return value}
+\end{figure}
+
+Therefore, let us consider the following interface of list: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\alabelshort[{\tt addBetween}]{a,k}$: Inserts value $a$ into position $k$ of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
+
+\item[-] $\alabelshort[{\tt remove}]{a}$: Remove value $a$ from list of the replica state.
+
+\item[-] $\alabellong[{\tt read}]{}{s}{}$: Returns the list content of the replica state.
+\end{itemize}  
+
+
+
+\subsection{The Sequential Specification of List with {\tt addAt} Interface}
+\label{subsec:the sequential specification of list with addAt interface}
+
+Each abstract state $\abstate = l$ contains a sequence $l$ of elements of a given type. The element $l$ is the list of all input values that are not removed. The sequential specification $\specAddat$ of list with {\tt addAt} interface is given with the transitions as follows:
+\[
+  \begin{array}{rcl}
+    \big(\ (l_1 \cdot l_2\big)\ |\ a\text{ is fresh}\, , \vert l_1 \vert = k-1 \big)
+     & \specarrow{\alabelshort[\mathtt{addAt}]{a,k}}
+     & l_1 \cdot a \cdot l_2\\
+     \big(\ (l,T)\ |\ a\ \text{occurs in}\ l\ \big)
+     & \specarrow{\alabelshort[\mathtt{remove}]{a}}
+     & (l,T \cup \{a\})\\
+     (l,T)
+     & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
+     & (l,T)\
+       \left[\begin{array}{c}
+           \text{with $s$ is obtained from $l$}\\
+           \text{by removing the values in $T$}
+       \end{array}\right]
+   \end{array}
+\]
+
+Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ at position $k$ in $l$, assuming that each value is put into list at most once. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. Assume that the initial value of list is $(\circ,\emptyset)$, and $\circ$ are never removed. When the context is clear, in $\ensuremath{\tt read}$ operation, we will omit $\circ$ in return value. 
+
+
+
+
+\subsection{RGA is not \crdtlinearizable{} w.r.t $\specAddat$.}
+\label{subsec:RGA is not RA-linearizable w.r.t specAddat}
+
+\autoref{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat} shows an example that is a history of RGA and is not \crdtlinearizable{} w.r.t $\specAddat$. Here we assume that $\ats_a < \ats_b < \ats_c < \ats_d < \ats_e$. 
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.9 \textwidth]{figures/RGAwithaddAtNotRALin.pdf}
+\vspace{-10pt}
+  \caption{An example history shows that RGA is not \crdtlinearizable{} w.r.t $\specAddat$.}
+  \label{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat}
+\end{figure}
 
 
 
