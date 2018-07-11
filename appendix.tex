@@ -402,8 +402,8 @@ Let us propose Annotation2, which is an annotation of replica state and obviousl
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Given a replica state $(A,R)$
-\end{itemize}
+\item[-] Annotation2: Given a replica state $(x,\ats)$, $\ats$ = $max(\{ \ats' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats'}{}$, the effector of $\alabel$ has already been applied in the replica state $ \})$. 
+\end{itemize} 
 
 %//@ Annotation1 : @|$A'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@,
 %      @|$R'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@.
@@ -450,7 +450,7 @@ We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant an
 
 
 \cite{ShapiroPBZ11} gives a state-based multi-value register implementation. Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:operation-based multi-value register}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier. This implementation assumes that the number of replicas are fixed. A payload $S$ is a set of $(a,V)$ pairs, where $a$ is a value and $V$ is a vector called version vector. The size of $V$ is the number of replicas in distributed system. %Annotation1 is an annotation for the current payload, and annotation2 is an annotation for downstream of $write(a)$.
-Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] > V'[\arep]$. Annotation1 is an annotation for effector of $write(a)$.
+Given vector clock $V$ and $V'$, we say that $V > V'$, if for each replica $\arep$, we have $V[\arep] \geq V'[\arep]$, and there exists replica $\arep'$, such that $V[\arep'] > V'[\arep']$. Annotation1 is an annotation for effector of $write(a)$.
 
 
 \begin{figure}[t]
@@ -474,7 +474,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
       //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt write}]{\_}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \} \vert$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(a,V')$|@
 
   read() :
-    let @|$S_1$|@  = {a : @|$\exists$|@ V. (a,V) @|$\in$|@ S}
+    let @|$S_1$|@  = {a @|$\vert \exists$|@ V. (a,V) @|$\in$|@ S}
     //@ lin = lin@|$\,\cdot\,( $|@read()@|$\,\Rightarrow\,S_1)$|@
     return @|$S_1$|@
 \end{lstlisting}
@@ -533,7 +533,7 @@ Let us give two facts:
 \end{itemize}
 
 
-\noindent Proof of $fact1$: Assume $\alabel_1$ happens on replica $\arep$. By the causal delivery assumption, we know that for each replica $\arep' \neq \arep$, $\alabel_2$ see more or equal number of operations happens on replica $\arep'$ than that of $\alabel_1$, and $\alabel_2$ see more number of operations happens on replica $\arep$ than that of $\alabel_1$. By Annotation1, we know that $\forall \arep' \neq \arep$, $V_1[\arep'] \leq V_2[\arep']$, and $V_1[\arep] < V_2[\arep]$. Therefore, $V_1 < V_2$.
+\noindent Proof of $fact1$: Assume $\alabel_1$ happens on replica $\arep$. By the causal delivery assumption, we know that for each replica $\arep' \neq \arep$, $\alabel_2$ see more or equal number of {\tt write} operations happens on replica $\arep'$ than that of $\alabel_1$, and $\alabel_2$ see more number of {\tt write} operations happens on replica $\arep$ than that of $\alabel_1$. By Annotation1, we know that $\forall \arep' \neq \arep$, $V_1[\arep'] \leq V_2[\arep']$, and $V_1[\arep] < V_2[\arep]$. Therefore, $V_1 < V_2$.
 
 \noindent Proof of $fact2$: Let us prove that $\neg (V_1 < V_2 \vee V_2 < V_1)$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $V_1 < V_2$, and assume that $\alabel_1$ happens on replica $\arep_1$. Since $V_1 < V_2$, we know that for each replica $\arep'$, $V_1[\arep'] \leq V_2[\arep']$. Especially, $V_1[\arep_1] \leq V_2[\arep_1]$. By the causal delivery assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
 
@@ -569,13 +569,13 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
     \setlength{\itemsep}{0.5pt}
     \item[-] For case when replica $\arep$ do generator of a {\tt write} operation $\alabel$ and then apply its effector: let $(a,V')$ be the effector of $\alabel$, let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously $S' = \{ (a,V') \}$.
 
-        Since $\alabelshort[{\tt write}]{a,V'}$ is larger than any labels in $S$ w.r.t the visibility relation, Annotation2 still holds in $\aglobalstate'$.
+        Since $\alabel$ is greater than any operations whose effectors are in $S$ w.r.t the visibility relation, Annotation2 still holds in $\aglobalstate'$.
 
         By Annotation1, given a operation $\alabel_1$ with effector $(b_1,V'_1)$: For each replica $\arep'$, $V'_1[\arep']$ is the number of {\tt write} operation $\alabel'_1$ that happens on replica $\arep'$, and $(\alabel'_1,\alabel_1) \in \avisord \vee \alabel'_1 = \alabel_1$. When $(b_1,V'_1) \in S$, by the causal delivery assumption, the effectors of every such $\alabel'_1$ have already been applied during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$.
 
         By Annotation2, we know that if $(b_1,V'_1)$ is the effector of $\alabel_1$ and $(b_1,V'_1) \in S$, then $\alabel_1$ is maximal w.r.t $\avisord$ among write operations applied to replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$.
 
-        Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. It is easy to prove that, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of {\tt write} operations happen on replica $\arep'$ and has been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. Then, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds in $\aglobalstate'$.
+        Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. It is easy to prove that, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of {\tt write} operations happen on replica $\arep'$ and whose effectors been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. Then, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds in $\aglobalstate'$.
 
     \item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
