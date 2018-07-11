@@ -130,7 +130,7 @@ concurrent \lstinline|addAfter| operations have a real conflict only
 if their first arguments are the same (eg. the element \lstinline|b|
 in the example aforementioned).
 %
-In such case, the strategy to resolve the conflict will always chose
+In such case, the strategy to resolve the conflict will always choose
 to order first in the resulting list the character added with the
 highest timestamp, and in the particular case where the timestamps
 should be the same, an arbitrary order among replicas will be used.
@@ -138,11 +138,11 @@ should be the same, an arbitrary order among replicas will be used.
 Going back to the example above, and assuming that the character
 \lstinline|c| was added with timestamp $t_1$ and the character
 \lstinline|d| was added with timestamp $t_2$, if we assume that
-$t_1 < t_2$ for some order $\leq$ between timestamps, then the list will
+$t_2 < t_1$ for some order $\leq$ between timestamps, then the list will
 converge to $\mathtt{a \cdot b \cdot c \cdot d \cdot e}$.
 %
 We obtain the same result if $t_1 = t_2$ and, assuming that we have a replica
-order $<_r$, we have $\arep_1 <_r \arep_2$.
+order $<_r$, we have $\arep_2 <_r \arep_1$.
 %
 In any other case we obtain $\mathtt{a \cdot b \cdot d \cdot c \cdot e}$.
 %
@@ -221,7 +221,7 @@ type
 \end{inparaenum}
 For instance, for the RGA example, the state of the final
 list (when all updates are delivered) should be reachable by considering a sequence where all
-\lstinline|addAfter| and  operations are executed sequentially.\footnote{We
+\lstinline|addAfter|  operations are executed sequentially.\footnote{We
   will come back to RGA to add \lstinline|remove|
   in \sectionautorefname~\ref{sec:overview}.}
 %
