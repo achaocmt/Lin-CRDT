@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180702143010" modified="D:20180702151418"/>
+<info created="D:20180702143010" modified="D:20180711231550"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -296,7 +296,7 @@ h
 	\mathtt{addAfter}(b,d)\\
 	\mathtt{remove}(b)
 	\end{array}\right\}</text>
-<text matrix="1 0 0 1 -12.795 226" transformations="translations" pos="64 436" stroke="black" type="label" width="66.044" height="7.473" depth="2.49" valign="baseline" style="math">\mathsf{G}(\ensuremath{\mathtt{r}}_1).\mathtt{Tomb}=\emptyset</text>
+<text matrix="1 0 0 1 -12.795 226" transformations="translations" pos="64 436" stroke="black" type="label" width="75.301" height="7.473" depth="2.49" valign="baseline" style="math">\mathsf{G}(\ensuremath{\mathtt{r}}_1).\mathtt{Tomb}= \{b\}</text>
 <path stroke="black">
 168 784 m
 224 784 l
@@ -344,7 +344,7 @@ h
 <text matrix="1 0 0 1 -13.795 79" transformations="translations" pos="64 436" stroke="black" type="label" width="159.528" height="44.287" depth="39.4" valign="baseline" style="math">\left\{\kern-5pt\begin{array}{l}
 (\mathtt{addAfter}(\circ, a), \mathtt{addAfter}(b,c)),\\
 (\mathtt{addAfter}(\circ, b), \mathtt{addAfter}(b,c)),\\
-(\mathtt{addAfter}(\circ, b), \mathtt{addAfter}(b,r)),\\
+(\mathtt{addAfter}(\circ, b), \mathtt{addAfter}(b,d)),\\
 (\mathtt{addAfter}(\circ, a), \mathtt{remove}(b)),\\
 (\mathtt{addAfter}(b, c), \mathtt{remove}(b)),\\
 (\mathtt{addAfter}(\circ, a), \mathtt{remove}(b)),\\

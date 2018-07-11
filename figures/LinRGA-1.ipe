@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180702142633" modified="D:20180702150641"/>
+<info created="D:20180702142633" modified="D:20180711231411"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -332,7 +332,7 @@ h
 <text matrix="1 0 0 1 -13.795 146" transformations="translations" pos="64 436" stroke="black" type="label" width="159.528" height="20.406" depth="15.46" valign="baseline" style="math">\left\{\kern-5pt\begin{array}{c}
 (\mathtt{addAfter}(\circ, a), \mathtt{addAfter}(b,c)),\\
 (\mathtt{addAfter}(\circ, b), \mathtt{addAfter}(b,c)),\\
-(\mathtt{addAfter}(\circ, b), \mathtt{addAfter}(b,r))\\
+(\mathtt{addAfter}(\circ, b), \mathtt{addAfter}(b,d))\\
 \end{array}\kern-5pt\right\}</text>
 <text matrix="1 0 0 1 -157 -18" transformations="translations" pos="208 624" stroke="black" type="label" width="35.616" height="6.918" depth="0" valign="baseline" style="math">\mathsf{G}.\mathtt{vis} =</text>
 </page>
