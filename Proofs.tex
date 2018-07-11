@@ -103,7 +103,8 @@ This last requirements establishes a strong
 correspondence between the implementation of the CRDT and its
 specification. When using query-updates rewritings $\gamma$, $\mathsf{Refinement}$ requires that 
 the effector produced by an operation $\alabel$ be simulated by $\secondrep(\gamma(\alabel))$ 
-(the update label in the image of $\alabel$ w.r.t. $\gamma$) in the specification. 
+%(the update in the image of $\gamma(\alabel)$) 
+in the specification. 
 
 The proof of $\mathsf{Refinement}$ relies on a \emph{refinement
   mapping}~\cite{AbadiL91,DBLP:journals/iandc/LynchV95} between replica states and states of the
@@ -167,8 +168,10 @@ TreeDoc~\cite{DBLP:conf/icdcs/PreguicaMSL09}&$\alabelshort[{\tt addBetween}]{val
 \hline
 \end{tabular}
 }
+\vspace{-2mm}
 \caption{CRDTs proved RA-linearizable and the linearization strategy used in each case.}
 \label{fig:crdt-implementaton of this paper, their correctness, and their interface}
+ \vspace{-4mm}
 \end{figure}
 
 We have applied this methodology to a range of CRDTs listed in \figureautorefname~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface},
@@ -246,8 +249,8 @@ In this section, we describe a first instantiation of the methodology described 
 The annotations included under the \lstinline|atSource| labels describe the construction of the linearization,
 %We describe updates of the linearization using \lstinline|let| constructs that append a set of labels.
 which is extended by appending operations, after possibly rewriting
-them through the query-update rewriting $\gamma$ show in the example of~\ref{fig:or-set-lk-rem}. %, when they execute the \lstinline|atSource| procedure.
-The annotations under \lstinline|downStream| specify the behavior of the effectors, e.g., characterizing the result of applying them based on the set of operations visible to the replica where they were generated
+them through the query-update rewriting $\gamma$ shown in Example~\ref{ex:qur-orset}. %, when they execute the \lstinline|atSource| procedure.
+The annotations under \lstinline|downStream| specify the behavior of the effectors, e.g., characterizing their effect based on the set of operations visible to the replica where they were generated
 % at the moment of applying the corresponding generator 
 %this operation has originated 
 (at the time when the corresponding generator has been executed). 
@@ -268,9 +271,9 @@ It is important to recall at this point that concurrent operations can be applie
 Importantly, a fundamental property of CRDTs~\cite{ShapiroPBZ11} is that the effectors of concurrent operations should \emph{commute}. In other words, applying them in any order leads to the same state.
 The fact that concurrent effectors commute is an easy consequence of the annotations under \lstinline|downStream|: two {\tt add} or two {\tt remove} effectors commute obviously because they both add or both remove element-id pairs, while an {\tt add} and a {\tt remove} effector commute when they are concurrent because in this case, the element-id pairs removed by the {\tt remove} effector are different from the pair added by the {\tt add} effector (since the {\tt add} is not visible to {\tt remove}).
 
-The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. For instance, the effector produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{As we mentioned in \sectionautorefname~\ref{ssec:proof-methodology}, whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, the effector produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the effector produced by $\alabel$ must be simulated by $\alabel_2$ in the specification.} and the $\alabelshort[{\tt add}]{a,k}$ operation of the specification $\specOrSet$ has exactly the same effect. The same holds for the effector produced by $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases. First, whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, the query $\alabellong[{\tt readIds}]{a}{R}{}$ introduced by the query-update rewriting should be enabled in the specification state $\refmap(\sigma)=\sigma$. This clearly holds because the output ${\tt R}$ of ${\tt readIds(a)}$ in the specification is computed exactly as the variable ${\tt R}$ in \lstinline|atSource|.
+The proof of $\mathsf{Refinement}$ is quite straightforward. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt add}]{a,k}$~\footnote{As we mentioned in \sectionautorefname~\ref{ssec:proof-methodology}, whenever an operation label $\alabel$ is rewritten to another label $\alabel'$, e.g. $\alabelshort[{\tt add}]{a}$ is rewritten to $\alabelshort[{\tt add}]{a,k}$, the effector produced by the original operation $\alabel$ must be simulated by the operation $\alabel'$ in the specification. Similarly, for query-updates $\alabel$ rewritten to $(\alabel_1,\alabel_2)$, the effector produced by $\alabel$ must be simulated by $\alabel_2$ in the specification.} and the $\alabelshort[{\tt add}]{a,k}$ operation of the specification $\specOrSet$ has exactly the same effect. The same holds for the effector corresponding to $\alabelshort[{\tt remove}]{a,R}$. Concerning query operations, there are two cases. First, whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes \lstinline|atSource| on a state $\sigma$, the query $\alabellong[{\tt readIds}]{a}{R}{}$ introduced by the query-update rewriting should be enabled in the specification state $\refmap(\sigma)=\sigma$. This holds because the output ${\tt R}$ of ${\tt readIds(a)}$ in the specification is computed exactly as the variable ${\tt R}$ in \lstinline|atSource|.
 % the computation of $R$ in \lstinline|atSource| and as the output of $\alabelshort[{\tt readIds}]{a}$ in the specification state $\sigma$ are exactly the same, and (2) 
-Second, applying the query $\alabellongind[{\tt read}]{}{A}{}$ on the replica state $\sigma$ should result in the same return value ${\tt A}$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma$, which again holds trivially.
+Second, applying $\alabellongind[{\tt read}]{}{A}{}$ on a state $\sigma$ should result in the same return value ${\tt A}$ as applying the same query in the context of the specification on the state $\refmap(\sigma)=\sigma$, which again holds trivially.
 
 Finally, we describe the proof of the fact that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. As already mentioned, appending operations to the linearization when they execute \lstinline|atSource| clearly implies that $\alinord$ is consistent with visibility. Next, the projection of $\alinord$ on the updates is obviously admitted by the specification (the updates are always enabled from the point of view of the specification).
 %The only thing to show is that the element-id pairs removed by a {\tt remove} have been added by {\tt adds} which precede it in the linearization, and not already removed by other {\tt remove}s that precede it. This is a direct consequence of the fact that the linearization order is consistent with the visibility relation, and the invariant $\mathsf{ReplicaStates}$, which implies that every element-id pair in a the state of a replica $\arep$ has been added by an {\tt add} visible to $\arep$ and not removed by other {\tt remove}s visible to $\arep$. Then,
@@ -307,8 +310,10 @@ We now discuss the issue of the non-deterministic specifications of Wooki and Tr
   \centering
   \includegraphics[width=0.7 \textwidth]{figures/RGAHisandLin.pdf}
 %\vspace{-10pt}
+\vspace{-1mm}
   \caption{An execution of RGA and the corresponding execution-order and timestamp-order linearizations. We assume that $\ats_a<\ats_b<\ats_c$.}
   \label{fig:a history of RGA and its RA-linearization}
+  \vspace{-3mm}
 \end{figure}
 
 CRDT objects such as RGA in Listing~\ref{lst:rga}, that use timestamps for conflict resolution, may not admit execution-order linearizations. 

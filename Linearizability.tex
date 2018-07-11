@@ -46,35 +46,7 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
   \label{fig:sem-dom}
 \end{wrapfigure}
 
-\begin{figure}
-\footnotesize
-\[
-  \inferrule[\text{\sc Operation}]
-  {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
-  \ats\neq\bot\implies (\,\forall \alabel'\in\alabelset.\ \tsof(\alabel') < \ats\,) \\
-  \forall \alabel'\in \labeldom{\avisord}.\ \tsof(\alabel') \neq \ats}
-  {(\gstates, \avisord, \downstreams) \xrightarrow{\src{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], %\alabel
-    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \leftarrow \effector])}
-\]
 
-
-\[
-  \inferrule[\text{\sc DownStream}]
-  {\gstates(\arep) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\labeldom{\avisord} \setminus \alabelset) \\
-    \downstreams(\alabel)= \delta \\ \delta(\astate) = \astate'}
-  {(\gstates, \avisord, \downstreams) \xrightarrow{\dwn{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
-\]
-
-\caption{
-  Operational Semantics of CRDTs.
-  We use $C[a \leftarrow b]$ to denote the in-place update of
-  element $a$ of the domain of $C$ with value $b$;
-  $\mathit{unique}(i)$ to ensure that $i$ is a unique identifier;
-  and $\labeldom{\avisord}=\{\alabel: \exists \alabel'.\
-  (\alabel,\alabel')\in \avisord \lor (\alabel',\alabel)\in \avisord\}$.
-}
-\label{fig:crdt-opsem}
-\end{figure}
 
 To formalize the semantics of CRDT objects and our correctness
 criterion we introduce several semantic domains summarized
@@ -119,19 +91,19 @@ contains a distinguished element $\bot$ which we shall use for
 operations that do not generate a timestamp as the method {\tt remove}
 of the RGA.
 % In that case the meta-variable $\ats$ adopts the value $\bot$. 
-We extend the order relation $<$ on timestamps to include $\bot$ as a
+We extend the order relation $<$ to include $\bot$ as a
 minimal element.
-The timestamp $\ats$ of an operation label $\alabel=\alabelobjind{\argv}{\retv}{i,\ats}$
+The timestamp $\ats$ of a label $\alabel=\alabelobjind{\argv}{\retv}{i,\ats}$
 is denoted by $\tsof(\alabel)$.
 We may omit the object $\aobj$, the timestamp $\ats$, or the return
-value when these are not important.
+value $\retv$ when they are not important.
 %We assume that in a history all labels are unique.
 Since there might be multiple calls to the same method with the same
 arguments and result, labels are tagged with a unique identifier $i$.
 %as in $\alabellongind{\argv}{\retv}{i}$.
-However, since we assume that each label of an operation in an
-execution is tagged with a unique identifier, we will ignore
-identifiers when unambiguous.
+%However, since we assume that each label of an operation in an
+%execution is tagged with a unique identifier, 
+We will ignore identifiers when unambiguous.
 The set of all operation labels is denoted by $\labels$.
 %
 
@@ -202,8 +174,7 @@ When $(\alabel_1,\alabel_2)\in \avisord$, we say that $\alabel_1$ is
 \emph{visible} to $\alabel_2$, or that $\alabel_2$ \emph{sees}
 $\alabel_1$.
 As it will be clear from the definition of the transition relation,
-$\avisord$ is a \emph{strict partial order} (i.e.
-irreflexive and transitive).
+$\avisord$ is a \emph{strict partial order}. % (i.e. irreflexive and transitive).
 Finally, $\downstreams\in [\labels \rightarrow \Delta]$ associates to
 each operation label $\alabel \in \alabelset$ an effector
 $\effector\in [\states \rightarrow \states]$, which is the replica
@@ -213,6 +184,37 @@ origin replica ($\Delta$ denotes the set of effectors).
 For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
 
 %\fxwarning[nomargin, inline]{ADD CONSTRAINT ON TIMESTAMPS: THAT THEY INCREASE ACCORDING TO THE VISIBILITY. NEED TO INTRODUCE SOMEWHERE THE ORDER RELATION ON TIMESTAMPS.}
+
+\begin{figure}
+\footnotesize
+\[
+  \inferrule[\text{\sc Operation}]
+  {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\sigma,\amethod,\argv) = (\retv,\effector,\ats) \\  \effector(\astate) = \astate' \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
+  \ats\neq\bot\implies (\,\forall \alabel'\in\alabelset.\ \tsof(\alabel') < \ats\,) \\
+  \forall \alabel'\in \labeldom{\avisord}.\ \tsof(\alabel') \neq \ats}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\src{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], %\alabel
+    \avisord \cup (\alabelset \times \{\alabel\}), \downstreams[\alabel \leftarrow \effector])}
+\]
+
+
+\[
+  \inferrule[\text{\sc DownStream}]
+  {\gstates(\arep) = (\alabelset, \astate) \\ \alabel \in \mathsf{min}_{\avisord}(\labeldom{\avisord} \setminus \alabelset) \\
+    \downstreams(\alabel)= \delta \\ \delta(\astate) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\dwn{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
+\]
+  \vspace{-3mm}
+\caption{
+  Operational Semantics of CRDTs.
+  We use $C[a \leftarrow b]$ to denote the in-place update of
+  element $a$ of the domain of $C$ with value $b$;
+  $\mathit{unique}(i)$ to ensure that $i$ is a unique identifier;
+  and $\labeldom{\avisord}=\{\alabel: \exists \alabel'.\
+  (\alabel,\alabel')\in \avisord \lor (\alabel',\alabel)\in \avisord\}$.
+}
+\label{fig:crdt-opsem}
+  \vspace{-5mm}
+\end{figure}
 
 The transition relation between global configurations is defined in
 Figure~\ref{fig:crdt-opsem}.
@@ -750,6 +752,17 @@ history $\gamma(h)=(\alabelset',\avisord')$ where
  $\gamma(\alabel)$ when $\gamma(\alabel)$ is a singleton, or its first (resp.,
  second) component when $\gamma(\alabel)$ is a pair.
 \end{itemize}
+
+\begin{example}[Query-Update Rewriting of OR-Set]
+\label{ex:qur-orset}
+As shown in Figure~\ref{fig:or-set-lk-rem}, the query-update rewriting used in the context of OR-Set 
+is defined by:  $\gamma( \alabelshort[\mathtt{add}]{a} ) = \alabelshort[\mathtt{add}]{a,k}$ where $k$ is a unique identifier,
+$\gamma( \alabelshort[\mathtt{remove}]{a} ) = (\alabellong[\mathtt{readIds}]{a}{S}{}, \alabelshort[\mathtt{remove}]{a,S})$,
+for some set of identifiers $S$, and $\gamma( \alabellongind[{\tt read}]{}{A}{} ) = \alabellongind[{\tt read}]{}{A}{}$.
+
+\end{example}
+
+
 The following
 extends Definition~\ref{definition:ralinearizability1} to arbitrary histories
 using the rewriting defined above.
