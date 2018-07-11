@@ -2,10 +2,11 @@
 \section{Proving \CRDTLin{}}
 \label{sec:proofs}
 
-We describe a proof methodology for showing that CRDT objects are
-\crdtlinearizable{}.
-This methodology consists in proving an inductive invariant that
-entails a simulation based on refinement
+% We describe a proof methodology for showing that CRDT objects are
+% \crdtlinearizable{}.
+Our methodology for proving that a CRDT is \crdtlinearizable{}
+consists in proving an inductive invariant entailing a simulation
+based on refinement
 mappings~\cite{AbadiL91,DBLP:journals/iandc/LynchV95}, showing that
 the evolution of replica states can be simulated by the specification.
 
@@ -311,7 +312,7 @@ We now discuss the issue of the non-deterministic specifications of Wooki and Tr
   \includegraphics[width=0.7 \textwidth]{figures/RGAHisandLin.pdf}
 %\vspace{-10pt}
 \vspace{-1mm}
-  \caption{An execution of RGA and the corresponding execution-order and timestamp-order linearizations. We assume that $\ats_a<\ats_b<\ats_c$.}
+  \caption{Execution-order and timestamp-order linearizations for RGA. Here $\ats_a<\ats_b<\ats_c$.}
   \label{fig:a history of RGA and its RA-linearization}
   \vspace{-3mm}
 \end{figure}

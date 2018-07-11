@@ -12,7 +12,7 @@
 % \item should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section)
 % \end{itemize}}
 
-In this section we formalize the intuitions developed in Section~\ref{sec:overview}. We define the semantics of CRDT objects (\S~\ref{ssec:semantics}), specifications (\S~\ref{subsec:sequential specification}), and our notion of RA-linearizability (\S~\ref{subsec:definition of distributed linearizability}).
+In this section we formalize the intuitions developed in \sectionautorefname~\ref{sec:overview}. We define the semantics of CRDT objects (\S~\ref{ssec:semantics}), specifications (\S~\ref{subsec:sequential specification}), and our notion of RA-linearizability (\S~\ref{subsec:definition of distributed linearizability}).
 
 %\fxnote[nomargin, inline]{Should we talk here about non-determinism and convergence ? (maybe left for later in a discussion section).}
 
@@ -21,7 +21,7 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
 \subsection{The Semantics of CRDT objects}\label{ssec:semantics}
 \begin{wrapfigure}{r}{0.5\linewidth}
   \centering
-  \vspace{-10pt}
+  \vspace{-20pt}
   \(
   \begin{array}[t]{rcll}
     \aobj & \in  & \objs & \text{Objects} \\
@@ -50,7 +50,7 @@ In this section we formalize the intuitions developed in Section~\ref{sec:overvi
 
 To formalize the semantics of CRDT objects and our correctness
 criterion we introduce several semantic domains summarized
-in Figure~\ref{fig:sem-dom}.
+in \figureautorefname~\ref{fig:sem-dom}.
 %
 We let $\aobj \in \objs$ be a CRDT object in the set of objects
 $\objs$.
@@ -217,7 +217,7 @@ For some fixed initial replica state $\astate_0$, the initial global configurati
 \end{figure}
 
 The transition relation between global configurations is defined in
-Figure~\ref{fig:crdt-opsem}.
+\figureautorefname~\ref{fig:crdt-opsem}.
 The first rule describes a replica $\arep$ in state $\astate$
 executing an invocation of method $\amethod$ with argument $\argv$.
 We use a function $\atsource$ to represent the behavior of the generators of all methods collectively (the code under the \lstinline|atSource| labels),
@@ -329,13 +329,13 @@ Given an execution $e$ ending in a global configuration $(\gstates,
 \avisord, \downstreams)$, the \emph{history} of $e$, denoted by $\hist{e}$, is the pair
 $(\labeldom{\avisord}, \avisord)$. Note that the relation $\avisord$ is a strict partial order in this case.
 We will later allow a more general notion of history in order to deal
-with object compositions (see Section~\ref{sec:compositionality}).
+with object compositions (see \sectionautorefname~\ref{sec:compositionality}).
 Also, the history of a trace $\atrace$, denoted by $\hist{\atrace}$,
 is the history of the execution that corresponds to $\atrace$.
 The set of histories $\histories(\aobj)$ of an object $\aobj$ is the
 set of histories $h$ of an execution $e$ of $\aobj$. A pictorial representation
-of an execution (trace) can be found in Figure~\ref{fig:or-set-not-lin} while an example of a history
-can be found in Figure~\ref{fig:rga-history}.
+of an execution (trace) can be found in \figureautorefname~\ref{fig:or-set-not-lin} while an example of a history
+can be found in \figureautorefname~\ref{fig:rga-history}.
 
 %\fxwarning[nomargin, inline]{EXAMPLE OF HISTORY OF AN EXECUTION.} {\color {red} CW: \autoref{fig:an example run of semantics} shows two steps of a history of RGA, and we can see how history grow in this example. Do I need to draw another figure start from initial global configuration?}
 
@@ -432,9 +432,12 @@ abstract state $\abstate'$.
 %\[ \abstate \specarrow{\alabel}  \abstate' \]
 In the specific case where the label $\alabel$ assumes a certain
 precondition $\apre$ over the initial abstract state $\abstate$ we
-will use Hoare-style preconditions and write
-\[ \big(\abstate\ |\ \apre(\abstate)\big) \specarrow{\alabel}
-  \abstate' \] In this way, a sequential specification is the set
+will use Hoare-style preconditions and write\\[3pt]
+\centerline{
+\(\big(\abstate\ |\ \apre(\abstate)\big) \specarrow{\alabel}
+  \abstate'\)
+}\\[3pt]
+In this way, a sequential specification is the set
 of labels that are accepted by the successive application of the
 transition relation starting from some given initial state
 $\abstate_{0}$.
@@ -445,12 +448,15 @@ described before.
 \begin{example}[Sequential Specification of a Counter]
   \label{definition:sequential specification of counter} In this case
   the state domain is $\abstates = \mathbb{Z}$, that is the state will
-  be an integer, and the transitions are given as follows:
-\[\small
+  be an integer, and the transitions are given as follows:\\[3pt]
+\centerline{
+\(
+\small
   k \specarrow{\alabellong[\mathsf{inc}]{}{}} k+1\qquad\qquad
   k \specarrow{\alabellong[\mathsf{dec}]{}{}} k-1\qquad\qquad
   k \specarrow{\alabellong[\mathsf{read}]{}{k}} k
-\]
+\)
+}
 \end{example}
 
 \begin{example}[Sequential Specification of RGA 
@@ -560,7 +566,7 @@ specifications shall be non-deterministic.
 %
 This non-determinism in the specification has to be deterministically
 resolved by the implementations to ensure convergence.
-We discuss this issue further in Section~\ref{subsec:time order of execution as linearization}.
+We discuss this issue further in \sectionautorefname~\ref{subsec:time order of execution as linearization}.
 %
 %Our definition of \CRDTLinshort{} can be extended to consider these
 %specifications, but we leave the details to
@@ -755,7 +761,7 @@ history $\gamma(h)=(\alabelset',\avisord')$ where
 
 \begin{example}[Query-Update Rewriting of OR-Set]
 \label{ex:qur-orset}
-As shown in Figure~\ref{fig:or-set-lk-rem}, the query-update rewriting used in the context of OR-Set 
+As shown in \figureautorefname~\ref{fig:or-set-lk-rem}, the query-update rewriting for OR-Set 
 is defined by:  $\gamma( \alabelshort[\mathtt{add}]{a} ) = \alabelshort[\mathtt{add}]{a,k}$ where $k$ is a unique identifier,
 $\gamma( \alabelshort[\mathtt{remove}]{a} ) = (\alabellong[\mathtt{readIds}]{a}{S}{}, \alabelshort[\mathtt{remove}]{a,S})$,
 for some set of identifiers $S$, and $\gamma( \alabellongind[{\tt read}]{}{A}{} ) = \alabellongind[{\tt read}]{}{A}{}$.

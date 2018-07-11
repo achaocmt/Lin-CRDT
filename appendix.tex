@@ -153,7 +153,7 @@ Since every operation is appended to the linearization when it executes atSource
 
 Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt in}]{}$ operation of the specification $\specMVReg$ has exactly the same effect. The same holds for that of {\tt dec}. Applying the query {\tt read} on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\refmap(\sigma)=\sigma$, which again holds trivially.
 
-We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
 \end {proof}
 
 
@@ -318,7 +318,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
     \item[-] Applying the query {\tt read} on the replica state $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
     \end{itemize}
 
-\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -433,7 +433,7 @@ Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping 
 \end{itemize}
 
 
-We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
 \end {proof}
 
 
@@ -616,7 +616,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
     \item[-] Applying the query $\alabelshort[read]{}$ on the replica state $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
     \end{itemize}
 
-\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -759,7 +759,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
     \item[-] Applying the query $\alabelshort[read]{}$ on the replica state $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
     \end{itemize}
 
-\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -893,7 +893,7 @@ Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping 
 \end{itemize}
 
 
-We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
 \end {proof}
 
 
@@ -1259,7 +1259,7 @@ Our proof proceeds as follows:
     \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on replica state $\sigma$. Assume $\sigma = w_1 \cdot \ldots \cdot w_n$, and for each $i$, $w_i = (id_i,v_i,degree_i,flag_i)$. Then, $s$ is the projection of $v_1 \cdot \ldots \cdot v_n$ into values with flag $\mathit{true}$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l = v_1 \cdot \ldots \cdot v_n$ and $T = \{ v_i \vert flag_i = \mathit{false} \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
     \end{itemize}
 
-\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -1618,7 +1618,7 @@ Our proof proceeds as follows:
     \item[-] Assume we do $\alabellong[{\tt read}]{}{s}{}$ on replica state $\sigma$. Assume $\sigma = \{w_1,\ldots,w_n\}$, and for each $i$, $w_i = (v_i,tid_i,gv_i)$. Then, $s$ is obtained by walking $\sigma$ and read value of each T-characters according to the T-identifier order $<_t$ of $\sigma$, and ignoring all $nil$. Assume $\refmap(\sigma) = (l,T)$. We can see that $l$ is obtained by walking $\sigma$ and read ghost value of each T-characters according to the T-identifier order $<_t$ of $\sigma$, and $T = \{ gv_i \vert v_i = nil \}$. Thus, we have $\refmap(\sigma) \specarrow{\alabellong[{\tt read}]{}{s}{}} \refmap(\sigma)$.
     \end{itemize}
 
-\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
 
 This completes the proof of this lemma. $\qed$
@@ -1655,7 +1655,7 @@ The first version of list with {\tt addAt} interface is as follows: A list uses 
 
 Here we assume the first element of a sequence is at position $0$. 
 
-Our RGA algorithm of Section \ref{sec:overview} can be modified as follows for this interface: To do $\alabelshort[{\tt addBetween}]{a,k}$, we work as follows: 
+Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as follows for this interface: To do $\alabelshort[{\tt addBetween}]{a,k}$, we work as follows: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1794,7 +1794,7 @@ As second version of list with {\tt addAt} interface, let us introduce the inter
 
 Similarly, we assume the first element of a sequence is at position $0$.
 
-Our RGA algorithm of Section \ref{sec:overview} can be modified as follows for this interface: 
+Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as follows for this interface: 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1874,7 +1874,7 @@ Since the order between the timestamps generated by ${\tt addAt}$ operations is 
 Note that by the causal delivery assumption and the preconditions of ${\tt addAt}$ and ${\tt remove}$, it cannot happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation, which essentially calls $\alabelshort[{\tt addAt}]{a,b}$, is concurrent with an operation that adds ${\tt a}$ to the list, i.e., $\alabellong[{\tt addAt}]{a,\_}{\_}{}$. It can not happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation adding ${\tt b}$ is concurrent with an operation $\alabellong[{\tt remove}]{b}{\_}{}$ that removes ${\tt b}$. This ensures that reordering
 concurrent effectors does not lead to ``invalid'' replica states where for instance, the timestamp tree ${\tt N}$ contains nodes which are not reachable from the root (which would happen if $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ is delivered before the operation $\alabellong[{\tt addAt}]{a,\_}{\_}{}$ adding ${\tt a}$), or where the tombstone set ${\tt Tomb}$ contains elements which are not in the tree (which would happen if $\alabellong[{\tt remove}]{b}{\_}{}$ is delivered before $\alabellong[{\tt addAt}]{b,\_}{\_}{}$). 
 
-Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mapping $\refmap$ as in Section \ref{subsec:time-stamp order as linearizabtion}: $\refmap(N,Tomb) = (l,T)$, where $l={\tt traverse(N, \emptyset)}$, and $T={\tt Tomb}$. 
+Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mapping $\refmap$ as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}: $\refmap(N,Tomb) = (l,T)$, where $l={\tt traverse(N, \emptyset)}$, and $T={\tt Tomb}$. 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1882,20 +1882,20 @@ Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mappin
 
 \item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ operations: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies. 
     
-    Obvious we can see that $\vert s_1 \cdot b \vert = k$. Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in Section \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. By the causal delivery assumption, we can see that effectors of inserting values of $s_1 \cdot b \cdot s_2$ have already been applied in $\astate$. 
+    Obvious we can see that $\vert s_1 \cdot b \vert = k$. Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. By the causal delivery assumption, we can see that effectors of inserting values of $s_1 \cdot b \cdot s_2$ have already been applied in $\astate$. 
     
     According to the order of Ti-Tree, it is easy to see that values of $s_1 \cdot b \cdot s_2$ keep a same order in Ti-tree of $\astate$ as the order in $s_1 \cdot b \cdot s_2$. Then, values of $s_1 \cdot b \cdot s_2$ keep a same order in $l$ as the order in $s_1 \cdot b \cdot s_2$. Thus, $s_1 \cdot b \cdot s_2$ is a sub-sequence of $l_1 \cdot b \cdot l_2$.
 
 \item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ operations: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies.
 
-    Obvious we can see that $\vert s \cdot b \vert < k$. Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in Section \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. By the causal delivery assumption, we can see that effectors of inserting values of $s \cdot b$ have already been applied in $\astate$. Moreover, it is easy to see that values of $s \cdot b$ keep a same order in Ti-tree of $\astate$ as the order in $s \cdot b$. Then, values of $s \cdot b$ keep a same order in $l$ as the order in $s \cdot b$. Thus, $s \cdot b$ is a sub-sequence of $l_1 \cdot b \cdot l_2$. 
+    Obvious we can see that $\vert s \cdot b \vert < k$. Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. By the causal delivery assumption, we can see that effectors of inserting values of $s \cdot b$ have already been applied in $\astate$. Moreover, it is easy to see that values of $s \cdot b$ keep a same order in Ti-tree of $\astate$ as the order in $s \cdot b$. Then, values of $s \cdot b$ keep a same order in $l$ as the order in $s \cdot b$. Thus, $s \cdot b$ is a sub-sequence of $l_1 \cdot b \cdot l_2$. 
 
 \item[-] Concerning effectors of $\alabel = (\alabellong[{\tt remove}]{a}{s}{})$ operations: We show that they are simulated by the corresponding specification operation $\alabellong[{\tt remove}]{a}{s}{}$ only when the timestamp of $\alabel$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies. 
 
     Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $l' = l$ and $T' = T \cup \{ a \}$. By the causal delivery assumption, we can see that effectors of inserting values of $s$ have already been applied in $\astate$. Moreover, it is easy to see that values of $s$ keep a same order in Ti-tree of $\astate$ as the order in $s$. Then, values of $s$ keep a same order in $l$ as the order in $s$. Thus, $s$ is a sub-sequence of $l$.
 \end{itemize}
 
-We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in Section \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$ 
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$ 
 \end {proof}
 
 
@@ -1973,7 +1973,7 @@ Since $d_{min}$ is the minimal degree of W-characters in $S'$, there does not ex
 
 Recall that a sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
-Similarly as in Section \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{} with non-deterministic sequential specifications. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates. We say a sequence $s$ is closed under a relation $R$, if when $a$ is in $s$ and $(a,b) \in R$, we have $b$ also in $s$.
+Similarly as in \sectionautorefname \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{} with non-deterministic sequential specifications. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates. We say a sequence $s$ is closed under a relation $R$, if when $a$ is in $s$ and $(a,b) \in R$, we have $b$ also in $s$.
 
 \begin{definition}
 \label{definition:ralinearizability1 with non-deterministic specifications}
@@ -2057,7 +2057,7 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential sp
 \subsection{Proof Methodology for \crdtlin{} w.r.t Non-Deterministic Sequential Specifications}
 \label{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}
 
-In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-deterministic sequential specifications. Our methodology is similar for proving \crdtlin{} w.r.t deterministic sequential specifications in Section \ref{ssec:proof-methodology}.
+In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-deterministic sequential specifications. Our methodology is similar for proving \crdtlin{} w.r.t deterministic sequential specifications in \sectionautorefname \ref{ssec:proof-methodology}.
 
 %The similar points are as follows:
 
@@ -2138,7 +2138,7 @@ With above definitions and properties, our proof proceed as follows:
 
 \noindent {\bf Prove Annotations:} If above proof relies on annotations of the downstream or local state, then we should also prove that the annotation of downstream holds for new downstream, and the annotation of local state holds for new local state.
 
-\noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in Section \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$.
+\noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in \sectionautorefname \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$.
 
 
 We have applied this methodology to Wooki and Tree-Doc. For Wooki and Tree-Doc, we use execution-order linearizations. The linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed.
@@ -2167,7 +2167,7 @@ Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
 
 \begin {proof}
 
-We prove following the prove methodology of Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.
+We prove following the prove methodology of \sectionautorefname \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.
 
 We define abstract state $\gconfres'(s)$ as follows: given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, assume $\igconfres(s) = c_1 \dot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $\gconfres'(s) = (v_1 \cdot \ldots \cdot v_n,T)$, where $T = \{ v_i \vert flag_i = \mathit{false} \}$.
 
@@ -2199,7 +2199,7 @@ Then, our proof proceeds as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}.
+\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in \sectionautorefname \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}.
 
 \item[-] {\bf Prove $\mathsf{ReplicaStates}$:} Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute.
 
@@ -2254,7 +2254,7 @@ This completes the proof of this lemma. $\qed$
 
 Recall that a sequential specification \Spec{} is deterministic, if for every label, the transition from a given initial state can produce at most one final state. Otherwise, we say that \Spec{} is non-deterministic.
 
-Similarly as in Section \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{} with non-deterministic sequential specifications. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates. We say a sequence $s$ is closed under a relation $R$, if when $a$ is in $s$ and $(a,b) \in R$, we have $b$ also in $s$.
+Similarly as in \sectionautorefname \ref{subsec:definition of distributed linearizability}, let us provide the definition of \crdtlin{} with non-deterministic sequential specifications. For presentation reasons, we first consider the case where all the labels in the history are either queries or updates. We say a sequence $s$ is closed under a relation $R$, if when $a$ is in $s$ and $(a,b) \in R$, we have $b$ also in $s$.
 
 \begin{definition}
 \label{definition:ralinearizability1 with non-deterministic specifications}
@@ -2338,7 +2338,7 @@ If a history $h$ is \crdtlinearizable{} w.r.t. a non-deterministic sequential sp
 \subsection{Proof Methodology for \crdtlin{} w.r.t Non-Deterministic Sequential Specifications}
 \label{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}
 
-In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-deterministic sequential specifications. Our methodology is similar for proving \crdtlin{} w.r.t deterministic sequential specifications in Section \ref{ssec:proof-methodology}.
+In this subsection, we propose our methodology for proving \crdtlin{} w.r.t non-deterministic sequential specifications. Our methodology is similar for proving \crdtlin{} w.r.t deterministic sequential specifications in \sectionautorefname \ref{ssec:proof-methodology}.
 
 %The similar points are as follows:
 
@@ -2419,7 +2419,7 @@ With above definitions and properties, our proof proceed as follows:
 
 \noindent {\bf Prove Annotations:} If above proof relies on annotations of the downstream or local state, then we should also prove that the annotation of downstream holds for new downstream, and the annotation of local state holds for new local state.
 
-\noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in Section \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$.
+\noindent {\bf Prove $\mathsf{\CRDTLinshort{}}$:} Similarly as in \sectionautorefname \ref{ssec:proof-methodology}, this is a consequence of $\mathsf{ReplicaStates}$, $\mathsf{Refinement}$, and the correctness of $\gconfres'$.
 
 
 We have applied this methodology to Wooki and Tree-Doc. For Wooki and Tree-Doc, we use execution-order linearizations. The linearization $\alinord$ is defined by the order in which the \lstinline|atSource| procedures are executed.
@@ -2448,7 +2448,7 @@ Wooki is \crdtlinearizable{} w.r.t $\mathit{listBet}_s$.
 
 \begin {proof}
 
-We prove following the prove methodology of Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.
+We prove following the prove methodology of \sectionautorefname \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}.
 
 We define abstract state $\gconfres'(s)$ as follows: given a sequence $s$ of downstream, such that $s$ is consistent with $\avisord$ and closed under $\avisord^{-1}$, assume $\igconfres(s) = c_1 \dot \ldots \cdot c_n$, where for each $i$, $c_i = (id_i,v_i,degree_i,flag_i)$. Then, $\gconfres'(s) = (v_1 \cdot \ldots \cdot v_n,T)$, where $T = \{ v_i \vert flag_i = \mathit{false} \}$.
 
@@ -2480,7 +2480,7 @@ Then, our proof proceeds as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in Section \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}.
+\item[-] {\bf Prove correctness of $\gconfres'$:} With above properties, as discussed in \sectionautorefname \ref{subsec:appendix proof methodology for RA-linearizability w.r.t non-deterministic sequential specifications}, we can prove that $\gconfres'$ satisfies the requirement of $\gconfres$ in Definition \ref{definition:ralinearizability1 with non-deterministic specifications}.
 
 \item[-] {\bf Prove $\mathsf{ReplicaStates}$:} Since every operation is appended to the linearization when it executes {\tt atSource} it clearly follows, the linearization order is consistent with visibility order. Then, by the {\textred{causal delivery}} assumption, the order in which downstream are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels applied in a replica $\arep$, and $\alinord_2$ be the order of labels applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. This holds, since we have already prove that, the downstream of concurrent operations commute.
 
@@ -2684,7 +2684,7 @@ The formation of or-set is as follows: $I(r) = (\Sigma, \sigma_0, \mathit{Msg}, 
 
 
 
-\section{Proofs of Section \ref{sec:proving distributed linearizability}}
+\section{Proofs of \sectionautorefname \ref{sec:proving distributed linearizability}}
 \label{sec:appendix proofs of section proving distributed linearizability}
 
 
@@ -2995,7 +2995,7 @@ This completes the proof of this lemma. $\qed$
 
 
 
-\section{Proofs of Section \ref{sec:compositionality of distributed linearizability}}
+\section{Proofs of \sectionautorefname \ref{sec:compositionality of distributed linearizability}}
 \label{sec:appendix proofs of section compositionality of distributed linearizability}
 
 
@@ -3921,7 +3921,7 @@ To do $remove(a)$, we just set the flag of W-character of $a$ in $string_s$ to b
 
 \forget
 {
-\section{Proofs of Section \ref{sec:compositionality of distributed linearizability}}
+\section{Proofs of \sectionautorefname \ref{sec:compositionality of distributed linearizability}}
 \label{sec:appendix proofs of section compositionality of distributed linearizability}
 
 

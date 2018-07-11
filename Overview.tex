@@ -57,13 +57,13 @@ called replicas.
 
 % \gpwarning{Redraw pictures.}
 % on a replicated object
-The execution model for an operation \lstinline|op(v)| is depicted in Figure~\ref{fig:sys-mod} and it proceeds as follows:
+The execution model for an operation \lstinline|op(v)| is depicted in \figureautorefname~\ref{fig:sys-mod} and it proceeds as follows:
 \begin{itemize}
 \item A client, i.e. a program issuing calls to the object, connects
   to any one replica %(a node of the system holding a copy of the object)
   and performs the operation in that replica. We call such a
   replica the source or \emph{origin}. The source of \lstinline|op(v)|
-  in Figure~\ref{fig:sys-mod} is the replica $\arep_1$ on the top.
+  in \figureautorefname~\ref{fig:sys-mod} is the replica $\arep_1$ on the top.
   Then, executing an operation is done in two phases.
 \item Assuming that the operation requires reading and updating the
   state of the object, the state of the object is read only in the origin replica.
@@ -77,12 +77,10 @@ The execution model for an operation \lstinline|op(v)| is depicted in Figure~\re
   We assume throughout this paper that effectors are executed
   immediately at the origin replica.
   This is represented by the dot at the origin replica
-  in Figure~\ref{fig:sys-mod}.
-\item Finally, as the system progresses, the effector of the operation
-  will be delivered to each of the replicas, and their state will be
-  updated consequently.
-  This is represented by the target of the arrows
-  in Figure~\ref{fig:sys-mod}.
+  in \figureautorefname~\ref{fig:sys-mod}.
+\item Then, the effector of the operation is delivered to each of the
+  replicas, and their states are updated consequently, represented by
+  the target of the arrows in \figureautorefname~\ref{fig:sys-mod}.
 \end{itemize}
 % This model is depicted in~\autoref{fig:system-model}.
 % \fxwarning[nomargin, inline]{We need the picture}.
@@ -178,7 +176,7 @@ for \lstinline|b| which is assumed to be larger than any
 timestamp presently occurring in the \lstinline|Ti-Tree|
 \lstinline|N| of the origin replica.\footnote{Also, \lstinline|t|$_{\mathtt{b}}$ cannot 
 be sampled by another replica invoking \lstinline|addAfter| (as we discussed
-in Section~\ref{sec:introduction} this can be ensured by tagging the timestamps with replica identifiers).}
+in \sectionautorefname~\ref{sec:introduction} this can be ensured by tagging the timestamps with replica identifiers).}
 %
 The \lstinline|downStream| portion of \lstinline|addAfter(a,b)|
 encodes the effect of the operation: adding the triple
@@ -203,7 +201,7 @@ the tree (eg. siblings) are not causally related.
 %   the correctness of the algorithm.}
 %
 An example of such a tree is shown in the left most box
-of Figure~\ref{fig:rga-trace}, where we can see that
+of \figureautorefname~\ref{fig:rga-trace}, where we can see that
 elements \lstinline|c| and \lstinline|b| were concurrently added after
 \lstinline|a|, and \lstinline|a| was added first after the
 initialization element $\circ$.
@@ -213,7 +211,7 @@ obtain a list by traversing the tree in pre-order fashion, with the
 proviso that siblings are ordered according to their timestamps with
 the \emph{highest timestamp visited first}.
 %
-Again, the leftmost box in Figure~\ref{fig:rga-trace} shows a tree that
+Again, the leftmost box in \figureautorefname~\ref{fig:rga-trace} shows a tree that
 results in the list $\mathtt{a \cdot b \cdot c}$ assuming that the
 timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 
@@ -230,10 +228,10 @@ timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 Let us consider the case of two concurrent operations:
 \lstinline|addAfter(c,d)| and \lstinline|addAfter(c,e)| executing in
 two different replicas starting both with the state depicted on the
-left of Figure~\ref{fig:rga-trace}.
+left of \figureautorefname~\ref{fig:rga-trace}.
 %
 Following the code in Listing~\ref{lst:rga} we obtain the trees in the
-second column of Figure~\ref{fig:rga-trace} where we assume that the
+second column of \figureautorefname~\ref{fig:rga-trace} where we assume that the
 top tree is the result of \lstinline|addAfter(c,d)| in one of the
 replicas, and the bottom tree is the result of executing
 \lstinline|addAfter(c,e)| in the other.
@@ -241,7 +239,7 @@ replicas, and the bottom tree is the result of executing
 Then, the two trees result in different lists in each
 replica before the operations are mutually propagated.
 %
-In the third column of Figure~\ref{fig:rga-trace} we obtain the
+In the third column of \figureautorefname~\ref{fig:rga-trace} we obtain the
 result of propagating the operations between the replicas -- indeed
 the propagation of any of the operations to any of the replicas
 renders this tree, since the result would be the same (c.f. the
@@ -285,14 +283,14 @@ elements.
 %
 The code of the \lstinline|remove| operation is self-explanatory.
 %
-The last column of Figure~\ref{fig:rga-trace} shows the result of
+The last column of \figureautorefname~\ref{fig:rga-trace} shows the result of
 removing item $\mathtt{d}$ from the list.
 
 The implementation of \lstinline|read| performs the pre-order
 traversal as explained before, where all the elements in the tombstone
 \lstinline|Tomb| are ignored from the output list.
 %
-In each of the boxes of Figure~\ref{fig:rga-trace} the list shown
+In each of the boxes of \figureautorefname~\ref{fig:rga-trace} the list shown
 represents the result of a \lstinline|read| operation in the state
 depicted.
 
@@ -336,8 +334,8 @@ set of labels $\alabelset$ and a visibility relation $\prec$ between labels.
 %incorporating the constraints enforced by the execution.
 %
 For instance, the history %where the constraints are given by visibility
-of the execution in Figure~\ref{fig:rga-trace} 
-is presented in Figure~\ref{fig:rga-history}.
+of the execution in \figureautorefname~\ref{fig:rga-trace} 
+is presented in \figureautorefname~\ref{fig:rga-history}.
 %, where we can see the
 %partial order resulting from the visibility relation of the execution
 %explained in~\autoref{fig:rga-trace}. 
@@ -422,7 +420,7 @@ the visibility relation among operations instead of the returns-before order, an
 to see a \emph{sub-sequence} of the linearization, instead of
 the whole prefix as in the case of linearizability.
 \end{inparaenum}
-(We will discuss one additional relaxation in Section~\ref{sec:or-set-crdt}).
+(We will discuss one additional relaxation in \sectionautorefname~\ref{sec:or-set-crdt}).
 %
 %Our relaxations requirethat the linear execution be consistent with
 %the visibility relation among operations (instead of the returns-before order)
@@ -455,7 +453,7 @@ Let us say that we have two concurrent \lstinline|addAfter(a,b)| and
 \lstinline|addAfter(a,c)| operations.
 %
 This example corresponds to a history formed of the first three nodes
-of Figure~\ref{fig:rga-history} from left to right.
+of \figureautorefname~\ref{fig:rga-history} from left to right.
 %
 Because these operations are concurrent they are not related by
 visibility (by definition of concurrent) so our criterion allows for
@@ -471,7 +469,7 @@ determined by their corresponding timestamps
 (\lstinline|t|$_{\mathtt{b}}$ and \lstinline|t|$_{\mathtt{c}}$).
 %
 Assuming that the ordering is the one given in the tree of the first
-column of Figure~\ref{fig:rga-trace} we know that we can order the
+column of \figureautorefname~\ref{fig:rga-trace} we know that we can order the
 operations as \lstinline|addAfter(a, c)| followed by
 \lstinline|addAfter(a, b)| which when executed sequentially obviously
 results in $\mathtt{a \cdot b \cdot c}$ as shown in the picture.
@@ -504,7 +502,7 @@ Consider now a similar case where after issuing the
 $\mathtt{addAfter}$ operations the processes attempt to immediately
 read the state.
 %
-As it was explained in Figure~\ref{fig:rga-trace} a possible behavior is
+As it was explained in \figureautorefname~\ref{fig:rga-trace} a possible behavior is
 that the first process returns the list $\mathtt{\circ \cdot a \cdot
   b}$ while the second returns the list $\mathtt{\circ \cdot a \cdot
   c}$. 
@@ -533,7 +531,7 @@ where the last call to $\mathtt{read}$ ignores the label
 {\color{red} $\mathtt{addAfter}(a, c)$} marked in red.
 %
 These are only two of the cases of conflicting concurrent
-operations, in Section~\ref{sec:proofs} we show that all operations
+operations, in \sectionautorefname~\ref{sec:proofs} we show that all operations
 can be ordered in such a way that they correspond to a sequential
 execution thereof.
 
@@ -630,10 +628,10 @@ there are two options depending on the interleaving:
   \lstinline|add(a)| operations are idempotent, and the
   \lstinline|remove| would remove the only occurrence of
   \lstinline|a|. This interleaving is the one depicted with solid
-  arrows in Figure~\ref{fig:or-set-simple}.
+  arrows in \figureautorefname~\ref{fig:or-set-simple}.
 \item On the other hand, if the operation \lstinline|add(a)| of the
   non-removing process comes last as depicted with the dashed arrows
-  in Figure~\ref{fig:or-set-simple}, the final set could contain the
+  in \figureautorefname~\ref{fig:or-set-simple}, the final set could contain the
   element \lstinline|a|.
 \end{inparaenum}
 As we have explained before, in our system model the operations can
@@ -677,11 +675,11 @@ The code of OR-Set is shown in Listing~\ref{lst:or-set} (ignoring
 {\bf Intuition of OR-Set Linearizability.}
 It is easy to find examples where the implementation of OR-Set can
 produce executions which cannot be justified by standard definition of
-linearizability (even with the relaxations discussed in Section~\ref{sec:rga-crdt-impl})
+linearizability (even with the relaxations discussed in \sectionautorefname~\ref{sec:rga-crdt-impl})
 assuming a standard Set specification.
 %
 % \gpwarning{Redraw this picture properly.}
-Figure~\ref{fig:or-set-not-lin} shows one such example.
+\figureautorefname~\ref{fig:or-set-not-lin} shows one such example.
 %
 For simplicity we assume here that we have two clients, each executing
 in one of two replicas as their origin, issuing the sequences of
@@ -767,7 +765,7 @@ to be removed.
 Any identifier not in this set will remain in the set after the update
 part of the remove.
 %
-Figure~\ref{fig:or-set-lk-rem} shows this rewriting
+\figureautorefname~\ref{fig:or-set-lk-rem} shows this rewriting
 where we denote by \lstinline|readIds| the query part of
 remove, which returns a set of elements to be removed, and a
 \lstinline|remove| operation taking a set of elements to be removed.

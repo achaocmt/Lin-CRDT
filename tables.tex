@@ -267,7 +267,7 @@ A single-object history $h$ is t0-linearizable w.r.t a sequential specification 
 
 To prove t0-linearizability, we introduce the notion of t0-specifications. A specification $\mathit{spec}$ is called t0-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, then any sequence that is consistent with visibility relation is a linearization of $h$.
 
-The following lemma shows some sequential specifications are t0-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t0-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that or-set is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and counter is t0-linearizable w.r.t $\mathit{counter}_s$.
+The following lemma shows some sequential specifications are t0-specifications. Its proof can be found in Appendix~\ref{subsec:appendix proofs of Lemma several t0-specifications}. Based on this lemma and our proofs in \sectionautorefname~\ref{sec:proving distributed linearizability}, we can see that or-set is t0-linearizable w.r.t $\mathit{OR}$-$\mathit{set}_s$, and counter is t0-linearizable w.r.t $\mathit{counter}_s$.
 
 \begin{restatable}{lemma}{SeveralTZeroSpecifications}
 \label{lemma:several t0-specifications}
@@ -285,7 +285,7 @@ A single-object history $h$ is t1-linearizable w.r.t a sequential specification 
 
 To prove t1-linearizability, we introduce the notion of t1-specifications. A specification $\mathit{spec}$ is called t1-specification, if given a history $h$ that is distributed linearizable w.r.t $\mathit{spec}$, and has a strict time-stamp order candidate as linearization, then any strict time-stamp order candidate is a linearization of $h$.
 
-The following lemma shows some sequential specifications are t1-specifications. Its proof can be found in Appendix \ref{subsec:appendix proofs of Lemma several t1-specifications}. Based on this lemma and our proofs in Section \ref{sec:proving distributed linearizability}, we can see that RGA is t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$.
+The following lemma shows some sequential specifications are t1-specifications. Its proof can be found in Appendix~\ref{subsec:appendix proofs of Lemma several t1-specifications}. Based on this lemma and our proofs in \sectionautorefname~\ref{sec:proving distributed linearizability}, we can see that RGA is t1-linearizable w.r.t $\mathit{list}_s^{\mathit{af}}$, and LWW-register is t1-linearizable w.r.t $\mathit{reg}_s$.
 
 \begin{restatable}{lemma}{SeveralTOneSpecifications}
 \label{lemma:several t1-specifications}

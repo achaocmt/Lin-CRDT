@@ -55,12 +55,12 @@ concurrent operations.
 We are not the first to observe that CRDT specifications can be
 simplified by considering sequential histories.
 %
-Two recent works~\cite{PerrinMJ14, JagadeesanR18} made similar
+Recent works~\cite{PerrinMJ14, JagadeesanR18} made similar
 observations.
 %
-\citet{PerrinMJ14} provides a criterion called Update Consistency,
-which to the best of our knowledge is the first to consider a
-linearization of updates and reason about the validity of queries using sub-sequences
+\citet{PerrinMJ14} provides Update Consistency, a criterion which to
+the best of our knowledge is the first to consider a linearization of
+updates and reason about the validity of queries using sub-sequences
 of this linearization.
 %
 Unlike \CRDTLinshort{}, to show that a history is Update Consistent,
@@ -72,7 +72,7 @@ Hence, \CRDTLinshort{} preserves in the specification histories the
 causality of execution histories, whereas Update Consistency does not.
 %
 While their definition is similar to ours, they do not prove the
-correctness of CRDT implementations or reason about compositionality as we do.
+correctness of CRDT implementations or reason about compositionality.
 
 % %
 % \gpnote[nomargin, inline]{They don't provide proofs of algorithms.
@@ -86,52 +86,42 @@ SEC shares some similarities with~\cite{PerrinMJ14} but the
 formalization is quite different.
 There are some important differences between SEC and \CRDTLinshort{}:
 \begin{inparaenum}
-\item While \CRDTLinshort{} has three simple requirements, the
-  definition of SEC is far from simple.
-  %
-  In particular, \CRDTLinshort{} as well as Update Consistency have a
-  global total order for updates, which is not the case for
-  SEC. %\footnote{At least this is not apparent from the definitions, nor stated in the paper.}
+\item Firstly, \CRDTLinshort{} -- as well as Update Consistency --
+  have a global total order for updates. This is is not the case for
+  SEC whose definition is quite complex.
 \item
-  \label{it-dependencies}
-  A second important difference is that CRDT
-  specifications in the SEC framework are assumed to be parameterized by a \emph{dependency}
-  relation at the level of the type's API.
+  \label{it-dependencies} Secondly, CRDT specifications in SEC are
+  assumed to be parameterized by a \emph{dependency} relation at the
+  level of the type's API.
   %
-  Then, their definition assumes that all independent operations
-  commute %(regardless whether these are issued by the same client or not)
-  and disregard the order between them even if they were issued by the same client.
+  Then, SEC assumes that all independent operations commute and
+  disregards the order between them even when issued by the same client.
   %
   It is unclear how such a specification could adequately capture
   systems enforcing (any or all) the session guarantees
   of~\cite{TerryDPSTW94}.
   %
-  With \CRDTLinshort{} we strive to preserve the guarantees enforced by the
+  \CRDTLinshort{} strives strive to preserve the guarantees of the
   underlying system network.
   %
-  This is particularly important since we assume that certain
-  operations that appear to be independent w.r.t. the API could be
-  data or control dependent when considering the client code.
+  This is important since we assume that certain
+  operations that appear independent at the API level could be
+  made data or control dependent by the client code.
   %
-  This is certainly the case when we relabel query-update operations
-  since the query usually provides arguments for the subsequent
-  update.
-\item While SEC is also proved to be compositional,
-%A last important difference concerns their compositionality
-%  result.
-%  %
-%  While their compositionality result appears similar to ours,
-  the
-  fact that operations stemming from different objects are necessarily
-  independent (the dependency relation is given at the level of the API
-  of an object, hence no dependencies between objects) in conjunction
-  with the point~(\ref{it-dependencies}) above means that a history of
-  two different objects satisfying SEC is trivially SEC since the order between
-  operations of different objects is ignored completely. For instance, the
-  history in Figure~\ref{fig:negative_composition} will be SEC just because
-  any two operations of different OR-Set objects are independent and the
+  This is the case in our query-update relabelings where queries
+  provide arguments for the subsequent update.
+\item While SEC is also proved to be compositional, since operations
+  from different objects are necessarily independent (the dependency
+  relation is given at the level of the API of an object, hence no
+  dependencies between objects) together with
+  point~(\ref{it-dependencies}) above means that a history of two
+  different SEC objects is trivially SEC since the order between
+  operations of different objects is ignored.
+  For instance, the
+  history in \figureautorefname~\ref{fig:negative_composition} is SEC because
+  the operations of the different OR-Set objects are independent and the
   order in which they were executed by the replicas $\arep_1$ or $\arep_2$
-  is not taken into consideration.
+  is not accounted for.
 %   interleaving
 %  of specifications of two different objects is such that any two
 %  operations on the different objects are independent.
@@ -142,15 +132,17 @@ There are some important differences between SEC and \CRDTLinshort{}:
   %
   We find this definition of composition counter-intuitive, but more
   problematically, the composition of specifications cannot capture
-  causality relations between the different objects, a very common
+  causality relations between the different objects, a common
   pattern when writing distributed applications (e.g. for referential
   integrity in a key-value store).
   %
-  Our result is stronger since the composition of a set of
-  objects will respect the causality resulting from the client code as
-  illustrated by the failure to combine some per-object linearizations
-  in Figure~\ref{fig:negative_composition}.\footnote{Note that there
-    exist per-object linearizations for this history which can be merged into a global linearization (see~\sectionautorefname~\ref{sec:compositionality}).}
+  In \CRDTLinshort{} the composition of a set of objects respects the
+  causality of the client code as illustrated by the failure to combine
+  some per-object linearizations in
+  \figureautorefname~\ref{fig:negative_composition}.\footnote{Note that
+    there exist per-object linearizations for this history which can be
+    merged into a global linearization
+    (see~\sectionautorefname~\ref{sec:compositionality}).}
   %
 %  We show however in~\autoref{sec:compositionality} conditions on the
  % CRDTs under which the composition can always be linearized.
