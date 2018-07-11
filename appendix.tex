@@ -151,7 +151,7 @@ The operation-based counter is \crdtlinearizable{} w.r.t $\specCounter$.
 \begin {proof}
 Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt in}]{}$ operation of the specification $\specMVReg$ has exactly the same effect. The same holds for that of {\tt dec}. Applying the query {\tt read} on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\refmap(\sigma)=\sigma$, which again holds trivially.
+Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for that of {\tt dec}. Applying the query {\tt read} on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\refmap(\sigma)=\sigma$, which again holds trivially.
 
 We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
 \end {proof}
@@ -171,7 +171,7 @@ We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant an
 \subsection{PN-Counter Implementation}
 \label{subsec:PN-counter implementation}
 
-\cite{ShapiroPBZ11} introduces state-based \crdtimp{}, where an update occurs entirely at the source replica, and then propagates by transmitting the modified payload between replicas. When a replica receives a effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload. \cite{ShapiroPBZ11} also shows how to obtain a operation-based \crdtimp{} from a state-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. Since query operations do not change, we ignore query operations. To do a update operation $f(a)$, we compute the state-based update and perform merge in downstream. Here the precondition of downstream is empty because merge is always enabled.
+\cite{ShapiroPBZ11} introduces state-based \crdtimp{}, where an update occurs entirely at the source replica, and then propagates by transmitting the modified payload between replicas. When a replica receives an effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload. \cite{ShapiroPBZ11} also shows how to obtain a operation-based \crdtimp{} from a state-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. Since query operations do not change, we ignore query operations. To do a update operation $f(a)$, we compute the state-based update and perform merge in downstream. Here the precondition of downstream is empty because merge is always enabled.
 
 
 \begin{minipage}[t]{1.0\linewidth}
@@ -191,7 +191,7 @@ captionpos=b,label={lst:operation-based emulation of state-based object}]
 
 $\\$ $\\$
 
-\cite{ShapiroPBZ11} gives a state-based PN-counter implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based PN-counter}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier, and $\alabelshort[{\tt reps}]{}$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ contains a integer array $P$ and a integer array $N$. $P[\arep]$ represents the number of $\alabelshort[{\tt inc}]{}$ that happens on replica $\arep$ and their effector have been applied in current local sate, while $N[\arep]$ represents the number of $\alabelshort[{\tt dec}]{}$ that happens on replica $\arep$ and their effector have been applied in current local sate. Annotation1 is an annotation for effector of {\tt inc} or {\tt dec}.
+\cite{ShapiroPBZ11} gives a state-based PN-counter implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based PN-counter}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier, and $\alabelshort[{\tt reps}]{}$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ contains a integer array $P$ and a integer array $N$. $P[\arep]$ represents the number of $\alabelshort[{\tt inc}]{}$ that happens on replica $\arep$ and their effector have been applied in current replica state, while $N[\arep]$ represents the number of $\alabelshort[{\tt dec}]{}$ that happens on replica $\arep$ and their effector have been applied in current replica state. Annotation1 is an annotation for effector of {\tt inc} or {\tt dec}.
 
 
 \begin{figure}[t]
@@ -309,7 +309,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For the effector $(P_{\alabel},N_{\alabel})$ produced by $\alabel = \alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specMVReg$: Assume we obtain replica state $S'=(P',N')$ from $S=(P,N)$ by applying effector $(P_{\alabel},N_{\alabel})$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt inc}]{}} \abstate+1$, and $\refmap((P,N)) = \abstate$. We need to prove that $\refmap((P',N')) = \abstate+1$.
+    \item[-] For the effector $(P_{\alabel},N_{\alabel})$ produced by $\alabel = \alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$: Assume we obtain replica state $S'=(P',N')$ from $S=(P,N)$ by applying effector $(P_{\alabel},N_{\alabel})$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt inc}]{}} \abstate+1$, and $\refmap((P,N)) = \abstate$. We need to prove that $\refmap((P',N')) = \abstate+1$.
 
         Similarly as the above case, we can prove that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Therefore, $\refmap((P',N')) = \refmap((P,N))+1 = \abstate+1$.
 
@@ -1661,7 +1661,7 @@ Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as f
 \setlength{\itemsep}{0.5pt}
 \item[-] Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$.
 
-\item[-] Work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of $\alabelshort[{\tt addAfter}]{b,a}$. 
+\item[-] Work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of $\alabelshort[{\tt addAfter}]{b,a}$.
 \end{itemize}
 
 
@@ -1798,7 +1798,7 @@ Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as f
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For {\tt addAt}: Given argument $a$ and $k$ of {\tt addAt}. Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$. 
+\item[-] For {\tt addAt}: Given argument $a$ and $k$ of {\tt addAt}. Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$.
 
     Then, we work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of $\alabelshort[{\tt addAfter}]{b,a}$. After $\alabelshort[{\tt addAfter}]{b,a}$ finish in the source replica, let $s'$ be the list content of replica state, and we return value $s'$.
 
@@ -1850,7 +1850,7 @@ If $\alabelshort[\mathtt{addAt}]{a,k}$ returns $s_1 \cdot b \cdot a \cdot s_2$ w
 
 If $\alabelshort[\mathtt{addAt}]{a,k}$ returns $s \cdot b \cdot a$ with $\vert s \cdot b \vert < k$, then it means we ``put $a$ after $b$'', and we require that the return value of $\alabelshort[\mathtt{addAt}]{a,k}$ (except for $a$) be a subsequence of the input value sequence of the abstract state. Or we can say, we require that $s \cdot b$ be a subsequence of $l_1 \cdot b$.
 
-Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. 
+Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$.
 
 Essentially, $\alabelshort[\mathtt{addAt}]{a,k}$ works as $\alabelshort[\mathtt{addAfter}]{b,a}$; while $k$ concerns only ``local information'' instead of input value sequence of abstract state. This may be a reason of RGA being \crdtlinearizable{} w.r.t. $\specAddatThree$ (proved in the next subsection).
 
@@ -1877,7 +1877,7 @@ Since the order between the timestamps generated by ${\tt addAt}$ operations is 
 Note that by the causal delivery assumption and the preconditions of ${\tt addAt}$ and ${\tt remove}$, it cannot happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation, which calls $\alabelshort[{\tt addAfter}]{a,b}$, is concurrent with an operation that adds ${\tt a}$ to the list, i.e., $\alabellong[{\tt addAt}]{a,\_}{\_}{}$. It can not happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation adding ${\tt b}$ is concurrent with an operation $\alabellong[{\tt remove}]{b}{\_}{}$ that removes ${\tt b}$. This ensures that reordering
 concurrent effectors does not lead to ``invalid'' replica states where for instance, the timestamp tree ${\tt N}$ contains nodes which are not reachable from the root (which would happen if $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ is delivered before the operation $\alabellong[{\tt addAt}]{a,\_}{\_}{}$ adding ${\tt a}$), or where the tombstone set ${\tt Tomb}$ contains elements which are not in the tree (which would happen if $\alabellong[{\tt remove}]{b}{\_}{}$ is delivered before $\alabellong[{\tt addAt}]{b,\_}{\_}{}$).
 
-Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mapping $\refmap$ as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}: $\refmap(N,Tomb) = (l,T)$, where $l={\tt traverse(N, Tomb)}$, and $T={\tt Tomb}$.
+Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mapping $\refmap$ as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}: $\refmap(N,Tomb) = (l,T)$, where $l={\tt traverse(N, \emptyset)}$, and $T={\tt Tomb}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1885,8 +1885,8 @@ Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mappin
 
 \item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ operations with $\vert s_1 \cdot b \vert = k$: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies.
 
-    Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. 
-    
+    Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$.
+
     By the causal delivery assumption, we can see that effectors of inserting values of $s_1 \cdot b \cdot s_2$ have already been applied in $\astate$. According to the order of Ti-Tree, it is easy to see that values of $s_1 \cdot b \cdot s_2$ keep a same order in Ti-tree of $\astate$ as the order in $s_1 \cdot b \cdot s_2$. Then, values of $s_1 \cdot b \cdot s_2$ keep a same order in $l$ as the order in $s_1 \cdot b \cdot s_2$. Thus, $s_1 \cdot b \cdot s_2$ is a sub-sequence of $l_1 \cdot b \cdot l_2$.
 
 \item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ operations with $\vert s \cdot b \vert < k$: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies.

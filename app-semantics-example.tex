@@ -34,15 +34,16 @@ becomes $\gstates(\arep_1).\mathsf{N}$); and the global visibility
 relation $\gstates.\mathtt{vis}$.
 %
 The transition from~\autoref{fig:rga-sem-2} to~\autoref{fig:rga-sem-3}
-shows an {\sc Operation} transition where the operation
-$\mathtt{remove}(b)$ is executed by replica $\arep_1$.
+shows an %{\sc Operation} 
+transition where the operation
+$\alabelshort[{\tt remove}]{b}$ is executed by replica $\arep_1$.
 %
 Notice in particular how the global visibility relation is extended.
 
 In~\autoref{fig:rga-sem}, the transition from~\autoref{fig:rga-sem-1}
-to~\autoref{fig:rga-sem-2} corresponds to a {\sc DownStream}
+to~\autoref{fig:rga-sem-2} corresponds to a %{\sc DownStream}
 transition which extends the visibility of the operation
-$\mathtt{addAfter}(b, d)$ to $\arep_1$.
+$\alabelshort[{\tt addAfter}]{b,d}$ to $\arep_1$.
 %
 Notice that this is reflected in the $\gstates(\arep_1).\alabelset$
 component.
