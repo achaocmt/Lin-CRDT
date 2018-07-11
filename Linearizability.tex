@@ -472,12 +472,12 @@ described before.
   given with the transitions as follows:
   \[\small
     \begin{array}{rcl}
-      \big(\ (l_1 \cdot a_k \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
-      & \specarrow{\alabelshort[\mathtt{addAfter}]{a_k,a}}
-      & (l_1 \cdot a_k \cdot a \cdot l_2,T)\\
-      \big(\ (l,T)\ |\ a_k\ \text{occurs in}\ l\ \big)
-      & \specarrow{\alabelshort[\mathtt{remove}]{a_k}}
-      & (l,T \cup \{a_k\})\\
+      \big(\ (l_1 \cdot b \cdot l_2,T\big)\ |\ a\text{ is fresh}\ \big)
+      & \specarrow{\alabelshort[\mathtt{addAfter}]{b,a}}
+      & (l_1 \cdot b \cdot a \cdot l_2,T)\\
+      \big(\ (l,T)\ |\ b\ \text{occurs in}\ l\ \big)
+      & \specarrow{\alabelshort[\mathtt{remove}]{b}}
+      & (l,T \cup \{b\})\\
       (l,T)
       & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
       & (l,T)\
@@ -487,11 +487,11 @@ described before.
         \end{array}\right]
  \end{array}
   \]
-The method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately
-  after $a_k$ in $l$, assuming that each value is put into list at
+The method $\alabelshort[\mathtt{addAfter}]{b,a}$ puts $a$ immediately
+  after $b$ in $l$, assuming that each value is put into list at
   most once.
-  Method $\alabelshort[\mathtt{remove}]{a_k}$ adds $a_k$ into $T$,
-  hence removing $a_k$ from the list for subsequent calls to the
+  Method $\alabelshort[\mathtt{remove}]{b}$ adds $b$ into $T$,
+  hence removing $b$ from the list for subsequent calls to the
   $\mathtt{read}$ method.
   Finally $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content
   excluding any element appearing in $T$.
@@ -506,9 +506,9 @@ The method $\alabelshort[\mathtt{addAfter}]{a_k,a}$ puts $a$ immediately
 \label{definition:sequential specification of or-set}
 As explained in \figureautorefname~\ref{fig:or-set-lk-rem}, the fact that the $\mathtt{remove}$
 method of the OR-Set is a query-update induces a rewriting of the operation labels in a
-history. This rewriting introduces update operations $\alabelshort[{\tt add}]{a,id}$, for some identifier ${\tt id}$, instead of simply $\alabelshort[{\tt add}]{a}$,
-and $\alabelshort[\mathtt{remove}]{a,S}$, for some set of identifiers ${\tt S}$, instead of $\alabelshort[{\tt remove}]{a}$,
-and a new query operation $\alabelshort[{\tt readIds}]{a}$ that returns a set of identifiers. These operations are specified as follows.
+history. This rewriting introduces update operations $\alabelshort[{\tt add}]{\mathit{a,id}}$, for some identifier $\mathit{id}$, instead of simply $\alabelshort[{\tt add}]{\mathit{a}}$,
+and $\alabelshort[\mathtt{remove}]{a,S}$, for some set of identifiers $S$, instead of $\alabelshort[{\tt remove}]{\mathit{a}}$,
+and a new query operation $\alabelshort[{\tt readIds}]{\mathit{a}}$ that returns a set of identifiers. These operations are specified as follows.
 %OR-Set we consider $\mathtt{remove}$ to be a query-update operation.
 %Then its rewriting is: $\gamma( \alabelshort[\mathtt{remove}]{a} ) = (
 %\alabellong[\mathtt{readIds}]{a}{S}{}, \alabelshort[\mathtt{remove}]{a,S})$.
@@ -528,20 +528,20 @@ $\specOrSet$ of OR-Set is given by the transitions:
                \specarrow{\alabelshort[\mathtt{remove}]{a,S}}
     & \abstate \setminus S \\
     \big(\ \abstate\ |\ \mathtt{id}\ \text{does not occur in } \abstate\ \big)
-             & \specarrow{ \alabelshort[{\tt add}]{a,id} }
-    & \abstate \cup \{ (a,\mathtt{id}) \}\\
+             & \specarrow{ \alabelshort[{\tt add}]{\mathit{a,id}} }
+    & \abstate \cup \{ (a,\mathit{id}) \}\\
     \abstate
-    & \specarrow{\alabellong[\mathtt{read}]{a}{ S }{}}
+    & \specarrow{\alabellong[\mathtt{read}]{a}{ A }{}}
     & \abstate\
       \begin{array}{c}
-        [\text{with}\ S = \{ a\ \vert\ \exists\ \mathtt{id}, (a,\mathtt{id}) \in \abstate \}]
+        [\text{with}\ A = \{ a\ \vert\ \exists\ \mathit{id}, (a,\mathit{id}) \in \abstate \}]
       \end{array}
   \end{array}
 \]
-Here $\alabellong[{\tt readIds}]{a}{S}{}$ returns the set of pairs
-with data $a$, $\alabelshort[{\tt remove}]{a,S}$ removes $S$ from the
-abstract state, $\alabelshort[{\tt add}]{a,id}$ puts $\{ (a,id) \}$
-into the abstract state, and $\alabellong[{\tt read}]{}{S'}{}$ returns
+Here $\alabellong[{\tt readIds}]{\mathit{a}}{\mathit{S}}{}$ returns the set of pairs
+with data $a$, $\alabelshort[{\tt remove}]{\mathit{a,S}}$ removes $S$ from the
+abstract state, $\alabelshort[{\tt add}]{\mathit{a,id}}$ puts $\{ (a,id) \}$
+into the abstract state, and $\alabellong[{\tt read}]{}{\mathit{A}}{}$ returns
 the value of the or-set.
 \end{example}
 
@@ -762,7 +762,7 @@ history $\gamma(h)=(\alabelset',\avisord')$ where
 \begin{example}[Query-Update Rewriting of OR-Set]
 \label{ex:qur-orset}
 As shown in \figureautorefname~\ref{fig:or-set-lk-rem}, the query-update rewriting for OR-Set 
-is defined by:  $\gamma( \alabelshort[\mathtt{add}]{a} ) = \alabelshort[\mathtt{add}]{a,k}$ where $k$ is a unique identifier,
+is defined by:  $\gamma( \alabelshort[\mathtt{add}]{a} ) = \alabelshort[\mathtt{add}]{a,\mathit{id}}$ where $\mathit{id}$ is a unique identifier,
 $\gamma( \alabelshort[\mathtt{remove}]{a} ) = (\alabellong[\mathtt{readIds}]{a}{S}{}, \alabelshort[\mathtt{remove}]{a,S})$,
 for some set of identifiers $S$, and $\gamma( \alabellongind[{\tt read}]{}{A}{} ) = \alabellongind[{\tt read}]{}{A}{}$.
 

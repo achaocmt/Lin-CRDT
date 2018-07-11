@@ -584,7 +584,7 @@ execution thereof.
     downStream(R) :
       S = S @|$\setminus$|@ R
       //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k). (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
-                              @|$ \forall\ \alabel'$|@ = remove(a,_). {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
+                              @|$ \forall\ \alabel_1$|@ = remove(a,_). {(@|$\alabel,\alabel_1$|@),(@|$\alabel_1$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
       //@ S' = S @|$\setminus$|@ R
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
