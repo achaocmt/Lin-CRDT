@@ -1639,37 +1639,37 @@ This completes the proof of this lemma. $\qed$
 
 
 
-\subsection{A first version of list with {\tt addAt} Interface} 
-\label{subsec:a first version of list with addAt interface} 
+\subsection{A first version of list with {\tt addAt} Interface}
+\label{subsec:a first version of list with addAt interface}
 
-The first version of list with {\tt addAt} interface is as follows: A list uses the following three methods: 
+The first version of list with {\tt addAt} interface is as follows: A list uses the following three methods:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\alabelshort[{\tt addBetween}]{a,k}$: Inserts value $a$ into position $k$ of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
+\item[-] $\alabelshort[{\tt addAt}]{a,k}$: Inserts value $a$ into position $k$ of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
 
 \item[-] $\alabelshort[{\tt remove}]{a}$: Remove value $a$ from list of the replica state.
 
 \item[-] $\alabellong[{\tt read}]{}{s}{}$: Returns the list content of the replica state.
-\end{itemize} 
+\end{itemize}
 
-Here we assume the first element of a sequence is at position $0$. 
+Here we assume the first element of a sequence is at position $0$.
 
-Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as follows for this interface: To do $\alabelshort[{\tt addBetween}]{a,k}$, we work as follows: 
+Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as follows for this interface: To do $\alabelshort[{\tt addAt}]{a,k}$, we work as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b$ be the $k$-th value of $s$; else, let $b$ be the last value in $s$.
+\item[-] Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$.
 
-\item[-] Work as $\alabelshort[{\tt addAfter}]{b,a}$. 
-\end{itemize} 
+\item[-] Work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of $\alabelshort[{\tt addAfter}]{b,a}$. 
+\end{itemize}
 
 
 
 \subsection{Two Sequential Specification for list with {\tt addAt} Interface}
-\label{subsec:two sequential specification for list with addAt interface} 
+\label{subsec:two sequential specification for list with addAt interface}
 
-Depending on whether use tombstone or not, there are two sequential specification for list with {\tt addAt} interface. 
+Depending on whether use tombstone or not, there are two sequential specification for list with {\tt addAt} interface.
 
 \noindent {\bf Sequential specification $\specAddatOne$}: The first sequential specification $\specAddatOne$ of list with {\tt addAt} interface does not use tombstone. Each abstract state $\abstate = l$ contains a sequence $l$ of elements of a given type. The element $l$ is the list of values that has been input and not removed yet. The sequential specification $\specAddatOne$ of list with {\tt addAt} interface is given with the transitions as follows:
 \[
@@ -1680,7 +1680,7 @@ Depending on whether use tombstone or not, there are two sequential specificatio
       \big(\ l \ |\ a\text{ is fresh}\ , \vert l \vert < k \big)
      & \specarrow{\alabelshort[\mathtt{addAt}]{a,k}}
      & l \cdot a \\
-     l_1 \cdot a \cdot l_2 
+     l_1 \cdot a \cdot l_2
      & \specarrow{\alabelshort[\mathtt{remove}]{a}}
      & l_1 \cdot l_2 \\
      l
@@ -1689,7 +1689,7 @@ Depending on whether use tombstone or not, there are two sequential specificatio
    \end{array}
 \]
 
-If $\vert l_1 \cdot l_2 \vert \geq k$ and $\vert l_1 \vert = k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l_1$; Else, if $\vert l \vert <k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l$. Method $\alabelshort[\mathtt{remove}]{a}$ remove $a$ from $l_1 \cdot a \cdot l_2$. $\alabellong[\mathtt{read}]{}{l}{}$ returns the list. 
+If $\vert l_1 \cdot l_2 \vert \geq k$ and $\vert l_1 \vert = k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l_1$; Else, if $\vert l \vert <k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l$. Method $\alabelshort[\mathtt{remove}]{a}$ remove $a$ from $l_1 \cdot a \cdot l_2$. $\alabellong[\mathtt{read}]{}{l}{}$ returns the list.
 
 
 \noindent {\bf Sequential specification $\specAddatTwo$}: The second sequential specification $\specAddatTwo$ of list with {\tt addAt} interface uses tombstone. Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specAddatTwo$ of list with {\tt addAt} interface is given with the transitions as follows:
@@ -1698,7 +1698,7 @@ If $\vert l_1 \cdot l_2 \vert \geq k$ and $\vert l_1 \vert = k$, Method $\alabel
   \begin{array}{rcl}
     \big(\ (l_1 \cdot l_2,T\big)\ |\ a\text{ is fresh}\ , \vert l_1 \vert = k \big)
      & \specarrow{\alabelshort[\mathtt{addAt}]{a,k}}
-     & (l_1 \cdot a \cdot l_2,T)\\ 
+     & (l_1 \cdot a \cdot l_2,T)\\
      \big(\ (l,T\big)\ |\ a\text{ is fresh}\ , \vert l \vert < k \big)
      & \specarrow{\alabelshort[\mathtt{addAt}]{a,k}}
      & (l \cdot a,T)\\
@@ -1713,16 +1713,16 @@ If $\vert l_1 \cdot l_2 \vert \geq k$ and $\vert l_1 \vert = k$, Method $\alabel
            \text{by removing the values in $T$}
        \end{array}\right]
    \end{array}
-\] 
+\]
 
-If $\vert l_1 \cdot l_2 \vert \geq k$ and $\vert l_1 \vert = k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l_1$; Else, if $\vert l \vert <k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l$. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. 
+If $\vert l_1 \cdot l_2 \vert \geq k$ and $\vert l_1 \vert = k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l_1$; Else, if $\vert l \vert <k$, Method $\alabelshort[\mathtt{addAt}]{a,k}$ puts $a$ immediately after $l$. Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$.
 
 
 
 \subsection{RGA not \crdtlinearizable{} w.r.t $\specAddatOne$ or $\specAddatTwo$}
-\label{subsec:RGA not RA-linearizable w.r.t specAddatOne or SpecAddatTwo} 
+\label{subsec:RGA not RA-linearizable w.r.t specAddatOne or SpecAddatTwo}
 
-\autoref{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat} shows an example that is a history of RGA and is not \crdtlinearizable{} w.r.t $\specAddatOne$ or $\specAddatTwo$. Here we assume that $\ats_a < \ats_b < \ats_c < \ats_d < \ats_e$. We also draw the replica state of replica $r_2$ and $r_3$ after the execution of $h$ in \autoref{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat}. 
+\autoref{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat} shows an example that is a history of RGA and is not \crdtlinearizable{} w.r.t $\specAddatOne$ or $\specAddatTwo$. Here we assume that $\ats_a < \ats_b < \ats_c < \ats_d < \ats_e$. We also draw the replica state of replica $r_2$ and $r_3$ after the execution of $h$ in \autoref{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat}.
 
 
 \begin{figure}[!h]
@@ -1731,79 +1731,79 @@ If $\vert l_1 \cdot l_2 \vert \geq k$ and $\vert l_1 \vert = k$, Method $\alabel
 \vspace{-10pt}
   \caption{An example history shows that RGA is not \crdtlinearizable{} w.r.t .}
   \label{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat}
-\end{figure} 
+\end{figure}
 
-The following lemma states that RGA is not \crdtlinearizable{} w.r.t $\specAddatOne$ or $\specAddatTwo$. 
+The following lemma states that RGA is not \crdtlinearizable{} w.r.t $\specAddatOne$ or $\specAddatTwo$.
 
 \begin{lemma}
 \label{lemma:The history h of fig an example history shows that RGA is not RA-linarizable w.r.t specAddat is not RA-linearizable w.r.t SpecAddatOne or SpecAddatTwo}
-RGA is not \crdtlinearizable{} w.r.t $\specAddatOne$ or $\specAddatTwo$. 
+RGA is not \crdtlinearizable{} w.r.t $\specAddatOne$ or $\specAddatTwo$.
 \end{lemma}
 
-\begin {proof} 
-Let $h$ be the history of \autoref{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat}. Let $h'$ be obtained from $h$ by removing the $\alabellong[\mathtt{read}]{}{a \cdot c}{}$ operation of replica $r_2$. It is obvious that $h'$ is also a history of RGA. 
+\begin {proof}
+Let $h$ be the history of \autoref{fig:an example history shows that RGA is not RA-linearizable w.r.t specAddat}. Let $h'$ be obtained from $h$ by removing the $\alabellong[\mathtt{read}]{}{a \cdot c}{}$ operation of replica $r_2$. It is obvious that $h'$ is also a history of RGA.
 
-We prove that RGA is not \crdtlinearizable{} w.r.t $\specAddatOne$ by proving that $h'$ is not \crdtlinearizable{} w.r.t $\specAddatOne$, and we prove this by considering all possible linarizations is not admitted by the sequential specification. 
+We prove that RGA is not \crdtlinearizable{} w.r.t $\specAddatOne$ by proving that $h'$ is not \crdtlinearizable{} w.r.t $\specAddatOne$, and we prove this by showing that all possible linarizations of $h'$ are not admitted by the sequential specification.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $a \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \cdot c \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $a \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \cdot c \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot e \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot e \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot e \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot e \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot b \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot b \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
-\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot b \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot e \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$. 
+\item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot b \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot e \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
 
 \item[-] $\epsilon \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $a \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $b \cdot a \specarrow{\alabelshort[\mathtt{addAt}]{d,0}}$ $d \cdot b \cdot a \specarrow{\alabelshort[\mathtt{remove}]{a}}$ $d \cdot b \specarrow{\alabelshort[\mathtt{addAt}]{e,2}}$ $d \cdot b \cdot e \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $d \cdot e \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $d \cdot c \cdot e \specarrow{\alabellong[\mathtt{read}]{}{d \cdot c \cdot e}{}} d \cdot c \cdot e$.
-\end{itemize} 
+\end{itemize}
 
-Since the last {\tt read} operation returns $d \cdot c \cdot e$ instead of $d \cdot e \cdot c$, these linearization is not correct. 
+Since the last {\tt read} operation returns $d \cdot c \cdot e$ instead of $d \cdot e \cdot c$, these linearization are not correct.
 
-We prove that RGA is not \crdtlinearizable{} w.r.t $\specAddatTwo$ by proving that $h$ is not \crdtlinearizable{} w.r.t $\specAddatTwo$. We prove that $h$ is not \crdtlinearizable{} w.r.t $\specAddatTwo$ by contradiction. Assume $h$ is \crdtlinearizable{} w.r.t $\specAddatTwo$ and let $\alinord$ be the linearization. Then, for query operation $\alabel_{\mathsf{qr}} = (\alabellong[\mathtt{read}]{}{a \cdot c}{})$, we can see that $\alinord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\ \alabel_{\mathsf{qr}} = \alabelshort[\mathtt{addAt}]{a,0} \cdot \alabelshort[\mathtt{addAt}]{b,0} \cdot \alabelshort[\mathtt{remove}]{b} \cdot \alabelshort[\mathtt{addAt}]{c,1} \cdot (\alabellong[\mathtt{read}]{}{a \cdot c}{})$, while $(\epsilon,\emptyset) \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $(a,\emptyset) \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $(b \cdot a,\emptyset) \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $(b \cdot a, \{ b \}) \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $(b \cdot c \cdot a, \{ b \}) \specarrow{\alabellong[\mathtt{read}]{}{c \cdot a}{}} (b \cdot c \cdot a, \{ b \})$. We can see that, the return value of the last {\tt read} operation is $c \cdot a$ instead of $a \cdot c$. This contradicts the assumption that $\alinord$ is a linearization of $h$.
+We prove that RGA is not \crdtlinearizable{} w.r.t $\specAddatTwo$ by proving that $h$ is not \crdtlinearizable{} w.r.t $\specAddatTwo$. We prove that $h$ is not \crdtlinearizable{} w.r.t $\specAddatTwo$ by contradiction. Assume $h$ is \crdtlinearizable{} w.r.t $\specAddatTwo$ and let $(\alabelset, \alinord)$ be the linearization. Then, for query operation $\alabel_{\mathsf{qr}} = (\alabellong[\mathtt{read}]{}{a \cdot c}{})$, we can see that $\alinord\!\downarrow_{\avisord^{-1}(\alabel_{\mathsf{qr}})\cap \updates}\!\cdot\ \alabel_{\mathsf{qr}} = \alabelshort[\mathtt{addAt}]{a,0} \cdot \alabelshort[\mathtt{addAt}]{b,0} \cdot \alabelshort[\mathtt{remove}]{b} \cdot \alabelshort[\mathtt{addAt}]{c,1} \cdot (\alabellong[\mathtt{read}]{}{a \cdot c}{})$, while $(\epsilon,\emptyset) \specarrow{\alabelshort[\mathtt{addAt}]{a,0}}$ $(a,\emptyset) \specarrow{\alabelshort[\mathtt{addAt}]{b,0}}$ $(b \cdot a,\emptyset) \specarrow{\alabelshort[\mathtt{remove}]{b}}$ $(b \cdot a, \{ b \}) \specarrow{\alabelshort[\mathtt{addAt}]{c,1}}$ $(b \cdot c \cdot a, \{ b \}) \specarrow{\alabellong[\mathtt{read}]{}{c \cdot a}{}} (b \cdot c \cdot a, \{ b \})$. We can see that, the return value of the last {\tt read} operation is $c \cdot a$ instead of $a \cdot c$. This contradicts the assumption that $(\alabelset, \alinord)$ is a linearization of $h$.
 
 This completes the proof of this lemma. $\qed$
-\end {proof} 
+\end {proof}
 
 
 
 
 \subsection{A second version of list with {\tt addAt} Interface}
-\label{subsec:a second version of list with addAt interface} 
+\label{subsec:a second version of list with addAt interface}
 
-As second version of list with {\tt addAt} interface, let us introduce the interface of ~\cite{AttiyaBGMYZ16} as below: 
+As second version of list with {\tt addAt} interface, let us introduce the interface of ~\cite{AttiyaBGMYZ16} as below:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\alabellong[{\tt addAt}]{a,k}{s}{}$: Inserts value $a$ into position $k$ of the replica state, and returns the updated list content of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list. 
+\item[-] $\alabellong[{\tt addAt}]{a,k}{s}{}$: Inserts value $a$ into position $k$ of the replica state, and returns the updated list content of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
 
 \item[-] $\alabellong[{\tt remove}]{a}{s}{}$: Remove value $a$ from list of the replica state, and returns the updated list content of the replica state.
 
 \item[-] $\alabellong[{\tt read}]{}{s}{}$: Returns the list content of the replica state.
-\end{itemize} 
+\end{itemize}
 
 Similarly, we assume the first element of a sequence is at position $0$.
 
-Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as follows for this interface: 
+Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as follows for this interface:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For {\tt addAt}: Given argument $a$ and $k$ of {\tt addAt}. Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b$ be the $k$-th value of $s$; else, let $b$ be the last value in $s$. 
-    
-    Then, we work as $\alabelshort[{\tt addAfter}]{b,a}$. After $\alabelshort[{\tt addAfter}]{b,a}$ finish, let $s'$ be the list content of replica state, and we return value $s'$.
+\item[-] For {\tt addAt}: Given argument $a$ and $k$ of {\tt addAt}. Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$. 
 
-\item[-] For {\tt remove}: Given argument $a$, we work as $\alabelshort[{\tt remove}]{a}$. After $\alabelshort[{\tt remove}]{a}$ finish, let $s'$ be the list content of replica state, and we return value $s'$. 
-\end{itemize} 
+    Then, we work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of $\alabelshort[{\tt addAfter}]{b,a}$. After $\alabelshort[{\tt addAfter}]{b,a}$ finish in the source replica, let $s'$ be the list content of replica state, and we return value $s'$.
+
+\item[-] For {\tt remove}: Given argument $a$, we work as $\alabelshort[{\tt remove}]{a}$. After $\alabelshort[{\tt remove}]{a}$ finish in the source replica, let $s'$ be the list content of replica state, and we return value $s'$.
+\end{itemize}
 
 
 
@@ -1811,7 +1811,7 @@ Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as f
 \subsection{Another Sequential Specification for list with {\tt addAt} Interface}
 \label{subsec:another sequential specification for list with addAt interface}
 
-Let us introduce another sequential specification $\specAddatThree$ of list with {\tt addAt} interface that also use tombstone. Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specAddatTwo$ of list with {\tt addAt} interface is given with the transitions as follows:
+Let us introduce another sequential specification $\specAddatThree$ of list with {\tt addAt} interface that also use tombstone. Each abstract state $\abstate = (l,T)$ contains a sequence $l$ of elements of a given type and a set $T$ of elements appearing in the list. The element $l$ is the list of all input values, whether already removed or not; while $T$ stores the removed values and is used as \emph{tombstone}. The sequential specification $\specAddatThree$ of list with {\tt addAt} interface is given with the transitions as follows:
 
 \[
   \begin{array}{rcl}
@@ -1835,7 +1835,7 @@ Let us introduce another sequential specification $\specAddatThree$ of list with
        \left[\begin{array}{c}
            \text{with $s$ is a subsequence}\\
            \text{of $l$}
-       \end{array}\right]\\ 
+       \end{array}\right]\\
      (l,T)
      & \specarrow{\alabellong[\mathtt{read}]{}{s}{}}
      & (l,T)\
@@ -1844,13 +1844,16 @@ Let us introduce another sequential specification $\specAddatThree$ of list with
            \text{by removing the values in $T$}
        \end{array}\right]
    \end{array}
-\] 
+\]
 
 If $\alabelshort[\mathtt{addAt}]{a,k}$ returns $s_1 \cdot b \cdot a \cdot s_2$ with $\vert s_1 \cdot b \vert = k$, then it means we ``put $a$ after $b$'', and we require that the return value of $\alabelshort[\mathtt{addAt}]{a,k}$ (except for $a$) be a subsequence of the input value sequence of the abstract state. Or we can say, we require that $s_1 \cdot b \cdot s_2$ be a subsequence of $l_1 \cdot b \cdot l_2$.
 
 If $\alabelshort[\mathtt{addAt}]{a,k}$ returns $s \cdot b \cdot a$ with $\vert s \cdot b \vert < k$, then it means we ``put $a$ after $b$'', and we require that the return value of $\alabelshort[\mathtt{addAt}]{a,k}$ (except for $a$) be a subsequence of the input value sequence of the abstract state. Or we can say, we require that $s \cdot b$ be a subsequence of $l_1 \cdot b$.
 
-Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$.
+Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ from the list for subsequent calls to the $\mathtt{read}$ method. Thus, $\alabellong[\mathtt{read}]{}{s}{}$ returns the list content excluding any element appearing in $T$. 
+
+Essentially, $\alabelshort[\mathtt{addAt}]{a,k}$ works as $\alabelshort[\mathtt{addAfter}]{b,a}$; while $k$ concerns only ``local information'' instead of input value sequence of abstract state. This may be a reason of RGA being \crdtlinearizable{} w.r.t. $\specAddatThree$ (proved in the next subsection).
+
 
 
 
@@ -1858,7 +1861,7 @@ Method $\alabelshort[\mathtt{remove}]{a}$ adds $a$ into $T$, hence removing $a$ 
 
 
 \subsection{RGA is \crdtlinearizable{} w.r.t $\specAddatThree$}
-\label{subsec:RGA is RA-linearizable w.r.t specAddatThree} 
+\label{subsec:RGA is RA-linearizable w.r.t specAddatThree}
 
 The following lemma states that RGA is \crdtlinearizable{} w.r.t. $\specAddatThree$.
 
@@ -1867,35 +1870,35 @@ The following lemma states that RGA is \crdtlinearizable{} w.r.t. $\specAddatThr
 RGA is \crdtlinearizable{} w.r.t $\specAddatThree$.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
-Since the order between the timestamps generated by ${\tt addAt}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors apply set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. 
+Since the order between the timestamps generated by ${\tt addAt}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors apply set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-Note that by the causal delivery assumption and the preconditions of ${\tt addAt}$ and ${\tt remove}$, it cannot happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation, which essentially calls $\alabelshort[{\tt addAt}]{a,b}$, is concurrent with an operation that adds ${\tt a}$ to the list, i.e., $\alabellong[{\tt addAt}]{a,\_}{\_}{}$. It can not happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation adding ${\tt b}$ is concurrent with an operation $\alabellong[{\tt remove}]{b}{\_}{}$ that removes ${\tt b}$. This ensures that reordering
-concurrent effectors does not lead to ``invalid'' replica states where for instance, the timestamp tree ${\tt N}$ contains nodes which are not reachable from the root (which would happen if $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ is delivered before the operation $\alabellong[{\tt addAt}]{a,\_}{\_}{}$ adding ${\tt a}$), or where the tombstone set ${\tt Tomb}$ contains elements which are not in the tree (which would happen if $\alabellong[{\tt remove}]{b}{\_}{}$ is delivered before $\alabellong[{\tt addAt}]{b,\_}{\_}{}$). 
+Note that by the causal delivery assumption and the preconditions of ${\tt addAt}$ and ${\tt remove}$, it cannot happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation, which calls $\alabelshort[{\tt addAfter}]{a,b}$, is concurrent with an operation that adds ${\tt a}$ to the list, i.e., $\alabellong[{\tt addAt}]{a,\_}{\_}{}$. It can not happen that an $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ operation adding ${\tt b}$ is concurrent with an operation $\alabellong[{\tt remove}]{b}{\_}{}$ that removes ${\tt b}$. This ensures that reordering
+concurrent effectors does not lead to ``invalid'' replica states where for instance, the timestamp tree ${\tt N}$ contains nodes which are not reachable from the root (which would happen if $\alabellong[{\tt addAt}]{b,\_}{\_}{}$ is delivered before the operation $\alabellong[{\tt addAt}]{a,\_}{\_}{}$ adding ${\tt a}$), or where the tombstone set ${\tt Tomb}$ contains elements which are not in the tree (which would happen if $\alabellong[{\tt remove}]{b}{\_}{}$ is delivered before $\alabellong[{\tt addAt}]{b,\_}{\_}{}$).
 
-Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mapping $\refmap$ as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}: $\refmap(N,Tomb) = (l,T)$, where $l={\tt traverse(N, \emptyset)}$, and $T={\tt Tomb}$. 
+Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mapping $\refmap$ as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}: $\refmap(N,Tomb) = (l,T)$, where $l={\tt traverse(N, Tomb)}$, and $T={\tt Tomb}$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] The fact that effectors of ${\tt read}$ queries are simulated by the corresponding operations of the specification is straightforward.
 
-\item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ operations: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies. 
+\item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ operations with $\vert s_1 \cdot b \vert = k$: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s_1 \cdot b \cdot a \cdot s_2}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies.
+
+    Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. 
     
-    Obvious we can see that $\vert s_1 \cdot b \vert = k$. Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. By the causal delivery assumption, we can see that effectors of inserting values of $s_1 \cdot b \cdot s_2$ have already been applied in $\astate$. 
-    
-    According to the order of Ti-Tree, it is easy to see that values of $s_1 \cdot b \cdot s_2$ keep a same order in Ti-tree of $\astate$ as the order in $s_1 \cdot b \cdot s_2$. Then, values of $s_1 \cdot b \cdot s_2$ keep a same order in $l$ as the order in $s_1 \cdot b \cdot s_2$. Thus, $s_1 \cdot b \cdot s_2$ is a sub-sequence of $l_1 \cdot b \cdot l_2$.
+    By the causal delivery assumption, we can see that effectors of inserting values of $s_1 \cdot b \cdot s_2$ have already been applied in $\astate$. According to the order of Ti-Tree, it is easy to see that values of $s_1 \cdot b \cdot s_2$ keep a same order in Ti-tree of $\astate$ as the order in $s_1 \cdot b \cdot s_2$. Then, values of $s_1 \cdot b \cdot s_2$ keep a same order in $l$ as the order in $s_1 \cdot b \cdot s_2$. Thus, $s_1 \cdot b \cdot s_2$ is a sub-sequence of $l_1 \cdot b \cdot l_2$.
 
-\item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ operations: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies.
+\item[-] Concerning effectors of $\alabel = \alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ operations with $\vert s \cdot b \vert < k$: We show that they are simulated by the corresponding specification operation $\alabellongind[{\tt addAt}]{a,k}{s \cdot b \cdot a}{\ats_b}{}$ only when the timestamp $\ats_{\tt b}$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies.
 
-    Obvious we can see that $\vert s \cdot b \vert < k$. Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. By the causal delivery assumption, we can see that effectors of inserting values of $s \cdot b$ have already been applied in $\astate$. Moreover, it is easy to see that values of $s \cdot b$ keep a same order in Ti-tree of $\astate$ as the order in $s \cdot b$. Then, values of $s \cdot b$ keep a same order in $l$ as the order in $s \cdot b$. Thus, $s \cdot b$ is a sub-sequence of $l_1 \cdot b \cdot l_2$. 
+    Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume that $\alabel$ uses $\alabelshort[\mathtt{addAfter}]{b,a}$ to do insertion. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $N = N'$. By the causal delivery assumption, we know that $b \in l$, and assume that $l = l_1 \cdot b \cdot l_2$. Similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that, $l' = l_1 \cdot b \cdot a \cdot l_2$. By the causal delivery assumption, we can see that effectors of inserting values of $s \cdot b$ have already been applied in $\astate$. Moreover, it is easy to see that values of $s \cdot b$ keep a same order in Ti-tree of $\astate$ as the order in $s \cdot b$. Then, values of $s \cdot b$ keep a same order in $l$ as the order in $s \cdot b$. Thus, $s \cdot b$ is a sub-sequence of $l_1 \cdot b \cdot l_2$.
 
-\item[-] Concerning effectors of $\alabel = (\alabellong[{\tt remove}]{a}{s}{})$ operations: We show that they are simulated by the corresponding specification operation $\alabellong[{\tt remove}]{a}{s}{}$ only when the timestamp of $\alabel$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies. 
+\item[-] Concerning effectors of $\alabel = (\alabellong[{\tt remove}]{a}{s}{})$ operations: We show that they are simulated by the corresponding specification operation $\alabellong[{\tt remove}]{a}{s}{}$ only when the timestamp of $\alabel$ is strictly greater than all the timestamps stored in the replica state $\astate$ where it applies.
 
     Assume replica $\astate'$ is obtained from $\astate'$ by applying the effector of $\alabel$. Assume $\refmap(\astate) = (l,T)$ and $\refmap(\astate') = (l',T')$. It is obvious that $l' = l$ and $T' = T \cup \{ a \}$. By the causal delivery assumption, we can see that effectors of inserting values of $s$ have already been applied in $\astate$. Moreover, it is easy to see that values of $s$ keep a same order in Ti-tree of $\astate$ as the order in $s$. Then, values of $s$ keep a same order in $l$ as the order in $s$. Thus, $s$ is a sub-sequence of $l$.
 \end{itemize}
 
-We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$ 
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
 \end {proof}
 
 

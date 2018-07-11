@@ -12,7 +12,7 @@
 
   addAfter(a,b) :
     atSource :
-      precondition : a = @|$\circ$|@ or (a != @|$\circ$|@ and (a,_,_) @|$\in$|@ N and a @|$\not\in$|@ Tomb)
+      precondition : a = @|$\circ$|@ or (a != @|$\circ$|@ and (_,_,a) @|$\in$|@ N and a @|$\not\in$|@ Tomb)
       let ts@|$_{\mathtt{b}}$|@ = getTimestamp()
       //@ lin = insert(lin, addAfter(a,b), ts@|$_{\mathtt{b}}$|@)
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
@@ -20,7 +20,7 @@
       //@ N' = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
   remove(a) :
     atSource :
-      precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
+      precondition : (_,_,a) @|$\in$|@ N and a @|$\notin$|@ Tomb
       //@ lin = insert(lin, remove(a), max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
@@ -70,7 +70,7 @@ The execution model for an operation \lstinline|op(v)| is depicted in \figureaut
   We shall sometimes refer to this part of the operation as the
   \emph{generator} following~\cite{ShapiroPBZ11}.
   Then, if the state needs to be changed as part of the operation --
-  e.g. \lstinline|addAfter|for RGA -- an update is
+  e.g. \lstinline|addAfter| for RGA -- an update is
   generated which shall be executed in all the replicas for the
   object.
   We shall refer to the update as the \emph{effector}.
@@ -499,11 +499,11 @@ Unfortunately we cannot show that this simple linearization strategy
 works for any set of operations.
 %
 Consider now a similar case where after issuing the
-$\mathtt{addAfter}$ operations the processes attempt to immediately
+$\mathtt{addAfter}$ operations the replicas attempt to immediately
 read the state.
 %
 As it was explained in \figureautorefname~\ref{fig:rga-trace} a possible behavior is
-that the first process returns the list $\mathtt{\circ \cdot a \cdot
+that the first replica returns the list $\mathtt{\circ \cdot a \cdot
   b}$ while the second returns the list $\mathtt{\circ \cdot a \cdot
   c}$. 
 %
