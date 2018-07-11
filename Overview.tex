@@ -5,7 +5,7 @@
 % \gpnote[inline, nomargin]{Add an intuitive notion of history.}
 % (adapted from~\cite{ShapiroPBZ11})
 \begin{figure}[t]
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Replicated Growing Array (RGA) CRDT pseudo-code.},captionpos=b,label={lst:rga}]
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={\vspace{-1mm}Replicated Growing Array (RGA) CRDT pseudo-code.},captionpos=b,label={lst:rga}]
   payload Ti-Tree N, Set Tomb
   initial N = @|$\emptyset$|@, Tomb = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -18,7 +18,6 @@
     downStream(a, ts@|$_{\mathtt{b}}$|@, b) :
       N = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
       //@ N' = N @|$\cup$|@ {(a, ts@|$_{\mathtt{b}}$|@, b)}
-
   remove(a) :
     atSource :
       precondition : (a,_,_) @|$\in$|@ N and a @|$\notin$|@ Tomb
@@ -26,12 +25,12 @@
     downStream(a) :
       Tomb = Tomb @|$\cup$|@ {a}
       //@ Tomb' = Tomb @|$\cup$|@ {a}
-
   read() :
     let ret-list = traverse(N, Tomb)
     //@ lin = insert(lin, read()@|$\Rightarrow$|@ret-list, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     return ret-list
 \end{lstlisting}
+\vspace{-5mm}
 \end{figure}
 
 We give an informal description of the system model
@@ -39,14 +38,15 @@ we assume, and illustrate our main contribution with two
 interesting CRDT implementations extracted from~\cite{AttiyaBGMYZ16,ShapiroPBZ11}.
 
 \subsection{System Model}
-\begin{wrapfigure}{r}{0.42\textwidth}
-\vspace{-4mm}
+\begin{wrapfigure}{r}{0.35\textwidth}
+\vspace{-5mm}
   \centering
-  \includegraphics[scale=.7]{figures/sys-mod}
+  \includegraphics[scale=.6]{figures/sys-mod}
+  \vspace{-2mm}
   \caption{CRDT System Model.}
   \label{fig:sys-mod}
+\vspace{-4mm}
 \end{wrapfigure}
-
 We assume that the system is comprised of multiple nodes in a network.
 In this work we will be concerned with the implementation of CRDTs,
 and we will concentrate our discussion to the behaviors
@@ -94,8 +94,8 @@ We write the code of CRDT implementations using the syntax introduced in \citet{
 %Following the description above, \citet{ShapiroPBZ11} present the code
 %of a number of CRDT implementations.
 %
-For instance, Listing~\ref{lst:rga} shows the code of RGA, 
-where the lines starting with \lstinline|//@| should be ignored for the moment 
+Listing~\ref{lst:rga} shows the code of RGA, 
+where the lines starting with \lstinline|//@| should be ignored 
 (this is a version of the RGA algorithm introduced in~\cite{AttiyaBGMYZ16}
 which we believe is simpler to understand).
 %
@@ -171,7 +171,7 @@ a precondition requiring \lstinline|a| to exist in the tree before the
 insertion of \lstinline|b| after it.
 %
 We remark at this point that the data structure is initialized with a
-preexisting initial element denoted $\circ$.
+preexisting initial element $\circ$.
 %
 The generator then samples a timestamp \lstinline|t|$_{\mathtt{b}}$
 for \lstinline|b| which is assumed to be larger than any
@@ -219,10 +219,12 @@ timestamp order is $\mathtt{ts_a < ts_c < ts_b}$.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=.8\textwidth]{figures/RGA-Trace}
+  \includegraphics[width=.77\textwidth]{figures/RGA-Trace}
 % \vspace{-10pt}
+  \vspace{-2mm}
   \caption{Example of RGA conflict resolution.}
   \label{fig:rga-trace}
+  \vspace{-5mm}
 \end{figure}
 
 Let us consider the case of two concurrent operations:
@@ -276,13 +278,12 @@ commutative (c.f. CRDT), RGA does not really erase elements from the
 %
 Instead, an additional data structure called a \emph{tombstone} is used to
 keep track of elements that have been conceptually erased and should
-not be considered when reading the list via \lstinline|read|.
+not be considered when reading the list.
 %
 In our case the tombstone is simply a set \lstinline|Tomb| of
 elements.
 %
-This, the code of the \lstinline|remove| operation
-in Listing~\ref{lst:rga} is self-explanatory.
+The code of the \lstinline|remove| operation is self-explanatory.
 %
 The last column of Figure~\ref{fig:rga-trace} shows the result of
 removing item $\mathtt{d}$ from the list.
@@ -299,9 +300,11 @@ depicted.
 
 % \fxwarning[nomargin, inline]{We should already explain the issue of queries, the fact that RGA is not linearizable in the classical sense.}
 
-\begin{wrapfigure}{L}{.5\linewidth}
+\begin{wrapfigure}{L}{.48\linewidth}
+  \vspace{-3mm}
   \includegraphics[scale=.7]{figures/history-RGA}
   \caption{A history for the RGA object.}
+    \vspace{-3mm}
   \label{fig:rga-history}
 \end{wrapfigure}
 
@@ -320,7 +323,7 @@ form $\alabellong{\argv}{\retv}$ representing a call to method
 $\amethod$ with arguments $\argv$ and returning the value $\retv$.
 %
 When the values are unimportant we shall use the meta-variable
-$\alabel$ to denote a label.\footnote{We can assume here that each of these labels is uniquely identified.}
+$\alabel$ to denote a label.%\footnote{We can assume here that each of these labels is uniquely identified.}
 %
 The partial order mentioned above represents the \emph{visibility} relation among operations, where we say that an
 operation with label $\alabel_1$ is visible to an operation with
@@ -333,13 +336,13 @@ set of labels $\alabelset$ and a visibility relation $\prec$ between labels.
 %incorporating the constraints enforced by the execution.
 %
 For instance, the history %where the constraints are given by visibility
-corresponding to the execution in Figure~\ref{fig:rga-trace} 
+of the execution in Figure~\ref{fig:rga-trace} 
 is presented in Figure~\ref{fig:rga-history}.
 %, where we can see the
 %partial order resulting from the visibility relation of the execution
 %explained in~\autoref{fig:rga-trace}. 
 %
-Each node of the history represents a label in the set $\alabelset$
+Each node represents a label in the set $\alabelset$
 and arrows represent that the operation at the source of the arrow
 is visible to the operation at the target.
 %
@@ -560,18 +563,11 @@ execution thereof.
 
 \subsection{OR-Set CRDT Implementation}
 \label{sec:or-set-crdt}
-\begin{wrapfigure}{r}{.4\textwidth}
-  \centering
-  \includegraphics[width=0.35 \textwidth]{./figures/OR-Set-simple}
-  \vspace{-5pt}
-  \caption{Interleaving-based Set.}
-  \vspace{-5pt}
-  \label{fig:or-set-simple}
-\end{wrapfigure}
+
 
 \begin{figure}[!t]
   \centering
-\begin{lstlisting}[caption={Pseudo-code of the OR-Set CRDT.},basicstyle=\ttfamily\scriptsize,captionpos=b,label={lst:or-set}]
+\begin{lstlisting}[caption={\vspace{-1mm}Pseudo-code of the OR-Set CRDT.},basicstyle=\ttfamily\scriptsize,captionpos=b,label={lst:or-set}]
   payload Set S
   initial S = @|$\emptyset$|@
   //@ initial lin = @|$\epsilon$|@
@@ -583,7 +579,6 @@ execution thereof.
     downStream(a, k) :
       S = S @|$\cup$|@ {(a, k)}
       //@ S' = S @|$\cup$|@ {(a, k)}
-
   remove(a) :
     atSource :
       let R = {(a,k) | (a,k) @|$\in$|@ S}
@@ -593,14 +588,23 @@ execution thereof.
       //@ R == {(a,k) | @|$\exists\ \alabel$|@ = add(a,k). (@|$\alabel$|@, remove(a,R))@|$\in \avisord\ \land$|@
                               @|$ \forall\ \alabel'$|@ = remove(a,_). {(@|$\alabel,\alabel'$|@),(@|$\alabel'$|@, remove(a,R))}@|$\not\subseteq\,\avisord$|@}
       //@ S' = S @|$\setminus$|@ R
-
   read() :
     let A = {a : @|$\exists$|@ k. (a,k) @|$\in$|@ S}
     //@ lin = lin@|$\,\cdot\,$|@read@|$\,\Rightarrow\,$|@A
     return A
 \end{lstlisting}
+\vspace{-5mm}
 \end{figure}
 
+\begin{wrapfigure}{r}{.35\textwidth}
+  \vspace{-5.5mm}
+  \centering
+  \includegraphics[width=0.35 \textwidth]{./figures/OR-Set-simple}
+  \vspace{-6mm}
+  \caption{Interleaving-based Set.}
+  \vspace{-2mm}
+  \label{fig:or-set-simple}
+\end{wrapfigure}
 The Observed-Remove Set (OR-Set)~\cite{ShapiroPBZ11} is a CRDT
 implementing a Set interface with operations: \lstinline|add(a)|,
 \lstinline|remove(a)| and \lstinline|read()|.\footnote{Alternatively
@@ -666,24 +670,7 @@ The code of OR-Set is shown in Listing~\ref{lst:or-set} (ignoring
 
 % \gpnote{Add reads at the end of the pictures.}
 
-\begin{figure}[t]
-  \begin{subfigure}{.9\linewidth}
-    \centering
-    \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
-    \caption{OR-Set non-linearizable execution.}
-    \label{fig:or-set-not-lin}
-  \end{subfigure}
-  \bigskip
-  \bigskip
 
-  \begin{subfigure}{.9\linewidth}
-    \centering
-    \includegraphics[width=0.95 \textwidth]{./figures/OR-Set-lk-rem}
-    \caption{Label rewriting of an OR-Set execution.}
-    \label{fig:or-set-lk-rem}
-  \end{subfigure}
-  \caption{OR-Set Linearizability vs. \CRDTLinshort{}.}
-\end{figure}
 
 \smallskip
 \noindent
@@ -793,6 +780,26 @@ performed in each replica and the result is consistent with the
 specification of Set.
 %
 We discuss the details of this constructions in the next section.
+
+\begin{figure}[t]
+  \begin{subfigure}{.9\linewidth}
+    \centering
+    \includegraphics[width=0.70 \textwidth]{./figures/OR-Set-weird}
+    \caption{OR-Set non-linearizable execution.}
+    \label{fig:or-set-not-lin}
+  \end{subfigure}
+  
+  \vspace{2mm}
+  \begin{subfigure}{.9\linewidth}
+    \centering
+    \includegraphics[width=0.95 \textwidth]{./figures/OR-Set-lk-rem}
+    \caption{Label rewriting of an OR-Set execution.}
+    \label{fig:or-set-lk-rem}
+  \end{subfigure}
+  \vspace{-2mm}
+  \caption{OR-Set Linearizability vs. \CRDTLinshort{}.}
+  \vspace{-5mm}
+\end{figure}
 
 
 % Method $\mathit{add}(a,b)$ intends to add item $a$ into the list at a

@@ -18,7 +18,7 @@
 
 %\fxwarning[nomargin, inline]{introduce this section}
 
-In this section we investigate the issue of whether the composition of a set of objects satisfying RA-linearizability is also \crdtlinearizable{}. While we show that this is not true in general, we identify a set of correctness conditions along with requirements on the composition of objects which imply RA-linearizability of the objects and their composition. The correctness conditions are exactly the ones defined in \sectionautorefname~\ref{sec:proofs}, i.e., admitting execution-order or timestamp-order linearizations, and therefore, they come up as natural stregthenings while proving RA-linearizability of concrete CRDTs. The requirement on the object composition is related to sharing the same timestamp generator among different objects.
+We investigate the issue of whether the composition of a set of objects satisfying RA-linearizability is also \crdtlinearizable{}. While we show that this is not true in general, we identify a set of correctness conditions along with requirements on the composition of objects which imply RA-linearizability of the objects and their composition. The correctness conditions are exactly the ones defined in \sectionautorefname~\ref{sec:proofs}, i.e., admitting execution-order or timestamp-order linearizations, and therefore, they come up as natural strengthenings while proving RA-linearizability of concrete CRDTs. The requirement on the object composition is related to sharing the same timestamp generator among different objects.
 
 \subsection{Object Compositions and \CRDTLin{}}\label{ssec:comp_intro}
 
@@ -98,8 +98,10 @@ The composition of a set of \crdtlinearizable{} objects that admit execution-ord
   \centering
   \includegraphics[width=0.7 \textwidth]{figures/LWWReg-LWWReg-NoSTS.pdf}
 %\vspace{-10pt}
+\vspace{-1mm}
   \caption{A history showing that the composition $\otimes$ of two RGA objects is not \crdtlinearizable{}.}
   \label{fig:negative_ts_composition}
+  \vspace{-3mm}
 \end{figure}
 
 
@@ -112,9 +114,9 @@ and the operations of $\aobj_2$ to
 \aobj_2.\alabelshort[{\tt addAfter}]{\circ,c}\cdot \aobj_2.\alabelshort[{\tt addAfter}]{\circ,d}\cdot \aobj_2.\alabelshort[{\tt addAfter}]{\circ,e}\cdot \aobj_2.\alabellongind[{\tt read}]{}{e\cdot d\cdot c}{}
 \end{align*}
 Note that these are the only \crdtlinearization{s} possible for these operations. It can be easily seen that there is no ``global'' linearization consistent with these per-object linearizations. Ordering $\alabelshort[{\tt addAfter}]{\circ,a}$ before $\alabelshort[{\tt addAfter}]{\circ,b}$ implies that $\alabelshort[{\tt addAfter}]{\circ,e}$ occurs before $\alabelshort[{\tt addAfter}]{\circ,d}$ which contradicts the second linearization above.
-We solve this problem by requiring an additional constraint on the composition operator $\comp$ such that intuitively, all objects use a common timestamp generator. This in turn requires that the implementation of the objects share a common timestamp generator, and it must ensure that each new timestamp is bigger than the  timestamps used by operations delivered to a replica, independently of the object on which they are applied. For instance, the history of \figureautorefname~\ref{fig:negative_ts_composition} would not be admitted because $\ats_1'$ should be bigger than $\ats_3$ (since the operation that received $\ats_3$ from the timestamp generator originates from the same replica as the operation receiving $\ats_1'$ at a later time) and $\ats_2$ should be bigger than $\ats_2'$. These two constraints together with $\ats_1'<\ats_2'$ contradict the fact that $\ats_2 < \ats_3$.
+We solve this problem by requiring an additional constraint on the composition operator $\comp$ such that intuitively, all objects use a common timestamp generator. This in turn requires that the implementation of the objects share a common timestamp generator, and it must ensure that each new timestamp is bigger than the  timestamps used by operations delivered to a replica, independently of the object on which they are applied. For instance, the history of \figureautorefname~\ref{fig:negative_ts_composition} would not be admitted because $\ats_1'$ should be bigger than $\ats_3$ (since the operation that received $\ats_3$ from the timestamp generator originates from the same replica as the operation receiving $\ats_1'$ at a later time) and $\ats_2$ should be bigger than $\ats_2'$. These two constraints together with $\ats_1'<\ats_2'$ contradict $\ats_2 < \ats_3$.
 %
-We remark here that while this requires a modification of the algorithms, where the timestamp generator is a parameter, this has no algorithmic of run-time cost, and in fact a similar idea have been suggested in the systems literature (e.g.~\cite{EnesPB17}).
+We remark here that while this requires a modification of the algorithms, where the timestamp generator is a parameter, this has no algorithmic or run-time cost, and in fact a similar idea have been suggested in the systems literature (e.g.~\cite{EnesPB17}).
 
 %Before going into the details of our solution, we present a formal definition of timestamp-order linearizations. For a history $\ahist=(\alabelset,\avisord)$, we define the timestamp $\tsof_\ahist(\alabel)$ of a label $\alabel$ in the context of the history $h$ to be $\tsof_\ahist(\alabel)=\tsof(\alabel)$ if $\tsof(\alabel)\neq\bot$ and $\tsof_\ahist(\alabel)=\mathsf{max}\, \{\tsof(\alabel'):(\alabel',\alabel)\in \avisord \}$, otherwise.
 %
@@ -137,11 +139,16 @@ Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\S
   {\alabel = \aobj_k.\alabellongind{\argv}{\retv}{(i,\ats)}\mbox{ with } k\in \{1,2\} \\ (\gstates_k, \avisord_k, \downstreams_k) \xrightarrow{\src{\arep}{\alabel}}_{k} (\gstates_k', \avisord_k', \downstreams_k') \\
   (\gstates'_{k'}, \avisord'_{k'}, \downstreams'_{k'}) = (\gstates_{k'}, \avisord_{k'}, \downstreams_{k'})\mbox{ for $k'\neq k$} \\
   \gstates_1(\arep) = (\alabelset_1, \astate_1) \\ \gstates_2(\arep) = (\alabelset_2, \astate_2) \\
-  \ats\neq\bot\implies (\,\forall \alabel\in\alabelset_1\cup\alabelset_2.\ \tsof(\alabel)\neq\bot \implies \tsof(\alabel) < \ats\,) }
+%  \ats\neq\bot\implies (\,\forall \alabel\in\alabelset_1\cup\alabelset_2.\ \tsof(\alabel)\neq\bot \implies \tsof(\alabel) < \ats\,) 
+  \ats\neq\bot\implies (\,\forall \alabel'\in\alabelset_1\cup\alabelset_2.\ \tsof(\alabel') < \ats\,) \\
+  \forall \alabel'\in \labeldom{\avisord_1\cup\avisord_2}.\ \tsof(\alabel') \neq \ats
+  }
   {((\gstates_1, \avisord_1, \downstreams_1),(\gstates_2, \avisord_2, \downstreams_2)) \xrightarrow{\src{\arep}{\alabel}} (\gstates_1', \avisord_1', \downstreams_1'),(\gstates_2', \avisord_2', \downstreams_2')}
 \]
+\vspace{-1mm}
 \caption{The transition rule for generators in the object composition operator $\otimes_{\tsof}$.}
   \label{fig:comp-ts}
+\vspace{-3mm}
 \end{figure}
 
 We define a restriction $\otimes_{\tsof}$ of the object composition operator $\otimes$ such that the set of histories $h=(\alabelset,\avisord)$ in the composition $\aobj_1\otimes_{\tsof}\aobj_2$ satisfy the property that the order between timestamps (of all objects) is consistent with the visibility relation $\avisord$ (i.e., $\avisord\cup \atsord{\ahist}$ is acyclic). With respect to the ``unrestricted'' composition $\otimes$ defined in \sectionautorefname~\ref{ssec:comp_intro}, we only modify the transition rule corresponding to generators, as shown in \figureautorefname~\ref{fig:comp-ts}. The only addition consists in ensuring that when a new timestamp is generated, it is bigger than all the timestamps ``visible'' to the replica executing that generator (even if they were generated in the context of a different object). Its extension to a set of objects is defined as usual. The composition operator  $\otimes_{\tsof}$ is called \emph{shared timestamp generator composition}. From a practical point of view, if we were to consider the standard timestamp mechanism used in CRDTs, i.e., each replica maintains a counter which is increased monotonically with every new operation (originating at the replica or delivered from another replica) and timestamps are defined as pairs of replica identifiers and counter values, then $\otimes_{\tsof}$ can be implemented using a ``shared'' counter which increases monotonically with every new operation, independently of the object on which it is applied.
