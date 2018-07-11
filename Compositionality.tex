@@ -40,13 +40,13 @@ Given two objects $\aobj_1$ and $\aobj_2$, the semantics of their composition $\
 %\fxnote{Add new notations.}
 Given two specifications $\Spec_1$ and $\Spec_2$ of two objects $\aobj_1$ and $\aobj_2$, respectively, their composition $\Spec_1\comp \Spec_2$ is defined as the set of sequences which are interleavings of sequences in $\Spec_1$ and $\Spec_2$, respectively. More precisely, $\Spec_1\comp \Spec_2$ is the set of sequences $(\alabelset,\aseqord)$ such that their projection on labels of $\aobj_1$, resp., $\aobj_2$, is admitted by $\Spec_1$, resp., $\Spec_2$. Given two objects  $\aobj_1$ and $\aobj_2$ with specifications $\Spec_1$ and $\Spec_2$, respectively, we say that their composition $\aobj_1\comp \aobj_2$ is \emph{\crdtlinearizable{}} if every history of $\aobj_1\comp \aobj_2$ is \crdtlinearizable{} w.r.t. $\Spec_1\comp \Spec_2$. The extension of implementation and specification composition to a set of objects is defined as usual.
 
-\begin{wrapfigure}{l}{.5\linewidth}
+\begin{wrapfigure}{l}{.45\linewidth}
   \vspace{-5pt}
   \centering
   \includegraphics[width=0.35 \textwidth]{figures/TwoSubLin-NotaGlobalLin.pdf}
 \vspace{-5pt}
 \caption{A history of two OR-Set objects showing that per-object \crdtlinearization{s} cannot be combined into a global \crdtlinearization{}. Every operation is visible only at the origin, hence visibility is defined by the horizontal lines (left to right).}
-  \vspace{-5pt}
+  \vspace{-9pt}
   \label{fig:negative_composition}
 \end{wrapfigure}
 
@@ -67,7 +67,7 @@ Let $\atrace$ be a trace of an object $\aobj$ and $\hist{\atrace}=(\alabelset,\a
 \end{lemma}
 \vspace{-10pt}
 \begin{proof}(Skech)
-We define a \emph{dependency} relation $\circledcirc$ between actions as follows: $\src{\arep_1}{\alabel_1}\circledcirc \dwn{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$ or $\alabel_1=\alabel_2$, $\src{\arep_1}{\alabel_1}\circledcirc \src{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$, $\dwn{\arep_1}{\alabel_1}\circledcirc \src{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$, and $\dwn{\arep_1}{\alabel_1}\circledcirc \dwn{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$. Given a trace $\atrace=\atrace_1\cdot \aact_1\cdot\aact_2\cdot\atrace_2$, we say that a trace $\atrace'=\atrace_1\cdot \aact_2\cdot\aact_1\cdot\atrace_2$ is derived from $\atrace$ by a \emph{$\circledcirc$-valid swap} iff $\aact_1$ and $\aact_2$ are \emph{not} related by $\circledcirc$. Using standard reasoning about traces of a concurrent system, it can be shown that if $\atrace$ is a trace of $\aobj$, then any trace $\atrace'$ derived through a sequence of $\circledcirc$-valid swaps is also a trace of $\aobj$. Moreover, $\atrace'$ has the same history as $\atrace$. Then, by the definition of the visibility relation $\avisord$ in the history of a trace and the causal delivery assumption, it can be shown that given a trace $\atrace$ of $\aobj$ containing two actions $\src{}{\alabel_1}$ and $\src{}{\alabel_2}$ such that $\alabel_1$ and $\alabel_2$ are concurrent and $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$, there exists another trace $\atrace'$ of $\aobj$ that is defined through a sequence of $\circledcirc$-valid swaps and where $\src{}{\alabel_2}$ occurs before $\src{}{\alabel_1}$. Therefore, the order in which generator actions of concurrent operations occur in a trace can be permuted arbitrarily, which implies the claim of the lemma.
+We define a \emph{dependency} relation $\circledcirc$ between actions as follows: $\src{\arep_1}{\alabel_1}\circledcirc \dwn{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$ or $\alabel_1=\alabel_2$, $\src{\arep_1}{\alabel_1}\circledcirc \src{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$, $\dwn{\arep_1}{\alabel_1}\circledcirc \src{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$, and $\dwn{\arep_1}{\alabel_1}\circledcirc \dwn{\arep_2}{\alabel_2}$ iff $\arep_1=\arep_2$. Given a trace $\atrace=\atrace_1\cdot \aact_1\cdot\aact_2\cdot\atrace_2$, we say that a trace $\atrace'=\atrace_1\cdot \aact_2\cdot\aact_1\cdot\atrace_2$ is derived from $\atrace$ by a \emph{$\circledcirc$-valid swap} iff $\aact_1$ and $\aact_2$ are \emph{not} related by $\circledcirc$. Using standard reasoning about traces of a concurrent system, it can be shown that if $\atrace$ is a trace of $\aobj$, then any trace $\atrace'$ derived through a sequence of $\circledcirc$-valid swaps is also a trace of $\aobj$. Moreover, $\atrace'$ has the same history as $\atrace$. Then, by the definition of the visibility relation $\avisord$ in the history of a trace and the causal delivery assumption, it can be shown that given a trace $\atrace$ of $\aobj$ containing two actions $\src{}{\alabel_1}$ and $\src{}{\alabel_2}$ such that $\alabel_1$ and $\alabel_2$ are concurrent and $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$, there exists another trace $\atrace'$ of $\aobj$ that is defined through a sequence of $\circledcirc$-valid swaps, where $\src{}{\alabel_2}$ occurs before $\src{}{\alabel_1}$. Thus, the order of concurrent generator actions can be permuted arbitrarily, concluding the lemma.
 \end{proof}
 
 Lemma~\ref{lem:trace_closure} implies that given an \crdtlinearizable{} object $\aobj$, if it admits execution-order linearizations, then every linearization of a history of $\aobj$ consistent with visibility is a valid \crdtlinearization{}.
@@ -85,6 +85,7 @@ Lemma~\ref{lem:t0_lin} is the essential ingredient for proving that the composit
 \begin{theorem}\label{th:comp_execution_order}
 The composition of a set of \crdtlinearizable{} objects that admit execution-order linearizations is \crdtlinearizable{}. Moreover, the composition admits execution-order linearizations.
 \end{theorem}
+\vspace{-\topsep}
 %\begin{proof}(Skech)
 %TODO
 %\end{proof}
@@ -139,10 +140,12 @@ We remark here that while this requires a modification of the algorithms, where 
 
 Using again Lemma~\ref{lem:trace_closure}, which ensures that the generators of ``concurrent'' operations can be executed in any order, we get that for any \crdtlinearizable{} object $\aobj$ which admits timestamp-order linearizations, every linearization of a history of $\aobj$ which is also consistent with the order between timestamps is a valid \crdtlinearization{}.
 For a history $\ahist=(\alabelset,\avisord)$, let $\atsord{\ahist}$ be an order between the labels in $\alabelset$ such that $\alabel_1\atsord{\ahist}\alabel_2$ iff $\tsof_\ahist(\alabel_1) < \tsof_\ahist(\alabel_2)$.
+\vspace{-5pt}
 
 \begin{lemma}
 Let $\aobj$ be an object which is \crdtlinearizable{} w.r.t. a specification $\Spec$ and admits timestamp-order linearizations. Then, for every history $\ahist=(\alabelset,\avisord)$ of $\aobj$ and every sequence $(\alabelset,\alinord)$ which is consistent with $\avisord$ and $\atsord{\ahist}$, we have that $(\alabelset,\alinord)$ is an \crdtlinearization{} of $\ahist$ w.r.t. $\Spec$.
 \end{lemma}
+\vspace{-5pt}
 
 \begin{figure}[t]
   \centering
@@ -171,6 +174,7 @@ The following theorem shows that composing \crdtlinearizable{} objects that admi
 \begin{theorem}\label{th:comp_all}
 The shared timestamp generator composition of a set of \crdtlinearizable{} objects that admit execution-order or timestamp-order linearizations is \crdtlinearizable{}.
 \end{theorem}
+\vspace{-5pt}
 %\begin{proof}(Sketch)
 %TODO
 %\end{proof}

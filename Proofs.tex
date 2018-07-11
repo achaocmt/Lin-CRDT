@@ -383,13 +383,16 @@ Next, we present a formal definition of timestamp-order linearizations. For a hi
 An object $\aobj$ which is \crdtlinearizable{} w.r.t. a specification $\Spec$ admits \emph{timestamp-order linearizations} if for every trace $\atrace\in\traces(\aobj)$ with $\hist{\atrace}=(\alabelset,\avisord)$, there exists an \crdtlinearization{} $(\alabelset,\alinord)$ of $\hist{\atrace}$ w.r.t. $\Spec$ such that $\alabel_1$ occurs before $\alabel_2$ in $\alinord$ iff $\tsof_\ahist(\alabel_1) < \tsof_\ahist(\alabel_2)$ or $\src{}{\alabel_1}$ occurs before $\src{}{\alabel_2}$ in $\atrace$, for every two labels $\alabel_1,\alabel_2\in\alabelset$.
 \end{definition}
 
-The following theorem shows the set of objects we have proved to be RA-linearizable and admit timestamp-order linearizations (also mentioned in \figureautorefname~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}). The specification of the LWW-register (short for Last Writer Wins Register) is standard, i.e., a read operation returns the last written value, while the specification of the LWW-Set is similar, the object storing a set of values instead of a single value like in the context of the LWW-register. The precise definitions of these specifications and the proofs can be found in the supplementary material.
+The following theorem shows the set of objects we have proved to be RA-linearizable and admit timestamp-order linearizations (see \figureautorefname~\ref{fig:crdt-implementaton of this paper, their correctness, and their interface}). The specification of the LWW-register (Last Writer Wins Register) is standard, i.e., a read operation returns the last written value, while the specification of the LWW-Set is similar, the object storing a set of values instead of a single value like in the context of the LWW-register. Precise definitions and proofs can be found in the supplementary material.
 
 \begin{theorem}\label{th:ts_order_objects}
 LWW-Register, LWW-Set, and RGA are RA-linearizable and admit timestamp-order linearizations.
 \end{theorem}
 
-The interface of a CRDT has an impact on whether it is RA-linearizable. For instance, a slight variation of the RGA in Listing~\ref{lst:rga} that has the same state, but a different interface, i.e., adding elements to the list is done using a method \lstinline|addAt(a,k)| inserting an element \lstinline|a| at an index \lstinline|k|, introduced in~\cite{AttiyaBGMYZ16}, would not be RA-linearizable w.r.t. an appropriate sequential specification. See the supplementary material for an example. 
+We remark that the API of a CRDT can impact on whether it is
+RA-linearizable. For instance, a slight variation of the RGA in
+Listing~\ref{lst:rga} with the same state, but with an interface with
+a method \lstinline|addAt(a,k)| to insert an element \lstinline|a| at an index \lstinline|k|, introduced in~\cite{AttiyaBGMYZ16}, would not be RA-linearizable w.r.t. an appropriate sequential specification (see the supplementary material). 
 
 %%% Local Variables:
 %%% mode: latex

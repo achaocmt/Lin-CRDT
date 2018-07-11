@@ -4,74 +4,72 @@
 
 \noindent
 {\bf CRDT Correctness Criteria.}
-CRDTs are hard to specify since concurrent interactions between
+CRDTs are hard to specify since concurrency between
 replicas must be considered to provide accurate explanations for the
-conflict resolution and convergence properties they provide.
+their conflict resolution and convergence.
 %
-\citet{BurckhardtGYZ14, Burckhardt14} provide one of the first formal
-frameworks where CRDTs and other weakly consistent replicated systems
-can be specified.
+\citet{BurckhardtGYZ14, Burckhardt14} gives the first formal framework
+where CRDTs and other weakly consistent replicated systems can be
+specified.
 %
-The specification language they provide uses event structures where
-operations are structured using partial orders (e.g. visibility), and
-the validity of the operations is characterized using a set of
+Their specification language uses event structures, where operations
+are structured using partial orders (e.g. visibility), and
+the validity of the operations is characterized by a set of
 axioms on these partial orders.
 % characterize the validity of invalidity
 %of behaviours of operations.
 %
-This specification style bears some similarities with the literature
-of weakly consistent shared memory systems, e.g.,~\cite{AlglaveMT14}.
+This style bears similarities with the literature of weakly consistent
+shared memory systems, e.g.,~\cite{AlglaveMT14}.
 %
 While the specification language
 of~\cite{BurckhardtGYZ14,Burckhardt14} appears to be complete, this
-comes at the cost of complexity of the specifications.
+comes at the cost of complexity.
 %
 The specification of an operation in this framework is given as a
 function whose inputs are the operation name and its arguments
-together with a \emph{context} for the operation.
+together with an operation \emph{context}.
 %
 A context is a graph of operations equipped with two partial orders:
-visibility and arbitration (similar to our visibility and linearization, respectively,
-except that the visibility is existentially quantified and not extracted from the execution).
+visibility and arbitration (similar to our visibility and linearization,
+except that visibility is existentially quantified and not taken from
+the execution).
 %
 %Arbitration is a total order over the operations whose purpose is to
 %represent the deterministic conflict resolution of the algorithms.
 %
-The validity of an operation is given by a set of axioms relating the
-visibility and arbitration orders with the result value of the
-operation.
+The validity of an operation is given by a set of axioms relating
+visibility, arbitration and the result value of the operation.
 %
-Therefore, to specify the behavior of a CRDT in this model one is
-forced to think about the context graph and the axioms that constrain
-them.
+Thus, to specify the behavior of a CRDT in this model one is
+forced to think about the context graph and their axioms.
 %
-One of the goals of \CRDTLinshort{} is to simplify specifications and
-free the user from reasoning about complicated graphs resulting from
-concurrent operations.
+\CRDTLinshort{} attempts to simplify specifications and
+free users from reasoning about complicated graphs resulting from
+concurrency.
 
 \smallskip
 \noindent
-{\bf Sequential Specifications for CRDTs}
+{\bf Sequential Specifications for CRDTs.}
 We are not the first to observe that CRDT specifications can be
-simplified by considering sequential histories.
+simplified by considering sequential histories~\cite{PerrinMJ14,
+  JagadeesanR18}.
+ % make similar observations.
 %
-Recent works~\cite{PerrinMJ14, JagadeesanR18} made similar
-observations.
-%
-\citet{PerrinMJ14} provides Update Consistency, a criterion which to
+\citet{PerrinMJ14} provides Update Consistency (UC), a criterion which to
 the best of our knowledge is the first to consider a linearization of
 updates and reason about the validity of queries using sub-sequences
 of this linearization.
 %
-Unlike \CRDTLinshort{}, to show that a history is Update Consistent,
-the visibility relation of the specification history is existentially
-quantified, whereas in our definition the visibility relation is
-directly extracted from the implementation trace.
+Unlike \CRDTLinshort{}, to show Update Consistent, the visibility
+relation of the specification history is existentially quantified,
+whereas in our definition visibility is directly extracted from the
+implementation trace.
 %
-Hence, \CRDTLinshort{} preserves in the specification histories the
-causality of execution histories, whereas Update Consistency does not.
+Hence, \CRDTLinshort{} preserves in specification histories the
+causality of execution histories, whereas UC does not.
 %
-While their definition is similar to ours, they do not prove the
+Moreover, they do not prove the
 correctness of CRDT implementations or reason about compositionality.
 
 % %
@@ -79,14 +77,14 @@ correctness of CRDT implementations or reason about compositionality.
 %   There isn't even code. They claim that OR-Set is not update
 %   consistent w.r.t. a Set spec.}
 
-\citet{JagadeesanR18} provide a correctness criterion for CRDTs under
-Eventual Consistency called SEC.
+\citet{JagadeesanR18} provide \emph{SEC}, a correctness criterion for CRDTs under
+Eventual Consistency.
 %
 SEC shares some similarities with~\cite{PerrinMJ14} but the
 formalization is quite different.
 There are some important differences between SEC and \CRDTLinshort{}:
 \begin{inparaenum}
-\item Firstly, \CRDTLinshort{} -- as well as Update Consistency --
+\item Firstly, \CRDTLinshort{} -- as well as UC --
   have a global total order for updates. This is is not the case for
   SEC whose definition is quite complex.
 \item
@@ -106,7 +104,7 @@ There are some important differences between SEC and \CRDTLinshort{}:
   %
   This is important since we assume that certain
   operations that appear independent at the API level could be
-  made data or control dependent by the client code.
+  made data or control dependent by the client.
   %
   This is the case in our query-update relabelings where queries
   provide arguments for the subsequent update.
@@ -174,18 +172,18 @@ which only applies to CRDTs satisfying the \CRDTLinshort{} criterion.
 \citet{ZellerBP14} and~\citet{GomesKMB17} provide frameworks for the
 verification of CRDTs in Isabelle/HOL\@.
 %
-Both of these works introduce a methodology to specify and prove the
-correctness of CRDTs.
+Both works introduce a methodology to specify and prove CRDTs
+correct.
 %
-The main difference with these works is that they do not provide a
-consistency criterion, and their proofs are similar to the simulations
-of~\cite{BurckhardtGYZ14}, albeit using a different -- but similar
--- specification language based on partial orders of operations.
+However, these works do not provide a consistency criterion, and their
+proofs are similar to the simulations of~\cite{BurckhardtGYZ14},
+albeit in a different specification language also based on partial
+orders.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have presented \CRDTLin{}, a correctness criterion for CRDTs
+We present \CRDTLin{}, a correctness criterion for CRDTs
 inspired by linearizability which simplifies the specification of the
 data types by resorting to sequential reasoning for the
 specifications.
@@ -194,8 +192,8 @@ We provide proof methodologies to show \CRDTLinshort{} for a number of
 well documented CRDTs.
 %
 Moreover we prove that under certain conditions these proofs guarantee
-compositionality of \CRDTLinshort{}, hence enabling modular reasoning
-for systems with multiple CRDT objects.
+compositionality of \CRDTLinshort{}, thus enabling modular reasoning
+for multiple CRDT objects.
 %
 
 While in this work we have concentrated on the proof of
@@ -207,9 +205,8 @@ showing that the same techniques apply to state-based CRDTs
 However, due to space reasons this extension is not included in this
 paper.
 %
-On a similar vein, while we have assumed Causal Consistency for this
-paper, there is no reason why our results should not apply for weaker
-system models.
+On a similar vein, while we have assumed Causal Consistency, our
+results should also apply to weaker system models.
 %
 We will explore this in future work.
 
