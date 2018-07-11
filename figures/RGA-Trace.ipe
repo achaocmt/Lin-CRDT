@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.7">
-<info created="D:20180702124632" modified="D:20180709162554" pagemode="fullscreen"/>
+<info created="D:20180702124632" modified="D:20180711161018" pagemode="fullscreen"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -324,14 +324,7 @@ h
 <text matrix="0.80771 0 0 0.789474 145.125 314.896" transformations="translations" pos="64 400" stroke="black" type="label" width="31.401" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">c: \mathtt{ts}_{c}</text>
 <text matrix="0.80771 0 0 0.789474 -47.4564 72.7379" transformations="translations" pos="272 656" stroke="black" type="label" width="95.027" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
 <text matrix="0.80771 0 0 0.789474 -9.22505 74.2642" transformations="translations" pos="304 640" stroke="black" type="label" width="50.51" height="7.306" depth="0" valign="bottom" size="large" style="math">\mathtt{a \cdot b \cdot c \cdot e}</text>
-<path matrix="0.80771 0 0 0.789474 126.342 422.264" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="0.80771 0 0 0.789474 -67.765 97.0009" stroke="black">
-351.34 674.403 m
-332.161 655.997 l
-</path>
-<text matrix="0.80771 0 0 0.789474 171.191 292.317" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
+<text matrix="0.80771 0 0 0.789474 200.191 294.317" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
 <text matrix="0.80771 0 0 0.789474 -42.0105 143.737" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
 <text matrix="0.80771 0 0 0.789474 95.3308 71.3158" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
 <path matrix="1 0 0 1 0 6" stroke="black" arrow="normal/small">
@@ -384,7 +377,6 @@ h
 351.34 674.403 m
 332.161 655.997 l
 </path>
-<text matrix="0.80771 0 0 0.789474 450.071 354.964" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
 <path matrix="0.80771 0 0 0.789474 460.386 493.298" stroke="black">
 4 0 0 4 92 240 e
 </path>
@@ -392,7 +384,6 @@ h
 355.153 674.326 m
 371.155 656.464 l
 </path>
-<text matrix="0.80771 0 0 0.789474 486.9 355.561" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
 <text matrix="0.80771 0 0 0.789474 289.309 120.49" transformations="translations" pos="272 656" stroke="black" type="label" width="65.095" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_d &lt; ts_e \Rightarrow}</text>
 <text matrix="0.80771 0 0 0.789474 388.914 131.332" transformations="translations" pos="96 624" stroke="black" type="label" width="40.005" height="8.965" depth="2.99" valign="baseline" size="large" style="math">\mathtt{T = \{d\}}</text>
 <text matrix="0.644326 0.476076 -0.487073 0.629778 148.778 122.218" transformations="translations" pos="320 544" stroke="black" type="label" width="74.028" height="8.965" depth="2.99" valign="baseline" size="large" style="math">\mathtt{addAfter}(c, e)</text>
@@ -446,7 +437,7 @@ h
 351.34 674.403 m
 332.161 655.997 l
 </path>
-<text matrix="0.80771 0 0 0.789474 296.837 354.737" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
+<text matrix="0.80771 0 0 0.789474 336.837 354.737" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
 <path matrix="0.80771 0 0 0.789474 308.153 494.071" stroke="black">
 4 0 0 4 92 240 e
 </path>
@@ -454,7 +445,7 @@ h
 355.153 674.326 m
 371.155 656.464 l
 </path>
-<text matrix="0.80771 0 0 0.789474 330.474 354.334" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
+<text matrix="0.80771 0 0 0.789474 298.474 354.334" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
 <text matrix="0.80771 0 0 0.789474 133.075 120.263" transformations="translations" pos="272 656" stroke="black" type="label" width="65.095" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_d &lt; ts_e \Rightarrow}</text>
 <text matrix="0.80771 0 0 0.789474 238.68 131.105" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
 <path matrix="0.80771 0 0 0.789474 156.987 601.002" stroke="black">
@@ -491,14 +482,7 @@ h
 <text matrix="0.80771 0 0 0.789474 157.307 420.842" transformations="translations" pos="112 464" stroke="black" type="label" width="21.724" height="7.704" depth="0" halign="center" valign="baseline" size="large" style="math">\circ: 0</text>
 <text matrix="0.80771 0 0 0.789474 144.884 436.842" transformations="translations" pos="64 400" stroke="black" type="label" width="31.401" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">c: \mathtt{ts}_{c}</text>
 <text matrix="0.80771 0 0 0.789474 -47.0818 196.684" transformations="translations" pos="272 656" stroke="black" type="label" width="95.027" height="6.621" depth="1.79" valign="bottom" size="large" style="math">\mathtt{ts_a &lt; ts_c &lt; ts_b &lt;}</text>
-<path matrix="0.80771 0 0 0.789474 158.842 544.597" stroke="black">
-4 0 0 4 92 240 e
-</path>
-<path matrix="0.80771 0 0 0.789474 -67.0057 218.947" stroke="black">
-355.153 674.326 m
-371.155 656.464 l
-</path>
-<text matrix="0.80771 0 0 0.789474 205.163 413.861" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
+<text matrix="0.80771 0 0 0.789474 171.163 414.861" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
 <text matrix="0.80771 0 0 0.789474 96.0289 195.632" transformations="translations" pos="96 624" stroke="black" type="label" width="27.876" height="8.971" depth="0.66" valign="baseline" size="large" style="math">\mathtt{T = \emptyset}</text>
 <group matrix="1.16993 0 0 1.17117 11.5966 -126.868">
 <path matrix="0.80771 0 0 0.789474 17.843 168.421" stroke="black">
@@ -588,5 +572,21 @@ h
 288.536 544.468 l
 h
 </path>
+<path matrix="0.80771 0 0 0.789474 127.342 544.264" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path stroke="black">
+216.893 751.309 m
+201.525 736.893 l
+</path>
+<path matrix="0.80771 0 0 0.789474 156.842 422.597" stroke="black">
+4 0 0 4 92 240 e
+</path>
+<path stroke="black">
+218.096 629.047 m
+230.78 615.208 l
+</path>
+<text matrix="0.80771 0 0 0.789474 490.626 354.943" transformations="translations" pos="64 400" stroke="black" type="label" width="32.049" height="6.621" depth="1.79" halign="center" valign="baseline" size="large" style="math">e: \mathtt{ts}_{e}</text>
+<text matrix="0.80771 0 0 0.789474 453.263 354.54" transformations="translations" pos="64 400" stroke="black" type="label" width="33.135" height="8.305" depth="1.79" halign="center" valign="baseline" size="large" style="math">d: \mathtt{ts}_{d}</text>
 </page>
 </ipe>
