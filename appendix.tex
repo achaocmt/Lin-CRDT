@@ -1646,7 +1646,7 @@ The first version of list with {\tt addAt} interface is as follows: A list uses 
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\alabelshort[{\tt addAt}]{a,k}$: Inserts value $a$ into position $k$ of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
+\item[-] $\alabelshort[{\tt addAt}]{a,k}$: Inserts value $a$ into position $k$ of the list of replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
 
 \item[-] $\alabelshort[{\tt remove}]{a}$: Remove value $a$ from list of the replica state.
 
@@ -1659,9 +1659,9 @@ Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as f
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$.
+\item[-] Let $s = traverse(N, Tomb)$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$.
 
-\item[-] Work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of $\alabelshort[{\tt addAfter}]{b,a}$.
+\item[-] Work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of ${\tt addAfter}(b,$ $a)$.
 \end{itemize}
 
 
@@ -1785,7 +1785,7 @@ As second version of list with {\tt addAt} interface, let us introduce the inter
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\alabellong[{\tt addAt}]{a,k}{s}{}$: Inserts value $a$ into position $k$ of the replica state, and returns the updated list content of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
+\item[-] $\alabellong[{\tt addAt}]{a,k}{s}{}$: Inserts value $a$ into position $k$ of list of the replica state, and then returns the updated list content of the replica state. For $k$ exceeding the list size of replica state, $k$ will be inserted at the end of the list.
 
 \item[-] $\alabellong[{\tt remove}]{a}{s}{}$: Remove value $a$ from list of the replica state, and returns the updated list content of the replica state.
 
@@ -1798,7 +1798,7 @@ Our RGA algorithm of \sectionautorefname \ref{sec:overview} can be modified as f
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For {\tt addAt}: Given argument $a$ and $k$ of {\tt addAt}. Let $s$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$.
+\item[-] For {\tt addAt}: Given argument $a$ and $k$ of {\tt addAt}. Let $s = traverse(N, Tomb)$ be the list content in replica state. If $s = \epsilon$, then let $b = \circ$; else, if $\vert s \vert \geq k$, then let $b=s[k-1]$; else, let $b=s[\vert s \vert -1]$.
 
     Then, we work as $\alabelshort[{\tt addAfter}]{b,a}$. Especially, the effector of $\alabelshort[{\tt addAt}]{a,k}$ is the effector of $\alabelshort[{\tt addAfter}]{b,a}$. After $\alabelshort[{\tt addAfter}]{b,a}$ finish in the source replica, let $s'$ be the list content of replica state, and we return value $s'$.
 
