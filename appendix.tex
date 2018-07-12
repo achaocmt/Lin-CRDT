@@ -1302,7 +1302,7 @@ For example, \autoref{fig:an execution of tree-doc, the local state of replica r
 
 A T-identifier $tid$ of a T-character $w$ is a sequence $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$, where $id$ is a unique identifier, and each for each $1 \leq i \leq n$, $c_i \in \{ 0,1,(1,id')\}$. We call such $id$ the disambiguator of $w$, and require disambiguator to be unique for each T-character. Each $c_i$ of $tid$ represent how to choose the next node in the $i$-th step of the ``path''. If $c_i=0$ (resp., $c_i=1$), then the next node is a node as ``left son'' (resp., ``right son'') of the current (major) node; Else, $c_i = (1,id')$, and this represents that the next node is chosen from ``right sons'' of a minor node with identifier $id'$. The path to the root is fixed to be $\epsilon$.
 
-For example, in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son (could be a major node)''; the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
+For example, in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the T-identifier of $w_f$ is $0 \cdot (0,id_f)$, which represent that $w_f$ is a ``left son'' of the root's ``left son'' (could be a major node); the T-identifier of $w_g$ is $(0,id_b) \cdot (1,id_g)$, which represent that $w_g$ is a ``right son'' of minor node $w_b$. Note that, as shown in \autoref{fig:an execution of tree-doc, the local state of replica r1 after execution, and the T-identifiers of T-characters}, the corresponding tree of T-characters is not a binary tree.
 
 We say a set $T$ of T-characters is a T-tree, if:
 
@@ -1312,7 +1312,7 @@ We say a set $T$ of T-characters is a T-tree, if:
 
 \item[-] Each ghost value of T-character is unique, and each T-character has a unique disambiguator.
 
-\item[-] For each T-character $w=(a,tid) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that, for each $1 \leq i \leq n$,
+\item[-] For each T-character $w=(\_,tid,\_) \in T$, assume $tid = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$. We require that, for each $1 \leq i \leq n$,
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
@@ -1464,7 +1464,7 @@ Given a T-tree $tree$ and the T-identifier order $<_t$ of $tree$, then, $<_t$ is
 \end{lemma}
 
 \begin {proof}
-Let us prove that $<_t$ is a total order. Given T-identifiers $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$ and $tid_2 = 'c_1 \cdot \ldots \cdot c'_m \cdot (p',id')$.
+Let us prove that $<_t$ is a total order. Given T-identifiers $tid_1 = c_1 \cdot \ldots \cdot c_n \cdot (p,id)$ and $tid_2 = c'_1 \cdot \ldots \cdot c'_m \cdot (p',id')$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1521,14 +1521,14 @@ Given an effector $w_b = (b,tid_b,b)$ of an operation $\alabel = \alabelshort[{\
 \end{lemma}
 
 \begin {proof}
-Assume that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c'_1 \cdot \ldots \cdot c'_m \cdot (p_c,id_c)$. Then, according to the method {\tt newID}, we can see that $tid_b \in \{ c'_1 \cdot \ldots \cdot c'_m \cdot p_c \cdot (0,id), c_1 \cdot \ldots \cdot c_n \cdot p_a \cdot (1,id), c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id) \}$. When $tid_b = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id)$, according to method {\tt neweID}, we can see that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid_c = c_1 \cdot \ldots \cdot c_n \cdot (p_c,id_c)$, and $id_a < id_c$. Since $tree$ is already a T-tree, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$, then, for each possible value of $tid_b$, it is easy to see that $tree \cup \{ w_b \}$ is a T-tree. $\qed$
+Assume that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid = c'_1 \cdot \ldots \cdot c'_m \cdot (p',id')$. Then, according to the method {\tt newID}, we can see that $tid_b \in \{ c'_1 \cdot \ldots \cdot c'_m \cdot p' \cdot (0,id), c_1 \cdot \ldots \cdot c_n \cdot p_a \cdot (1,id), c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id) \}$. When $tid_b = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a) \cdot (1,id)$, according to method {\tt neweID}, we can see that $tid_a = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id_a)$, $tid = c_1 \cdot \ldots \cdot c_n \cdot (p_a,id')$, and $id_a < id'$. Since $tree$ is already a T-tree, no T-character of $tree$ has ghost value $b$, no T-character of $tree$ has disambiguator $id$, then, for each possible value of $tid_b$, it is easy to see that $tree \cup \{ w_b \}$ is a T-tree. $\qed$
 \end {proof}
 
 The following lemma state that, when we do $\alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $(b,tid_b,b)$, then $tid_b$ is between T-identifiers of T-characters of $a$ and $c$.
 
 \begin{lemma}
 \label{lemma:when we do addBetween(a,b,c) and generate an effector (b,tid_b,b) with newID(tid_a,tid_x,id), then tid_b is between tid_a and tid_x}
-Assume the current replica state is a T-tree $tree$, we do an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ and generate an effector $w_b = (b,tid_b,b)$, and this process calls $\alabelshort[{\tt newID}]{tid_a,tid,id}$. Let $<_t$ be the T-identifier order of the T-tree $tree \cup \{ w_b \}$. Then, we have that, $tid_a <_t tid_b <_t tid$.
+Assume the current replica state is a T-tree $tree$, we do an operation $\alabel = {\tt addBetween}($ $a,b,c)$ and generate an effector $w_b = (b,tid_b,b)$, and this process calls $\alabelshort[{\tt newID}]{tid_a,tid,id}$. Let $<_t$ be the T-identifier order of the T-tree $tree \cup \{ w_b \}$. Then, we have that, $tid_a <_t tid_b <_t tid$.
 \end{lemma}
 
 \begin {proof}
@@ -1553,11 +1553,11 @@ Let us consider all possible cases of $tid_a$ and $tid$, and shows that $tid_a <
     \setlength{\itemsep}{0.5pt}
     \item[-] If $tid_a = l \cdot (p,id_1)$, $tid = l \cdot (p,id_2)$, and $id_1 < id_2$: We can see that $tid_a$ does not have ``right son''.
 
-    $tid'' = l \cdot (p,id_1) \cdot (1,id)$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. Since $id_1 < id_2$, we can see that $tid'' <_t tid$.
+    Let $tid'' = l \cdot (p,id_1) \cdot (1,id)$. Since $tid''$ is a ``right son'' of $tid_a$, we can see that $tid_a <_t tid''$. Since $id_1 < id_2$, we can see that $tid'' <_t tid$.
 
     \item[-] There exists $tid_0$, such that $tid_0 = l \cdot (p,id_0)$, $tid = l \cdot (p,id_2)$, $id_0 < id_2$, and $tid_a$ is a descendant of $tid_0$: We can see that $tid_a$ does not have ``right son''.
 
-    Assume that $tid_a = l \cdot (p,id_1) \cdot l_2 \cdot (p',id'_1)$, then, $tid'' = l \cdot (p,id_1) \cdot l_2 \cdot p' \cdot (1,id)$. We can see that $tid''$ is a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $id_0 < id_2$, we can see that $tid'' <_t tid$.
+    Assume that $tid_a = l \cdot (p,id_0) \cdot l_2 \cdot (p',id'_1)$, then, $tid'' = l \cdot (p,id_0) \cdot l_2 \cdot p' \cdot (1,id)$. We can see that $tid''$ is a ``right son'' of $tid_a$, and thus, $tid_a <_t tid''$. Since $id_0 < id_2$, we can see that $tid'' <_t tid$.
     \end{itemize}
 
 \end{itemize}
@@ -1583,7 +1583,7 @@ Let us first prove that, during the executions, each replica state is a T-tree. 
 
 \item[-] When a replica do generator of an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ and then apply its effector: Assume the original replica state is $\sigma$, the effector of $\alabel$ is $(b,tid_b,b)$, and we call $\alabelshort[{\tt newID}]{tid_a,tid,id}$ to generate $tid_b$. By tree-doc algorithm, it is obvious that, $(,tid_a,a),(\_,$ $tid,\_) \in \sigma$. It is obvious that after we apply the effector, the replica state is $\sigma \cup \{ (b,tid_b,b) \}$. Then, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $\sigma \cup \{ (b,tid_b,b) \}$ is a T-tree.
 
-\item[-] When a replica $\arep$ apply effector that corresponds to an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ originated in a different replica: Assume the original replica state of replica $\arep$ is $\sigma$, the effector of $\alabel$ is $(b,tid_b,b)$. Assume $\alabel$ is done in replica $\arep'$, and we call $\alabelshort[{\tt newID}]{tid_a,tid,id}$ to generate $tid_b$. By tree-doc algorithm, it is obvious that, $(,tid_a,a),(\_,$ $tid,\_)$ is in the replica state of $\arep'$ when $(b,tid_b,b)$ is applied in replica $\arep'$. By the causal delivery assumption, we can see that $(,tid_a,a),(\_,$ $tid,\_)$ is in the replica state of replica $\arep$ before $(b,tid_b,b)$ is applied. It is obvious that after we apply the effector in replica $\arep$, the replica state is $\sigma \cup \{ (b,tid_b,b) \}$. Then, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $\sigma \cup \{ (b,tid_b,b) \}$ is a T-tree.
+\item[-] When a replica $\arep$ apply effector that corresponds to an operation $\alabel = \alabelshort[{\tt addBetween}]{a,b,c}$ originated in a different replica: Assume the original replica state of replica $\arep$ is $\sigma$, the effector of $\alabel$ is $(b,tid_b,b)$. Assume $\alabel$ is done in replica $\arep'$, and we call $\alabelshort[{\tt newID}]{tid_a,tid,id}$ to generate $tid_b$. By tree-doc algorithm, it is obvious that, $(,tid_a,a),(\_,$ $tid,\_)$ is in the replica state of $\arep'$ when $(b,tid_b,b)$ is applied in replica $\arep'$. By the causal delivery assumption, we can see that $(\_,tid_a,a),(\_,$ $tid,\_)$ is in the replica state of replica $\arep$ before $(b,tid_b,b)$ is applied. It is obvious that after we apply the effector in replica $\arep$, the replica state is $\sigma \cup \{ (b,tid_b,b) \}$. Then, by Lemma \ref{lemma:if we add a T-character (an effector) into a T-tree, then we obtain another T-tree}, we can see that $\sigma \cup \{ (b,tid_b,b) \}$ is a T-tree.
 \end{itemize}
 
 Therefore, during the executions, each replica state is a T-tree.
@@ -1594,7 +1594,7 @@ Our proof proceeds as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Since the effector of {\tt addBetween} do set union, we can see that the effectors of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the effector of concurrent {\tt remove} operations commute, since they both set the value of some T-characters into $nil$. Concurrent {\tt addBetween} and a {\tt remove} effectors commute, since the T-character changed by {\tt remove} are different from the T-character added by the {\tt addBetween}.
+\item[-] Since the effector of {\tt addBetween} do set union, we can see that the effectors of concurrent {\tt addBetween} operations commute. According to tree-doc algorithm, it is easy to see that the effector of concurrent {\tt remove} operations commute, since they both set the value of some T-characters into $nil$. Concurrent {\tt addBetween} and a {\tt remove} effectors commute, since the T-character changed by {\tt remove} are different from the T-character added by the {\tt addBetween}.
 
     Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 

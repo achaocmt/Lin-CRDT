@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70107" creator="Ipe 7.1.7">
-<info created="D:20151003110714" modified="D:20180704001225"/>
+<info created="D:20151003110714" modified="D:20180712042824"/>
 <preamble>\usepackage[version=0.96]{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
@@ -401,7 +401,7 @@ h
 128 272 l
 </path>
 <text matrix="1 0 0 1 63.205 -188" transformations="translations" pos="64 436" stroke="black" type="label" width="104.003" height="7.472" depth="2.85" valign="baseline">${\tt addBetween}(\circ_{begin},d,a)$</text>
-<text matrix="1 0 0 1 -52.795 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="74.512" height="6.923" depth="1.49" valign="baseline">local state of $\ensuremath{\mathtt{r}}_4:$</text>
+<text matrix="1 0 0 1 -52.795 -260" transformations="translations" pos="64 436" stroke="black" type="label" width="83.119" height="6.926" depth="1.93" valign="baseline">replica state of $\ensuremath{\mathtt{r}}_4:$</text>
 <path matrix="1 0 0 1 -16 -36" stroke="black">
 148 204 m
 132 188 l
