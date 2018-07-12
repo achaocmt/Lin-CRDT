@@ -210,8 +210,8 @@ captionpos=b,label={lst:operation-based PN-counter}]
     downStream(@|$(P',N')$|@) :
       @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@
       @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
-      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
-      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
 
   dec()
     atSource :
@@ -222,8 +222,8 @@ captionpos=b,label={lst:operation-based PN-counter}]
     downStream(@|$(P',N')$|@) :
       @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@
       @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
-      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
-      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generate this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
 
 
   read() :
@@ -315,7 +315,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \item[-] The case of {\tt dec} can be similarly proved.
 
-    \item[-] Applying the query {\tt read} on the replica state $S$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(S)$, which again holds trivially.
+    \item[-] Applying the query {\tt read} on the replica state $(P,N)$ should result in the same return value as applying the same query in the context of the specification on the abstract state $\abstate = \refmap(S) = \Sigma_{\arep} P[\arep] - \Sigma_{\arep} N[\arep]$, which again holds trivially.
     \end{itemize}
 
 \item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
@@ -471,7 +471,7 @@ captionpos=b,label={lst:operation-based multi-value register}]
       let A = @|$\{ (a_1,V_1) \in S \vert \neg V' > V_1 \}$|@
       let B = @|$\{ (a,V') \}$|@, if @|$\forall (a_1,V_1) \in S, \neg V_1 > V'$|@. Otherwise, let B = @|$\emptyset$|@
       S = A @|$\cup$|@ B
-      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt write}]{\_}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \} \vert$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(a,V')$|@
+      //@ Annotation1 : @|$\forall \arep, V'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt write}]{\_}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \} \vert$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(a,V')$|@
 
   read() :
     let @|$S_1$|@  = {a @|$\vert \exists$|@ V. (a,V) @|$\in$|@ S}
@@ -606,7 +606,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
         \item[-] If there exists item $(c,V'')$ in $S'$ but not in $\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
 
-        Let $\alabel_c$ be the operation that generates effector $(c,V'')$ Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V')$. Since $(c,V'') \in S_1$, we know that $(\alabel_c,\alabel) \in \avisord$. This contradicts $fact1$ and $fact2$.
+        Let $\alabel_c$ be the operation that generates effector $(c,V'')$. Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V')$. Since $(c,V'') \in S_1$, we know that $(\alabel_c,\alabel) \in \avisord$. This contradicts $fact1$ and $fact2$.
         \end{itemize}
 
     Therefore, we know that $S' = \abstate'$, and the case of the effector $(a,V')$ and the $\alabelshort[{\tt write}]{a,V',S_1}$ operation of the specification $\specMVReg$ holds.
@@ -653,7 +653,7 @@ captionpos=b,label={lst:2P-set}]
       A = A @|$\cup \ A'$|@
       R = R @|$\cup \ R'$|@
       //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
-      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
+      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@
 
   remove(a) :
     atSource :
@@ -663,7 +663,7 @@ captionpos=b,label={lst:2P-set}]
       A = A @|$\cup \ A'$|@
       R = R @|$\cup \ R'$|@
       //@ Annotation1 : @|$A'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt add}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@,
-      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generate this effector @|$(A',R')$|@
+      @|$R'$|@ = @|$\{ b \vert \{ \exists \alabel = \alabelshort[{\tt remove}]{b}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \}$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@
 
   read() :
     let s = A @|$\,\setminus\,$|@ R
@@ -687,7 +687,7 @@ Each abstract state $\abstate$ is $(A,T)$, where $A$ is a set of values used to 
                \specarrow{\alabelshort[\mathtt{remove}]{a}}
     & (A,T \cup \{a\}) \\
     (A,T)
-    & \specarrow{\alabellong[\mathtt{read}]{}{ S_1 }{}}
+    & \specarrow{\alabellong[\mathtt{read}]{}{ S }{}}
     & \abstate\
       \begin{array}{c}
         [\text{with}\ S = A \setminus T]
@@ -733,7 +733,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A'R')$ is the effector of $\alabel$.
+    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A',R')$ is the effector of $\alabel$.
 
         By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds.
 
@@ -777,7 +777,7 @@ This completes the proof of this lemma. $\qed$
 \subsection{LWW-Element-Set Implementation}
 \label{subsec:LWW-element-set implementation}
 
-Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ to record pairs of inserted values and their timestamp, and a set $R$ and stores the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$.
+Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ that records pairs of inserted values and their timestamp, and a set $R$ that records the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$.
 
 
 \begin{figure}[t]
@@ -794,8 +794,8 @@ captionpos=b,label={lst:LWW-element-set}]
     downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@, @|$R'$|@ = R
       A = A @|$\cup \ A'$|@
       R = R @|$\cup \ R'$|@
-      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
-      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
+      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@,  
+      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@ 
 
   remove(a) :
     atSource :
@@ -804,12 +804,12 @@ captionpos=b,label={lst:LWW-element-set}]
     downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A, @|$R'$|@ = @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@
       A = A @|$\cup \ A'$|@
       R = R @|$\cup \ R'$|@
-      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@,
-      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the replica state @|$ \})$|@.
+      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@,
+      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@ 
 
   read() :
     let S = @|$\{ b \vert \exists (b,\ats_b) \in A, R$|@ does not contain @|$(b,\_)$|@, or @|$\forall (b,\ats'_b) \in R, \ats'_b < \ats_b \}$|@
-    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@S)
+    //@ lin = insert(lin, read()@|$\Rightarrow$|@S, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@)) 
     return S
 \end{lstlisting}
 \end{figure}
@@ -889,7 +889,7 @@ Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping 
 
 \item[-] The cases of $\alabellongind[{\tt remove}]{a}{}{\ats_a}{}$ can be similarly proved.
 
-\item[-] Applying the query {\tt read} on the replica state $(A,R)$ should result in the same return value as applying the same query in the context of the specification on the same state $\abstate = \refmap(A,R)$, which holds trivially.
+\item[-] Applying the query {\tt read} on the replica state $(A,R)$ should result in the same return value as applying the same query in the context of the specification on the abstract state $\abstate = \refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$, which holds trivially. 
 \end{itemize}
 
 
@@ -1081,7 +1081,7 @@ If $w_1$ and $w_2$ are degree-$i$-adjacent in $string_s$, then, $w_1 <_{string_s
 \begin {proof}
 Let us prove this property by induction.
 
-It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for $string_s$, let $string'_s$ be obtained from $string_s$ by applying effector of $\alabelshort[{\tt addBetween}]{a,b,c}$, and this property does not hold for $string'_s$. Let $w_b$ be the W-character of $b$. Assume the degree of $w_b$ is $i_b$. Then, there exists W-characters $w_x$ and $w_y$, such that $w_x$ and $w_y$ are degree-$k$-adjacent, and it is not the case that $w_x <_{string'_s} w_y$, if and only if $w_x <_{id} w_y$.
+It is obvious that this property holds initially. Let us prove the induction part by contradiction. Assume this property hold for $string_s$, let $string'_s$ be obtained from $string_s$ by applying effector of $\alabelshort[{\tt addBetween}]{a,b,c}$, and this property does not hold for $string'_s$. Let $w_b$ be the W-character of $b$. Assume the degree of $w_b$ is $i_b$. Then, there exists W-characters $w_x$ and $w_y$, such that $w_x$ and $w_y$ are degree-$k$-adjacent, and it is not the case that $w_x <_{string'_s} w_y$ if and only if $w_x <_{id} w_y$.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -1090,11 +1090,11 @@ It is obvious that this property holds initially. Let us prove the induction par
 \item[-] For degree $i>i_b$, it is easy to prove that the set of degree-$i$-adjacent pairs in $string'_s$ is a subset of that in $string_s$.
 \end{itemize}
 
-Therefore, the only possibility is that $k=i_b$. By induction assumption, we can see that $w_y = w_b$. Or we can say, $w_x$ and $w_b$ are degree-$i_b$-adjacent, and it is not the case that $w_x <_{string'_s} w_b$, if and only if $w_x <_{id} w_b$.
+Therefore, the only possibility is that $k=i_b$. By induction assumption, we can see that $w_y = w_b$. Or we can say, $w_x$ and $w_b$ are degree-$i_b$-adjacent, and it is not the case that $w_x <_{string'_s} w_b$ if and only if $w_x <_{id} w_b$.
 
 Let us consider the case when $w_x <_{string'_s} w_b \wedge w_b <_{id} w_x$.
 
-Assume $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{w_a,w_b,w_c}$. Assume $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ is the last {\tt integrateIns} with $d_{min} < i_b$, and then, we recursively calls $\alabelshort[{\tt integrateIns}]{w_y,c_b,w_z}$. By Lemma \ref{lemma:a property of degree of argument of integrateIns}, we can see that the degree of $c_y$ and $c_z$ are less than $i_b$.
+Assume $\alabelshort[{\tt addBetween}]{a,b,c}$ calls $\alabelshort[{\tt integrateIns}]{w_a,w_b,w_c}$. Assume $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ is the last {\tt integrateIns} with $d_{min} < i_b$, and then, we recursively calls $\alabelshort[{\tt integrateIns}]{w_y,w_b,w_z}$. By Lemma \ref{lemma:a property of degree of argument of integrateIns}, we can see that the degree of $w_y$ and $w_z$ are less than $i_b$.
 
 It is obviously that $w_y <_{string'_s} w_b <_{string'_s} w_z$. Since $w_x$ and $w_b$ are degree-$i_b$-adjacent, we can see that $w_y <_{string'_s} w_x$. Therefore, in $\alabelshort[{\tt integrateIns}]{w_y,w_b,w_z}$, $d_{min} = i_b$, and $w_x,w_b \in F$.
 
@@ -1109,7 +1109,7 @@ The following lemma states that, inserting a value $b$ is ``independent'' from w
 
 \begin{lemma}
 \label{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}
-Assume from a replica state $\sigma$, we obtain $\sigma_b$ by applying the effector of $\alabelshort[{\tt addBetween}]{a,b,c}$, and obtain $\sigma_{eb}$ by first applying the effector of $\alabelshort[{\tt addBetween}]{d,e,f}$ and then applying the effector of $\alabelshort[{\tt addBetween}]{a,b,c}$. Let $w_b$ be W-character of $b$. Then, the order of $\{$W-characters of $\sigma \} \cup \{ w_b \}$ is the same for $\sigma_b$ and $\sigma_{eb}$.
+Assume from a replica state $\sigma$, we obtain $\sigma_b$ by applying the effector of ${\tt addBetween}($ $a,b,c)$, and obtain $\sigma_{eb}$ by first applying the effector of $\alabelshort[{\tt addBetween}]{d,e,f}$ and then applying the effector of $\alabelshort[{\tt addBetween}]{a,b,c}$. Let $w_b$ be W-character of $b$. Then, the order of $\{$W-characters of $\sigma \} \cup \{ w_b \}$ is the same for $\sigma_b$ and $\sigma_{eb}$.
 \end{lemma}
 
 \begin {proof}
@@ -1121,7 +1121,7 @@ When case $1$ and case $2$ both call $\alabelshort[{\tt integrateIns}]{w_1,w_b,w
 
 When case $1$ and case $2$ both call $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ for some $w_1$ and $w_2$, and it is the first time that $d_{min} \geq j_e$. Then, there are two possibilities:
 
-\noindent {\bf Possibility $1$:} In $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of case $1$, $d_{min} > j_e$, while in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of case $2$, $d_{min} = j_e$. Or we can say, $w_b$ is the only W-character that has degree $j_e$ and is between $w_1$ and $w_2$ in $\sigma_e$.
+\noindent {\bf Possibility $1$:} In $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of case $1$, $d_{min} > j_e$, while in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of case $2$, $d_{min} = j_e$. Or we can say, $w_e$ is the only W-character that has degree $j_e$ and is between $w_1$ and $w_2$ in $\sigma_e$.
 
 Assume $w_e$ is put into $\sigma_e$ by calling $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$. Obviously, the degree of $w_{pe}$ and $w_{ne}$ is smaller than $j_e$. Since in case $2$, we have $d_{min} = j_e$, then, it is not the case that $w_1 <_{\sigma_e} w_{pe} <_{\sigma_e} w_2 \vee w_1 <_{\sigma_e} w_{ne} <_{\sigma_e} w_2$. Thus, we can see that, $w_{pe} <_{\sigma_e} w_1 <_{\sigma_e} w_2 <_{\sigma_e} w_{ne}$.
 
@@ -1129,7 +1129,7 @@ Let $F_1$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of
 
 Let us consider the case when $w'_n <_{\sigma_e} w_e$, while the case when $w_e <_{\sigma_e} w'_1$ can be similarly proved.
 
-Let us prove $w'_n <_{id} w_e$ by contradiction. Assume that $w_e <_{id} w'_n$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $w'_n$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w_1 <_{\sigma_e} w_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w'_n <_{\sigma_e} w_x <_{\sigma_e} w_e$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{w_x$, $w_e,\_}$. Since this time-point is before we reach degree $d_{min1}$, we can see that the degree of $w_x$ is smaller than $d_{min1}$. Therefore, $d_{min1}$ should equal the degree of $w_x$, which brings a contradiction.
+Let us prove $w'_n <_{id} w_e$ by contradiction. Assume that $w_e <_{id} w'_n$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma$, in each time of recursively calling {\tt IntegrateIns}, $w'_n$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w_1 <_{\sigma_e} w_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w'_n <_{\sigma_e} w_x <_{\sigma_e} w_e$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{w_x$, $w_e,\_}$. Since this time-point is before we reach degree $d_{min1}$, we can see that the degree of $w_x$ is smaller than $d_{min1}$. Therefore, $d_{min1}$ should equal the degree of $w_x$, which brings a contradiction.
 
 Therefore, we can see that $F_1[0] <_{id} F_1[1] \ldots <_{id} F_1[n] <_{id} w_e$ and $F_1[0] <_{\sigma_e} F_1[1] \ldots <_{\sigma_e} F_1[n] <_{\sigma_e} w_e$.
 
@@ -1168,17 +1168,17 @@ Let $F_2$ be the array $F$ in $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_2}$ of
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] Let us consider the situation of $w_e <_{\sigma_e} w''_1$. We can see that only case $1$ need to concern this round, since in case $2$, there is no W-character with degree $d'_{min1}$ between $w'_1$ and $w'_2$.
+    \item[-] Let us consider the situation of $w_e <_{\sigma_e} w''_1$. We can see that only case $1$ need to concern this round, since in case $2$, there is no W-character with degree $d'_{min1}$ between $w'_1$ and $w_e$.
 
         By induction assumption, we can see that $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$.
 
-        Let us prove $w_e <_{id} w''_1$ by contradiction. Assume that $w''_1 <_{id} w_e$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $w''_1$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w_e <_{\sigma_e} w_x <_{\sigma_e} w''_1$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{\_,w_e,w_x}$. Since this time-point is before we reach degree $d'_{min1}$, we can see that the degree of $w_x$ is smaller than $w'_{min1}$. Therefore, $w'_{min1}$ should equal the degree of $w_x$, which brings a contradiction.
+        Let us prove $w_e <_{id} w''_1$ by contradiction. Assume that $w''_1 <_{id} w_e$. Then, it is easy to see that, in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, in each time of recursively calling {\tt IntegrateIns}, $w''_1$ should never be in array $F$. Since $w_{pe} <_{\sigma_e} w'_1 <_{\sigma_e} w'_2 <_{\sigma_e} w_{ne}$, there exists a W-character $w_x$, such that $w_e <_{\sigma_e} w_x <_{\sigma_e} w''_1$, and in the process of doing $\alabelshort[{\tt integrateIns}]{w_{pe},w_e,w_{ne}}$ from $\sigma_b$, at some time-point we will recursively call $\alabelshort[{\tt integrateIns}]{\_,w_e,w_x}$. Since this time-point is before we reach degree $d'_{min1}$, we can see that the degree of $w_x$ is smaller than $w'_{min1}$. Therefore, $d'_{min1}$ should equal the degree of $w_x$, which brings a contradiction.
 
         We can see that $w_b <_{id} w_e <_{id} w''_1 <_{id} \ldots <_{id} w''_n$. Case $1$ recursively calls ${\tt integrateIns(}$ $w'_1,w_b,w''_1)$. Note that case $2$ does not concern this round and still wait in ${\tt integrateIns}(w'_1$, $w_b,w'_2)$. We can see that the order of $\{ w''_1,\ldots,w''_n,w_b \}$ is the same for case $1$ and case $2$.
 
         If in the next round of {\tt integrateIns} of case $1$, $w_e <_{\sigma_e} F[1]$, then, similarly, we can prove that $w_e <_{id} F[1]$, and $w_b <_{id} F[1] <_{id}\ldots$. Case $1$ recursively calls ${\tt integrateIns}(w'_1$, $w_b,F[1])$, case $2$ still do not concern this round and still wait in $\alabelshort[{\tt integrateIns}]{w'_1,w_b,w'_2}$, and the order of $F \cup \{ w_b \}$ is the same for case $1$ and case $2$.
 
-        If from now on, each round is as such, then we can similar prove it and our proof is done.
+        If from now on, each round is as such, then we can similarly prove it and our proof is done.
 
         Otherwise, in the first round of case $1$ that is not as such, we can see that it calls ${\tt integrateIns(}$ $w'_1,w_b,w)$ with $w_e <_{\sigma_e} w$, assume the $F$ array is $F''$, assume the $d_{min}$ is $d''$, assume $F'' = w'''_1 \cdot \ldots \cdot w'''_n$. By Lemma \ref{lemma:in F of Wooki, W-characters are degree-dmin-adjacent}, $(w'''_1,w'''_2),\ldots,(w'''_{n-1},w'''_n)$ are degree-$d''$-adjacent. By Lemma \ref{lemma:in strings, given two degree-i-adjacent W-characters, they are ordered by id order}, we can see that $w'''_1 <_{id} w'''_2 \ldots <_{id} w'''_n$. We have $w'''_n <_{\sigma_e} w_e$. Similarly, we can prove that $w'''_n <_{id} w_e$.
 
@@ -1221,7 +1221,7 @@ By Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, bet
 Therefore, the only possibility is that in both $\sigma_{be}$ and $\sigma_{eb}$, $w_b$ and $w_e$ are adjacent, and they are in different order in $\sigma_{be}$ and in $\sigma_{eb}$. Let $w_1$ be the right-most W-character that are before $w_b$ in $\sigma_{eb}$.
 
 According to Wooki algorithm, in the process of applying the effector of $\alabelshort[{\tt addBetween}]{a,b,c}$ to $\sigma_e$, the last time of calling recursive method ${\tt integrateIns}$ must be $\alabelshort[{\tt integrateIns}]{w_1,w_b,w_e}$. %Otherwise, since there is no W-character (except $c_b$) between $c_1$ and $c_e$, we can see that $c_b$ is not between $c_1$ and $c_e$ in $\sigma_{eb}$.
-We can see that $w_e$ is not an argument of $\alabelshort[{\tt integrateIns}]{w_a,w_b,w_c}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can prove that, when we call $\alabelshort[{\tt integrateIns}]{\_,w_b,w_e}$, we must have $w_b <_{id} w_e$. Similarly, from $w_e <_{\sigma_{be}} w_b$, we can prove that $w_e <_{id} w_b$. This implies that $w_b <_{id} w_e \wedge w_e <_{id} w_b$, which is a contradiction. $\qed$
+We can see that $w_e$ is not an argument of $\alabelshort[{\tt integrateIns}]{w_a,w_b,w_c}$. Similarly as the proof of Lemma \ref{lemma:in Wooki algorithm,the order of sigma and b is the same, between insert b and first insert e and then insert b}, we can prove that, since we call $\alabelshort[{\tt integrateIns}]{\_,w_b,w_e}$, we must have $w_b <_{id} w_e$. Similarly, for the case of $w_e <_{\sigma_{be}} w_b$, we can prove that $w_e <_{id} w_b$. This implies that $w_b <_{id} w_e \wedge w_e <_{id} w_b$, which is a contradiction. $\qed$
 \end {proof}
 
 
@@ -1243,7 +1243,7 @@ Our proof proceeds as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the effectors of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the effector of concurrent {\tt remove} operations commute, since they both put some value into tombstone; Concurrent {\tt addBetween} and a {\tt remove} effectors commute because in this case, the W-character removed by {\tt remove} are different from the W-character added by the {\tt addBetween}.
+\item[-] By Lemma \ref{lemma:in Wooki algorithm, two downstreams of two addBetween operations commute}, we can see that the effectors of concurrent {\tt addBetween} operations commute. According to Wooki algorithm, it is easy to see that the effector of concurrent {\tt remove} operations commute, since they both set the flags of some W-characters into $\mathit{false}$; Concurrent {\tt addBetween} and a {\tt remove} effectors commute because in this case, the W-character influenced by {\tt remove} are different from the W-character added by the {\tt addBetween}.
 
     Let us prove $\mathsf{ReplicaStates}$: Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. We have already proved that effector of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
