@@ -113,30 +113,6 @@ Method $\alabelshort[{\tt inc}]{}$ increase the counter by $1$. Method $\alabels
 
 
 
-\subsection{Obtain Permutations by Swapping Adjacent and Concurrent Operations}
-\label{subsec:obtain permutations by swapping adjacent and concurrent operations}
-
-Given two sequences $l_1,l_2$  such that $l_2$ is a permutation of $l_1$, let $\mathit{diff}(l_1,l_2) = \{ (a,b) \vert$ the order of $a$ and $b$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $a$ and $b$ of $l$, let $\mathit{swap}(l,a,b)$ be a sequence obtained from $l$ by swapping $a$ and $b$. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
-
-\begin{lemma}
-\label{lemma:given two sequence consistent with visibility order, one can be obtained from the other}
-Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are both consistent with $\avisord$. If $\aseqord_1 \neq \aseqord_2$, then we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
-\end{lemma}
-
-\begin {proof}
-
-First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel_1$ and $\alabel_2$ are concurrent, and $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$.
-
-We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1$, $\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$.
-
-Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alabel')$ be a element of $\mathit{diff}(\aseqord_1,\aseqord_2)$, and the distance of $\alabel$ and $\alabel'$ is minimal in $\{$ the distance between $\alabel_1$ and $\alabel_2 \vert (\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2) \}$. Let us prove that $\alabel$ and $\alabel'$ are adjacent by contradiction: If there exists $\alabel''$ between $\alabel$ and $\alabel'$. Assume that in $\aseqord_1$, $\alabel$ is before $\alabel''$, and $\alabel''$ is before $\alabel'$. By assumption, the order between $\alabel$ and $\alabel''$, and between $\alabel''$ and $\alabel'$ is the same in $\aseqord_1$ and in $\aseqord_2$. This implies that $\alabel$ is still before $\alabel'$ in $\aseqord_2$, which contradicts the fact that $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$.
-
-Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, by assumption we know that $\alabel$ and $\alabel'$ are not concurrent. Or we can say, $(\alabel,\alabel') \in \avisord \vee (\alabel',\alabel) \in \avisord$. This contradicts that both $\aseqord_1$ and $\aseqord_2$ are consistent with visibility relation. This completes the proof of the first part.
-
-Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of adjacent and concurrent operations. This completes the proof of this lemma. $\qed$
-\end {proof}
-
-
 
 \subsection{Proof of Operation-Based Counter}
 \label{subsec:proof of operation-based counter}
@@ -149,7 +125,9 @@ The operation-based counter is \crdtlinearizable{} w.r.t $\specCounter$.
 \end{lemma}
 
 \begin {proof}
-Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+It is obvious that applying effectors of operations commute for operation-based counter. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
+%Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function. The effector produced by $\alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$ has exactly the same effect. The same holds for that of {\tt dec}. Applying the query {\tt read} on the replica state $\sigma$ should result in the same return value as applying the same query in the context of the specification on the same state $\refmap(\sigma)=\sigma$, which again holds trivially.
 
@@ -232,6 +210,33 @@ captionpos=b,label={lst:operation-based PN-counter}]
     return c
 \end{lstlisting}
 \end{figure}
+
+
+
+\subsection{Obtain Permutations by Swapping Adjacent and Concurrent Operations}
+\label{subsec:obtain permutations by swapping adjacent and concurrent operations}
+
+Given two sequences $l_1,l_2$  such that $l_2$ is a permutation of $l_1$, let $\mathit{diff}(l_1,l_2) = \{ (a,b) \vert$ the order of $a$ and $b$ in $l_1$ is different from that of $l_2 \}$. Given a sequence $l$ and two elements $a$ and $b$ of $l$, let $\mathit{swap}(l,a,b)$ be a sequence obtained from $l$ by swapping $a$ and $b$. The following lemma states that, given two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are generated from a same history and both consistent with visibility relation, we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
+
+\begin{lemma}
+\label{lemma:given two sequence consistent with visibility order, one can be obtained from the other}
+Given a history $(\alabelset,\avisord)$ and two two specification sequences $(\alabelset_1, \aseqord_1)$ and $(\alabelset, \aseqord_2)$ that are both consistent with $\avisord$. If $\aseqord_1 \neq \aseqord_2$, then we can obtain $\aseqord_2$ from $\aseqord_1$ by several time of swapping adjacent pair of concurrent operations.
+\end{lemma}
+
+\begin {proof}
+
+First, we need to prove that, if $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, then, there exists $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel_1$ and $\alabel_2$ are concurrent, and $\alabel_1$ and $\alabel_2$ are adjacent in $\aseqord_1$.
+
+We prove this by contradiction. Assume $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and for each $(\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1$, $\aseqord_2)$, we have that either $\alabel_1$ and $\alabel_2$ are not concurrent, or $\alabel_1$ and $\alabel_2$ are not adjacent in $\aseqord_1$.
+
+Since $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, let $(\alabel,\alabel')$ be a element of $\mathit{diff}(\aseqord_1,\aseqord_2)$, and the distance of $\alabel$ and $\alabel'$ is minimal in $\{$ the distance between $\alabel_1$ and $\alabel_2 \vert (\alabel_1,\alabel_2) \in \mathit{diff}(\aseqord_1,\aseqord_2) \}$. Let us prove that $\alabel$ and $\alabel'$ are adjacent by contradiction: If there exists $\alabel''$ between $\alabel$ and $\alabel'$. Assume that in $\aseqord_1$, $\alabel$ is before $\alabel''$, and $\alabel''$ is before $\alabel'$. By assumption, the order between $\alabel$ and $\alabel''$, and between $\alabel''$ and $\alabel'$ is the same in $\aseqord_1$ and in $\aseqord_2$. This implies that $\alabel$ is still before $\alabel'$ in $\aseqord_2$, which contradicts the fact that $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$.
+
+Since $\alabel$ and $\alabel'$ are adjacent and $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, by assumption we know that $\alabel$ and $\alabel'$ are not concurrent. Or we can say, $(\alabel,\alabel') \in \avisord \vee (\alabel',\alabel) \in \avisord$. This contradicts that both $\aseqord_1$ and $\aseqord_2$ are consistent with visibility relation. This completes the proof of the first part.
+
+Since $\aseqord_1 \neq \aseqord_2$, we have $\mathit{diff}(\aseqord_1,\aseqord_2) \neq \emptyset$, and then, as discussed above, there exists $(\alabel,\alabel') \in \mathit{diff}(\aseqord_1,\aseqord_2)$, such that $\alabel$ and $\alabel'$ are concurrent, and $\alabel$ and $\alabel'$ are adjacent in $\aseqord_1$. Let $\aseqord_3 = \mathit{swap}(\aseqord_1,\alabel,\alabel')$. It is easy to see that $\mathit{diff}(\aseqord_1,\aseqord_2) > \mathit{diff}(\aseqord_3,\aseqord_2)$. Therefore, by several times of above process, we finally obtain $\aseqord_2$ from $\aseqord_1$ by swapping pairs of adjacent and concurrent operations. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
 
 
 
@@ -402,8 +407,8 @@ Let us propose Annotation2, which is an annotation of replica state and obviousl
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Given a replica state $(x,\ats)$, $\ats$ = $max(\{ \ats' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats'}{}$, the effector of $\alabel$ has already been applied in the replica state $ \})$. 
-\end{itemize} 
+\item[-] Annotation2: Given a replica state $(x,\ats)$, $\ats$ = $max(\{ \ats' \vert \exists \alabel = \alabellongind[{\tt write}]{\_}{}{\ats'}{}$, the effector of $\alabel$ has already been applied in the replica state $ \})$.
+\end{itemize}
 
 %//@ Annotation1 : @|$A'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@,
 %      @|$R'$|@ = @|$\{(b,ts_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$|@, the effector of @|$\alabel$|@ has already been applied in the local state @|$ \})$|@.
@@ -419,7 +424,10 @@ Let we prove that the Annotation1 and Annotation2 are inductive invariant. We pr
     If $\ats_a < \ats$, then $(x',\ats') = (x,\ats)$, and Annotation2 holds for replica state $S'$. Else, if $\ats < \ats_a$, then $(x',\ats') = (a,\ats_a)$, and Annotation2 holds for replica state $S'$.
 \end{itemize}
 
-Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
+It is obvious that applying effectors of operations commute. Therefore, it is easy to see that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
+%Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(x,ts) = x$.
 
@@ -636,7 +644,7 @@ This completes the proof of this lemma. $\qed$
 \subsection{2P-Set Implementation}
 \label{subsec:2P-set implementation}
 
-\cite{ShapiroPBZ11} gives a two-phase set (2P-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:2P-set}. A payload $(A,R)$ contains a set $A$ to record the inserted values, and a set $R$ stores the removed values and is used as \emph{tombstone}. Adding or removing a value twice has no effect, nor does adding an element that has already been removed.
+\cite{ShapiroPBZ11} gives a state-based two-phase set (2P-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:2P-set}. A payload $(A,R)$ contains a set $A$ to record the inserted values, and a set $R$ stores the removed values and is used as \emph{tombstone}. Adding or removing a value twice has no effect, nor does adding an element that has already been removed.
 
 
 \begin{figure}[t]
@@ -777,7 +785,7 @@ This completes the proof of this lemma. $\qed$
 \subsection{LWW-Element-Set Implementation}
 \label{subsec:LWW-element-set implementation}
 
-Let us give the operation-based last-writer-win-element-set (LWW-element-set) of \cite{ShapiroPBZ11} in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ that records pairs of inserted values and their timestamp, and a set $R$ that records the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$.
+\cite{ShapiroPBZ11} gives a state-based last-writer-win-element-set (LWW-element-set). Similarly as previous subsection, we give its operation-based version in Listing~\ref{lst:LWW-element-set}. A payload $(A,R)$ contains a set $A$ that records pairs of inserted values and their timestamp, and a set $R$ that records the pairs of removed values and and their timestamp, and $R$ is used as \emph{tombstone}. A value $b$ is in the set, if $(b,\ats_b) \in A$ for some timestamp $\ats_b$, and there does not exists $(b,\ats'_b) \in R$, such that $\ats_b < \ats'_b$.
 
 
 \begin{figure}[t]
@@ -794,8 +802,8 @@ captionpos=b,label={lst:LWW-element-set}]
     downStream((@|$A'$|@,@|$R'$|@)) : with @|$A'$|@ = A @|$\cup$|@ @|$\{$|@(a,@|$\ats'$|@)@|$\}$|@, @|$R'$|@ = R
       A = A @|$\cup \ A'$|@
       R = R @|$\cup \ R'$|@
-      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@,  
-      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@ 
+      //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@,
+      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@
 
   remove(a) :
     atSource :
@@ -805,11 +813,11 @@ captionpos=b,label={lst:LWW-element-set}]
       A = A @|$\cup \ A'$|@
       R = R @|$\cup \ R'$|@
       //@ Annotation1 : @|$A'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@,
-      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@ 
+      @|$R'$|@ = @|$\{(b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}, (\alabel,\alabel') \in \avisord \vee \alabel = \alabel' \})$|@, where @|$\alabel'$|@ is the operation that generates this effector @|$(A',R')$|@
 
   read() :
     let S = @|$\{ b \vert \exists (b,\ats_b) \in A, R$|@ does not contain @|$(b,\_)$|@, or @|$\forall (b,\ats'_b) \in R, \ats'_b < \ats_b \}$|@
-    //@ lin = insert(lin, read()@|$\Rightarrow$|@S, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@)) 
+    //@ lin = insert(lin, read()@|$\Rightarrow$|@S, max(@|$\{\tsof(\alabel)\ |\ \alabel\in \alabelset\}$|@))
     return S
 \end{lstlisting}
 \end{figure}
@@ -889,7 +897,7 @@ Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping 
 
 \item[-] The cases of $\alabellongind[{\tt remove}]{a}{}{\ats_a}{}$ can be similarly proved.
 
-\item[-] Applying the query {\tt read} on the replica state $(A,R)$ should result in the same return value as applying the same query in the context of the specification on the abstract state $\abstate = \refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$, which holds trivially. 
+\item[-] Applying the query {\tt read} on the replica state $(A,R)$ should result in the same return value as applying the same query in the context of the specification on the abstract state $\abstate = \refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$, which holds trivially.
 \end{itemize}
 
 
@@ -1900,6 +1908,199 @@ Concerning the proof of $\mathsf{Refinement}$, we use the same refinement mappin
 
 We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
 \end {proof}
+
+
+
+
+
+\section{\crdtlin{} Proof without Causal Delivery Assumption}
+\label{sec:RA-linearizability proof without causal delivery assumption}
+
+The causal delivery assumption is essential for correctness of several implementations. For example, in the RGA, by the causal delivery assumption and the preconditions of ${\tt addAfter}$ and ${\tt remove}$, it cannot happen that an $\alabelshort[{\tt addAfter}]{a,b}$ operation adding ${\tt b}$ after ${\tt a}$ is concurrent with an operation that adds ${\tt a}$ to
+the list, i.e., $\alabelshort[{\tt addAfter}]{c,a}$, for some ${\tt c}$, or that an $\alabelshort[{\tt addAfter}]{a,b}$ operation adding ${\tt b}$ is concurrent with an operation $\alabelshort[{\tt remove}]{b}$ that removes ${\tt b}$. This ensures that reordering concurrent effectors does not lead to ``invalid'' replica states. %where for instance, the timestamp tree ${\tt N}$ contains nodes which are not reachable from the root (which would happen if $\alabelshort[{\tt addAfter}]{a,b}$ is delivered before the operation $\alabelshort[{\tt addAfter}]{c,a}$ adding ${\tt a}$), or where the tombstone set ${\tt Tomb}$ contains elements which are not in the tree (which would happen if $\alabelshort[{\tt remove}]{b}$ is delivered before $\alabelshort[{\tt addAfter}]{a,b}$).
+
+However, some implementations can execute without causal delivery assumption. Such implementations contains:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] (Operation-based) Counter,
+
+\item[-] PN-Counter,
+
+\item[-] LWW-Register,
+
+\item[-] Multi-Value Register,
+
+\item[-] 2P-Set,
+
+\item[-] LWW-Element Set.
+\end{itemize}
+
+It is easy to see that, the effectors of operations of counter and LWW-register implementations can be applied in any order. According to Section \ref{sec:implementation, sequential specification, and proof of counter} and Section \ref{sec:implementation, sequential specification, and proof of last-writer-win register (LWW-register)}, the proof of \crdtlinearizable{} of counter and LWW-register do not rely on causal delivery assumption. Therefore, counter and LWW-register is still \crdtlinearizable{} without causal delivery assumption.
+
+In this section, we propose how to prove \crdtlin{} for the other four implementations. The methodology is similar to the methodology in Section \ref{sec:proofs}.
+
+
+
+
+\subsection{Proof Methodology for Implementations without Causal Delivery}
+\label{subsec:proof methodology for implementations without causal delivery}
+
+\noindent {\bf Semantics:} We modify the transition rule of downstream as follows:
+
+\[
+  \inferrule[\text{\sc DownStream}]
+  {\gstates(\arep) = (\alabelset, \astate) \\ \alabel \in \labeldom{\avisord} \setminus \alabelset \\
+    \downstreams(\alabel)= \delta \\ \delta(\astate) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\dwn{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord, \downstreams)}
+\]
+
+According to the semantics, it is obvious that the visibility relation is transitive.
+
+\noindent {\bf Implementations and Notations:} The implementations and notations keep unchanged.
+
+\noindent {\bf Proof Methodology}: As in Section \ref{sec:proofs}, we need to prove the following two invariants: 
+
+\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+\item[-] $\mathsf{ReplicaStates}$: requiring that for each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$ (that have been delivered to $\arep$) in the order defined by $\alinord$, and 
+    
+\item[-] $\mathsf{\CRDTLinshort{}}$: requiring that $\alinord$ is an \crdtlinearization{} of the history (w.r.t. $\Spec{}$). 
+\end{itemize}
+
+Similarly, to prove inductive invariant, we rely on additional assertions describing the result of applying each effector, joint with a proof that:
+\begin{itemize}
+\item[-] $\mathsf{Refinement}$: each effector produced by an operation $\alabel$, respectively each query $\alabel$, is simulated by the execution of $\alabel$ in the specification $\Spec$.
+\end{itemize}
+
+Similarly, we identify two general classes of CRDT implementations which differ in the way in which the linearization $\alinord$ is extended when executing operations at the origin replica. One class of objects, including PN-counter, multi-value register and 2P-set, admit execution-order linearizations; while the other class of objects, including LWW-element Set, admit timestamp-order linearizations.
+
+\noindent {\bf Proof Method of $\mathsf{ReplicaStates}$:} Recall that, the four implementations (PN-counter, multi-value register, 2P-set and LWW-Element Set) to be proved in this section are all obtained from their state-based version in \cite{ShapiroPBZ11}.As stated in Section \ref{sec:implementation and proof of operation-based PN-counter}, when applying an effector $\delta$ on a replica state $\astate$, we obtained a new replica state $\alabelshort[{\tt merge}]{\astate,\astate'}$. Here $\astate'$ is the modified payload when $\astate$ is generated. 
+
+We need to prove that, 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] {\tt merge} is commutative: $\alabelshort[{\tt merge}]{\astate,\astate'} = \alabelshort[{\tt merge}]{\astate',\astate}$, 
+
+\item[-] {\tt merge} is idempotent: $\alabelshort[{\tt merge}]{\astate,\astate} = \astate$, 
+
+\item[-] {\tt merge} is associative: $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate,\astate'},\astate''} = \alabelshort[{\tt merge}]{\astate,\alabelshort[{\tt merge}]{\astate',\astate''}}$. 
+\end{itemize}
+
+If we already prove the above three properties of {\tt merge}, then, it is easy to prove by induction that, for each replica state $\sigma$, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$. Further, it is easy to prove that, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$ in any order, especially, the order defined by $\alinord$.
+
+\noindent {\bf Proof Method of $\mathsf{Refinement}$ and $\mathsf{\CRDTLinshort{}}$:} the same as that in Section \ref{sec:proofs}. 
+
+
+
+
+\subsection{Proof of Operation-Based PN-Counter without Causal Delivery Assumption}
+\label{subsec:proof of operation-based PN-counter without causal delivery assumption}
+
+\forget{
+We say $P_1<P_2$, if for each replica $\arep'$, we have $P_1[\arep'] \leq P_2[\arep']$, and there exists replica $\arep''$, such that $P_1[\arep''] < P_2 [\arep'']$. We say $N_1<N_2$, if for each replica $\arep'$, we have $N_1[\arep'] \leq N_2[\arep']$, and there exists replica $\arep''$, such that $N_1[\arep''] < N_2 [\arep'']$. We say $(P_1,N_1) < (P_2,N_2)$, if $(P_1 < P_2 \wedge N_1 \leq N_2) \vee (P_1 \leq P_2 \wedge N_1 < N_2)$. The following lemma states that the operation-based counter is \crdtlinearizable{} w.r.t. $\specCounter$.
+
+\begin{lemma}
+\label{lemma:operation-based PN-counter is correct}
+The operation-based PN-counter is \crdtlinearizable{} w.r.t $\specCounter$.
+\end{lemma}
+
+\begin {proof}
+
+Let us give two facts:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $fact1$: Assume $(P_1,N_1)$ and $(P_2,N_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $(P_1,N_1) < (P_2,N_2)$.
+\item[-] $fact2$: Assume $(P_1,N_1)$ and $(P_2,N_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg ((P_1,N_1) < (P_2,N_2) \vee (P_2,N_2) < (P_1,N_1))$.
+\end{itemize}
+
+
+\noindent Proof of $fact1$: Assume $\alabel_1$ happens on replica $\arep$ and $\alabel_1 = \alabelshort[{\tt inc}]{}$. By the causal delivery assumption, we know that for each replica $\arep' \neq \arep$, $\alabel_2$ see more or equal number of {\tt inc} operations happens on replica $\arep'$ than that of $\alabel_1$, $\alabel_2$ see more or equal number of {\tt dec} operations happens on replica $\arep'$ than that of $\alabel_1$, $\alabel_2$ see more or equal number of {\tt dec} operations happens on replica $\arep$ than that of $\alabel_1$, and $\alabel_2$ see more number of {\tt inc} operations happens on replica $\arep$ than that of $\alabel_1$. By Annotation1, we know that $\forall \arep' \neq \arep$, $P_1[\arep'] \leq P_2[\arep'] \wedge N_1[\arep'] \leq N_2[\arep']$, $N_1[\arep] \leq N_2[\arep]$, and $P_1[\arep] < P_2[\arep]$. Therefore, $(P_1,N_1) < (P_2,N_2)$. The case when $\alabel_1 = \alabelshort[{\tt dec}]{}$ can be similarly proved.
+
+\noindent Proof of $fact2$: Let us prove that $\neg ((P_1,N_1) < (P_2,N_2) \vee (P_2,N_2) < (P_1,N_1))$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $(P_1,N_1) < (P_2,N_2)$, $\alabel_1 = \alabelshort[{\tt inc}]{}$, and $\alabel_1$ happens on replica $\arep_1$. Since $(P_1,N_1) < (P_2,N_2)$, we know that for each replica $\arep'$, $P_1[\arep'] \leq P_2[\arep'] \wedge N_1[\arep'] \leq N_2[\arep']$. Especially, $P_1[\arep] \leq P_2[\arep]$. By the causal delivery assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$.  The case when $\alabel_1 = \alabelshort[{\tt dec}]{}$ can be similarly proved.
+
+Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Annotation2: Let $(P,N)$ be the replica state of a replica. Then, for each replica $\arep$, $P[\arep]$ =  $\{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, l$ happens on replica $\arep$, and the effector of $\alabel$ has already been applied in current replica $\}$,
+    $N[\arep]$ =  $\{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, l$ happens on replica $\arep$, and the effector of $\alabel$ has already been applied in current replica $\}$
+\end{itemize}
+
+Our proof of the lemma proceed as follows:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] We need to prove that $\mathsf{ReplicaStates}$ are inductive invariant.
+
+Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
+
+\item[-] Let we prove that the Annotation1 and Annotation2 are inductive invariant.
+
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of {\tt inc} and {\tt dec}:
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, the effector of $\alabel$ is $(P',N')$.
+
+        It is easy to see that $P'=P[r:P[r]+1]$ and $N'=N$. By Annotation2 of replica state $S$, we can see that Annotation1 for effector $(P',N')$ holds, and Annotation2 for replica state $S'$ holds.
+
+    \item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$.
+
+        By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$.
+
+        Note that operations happen on replica $\arep_{\alabel}$ are totally-ordered by the visibility relation. By $fact1$, $fact2$, and Annotation2 of the replica state $S$, we can see that:
+
+        \begin{itemize}
+        \setlength{\itemsep}{0.5pt}
+        \item[-] $\forall \arep' \neq \arep_{\alabel}$, $P_{\alabel}[\arep'] \leq P[\arep']$, $N_{\alabel}[\arep'] \leq N[\arep']$.
+
+        \item[-] $P_{\alabel}[\arep_{\alabel}] = P[\arep_{\alabel}]+1$, $N_{\alabel}[\arep_{\alabel}] = N[\arep_{\alabel}]$.
+        \end{itemize}
+
+        Therefore, we can see that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Thus, Annotation2 for replica state $S'$ holds.
+
+    \item[-] The case of {\tt dec} can be similarly proved.
+    \end{itemize}
+
+\item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as follows: $\refmap(P,N) = \Sigma_{\arep} P[\arep] - \Sigma_{\arep} N[\arep]$.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] For the effector $(P_{\alabel},N_{\alabel})$ produced by $\alabel = \alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$: Assume we obtain replica state $S'=(P',N')$ from $S=(P,N)$ by applying effector $(P_{\alabel},N_{\alabel})$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt inc}]{}} \abstate+1$, and $\refmap((P,N)) = \abstate$. We need to prove that $\refmap((P',N')) = \abstate+1$.
+
+        Similarly as the above case, we can prove that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Therefore, $\refmap((P',N')) = \refmap((P,N))+1 = \abstate+1$.
+
+    \item[-] The case of {\tt dec} can be similarly proved.
+
+    \item[-] Applying the query {\tt read} on the replica state $(P,N)$ should result in the same return value as applying the same query in the context of the specification on the abstract state $\abstate = \refmap(S) = \Sigma_{\arep} P[\arep] - \Sigma_{\arep} N[\arep]$, which again holds trivially.
+    \end{itemize}
+
+\item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
