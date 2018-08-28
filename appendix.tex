@@ -2147,7 +2147,15 @@ Since merge choose the pair with greater timestamps, it is easy to see that, $\a
 
 
 
+\subsection{Proof of Operation-Based Multi-Value Register without Causal Delivery Assumption}
+\label{subsec:proof of operation-based multi-value register without causal delivery assumption}
 
+The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$. Lemma \ref{lemma:multi-value register is correct}. 
+
+\begin{lemma}
+\label{lemma:when there is no causal delivery assumption, the operation-based multi-value register is still correct}
+When there is no causal delivery assumption, the operation-based multi-value register is \crdtlinearizable{} w.r.t $\specMVReg$.
+\end{lemma}
 
 
 
