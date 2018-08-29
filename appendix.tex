@@ -567,7 +567,7 @@ Let us propose $fact1$:
 
 \noindent $fact1$: Assume $(a_1,V_1)$ and $(a_2,V_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $V_1 < V_2$.
 
-We prove $fact1$ as follows: Assume $\alabel_2$ happens on replica $\arep$. Since $(\alabel_1,\alabel_2) \in \avisord$, %by the causal delivery assumption, 
+We prove $fact1$ as follows: Assume $\alabel_2$ happens on replica $\arep$. Since $(\alabel_1,\alabel_2) \in \avisord$, %by the causal delivery assumption,
 the effector $(a_1,V_1)$ has bee applied in replica $\arep$ before $(a_2,V_2)$ is generated. According to the implementations, we can see that, $V_1 < V_2$.
 
 Based on $fact1$, we can see that, assume $(a_1,V_1)$ and $(a_2,V_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
@@ -612,8 +612,8 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     %By Annotation2, we know that if $(b_1,V'_1)$ is the effector of $\alabel_1$ and $(b_1,V'_1) \in S$, then $\alabel_1$ is maximal w.r.t $\avisord$ among write operations applied to replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$.
 
-    Given operations $\alabel_1$ and $\alabel_2$, such that $(b_1,V_1)$ and $(b_2,V_2)$ is the effector of $\alabel_1$ and $\alabel_2$, respectively. Given replica $\arep_1$, let $S_{b1}$ (resp., $S_{b2}$) be the set of {\tt write} operations $\alabel'$ happen on replica $\arep_1$, and either $\alabel'$ is visible to $\alabel_1$, or $\alabel' = \alabel_1$ (resp., and either $\alabel'$ is visible to $\alabel_2$, or $\alabel' = \alabel_2$). By the causal delivery assumption, the visibility relation is transitive. By Annotation1 of $(b_1,V_1)$ and $(b_2,V_2)$, we can see that, $( S_{b1} \subseteq S_{b2} ) \vee ( S_{b2} \subseteq S_{b1} )$. %Since the visibility relation is transitive, by Annotation2 of $S$, for each operation $\alabel_3$, such that the effector of $\alabel_3$ has been applied in $S$, there exists operation $\alabel'_3$, such that $(\alabel_3,\alabel'_3) \in \avisord$, and the effector of $\alabel'_3$ has been applied in $S$. 
-    
+    Given operations $\alabel_1$ and $\alabel_2$, such that $(b_1,V_1)$ and $(b_2,V_2)$ is the effector of $\alabel_1$ and $\alabel_2$, respectively. Given replica $\arep_1$, let $S_{b1}$ (resp., $S_{b2}$) be the set of {\tt write} operations $\alabel'$ happen on replica $\arep_1$, and either $\alabel'$ is visible to $\alabel_1$, or $\alabel' = \alabel_1$ (resp., and either $\alabel'$ is visible to $\alabel_2$, or $\alabel' = \alabel_2$). By the causal delivery assumption, the visibility relation is transitive. By Annotation1 of $(b_1,V_1)$ and $(b_2,V_2)$, we can see that, $( S_{b1} \subseteq S_{b2} ) \vee ( S_{b2} \subseteq S_{b1} )$. %Since the visibility relation is transitive, by Annotation2 of $S$, for each operation $\alabel_3$, such that the effector of $\alabel_3$ has been applied in $S$, there exists operation $\alabel'_3$, such that $(\alabel_3,\alabel'_3) \in \avisord$, and the effector of $\alabel'_3$ has been applied in $S$.
+
     Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. By Annotation2 of $S$ and Annotation1 of effectors of $S$,
     %Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. It is easy to prove that,
     we can see that, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of {\tt write} operations happen on replica $\arep'$ and whose effectors been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. Then, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds for the effector $(a,V')$. %in $\aglobalstate'$.
@@ -657,13 +657,22 @@ Then, our proof of the lemma proceed as follows:
 
 Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations.
 
-Let us prove that applying effectors of concurrent operations commute, and we only need to consider the case of two concurrent {\tt write} operations. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the effector of two concurrent {\tt write} operations $\alabel_1$ and $\alabel_2$, %$\alabelshort[{\tt write}]{a_1,V_1}$ and $\alabelshort[{\tt write}]{a_2,V_2}$, respectively.
-Given a replica state $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. By the causal delivery assumption, for each operation $\alabel'$ that generate some effector $(a',V') \in S$, %$\alabelshort[{\tt write}]{a_1,V_1}$
-$\alabel_1$ is not visible to $\alabel'$. Or we can say, either $\alabel'$ is visible to %$\alabelshort[{\tt write}]{a_1,V_1}$
-$\alabel_1$, or $\alabel'$ and %$\alabelshort[{\tt write}]{a_1,V_1}$
-$\alabel_1$ are concurrent. By $fact1$, we know that $\neg (V_1 < V')$. Similarly, we can see that $\neg (V_2 < V')$.
+Let us prove that applying effectors of concurrent operations commute, and we only need to consider the case of two concurrent {\tt write} operations. Let $(a_1,V_1)$ and $(a_2,V_2)$ be the effector of two concurrent {\tt write} operations $\alabel_1$ and $\alabel_2$. Given a replica state $S$, assume we obtained $S'$ from $S$ by applying $(a_1,V_1)$ and then applying $(a_2,V_2)$, and assume we obtained $S''$ from $S$ by applying $(a_2,V_2)$ and then applying $(a_1,V_1)$. Then, by the implementation, it is easy to see that, $S' = S'' = S \cup \{ (a_1,V_1),(a_2,V_2) \} \setminus S_1$. Here $(b,V) \in S_1$, if $(b,V) \in S \cup \{ (a_1,V_1),(a_2,V_2) \}$, and one of the following cases holds:
 
-In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2,V_2)$ into $S$ and remove the following tuple $(a_3,V_3) \in S \cup \{(a_1,V_1),(a_2,V_2)\}$: either $V_3 < V_1$, or $V_3 < V_2$, or $(a_3,V_3) = (a_1,V_1) \wedge V_1 < V_2$, or $(a_3,V_3) = (a_2,V_2) \wedge V_2 < V_1$. Since we already know that $\alabel_1$ and $\alabel_2$ are concurrent, by  $fact1$, we know that $\neg (V_1 < V_2 \vee V_2 < V_1)$. Therefore, $S' = S''$.
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] $V < V_1$,
+
+    \item[-] $V < V_2$,
+
+    \item[-] $(b,V) = (a_1,V_1)$, $V_1 < V_2$, or there exists $(c,V_c) \in S$, such that $V_1 < V_c$,
+
+    \item[-] $(b,V) = (a_2,V_2)$, $V_2 < V_1$, or there exists $(c,V_c) \in S$, such that $V_2 < V_c$.
+    \end{itemize}
+
+
+
+
 
 
 
@@ -678,7 +687,9 @@ In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2
 
     Assume we obtain replica state $S'$ from $S$ by applying effector $(a,V')$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a,V',S_1}} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
 
-    Given $(b,V) \in S$ and assume that operation $\alabel'$ generates $(b,V)$. Since $\alinord$ is concistent with the visibility realtion and $fact2$, we can see that, $(\alabel,\alabel') \notin \avisord$. By $fact1$, we can see that, $\neg (V' < V)$. Therefore, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
+    Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$. Here additionally, we assume that $S$ is obtained from the initial replica state by applying effectors of $\alabel''_1,\ldots,\alabel''_m$, and we assume that $\alabel = \alabel''_{m+1}$.
+
+    Given $(b,V) \in S$ and assume that operation $\alabel'$ generates $(b,V)$. Since $\alinord$ is consistent with the visibility relation and $fact2$, we can see that, $(\alabel,\alabel') \notin \avisord$. By $fact1$, we can see that, $\neg (V' < V)$. Therefore, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
 
     %By the causal delivery assumption, if $(\alabel,\alabel') \in \avisord$, then the effector of $\alabel'$ has not been applied yet in the replica of $S$. By Annotation2, $fact1$ and $fact2$, we can see that, $\forall (b,V) \in S$, $\neg(V > V')$. Therefore, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
 
@@ -692,7 +703,12 @@ In the process of obtaining $S'$ or $S''$ from $S$, we add $(a_1,V_1)$ and $(a_2
         \setlength{\itemsep}{0.5pt}
         \item[-] If there exists item $(c,V'')$ in $\abstate'$ but not in $S'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_1$, and $(c,V'') \in S_2$.
 
-        Let $\alabel_c$ be the operation that generates effector $(c,V'')$. Since $(c,V'') \in S_2$, by $fact1$, we can see that, $(\alabel_c,\alabel) \in \avisord$. Since $(c,V'') \notin S_1$, we know that there exists a {\tt write} operation $\alabel_1$, such that $(\alabel_c,\alabel_1)$, $(\alabel_1,\alabel) \in \avisord$. Assume the effector of $\alabel_1$ is $(a_1,V_1)$. By $fact1$, we can see that, $V'' < V_1$. Since $(c,V'') \in S$, we can see that the effector of $\alabel_1$ has not been applied yet in $S$, and also the effector of $\alabel_1$ has not been applied yet in $S'$, while in $S'$, the effector of $\alabel$ has been applied. Since $(\alabel_1,\alabel) \in \avisord$, we can see that this violates the causal delivery assumption.
+        Let $\alabel_c$ be the operation that generates effector $(c,V'')$. Since $(c,V'') \in S_2$, by $fact1$, we can see that, $(\alabel_c,\alabel) \in \avisord$. Since $(c,V'') \notin S_1$, we know that there exists a {\tt write} operation $\alabel_1$, such that $(\alabel_c,\alabel_1)$, $(\alabel_1,\alabel) \in \avisord$. Assume the effector of $\alabel_1$ is $(a_1,V_1)$. By $fact1$, we can see that, $V'' < V_1$.
+
+        Since $(\alabel_1,\alabel) \in \avisord$ and $\alinord$ is consistent with the visibility relation, we can see that, $\alabel_1 = \alabel''_i$ for some $i \leq m$. Since $(c,V'') \in S$, we can see that the effector of $\alabel_1$ has not been applied yet in $S$. This contradicts the assumption that, $S$ is obtained from the initial replica state by applying effectors of $\alabel''_1,\ldots,\alabel''_m$ and $\alabel_1 = \alabel''_i$ for some $i \leq m$.
+
+
+        %and also the effector of $\alabel_1$ has not been applied yet in $S'$, while in $S'$, the effector of $\alabel$ has been applied. Since $(\alabel_1,\alabel) \in \avisord$, we can see that this violates the causal delivery assumption.
 
         \item[-] If there exists item $(c,V'')$ in $S'$ but not in $\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
 
@@ -2150,7 +2166,7 @@ Since merge choose the pair with greater timestamps, it is easy to see that, $\a
 \subsection{Proof of Operation-Based Multi-Value Register without Causal Delivery Assumption}
 \label{subsec:proof of operation-based multi-value register without causal delivery assumption}
 
-The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$. Lemma \ref{lemma:multi-value register is correct}. 
+The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$. 
 
 \begin{lemma}
 \label{lemma:when there is no causal delivery assumption, the operation-based multi-value register is still correct}
@@ -2158,7 +2174,55 @@ When there is no causal delivery assumption, the operation-based multi-value reg
 \end{lemma}
 
 
+\begin {proof}
 
+The proof of this lemma is quite similar to that of Lemma \ref{lemma:multi-value register is correct}. The differences are: proof of $fact1$, definition of Annotation2, and proof of Annotation1 and Annotation2. 
+
+We prove $fact1$ as follows: Assume $\alabel_2$ happens on replica $\arep$. Since $(\alabel_1,\alabel_2) \in \avisord$, there are two possibilities: 
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Either the effector of $\alabel_1$ has been applied in replica $\arep$ before $(a_2,V_2)$ is generated, 
+
+\item[-] Or, there exists an operation $\alabel_3$ and assume that $\alabel_3$ happens on replica $\arep_3$, such that, $(\alabel_1,\alabel_3),(\alabel_3,\alabel_2) \in \avisord$, the effector of $\alabel_1$ has been applied in replica $\arep_3$ before the effector of $\alabel_3$ is generated, and the effector of $\alabel_3$ has been applied in replica $\arep$ before $(a_2,V_2)$ is generated. 
+\end{itemize} 
+
+For both cases, according to the implementations, we can see that, $V_1 < V_2$. 
+
+Similarly, based on $fact1$, we can see that, assume $(a_1,V_1)$ and $(a_2,V_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$. 
+
+
+Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration. Annotation2 of this Lemma is similar to that of Lemma \ref{lemma:multi-value register is correct}. 
+
+\noindent Annotation2: Let $S$ be the replica state of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel, l$ generates the effector $(a,V), \alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset$ of $S$ $\}$. 
+
+
+Let us prove that the Annotation1 and Annotation2 are inductive invariant.
+
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of {\tt write}:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] For case when replica $\arep$ do generator of a {\tt write} operation $\alabel$ and then apply its effector: Similar as that of the proof of Lemma \ref{lemma:multi-value register is correct}. Note that here the visibility relation is still transitive.
+
+\item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $\alabelset_S$ be the $\alabelset$ of $S$. Then, there are two possibilities: 
+    
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $\alabel \in \alabelset_S$: By Annotation2 of $S$, either $\alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset_S$, or there exists an operation $\alabel'$, such that $(\alabel,\alabel') \in \avisord$, and $\alabel'$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset_S$. 
+        
+        In the first case, by Annotation2 of $S$, we can see that, the effector of $\alabel$ has already been applied in $S$. This contradicts the fact that an effector can not be applied more than once on a same replica. Therefore, the first case is impossible. 
+
+        In the second case, assume that $(b,V_b)$ is the effector of $\alabel'$. By $fact1$, we can see that, $V' < V_b$. By the implementation, we can see that, $S = S'$. Therefore, Annotation2 still holds in $S'$. 
+
+    \item[-] If $\alabel \notin \alabelset_S$: Given $(b,V_b) \in S$, and assume that operation $\alabel'$ generates $(b,V_b)$. By Annotation2 of $S$, we can see that, $\alabel$ is not visible to $\alabel'$. By $fact1$, we can see that, $\neg (V' < V_b)$. By the implementation, we can see that, $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. 
+        
+        For each operation $\alabel'$ such that $(\alabel,\alabel') \in \avisord$. If $\alabel' \in \alabelset_S$, since the visibility relation is transitive, we can see that, $\alabel \in \alabelset_S$, which contradicts the assumption that, $\alabel \notin \alabelset_S$. Therefore, we can see that, $\alabel' \notin \alabelset_S$. Therefore, Annotation2 still holds in $S'$. 
+    \end{itemize} 
+\end{itemize}
+
+This completes the proof of this lemma. $\qed$
+\end {proof}
 
 
 
