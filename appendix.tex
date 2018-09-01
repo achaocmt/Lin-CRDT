@@ -627,7 +627,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
     %By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet. By Annotation2, $fact1$ and $fact2$, we know that, $\forall (b,V) \in S$, we have $\neg(V > V')$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. By $fact1$ and $fact2$, each element in $\{ (b,V) \vert (b,V) \in S \wedge V < V' \}$ is visible to $\alabel$, and they are not in $S'$. Therefore, Annotation2 still holds in $\aglobalstate'$.
 \end{itemize}
 
-
+This completes the proof of Annotation1 and Annotation2.
 
 %\noindent {\bf Propose $fact1$}:
 
@@ -811,11 +811,32 @@ The operation-based 2P-set is \crdtlinearizable{} w.r.t $\specTwoPSet$.
 
 Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
 
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-]
+\noindent Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{b}$, the effector of $\alabel$ has already been applied in $S \}$,
+    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{b}$, the effector of $\alabel$ has already been applied in $S \}$,
+%\end{itemize}
+
+Let us prove that the Annotation1 and Annotation2 are inductive invariant.
+
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of {\tt write} or {\tt remove}:
+
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{b}$, the effector of $\alabel$ has already been applied in S $\}$,
-    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{b}$, the effector of $\alabel$ has already been applied in S $\}$,
+\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A',R')$ is the effector of $\alabel$.
+
+        By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds.
+
+\item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+
+        By the causal delivery assumption, %if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet;
+        if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$, and it is easy to see that the effector of $\alabel''$ has already been applied in $S$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
+
+\item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
 \end{itemize}
+
+This completes the proof of Annotation1 and Annotation2.
 
 Our proof of the lemma proceed as follows:
 
@@ -825,23 +846,6 @@ Our proof of the lemma proceed as follows:
 
 Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
-\item[-] Let us prove that the Annotation1 and Annotation2 are inductive invariant.
-
-We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of {\tt write} or {\tt remove}:
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, $(A',R') = (A \cup \{ a \},R)$, and $(A',R')$ is the effector of $\alabel$.
-
-        By Annotation2 of replica state $S$, we can see that Annotation1 of effector $(A',R')$ holds, and Annotation2 of replica state $S'$ holds.
-
-    \item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
-
-        By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
-
-    \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
-    \end{itemize}
-
 \item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as the identity function.
 
     \begin{itemize}
@@ -850,7 +854,9 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     Assume we obtain replica state $S' = (A,'R')$ from replica state $S = (A,R)$ by applying effector $(A_a,R_a)$; while in sequential specification have $\abstate \xrightarrow{\alabelshort[{\tt add}]{a}} \abstate'$, and $\refmap(A,R) = \abstate$, or we can say, $(A,R) = \abstate$. Obviously $\abstate' = (A \cup \{ a \},R)$. We need to prove that $S' = \abstate'$.
 
-    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A_a,R_a)$, and Annotation2 of replica state $S$, we can see that $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, we have that $S' = \abstate'$.
+    Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$. Here additionally, we assume that $S$ is obtained from the initial replica state by applying effectors of $\alabel''_1,\ldots,\alabel''_m$, and we assume that $\alabel = \alabel''_{m+1}$.
+
+    Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel'$, such that $(\alabel',\alabel) \in \avisord$, we can see that, $\alabel' \in \{ \alabel''_1,\ldots,\alabel''_m \}$. Given a replica state $S_1$ and an effector $(A_b,R_b)$ that is generated by a $\alabelshort[\mathtt{add}]{b}$ operation, assume that we obtain replica state $S_2$ from $S_1$ by applying the effector $(A_b,R_b)$ and $S_2 = (A_r,R_2)$. By Annotation1 of $(A_b,R_b)$, we can see that $b \in A_b$, and by the implementation, it is easy to see that, $b \in A_2$. Similar case holds for {\tt remove}. Therefore, by Annotation1 of $(A_a,R_a)$, we can see that, $A_a \setminus \{ a \} \subseteq A$ and $R_a \subseteq R$, and thus, we can see that $A' = A \cup \{ a \}$ and $R' = R$. Therefore, we have that $S' = \abstate'$.
 
     \item[-] The cases of {\tt remove} can be similarly proved.
 
@@ -952,11 +958,9 @@ Let us propose Annotation2, which is an annotation of replica state and obviousl
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$,
-    $R$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in S $\}$.
+\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in $S \}$,
+    $R$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$, the effector of $\alabel$ has already been applied in $S \}$.
 \end{itemize}
-
-Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
 
 Let us prove that the Annotation1 and Annotation2 are inductive invariant. We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of $\alabelshort[{\tt write}]{a}$ or $\alabelshort[{\tt remove}]{a}$:
 
@@ -968,10 +972,16 @@ Let us prove that the Annotation1 and Annotation2 are inductive invariant. We pr
 
 \item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
-    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
+    By the causal delivery assumption, %if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet;
+    if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $\aglobalstate'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$. Therefore, Annotation2 holds for replica state $S'$.
 
 \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
 \end{itemize}
+
+This completes the proof of Annotation1 and Annotation2.
+
+Since the order between the timestamps generated by ${\tt write}$ operations is consistent with the visibility relation, it easily follows that the linearization order $\alinord$ is consistent with the visibility relation. It is obvious that $\alinord$ is consistent with the timestamp order. By the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. Since the effectors do set union, it is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+
 
 Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping $\refmap$ defined as follows: $\refmap(A,R) = \{ a \vert \exists \ats_a, (a,\ats_a) \in A, \forall \ats > \ats_a, (a,\ats) \notin R \}$.
 
@@ -981,7 +991,9 @@ Concerning the proof of $\mathsf{Refinement}$, we consider a refinement mapping 
 
     Assume we obtain replica state $S' = (A',R')$ from replica state $S = (A,R)$ by applying effector $(A'',R'')$ of $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt add}]{a}} \abstate'$, and $\refmap(A,R) = \abstate$.
 
-    By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $S'$ yet; if an operation $\alabel''$ is visible to $\alabel$, then the effector of $\alabel''$ has already been applied in $S'$. By Annotation1 of effector $(A'',R'')$, and Annotation2 of replica state $S$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$.
+    Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$. Here additionally, we assume that $S$ is obtained from the initial replica state by applying effectors of $\alabel''_1,\ldots,\alabel''_m$, and we assume that $\alabel = \alabel''_{m+1}$.
+
+    Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel'$, such that $(\alabel',\alabel) \in \avisord$, we can see that, $\alabel' \in \{ \alabel''_1,\ldots,\alabel''_m \}$. By Annotation1 of $(A'', R'')$ and the effector of such $\alabel'$, we can see that $A'' \setminus \{ (a,\ats_a) \} \subseteq A$ and $R'' \subseteq R$, and thus, we can see that $A' = A \cup \{ (a,\ats_a) \}$ and $R' = R$.
 
     Since $\ats_a$ is greater than all the timestamps of operations whose effector have been applied in $S$, by Annotation2 of $S$, we can see that, for each $\ats \in \{ \ats' \vert (\_,\ats') \in S \}$, we have $\ats < \ats_a$. Therefore, we can see that $\refmap(A',R') = \refmap(A,R) \cup \{ a \} = \abstate'$.
 
@@ -2064,17 +2076,17 @@ Similarly, to prove inductive invariant, we rely on additional assertions $\math
 
 Similarly, we identify two general classes of CRDT implementations which differ in the way in which the linearization $\alinord$ is extended when executing operations at the origin replica. One class of objects, including PN-counter, LWW-register, multi-value register and 2P-set, admit execution-order linearizations; while the other class of objects, including LWW-element Set, admit timestamp-order linearizations.
 
-\noindent {\bf Proof Method of $\mathsf{ReplicaStates}$:} Recall that, the four implementations (PN-counter, multi-value register, 2P-set and LWW-Element Set) to be proved in this section are all obtained from their state-based version in \cite{ShapiroPBZ11}. As stated in Section \ref{sec:implementation and proof of operation-based PN-counter}, given an effector $\delta$ with content $\astate'$, when applying $\delta$ on a replica state $\astate$, we obtain a new replica state $\alabelshort[{\tt merge}]{\astate,\astate'}$. Here {\tt merge} is how we apply effector.  
+\noindent {\bf Proof Method of $\mathsf{ReplicaStates}$:} Recall that, the four implementations (PN-counter, multi-value register, 2P-set and LWW-Element Set) to be proved in this section are all obtained from their state-based version in \cite{ShapiroPBZ11}. As stated in Section \ref{sec:implementation and proof of operation-based PN-counter}, given an effector $\delta$ with content $\astate'$, when applying $\delta$ on a replica state $\astate$, we obtain a new replica state $\alabelshort[{\tt merge}]{\astate,\astate'}$. Here {\tt merge} is how we apply effector.
 
 %we obtained a new replica state $\alabelshort[{\tt merge}]{\astate,\astate'}$. Here $\astate'$ is the modified payload when $\delta$ is generated, and is also the content of the effector $\delta$.
 
-Let $\astate_0$ be the initial replica state. We need to prove the following properties of {\tt merge}: For each $\astate_1$, $\astate_2$ and $\astate_3$, 
+Let $\astate_0$ be the initial replica state. We need to prove the following properties of {\tt merge}: For each $\astate_1$, $\astate_2$ and $\astate_3$,
 
 \begin{itemize}
-\setlength{\itemsep}{0.5pt} 
-\item[-] $\alabelshort[{\tt merge}]{\astate,\astate_0} = \astate$, 
+\setlength{\itemsep}{0.5pt}
+\item[-] $\alabelshort[{\tt merge}]{\astate,\astate_0} = \astate$,
 
-\item[-] $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\astate_1, \alabelshort[{\tt merge}]{\astate_2,\astate_3}}$, 
+\item[-] $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\astate_1, \alabelshort[{\tt merge}]{\astate_2,\astate_3}}$,
 
 \item[-] $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_3},\astate_2}$,
 
@@ -2090,13 +2102,13 @@ Let $\astate_0$ be the initial replica state. We need to prove the following pro
 %\item[-] {\tt merge} is idempotent: $\alabelshort[{\tt merge}]{\astate,\astate} = \astate$,
 
 %\item[-] {\tt merge} is associative: $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate,\astate'},\astate''} = \alabelshort[{\tt merge}]{\astate,\alabelshort[{\tt merge}]{\astate',\astate''}}$.
-%\end{itemize} 
+%\end{itemize}
 
 Assume we already prove the above three properties of {\tt merge}. Given a replica state $S = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate_1),\astate_2),\ldots,\astate_m )$, assume we apply effector $\delta$ on $S$ and the content of $\delta$ is $\sigma = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate'_1),\astate'_2),\ldots,\astate'_k )$, then, it is easy to prove that, $\alabelshort[{\tt merge}]{S,\astate} = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate''_1),\astate''_2),\ldots,\astate''_n)$. Here $\astate''_1,\ldots,\astate''_n$ is obtained from $\{ \astate_1,\ldots,\astate_m,\astate'_1,\ldots$, $\astate'_k \}$ by first removing duplicate replica states, and then list in a arbitrary order. Especially, in the order defined by $\alinord$.
 
 %If we already prove the above three properties of {\tt merge}, then, it is easy to prove by induction that, for each replica state $\sigma$, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$. Furthermore, it is easy to prove that, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$ in any order, especially, the order defined by $\alinord$.
 
-Note that, here we do not prove $\alabelshort[{\tt merge}]{\astate,\astate'} = \alabelshort[{\tt merge}]{\astate',\astate}$, while this is one of intuition of state-based CRDT of \cite{ShapiroPBZ11}. The reason is that, in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of operation-based multi-value register, $\astate_2$ is always a tuple $(a,V)$ of data $a$ and version vector $V$, while in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of state-based multi-value register, $\astate_2$ can be a set of such tuples. Or we can say, the effector of operation-based multi-value register is a ``sub-function'' of {\tt merge} of state-based multi-value register. 
+Note that, here we do not prove $\alabelshort[{\tt merge}]{\astate,\astate'} = \alabelshort[{\tt merge}]{\astate',\astate}$, while this is one of intuition of state-based CRDT of \cite{ShapiroPBZ11}. The reason is that, in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of operation-based multi-value register, $\astate_2$ is always a tuple $(a,V)$ of data $a$ and version vector $V$, while in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of state-based multi-value register, $\astate_2$ can be a set of such tuples. Or we can say, the effector of operation-based multi-value register is a ``sub-function'' of {\tt merge} of state-based multi-value register.
 
 
 
@@ -2160,7 +2172,7 @@ This completes the proof of Annotation1 and Annotation2.
 
 %\noindent {\bf Other parts}. The proof of $\mathsf{ReplicaStates}$ is shown below. The proof of $\mathsf{Refinement}$ is the same as that of Lemma \ref{lemma:operation-based PN-counter is correct}. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 
-We prove that $\mathsf{ReplicaStates}$ is inductive invariant as follows. The function {\tt merge} is defined as follows: Assume $\astate = (P,N)$ and $\astate' = (P',N')$, then, $\alabelshort[{\tt merge}]{\astate,\astate'} = \astate''$, where $\astate'' = (P'',N'')$, such that, for each replica $\arep$, $P''[\arep] = \mathsf{max}\{ P[\arep], P'[\arep] \}$ and $N''[\arep] = \mathsf{max}\{ N[\arep], N'[\arep] \}$. 
+We prove that $\mathsf{ReplicaStates}$ is inductive invariant as follows. The function {\tt merge} is defined as follows: Assume $\astate = (P,N)$ and $\astate' = (P',N')$, then, $\alabelshort[{\tt merge}]{\astate,\astate'} = \astate''$, where $\astate'' = (P'',N'')$, such that, for each replica $\arep$, $P''[\arep] = \mathsf{max}\{ P[\arep], P'[\arep] \}$ and $N''[\arep] = \mathsf{max}\{ N[\arep], N'[\arep] \}$.
 
 The initial replica state $\astate_0 = (P_0,N_0)$, where $P_0$ and $N_0$ map each replica $\arep$ into $0$. Obviously, we can see that, $\alabelshort[{\tt merge}]{\astate,\astate_0} = \astate$. Given natural number $x,y,z$. Since $\mathsf{max}\{ \mathsf{max}\{ x,y \}, z \} = \mathsf{max}\{ x, \mathsf{max}\{ y,z \} \}$, it is easy to prove that, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\astate_1,\alabelshort[{\tt merge}]{\astate_2,\astate_3}}$. Since $\mathsf{max}\{ \mathsf{max}\{ x,y \}, z \} = \mathsf{max}\{ \mathsf{max}\{ x,z \}, y \}$, it is easy to prove that, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_3},\astate_2}$. Since $\mathsf{max}\{ \mathsf{max}\{ x,y \}, y \} = \mathsf{max}\{ x, y \}$, it is easy to prove that, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_2} = \alabelshort[{\tt merge}]{\astate_1,\astate_2}$. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. This completes the proof of this lemma. $\qed$
 
@@ -2173,7 +2185,7 @@ The initial replica state $\astate_0 = (P_0,N_0)$, where $P_0$ and $N_0$ map eac
 \subsection{Proof of LWW-Register without Causal Delivery Assumption}
 \label{subsec:proof of LWW-register without causal delivery assumption}
 
-The proof of \crdtlin{} of LWW-Register without causal delivery assumption is given below. %Its proof is similar to that of Lemma \ref{lemma:operation-based PN-counter is correct}.
+The proof of \crdtlin{} of LWW-register without causal delivery assumption is given below. %Its proof is similar to that of Lemma \ref{lemma:operation-based PN-counter is correct}.
 %Lemma \ref{lemma:operation-based LWW-register is correct}.
 
 \begin{lemma}
@@ -2197,7 +2209,9 @@ The initial replica state is a timestamp that is less than all timestamps genera
 \subsection{Proof of Operation-Based Multi-Value Register without Causal Delivery Assumption}
 \label{subsec:proof of operation-based multi-value register without causal delivery assumption}
 
-The following lemma states that the operation-based multi-value register is \crdtlinearizable{} w.r.t. $\specMVReg$.
+The proof of \crdtlin{} of multi-value reigster without causal delivery assumption is given below.
+
+%The following lemma states that the operation-based multi-value register is still \crdtlinearizable{} w.r.t. $\specMVReg$ when there is no causal delivery assumption.
 
 \begin{lemma}
 \label{lemma:when there is no causal delivery assumption, the operation-based multi-value register is still correct}
@@ -2252,7 +2266,7 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
     \end{itemize}
 \end{itemize}
 
-We prove that $\mathsf{ReplicaStates}$ is inductive invariant as follows. The function {\tt merge} is defined as follows: $\alabelshort[{\tt merge}]{S,(a,V)} = S \setminus \{ (b,V_b) \vert (b,V_b) \in S, V_b < V \} \cup S_1$, where $S_1 = \emptyset$ if there exists $(b,V_b) \in S$, such that $V < V_b$, and $S_1 = (a,V)$ otherwise. 
+We prove that $\mathsf{ReplicaStates}$ is inductive invariant as follows. The function {\tt merge} is defined as follows: $\alabelshort[{\tt merge}]{S,(a,V)} = S \setminus \{ (b,V_b) \vert (b,V_b) \in S, V_b < V \} \cup S_1$, where $S_1 = \emptyset$ if there exists $(b,V_b) \in S$, such that $V < V_b$, and $S_1 = (a,V)$ otherwise.
 
 The initial replica state is $\emptyset$. Obviously, we can see that, $\alabelshort[{\tt merge}]{\astate,\astate_0} = \astate$. It is easy to prove that, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_2} = \alabelshort[{\tt merge}]{\astate_1,\astate_2}$. It is easy to see that, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{S,(a_1,V_1)},(a_2,V_2)} = \alabelshort[{\tt merge}]{S, \alabelshort[{\tt merge}]{(a_1,V_1),(a_2,V_2)}} = \alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{S,(a_2,V_2)},(a_1,V_1)} = S \cup \{ (a_1,V_1),(a_2,v_2) \} \setminus S_1$. Here a tuple $(b,V) \in S_1$, if $(b,V) \in S \cup \{ (a_1,V_1),(a_2,V_2) \}$, and one of the following cases holds:
 
@@ -2267,6 +2281,122 @@ The initial replica state is $\emptyset$. Obviously, we can see that, $\alabelsh
 
 Therefore, we can see that $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\astate_1, \alabelshort[{\tt merge}]{\astate_2,\astate_3}}$ and $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3}$ $= \alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_3},\astate_2}$ hold. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant. This completes the proof of this lemma. $\qed$
 \end {proof}
+
+
+
+
+
+
+\subsection{Proof of Operation-Based 2P-Set without Causal Delivery Assumption}
+\label{subsec:proof of operation-based 2p-set without causal delivery assumption}
+
+The proof of \crdtlin{} of 2p-set without causal delivery assumption is given below. Lemma \ref{lemma:2P-set is correct}.
+
+\begin{lemma}
+\label{lemma:when there is no causal delivery assumption, the operation-based 2p-set is still correct}
+When there is no causal delivery assumption, the operation-based 2P-set is \crdtlinearizable{} w.r.t $\specTwoPSet$.
+\end{lemma}
+
+\begin {proof}
+
+The proof of this lemma is quite similar to that of Lemma \ref{lemma:2P-set is correct}. The differences are: definition of Annotation2, the proof of Annotation1 and Annotation2, and the proof of $\mathsf{ReplicaStates}$.
+
+Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
+
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-]
+\noindent Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt add}]{b}$, $\alabel$ is in the $\alabelset$ of $S\}$,
+    $R$ =  $\{ b \vert \exists \alabel = \alabelshort[{\tt remove}]{b}$, $\alabel$ is in $\alabelset$ of $S\}$,
+%\end{itemize}
+
+Let us prove that the Annotation1 and Annotation2 are inductive invariant.
+
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of {\tt write} or {\tt remove}:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabelshort[{\tt write}]{a}$ and then apply its effector: The same as that of Lemma \ref{lemma:2P-set is correct}.
+
+\item[-] For case when replica $\arep$ apply effector $(A_a,R_a)$ of an operation $\alabel = \alabelshort[{\tt write}]{a}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $\alabelset_S$ be the $\alabelset$ of $S$.
+
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $\alabel \in \alabelset_S$: For each operation $\alabel'$, such that $(\alabel',\alabel) \in \avisord$, since the visibility relation is transitive, we can see that, $\alabel' \in \alabelset_S$. By Annotation1 of $\alabel$ and such $\alabel'$, and Annotation2 of $S$, we can see that, $A_a \subseteq A$ and $R_a \subseteq R$. Therefore, $A' = A$, $R' = R$, and we can see that Annotation2 holds for $S'$.
+
+    \item[-] If $\alabel \notin \alabelset_S$: Let $\alabelset'_S$ be the $\alabelset$ of $S'$. We can see that, $\alabelset'_S = \alabelset_S \cup \alabel \cup \avisord^{-1}(\alabel)$. By Annotation1 of $(A_a,R_a)$ and Annotation2 of $S$, we can see that Annotation2 holds for $S'$.
+    \end{itemize}
+
+\item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
+\end{itemize}
+
+This completes the proof of Annotation1 and Annotation2.
+
+We prove that $\mathsf{ReplicaStates}$ is inductive invariant as follows. The function {\tt merge} is defined as follows: $\alabelshort[{\tt merge}]{(A_1,R_1),(A_2,R_2)} = (A_1 \cup A_2, R_1 \cup R_2)$.
+
+The initial replica state is $(\emptyset,\emptyset)$. Since {\tt merge} do set union, it is easy to see that, $\alabelshort[{\tt merge}]{\astate,\astate_0} = \astate$, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\astate_1, \alabelshort[{\tt merge}]{\astate_2,\astate_3}}$, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_3},\astate_2}$ and $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_2} = \alabelshort[{\tt merge}]{\astate_1,\astate_2}$. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+
+
+\subsection{Proof of LWW-Element-Set without Causal Delivery Assumption}
+\label{subsec:proof of LWW-element-set without causal delivery assumption}
+
+The proof of \crdtlin{} of LWW-element-set without causal delivery assumption is given below. 
+
+\begin{lemma}
+\label{lemma:when there is no causal delivery assumption, operation-based LWW-element-set is correct is still correct}
+When there is no causal delivery assumption, the operation-based LWW-element-set is \crdtlinearizable{} w.r.t $\specLWWSet$.
+\end{lemma}
+
+
+\begin {proof} 
+
+The proof of this lemma is quite similar to that of Lemma \ref{lemma:operation-based LWW-element-set is correct}. The differences are: definition of Annotation2, the proof of Annotation1 and Annotation2, and the proof of $\mathsf{ReplicaStates}$.
+
+Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] Annotation2: Let $S = (A,R)$ be the replica state of a replica. Then, $A$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt add}]{b}{}{\ats_b}{}$, $\alabel$ is in $\alabelset$ of $S\}$,
+    $R$ =  $\{ (b,\ats_b) \vert \exists \alabel = \alabellongind[{\tt remove}]{b}{}{\ats_b}{}$, $\alabel$ is in $\alabelset$ of $S\}$.
+\end{itemize}
+
+Let us prove that the Annotation1 and Annotation2 are inductive invariant. We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of $\alabelshort[{\tt write}]{a}$ or $\alabelshort[{\tt remove}]{a}$:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ and then apply its effector: The same as that of Lemma \ref{lemma:operation-based LWW-element-set is correct}. 
+
+\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $\alabelset_S$ be the $\alabelset$ of $S$. 
+    
+    \begin{itemize}
+    \setlength{\itemsep}{0.5pt}
+    \item[-] If $\alabel \in \alabelset_S$: Since the visibility relation is transitive, for each operation $\alabel'$, such that $(\alabel',\alabel) \in \avisord$, we can see that, $\alabel' \in \alabelset_S$. By Annotation1 of $\alabel$ and such $\alabel'$, and Annotation2 of $S$, we can see that, $A'' \subseteq A$ and $R'' \subseteq R$. Therefore, $A' = A$, $R' = R$, and we can see that Annotation2 holds for $S'$.
+
+    \item[-] If $\alabel \notin \alabelset_S$: Let $\alabelset'_S$ be the $\alabelset$ of $S'$. We can see that, $\alabelset'_S = \alabelset_S \cup \alabel \cup \avisord^{-1}(\alabel)$. By Annotation1 of $(A'',R'')$ and Annotation2 of $S$, we can see that Annotation2 holds for $S'$.
+    \end{itemize} 
+
+\item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
+\end{itemize}
+
+This completes the proof of Annotation1 and Annotation2. 
+
+We prove that $\mathsf{ReplicaStates}$ is inductive invariant as follows. The function {\tt merge} is defined as follows: $\alabelshort[{\tt merge}]{(A_1,R_1),(A_2,R_2)} = (A_1 \cup A_2, R_1 \cup R_2)$.
+
+The initial replica state is $(\emptyset,\emptyset)$. Since {\tt merge} do set union, it is easy to see that, $\alabelshort[{\tt merge}]{\astate,\astate_0} = \astate$, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\astate_1, \alabelshort[{\tt merge}]{\astate_2,\astate_3}}$, $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_3},\astate_2}$ and $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_2} = \alabelshort[{\tt merge}]{\astate_1,\astate_2}$. This completes the proof of this lemma. $\qed$
+\end {proof}
+
+
+
+
+
+
+
+
 
 
 
