@@ -2345,7 +2345,7 @@ The initial replica state is $(\emptyset,\emptyset)$. Since {\tt merge} do set u
 \subsection{Proof of LWW-Element-Set without Causal Delivery Assumption}
 \label{subsec:proof of LWW-element-set without causal delivery assumption}
 
-The proof of \crdtlin{} of LWW-element-set without causal delivery assumption is given below. 
+The proof of \crdtlin{} of LWW-element-set without causal delivery assumption is given below.
 
 \begin{lemma}
 \label{lemma:when there is no causal delivery assumption, operation-based LWW-element-set is correct is still correct}
@@ -2353,7 +2353,7 @@ When there is no causal delivery assumption, the operation-based LWW-element-set
 \end{lemma}
 
 
-\begin {proof} 
+\begin {proof}
 
 The proof of this lemma is quite similar to that of Lemma \ref{lemma:operation-based LWW-element-set is correct}. The differences are: definition of Annotation2, the proof of Annotation1 and Annotation2, and the proof of $\mathsf{ReplicaStates}$.
 
@@ -2369,21 +2369,21 @@ Let us prove that the Annotation1 and Annotation2 are inductive invariant. We pr
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ and then apply its effector: The same as that of Lemma \ref{lemma:operation-based LWW-element-set is correct}. 
+\item[-] For case when replica $\arep$ do generator of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ and then apply its effector: The same as that of Lemma \ref{lemma:operation-based LWW-element-set is correct}.
 
-\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $\alabelset_S$ be the $\alabelset$ of $S$. 
-    
+\item[-] For case when replica $\arep$ apply effector $(A'',R'')$ of an operation $\alabel = \alabellongind[{\tt add}]{a}{}{\ats_a}{}$ originated in a different replica: We only need to prove Annotation2. Let $S=(A,R)$ and $S'=(A',R')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $\alabelset_S$ be the $\alabelset$ of $S$.
+
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
     \item[-] If $\alabel \in \alabelset_S$: Since the visibility relation is transitive, for each operation $\alabel'$, such that $(\alabel',\alabel) \in \avisord$, we can see that, $\alabel' \in \alabelset_S$. By Annotation1 of $\alabel$ and such $\alabel'$, and Annotation2 of $S$, we can see that, $A'' \subseteq A$ and $R'' \subseteq R$. Therefore, $A' = A$, $R' = R$, and we can see that Annotation2 holds for $S'$.
 
     \item[-] If $\alabel \notin \alabelset_S$: Let $\alabelset'_S$ be the $\alabelset$ of $S'$. We can see that, $\alabelset'_S = \alabelset_S \cup \alabel \cup \avisord^{-1}(\alabel)$. By Annotation1 of $(A'',R'')$ and Annotation2 of $S$, we can see that Annotation2 holds for $S'$.
-    \end{itemize} 
+    \end{itemize}
 
 \item[-] The cases of $\alabelshort[{\tt remove}]{a}$ can be similarly proved.
 \end{itemize}
 
-This completes the proof of Annotation1 and Annotation2. 
+This completes the proof of Annotation1 and Annotation2.
 
 We prove that $\mathsf{ReplicaStates}$ is inductive invariant as follows. The function {\tt merge} is defined as follows: $\alabelshort[{\tt merge}]{(A_1,R_1),(A_2,R_2)} = (A_1 \cup A_2, R_1 \cup R_2)$.
 
@@ -2396,6 +2396,173 @@ The initial replica state is $(\emptyset,\emptyset)$. Since {\tt merge} do set u
 
 
 
+
+
+\section{\crdtlin{} Proof for State-Based CRDT Implementations}
+\label{sec:RA-linearizability proof for state-based CRDT implementations}
+
+In this section, we prove the following state-based CRDT implementations of \cite{ShapiroPBZ11}:
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] PN-Counter,
+
+\item[-] LWW-Register,
+
+\item[-] Multi-Value Register,
+
+\item[-] 2P-Set,
+
+\item[-] LWW-Element Set.
+\end{itemize}
+
+
+
+
+\subsection{Brief Introduction of State-Based CRDT}
+\label{subsec:brief introduction of state-baed CRDT} 
+
+Let us introduce the state-based \crdtimp{} of \cite{ShapiroPBZ11}, which is shown in Listing~\ref{lst:outline of state-based CRDT}. 
+
+Each replica contains a copy of data.  
+
+\cite{ShapiroPBZ11} introduces state-based \crdtimp{}, where an update occurs entirely at the source replica, and then propagates by transmitting the modified payload between replicas. When a replica receives an effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload. \cite{ShapiroPBZ11} also shows how to obtain a operation-based \crdtimp{} from a state-based \crdtimp{}, and we draw it in Listing~\ref{lst:operation-based emulation of state-based object}. Since query operations do not change, we ignore query operations. To do a update operation $f(a)$, we compute the state-based update and perform merge in downstream. Here the precondition of downstream is empty because merge is always enabled.
+
+
+\begin{minipage}[t]{1.0\linewidth}
+\begin{lstlisting}[frame=top,caption={Outline of state-based CRDT},
+captionpos=b,label={lst:outline of state-based CRDT}]
+  payload: type of payload 
+  initial: initial value
+
+  //Query method
+  query(arguments): returns
+    pre: Precondition 
+    evaluate locally 
+    
+  //Update method
+  query(arguments): returns
+    pre: Precondition
+    evaluate locally 
+    
+  compare(value1,value2): boolean b 
+    is value1 $<$ value2 in semilattice
+\end{lstlisting}
+\end{minipage}
+
+
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Outline of state-based CRDT},
+captionpos=b,label={lst:outline of state-based CRDT2}]
+  payload ingeter[reps()] P, ingeter[reps()] N
+  initial P = [@|$0,\ldots,0$|@], N = [@|$0,\ldots,0$|@]
+  initial lin = @|$\epsilon$|@
+
+  inc()
+    atSource :
+      let g = myRep()
+      let @|$P'$|@ = @|$P[ g: P[g] + 1]$|@
+      let @|$N'$|@ = @|$N$|@
+      //@ lin = lin@|$\,\cdot\,$|@inc()
+    downStream(@|$(P',N')$|@) :
+      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@
+      @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
+      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
+      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
+
+\end{lstlisting}
+\end{figure} 
+
+
+
+
+
+
+\subsection{Proof Methodology for Implementations without Causal Delivery}
+\label{subsec:proof methodology for implementations without causal delivery}
+
+\noindent {\bf Semantics:} We modify the transition rule of downstream as follows:
+
+\[
+  \inferrule[\text{\sc DownStream}]
+  {\gstates(\arep) = (\alabelset, \astate) \\ \alabel \in \labeldom{\avisord} \setminus \alabelset \\
+    \downstreams(\alabel)= \delta \\ \delta(\astate) = \astate'}
+  {(\gstates, \avisord, \downstreams) \xrightarrow{\dwn{\arep}{\alabel}} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\} \cup \avisord^{-1}(\alabel), \astate')], \avisord, \downstreams)}
+\]
+
+According to the semantics, it is obvious that the visibility relation is transitive.
+
+\noindent {\bf Implementations and Notations:} The implementations and notations keep unchanged.
+
+\noindent {\bf Proof Methodology}: As in Section \ref{sec:proofs}, we need to prove %the following two invariants:
+the invariants $\mathsf{ReplicaStates}$ and $\mathsf{\CRDTLinshort{}}$.
+
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-] $\mathsf{ReplicaStates}$: requiring that for each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$ (that have been delivered to $\arep$) in the order defined by $\alinord$, and
+
+%\item[-] $\mathsf{\CRDTLinshort{}}$: requiring that $\alinord$ is an \crdtlinearization{} of the history (w.r.t. $\Spec{}$).
+%\end{itemize}
+
+Similarly, to prove inductive invariant, we rely on additional assertions $\mathsf{Refinement}$. %describing the result of applying each effector, joint with a proof that:
+%\begin{itemize}
+%\item[-] $\mathsf{Refinement}$: each effector produced by an operation $\alabel$, respectively each query $\alabel$, is simulated by the execution of $\alabel$ in the specification $\Spec$.
+%\end{itemize}
+
+Similarly, we identify two general classes of CRDT implementations which differ in the way in which the linearization $\alinord$ is extended when executing operations at the origin replica. One class of objects, including PN-counter, LWW-register, multi-value register and 2P-set, admit execution-order linearizations; while the other class of objects, including LWW-element Set, admit timestamp-order linearizations.
+
+\noindent {\bf Proof Method of $\mathsf{ReplicaStates}$:} Recall that, the four implementations (PN-counter, multi-value register, 2P-set and LWW-Element Set) to be proved in this section are all obtained from their state-based version in \cite{ShapiroPBZ11}. As stated in Section \ref{sec:implementation and proof of operation-based PN-counter}, given an effector $\delta$ with content $\astate'$, when applying $\delta$ on a replica state $\astate$, we obtain a new replica state $\alabelshort[{\tt merge}]{\astate,\astate'}$. Here {\tt merge} is how we apply effector.
+
+%we obtained a new replica state $\alabelshort[{\tt merge}]{\astate,\astate'}$. Here $\astate'$ is the modified payload when $\delta$ is generated, and is also the content of the effector $\delta$.
+
+Let $\astate_0$ be the initial replica state. We need to prove the following properties of {\tt merge}: For each $\astate_1$, $\astate_2$ and $\astate_3$,
+
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] $\alabelshort[{\tt merge}]{\astate,\astate_0} = \astate$,
+
+\item[-] $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\astate_1, \alabelshort[{\tt merge}]{\astate_2,\astate_3}}$,
+
+\item[-] $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_3} = \alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_3},\astate_2}$,
+
+\item[-] $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate_1,\astate_2},\astate_2} = \alabelshort[{\tt merge}]{\astate_1,\astate_2}$.
+\end{itemize}
+
+%We need to prove that,
+
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-] {\tt merge} is commutative: $\alabelshort[{\tt merge}]{\astate,\astate'} = \alabelshort[{\tt merge}]{\astate',\astate}$,
+
+%\item[-] {\tt merge} is idempotent: $\alabelshort[{\tt merge}]{\astate,\astate} = \astate$,
+
+%\item[-] {\tt merge} is associative: $\alabelshort[{\tt merge}]{\alabelshort[{\tt merge}]{\astate,\astate'},\astate''} = \alabelshort[{\tt merge}]{\astate,\alabelshort[{\tt merge}]{\astate',\astate''}}$.
+%\end{itemize}
+
+Assume we already prove the above three properties of {\tt merge}. Given a replica state $S = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate_1),\astate_2),\ldots,\astate_m )$, assume we apply effector $\delta$ on $S$ and the content of $\delta$ is $\sigma = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate'_1),\astate'_2),\ldots,\astate'_k )$, then, it is easy to prove that, $\alabelshort[{\tt merge}]{S,\astate} = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate''_1),\astate''_2),\ldots,\astate''_n)$. Here $\astate''_1,\ldots,\astate''_n$ is obtained from $\{ \astate_1,\ldots,\astate_m,\astate'_1,\ldots$, $\astate'_k \}$ by first removing duplicate replica states, and then list in a arbitrary order. Especially, in the order defined by $\alinord$.
+
+%If we already prove the above three properties of {\tt merge}, then, it is easy to prove by induction that, for each replica state $\sigma$, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$. Furthermore, it is easy to prove that, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$ in any order, especially, the order defined by $\alinord$.
+
+Note that, here we do not prove $\alabelshort[{\tt merge}]{\astate,\astate'} = \alabelshort[{\tt merge}]{\astate',\astate}$, while this is one of intuition of state-based CRDT of \cite{ShapiroPBZ11}. The reason is that, in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of operation-based multi-value register, $\astate_2$ is always a tuple $(a,V)$ of data $a$ and version vector $V$, while in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of state-based multi-value register, $\astate_2$ can be a set of such tuples. Or we can say, the effector of operation-based multi-value register is a ``sub-function'' of {\tt merge} of state-based multi-value register.
+
+
+
+%The reason is that, in operation-based CRDT (without causal delivery assumption), an effector is generated when a method is innovated; while in state-based CRDT, an effector can be generated at any time. Therefore, the content of effector may be different for state-based CRDT and its operation-based CRDT variant. For example, in operation-based multi-value register (without causal delivery assumption), the content of an effector is a tuple $(a,V)$ with data $a$ and version vector $V$; while in the state-based multi-value register, the content of an effector is a set of such tuples.
+
+
+\cite{ShapiroPBZ11} give a operation-based LWW-register and a state-based LWW-register, and the operation-based LWW-register can be considered as obtained from the state-based LWW-register.
+
+\noindent {\bf Proof Method of $\mathsf{Refinement}$ and $\mathsf{\CRDTLinshort{}}$:} the same as that in Section \ref{sec:proofs}.
+
+%Note that, although the implementations we proved in this section are all obtained from their state-based version in \cite{ShapiroPBZ11}, there is still two difference between operation-based CRDT without causal delivery assumption and state-based CRDT:
+
+%\begin{itemize}
+%\setlength{\itemsep}{0.5pt}
+%\item[-] In operation-based CRDT without causal delivery assumption, an effector is generated when a method is innovated; while in state-based CRDT, an effector can be generated at any time. For example, for the multi-value register example. In operation-based multi-value register without causal delivery assumption, the content of an effector is a tuple $(a,V)$ with data $a$ and version vector $V$; while in the state-based multi-value register, the content of an effector is a set of such tuples.
+
+%\item[-] Second, an effector can not be applied more than once on a same replica for operation-based CRDT without causal delivery assumption, while this is permitted in state-based CRDT.
+%\end{itemize}
 
 
 
