@@ -276,8 +276,8 @@ Let us propose Annotation2, which is an annotation of replica state and obviousl
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Let $(P,N)$ be the replica state of a replica. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and the effector of $\alabel$ has already been applied in current replica $\} \vert$,
-    $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and the effector of $\alabel$ has already been applied in current replica $\} \vert$
+\item[-] Annotation2: Let $(\alabelset,(P,N))$ be the local configuration of a replica. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$,
+    $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$
 \end{itemize}
 
 %\noindent {\bf Prove Annotation1 and Annotation2}:
@@ -288,17 +288,19 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, the effector of $\alabel$ is $(P',N')$.
+\item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.  
+    Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, the effector of $\alabel$ is $(P',N')$.
 
-    It is easy to see that $P'=P[r:P[r]+1]$ and $N'=N$. By Annotation2 of replica state $S$, we can see that Annotation1 for effector $(P',N')$ holds, and Annotation2 for replica state $S'$ holds.
+    It is easy to see that $P'=P[r:P[r]+1]$, $N'=N$, and $\alabelset' = \alabelset \cup \{ \alabel \}$. By Annotation2 of the local configuration $Lc$, we can see that Annotation1 for effector $(P',N')$ holds, and Annotation2 for the local configuration $Lc'$ holds.
 
-\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$.
+\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$. 
+    %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
 
-    By the causal delivery assumption, for each operation $\alabel''$, such that $\alabel''$ is visible to $\alabel$, we can see that, the effector of $\alabel''$ has already been applied in $S'$, and it is easy to see that the effector of $\alabel''$ has already been applied in $S$. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of $S$, we can see that, for each replica $\arep' \neq \arep_{\alabel}$, we have $P_{\alabel}[\arep'] \leq P[\arep']$ and $N_{\alabel}[\arep'] \leq N[\arep']$.
+    By the causal delivery assumption, for each operation $\alabel''$, such that $\alabel''$ is visible to $\alabel$, we can see that, the effector of $\alabel''$ has already been applied in $S'$, and it is easy to see that the effector of $\alabel''$ has already been applied in $S$. It is easy to see that $\alabel'' \in \alabelset$. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of the local configuration $Lc$, we can see that, for each replica $\arep' \neq \arep_{\alabel}$, we have $P_{\alabel}[\arep'] \leq P[\arep']$ and $N_{\alabel}[\arep'] \leq N[\arep']$.
 
-    By the causal delivery assumption, for each operation $\alabel'$, such that $\alabel$ is visible to $\alabel'$, we can see that, the effector of $\alabel'$ has not been applied in $S'$ yet, and it is easy to see that the effector of $\alabel'$ has not been applied in $S$ yet. Especially, this holds for operations happen on replica $\arep_{\alabel}$. Also, note that, the effector of $\alabel$ has not been applied in $S$ yet. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of $S$, we can see that, $P_{\alabel}[\arep_{\alabel}] = P[\arep_{\alabel}]+1$, $N_{\alabel}[\arep_{\alabel}] = N[\arep_{\alabel}]$.
+    By the causal delivery assumption, for each operation $\alabel'$, such that $\alabel$ is visible to $\alabel'$, we can see that, the effector of $\alabel'$ has not been applied in $S'$ yet, and it is easy to see that the effector of $\alabel'$ has not been applied in $S$ yet. It is easy to see that $\alabel' \notin \alabelset$. Especially, this holds for operations happen on replica $\arep_{\alabel}$. Also, note that, the effector of $\alabel$ has not been applied in $S$ yet. It is easy to see that $\alabel \notin \alabelset$. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of the local configuration $Lc$, we can see that, $P_{\alabel}[\arep_{\alabel}] = P[\arep_{\alabel}]+1$, $N_{\alabel}[\arep_{\alabel}] = N[\arep_{\alabel}]$.
 
-    Therefore, we can see that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Thus, Annotation2 for replica state $S'$ holds.
+    Therefore, we can see that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Thus, Annotation2 for the local configuration $Lc'$ holds.
 
 \item[-] The case of {\tt dec} can be similarly proved.
 \end{itemize}
@@ -323,7 +325,7 @@ Assume that $(P,N)$ is obtained from the initial replica state by applying effec
 
 Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we can see that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, for each replica $\arep' \neq \arep_{m+1}$, we have $P''_{m+1}[\arep'] \leq P[\arep']$ and $N''_{m+1}[\arep'] \leq N[\arep']$.
 
-Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$.
+Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]+1$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$. 
 
 Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. Therefore, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
 
@@ -344,7 +346,7 @@ Since every operation is appended to the linearization when it executes atSource
     \setlength{\itemsep}{0.5pt}
     \item[-] For the effector $(P_{\alabel},N_{\alabel})$ produced by $\alabel = \alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$: Assume we obtain replica state $S'=(P',N')$ from $S=(P,N)$ by applying effector $(P_{\alabel},N_{\alabel})$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt inc}]{}} \abstate+1$, and $\refmap((P,N)) = \abstate$. We need to prove that $\refmap((P',N')) = \abstate+1$.
 
-        In the proof process of $fact1$, we also prove that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Therefore, $\refmap((P',N')) = \refmap((P,N))+1 = \abstate+1$.
+        Similar as the proof process of $fact1$, we can prove that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Therefore, $\refmap((P',N')) = \refmap((P,N))+1 = \abstate+1$.
 
     \item[-] The case of {\tt dec} can be similarly proved.
 
@@ -2106,6 +2108,8 @@ Let $\astate_0$ be the initial replica state. We need to prove the following pro
 
 Assume we already prove the above three properties of {\tt merge}. Given a replica state $S = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate_1),\astate_2),\ldots,\astate_m )$, assume we apply effector $\delta$ on $S$ and the content of $\delta$ is $\sigma = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate'_1),\astate'_2),\ldots,\astate'_k )$, then, it is easy to prove that, $\alabelshort[{\tt merge}]{S,\astate} = {\tt merge}( {\tt merge}( \ldots {\tt merge} (\astate_0,\astate''_1),\astate''_2),\ldots,\astate''_n)$. Here $\astate''_1,\ldots,\astate''_n$ is obtained from $\{ \astate_1,\ldots,\astate_m,\astate'_1,\ldots$, $\astate'_k \}$ by first removing duplicate replica states, and then list in a arbitrary order. Especially, in the order defined by $\alinord$.
 
+Since there is no causal delivery assumption now, it is possible that a replica states that sees operations $\alabel_1$ applies an effector that is obtained by applying effectors of $\alabel_2$ and $\alabel_3$. Therefore, ``effectors of concurrent operations commute'' is not enough for ensuring $\mathsf{ReplicaStates}$.
+
 %If we already prove the above three properties of {\tt merge}, then, it is easy to prove by induction that, for each replica state $\sigma$, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$. Furthermore, it is easy to prove that, $\sigma$ is obtained by applying the effectors of the operations in $\alabelset$ in any order, especially, the order defined by $\alinord$.
 
 Note that, here we do not prove $\alabelshort[{\tt merge}]{\astate,\astate'} = \alabelshort[{\tt merge}]{\astate',\astate}$, while this is one of intuition of state-based CRDT of \cite{ShapiroPBZ11}. The reason is that, in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of operation-based multi-value register, $\astate_2$ is always a tuple $(a,V)$ of data $a$ and version vector $V$, while in $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ of state-based multi-value register, $\astate_2$ can be a set of such tuples. Or we can say, the effector of operation-based multi-value register is a ``sub-function'' of {\tt merge} of state-based multi-value register.
@@ -2157,11 +2161,12 @@ We prove Annotation1 and Annotation2 by induction on executions. Obvious they ho
 \setlength{\itemsep}{0.5pt}
 \item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: Same as that of Lemma \ref{lemma:operation-based PN-counter is correct}.
 
-\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$.
+\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. %Assume $\alabel$ happens on replica $\arep_{\alabel}$. 
+    Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.  
 
-    Given a replica $\arep$, let $V_1(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep$, and the effector of $\alabel'$ has already been applied in $S \}$, let $V_2(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep$, and $\alabel'$ is visible to $\alabel$ or $\alabel' = \alabel\}$.
+    Given a replica $\arep$, let $V_1(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep, \alabel' \in \alabelset \}$, let $V_2(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep$, and $\alabel'$ is visible to $\alabel$ or $\alabel' = \alabel\}$.
 
-    Since the visibility relation is transitive, and the visibility relation is a total order on operations happen on replica $\arep$, we can see that, $( V_1(\arep) \subseteq V_2(\arep) ) \vee ( V_2(\arep) \subseteq V_1(\arep) )$. It is easy to see that, $P'[\arep]$ = $\mathsf{max}\{ \vert V_1(\arep) \vert ,\vert V_2(\arep) \vert \}$ = $\mathsf{max}\{ P[\arep], P_{\alabel}[\arep] \}$. Thus, Annotation2 for replica state $S'$ holds.
+    It is easy to see that $\alabelset' = \alabelset \cup \alabel \cup \avisord^{-1}(\alabel)$. Since the visibility relation is transitive, and the visibility relation is a total order on operations happen on replica $\arep$, we can see that, $( V_1(\arep) \subseteq V_2(\arep) ) \vee ( V_2(\arep) \subseteq V_1(\arep) )$. It is easy to see that, $P'[\arep]$ = $\mathsf{max}\{ P[\arep], P_{\alabel}[\arep] \}$ = $\mathsf{max}\{ \vert V_1(\arep) \vert ,\vert V_2(\arep) \vert \}$. Thus, Annotation2 for the local configuration $Lc'$ holds.
 
 \item[-] The case of {\tt dec} can be similarly proved.
 \end{itemize}
@@ -2424,20 +2429,20 @@ In this section, we briefly introduce the notion of state-based CRDT of \cite{Sh
 
 Let us introduce the state-based \crdtimp{} of \cite{ShapiroPBZ11}, which is shown in Listing~\ref{lst:outline of state-based CRDT}.
 
-Each replica contains a copy of data and gives its initial value. Both query methods and update methods can have arguments and return values, and can check pre-condition before a method is executed. Note that both query methods and update methods executes locally without synchronization with other replica. Instead, nondeterministically, state-based CRDT transmit modified payload between replicas. When a replica receives an effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload. 
+Each replica contains a copy of data and gives its initial value. Both query methods and update methods can have arguments and return values, and can check pre-condition before a method is executed. Note that both query methods and update methods executes locally without synchronization with other replica. Instead, nondeterministically, state-based CRDT transmit modified payload between replicas. When a replica receives an effector of modified payload, it calls method {\tt merge}, which takes the current payload and the payload in effector, and returns a new payload.
 
-Given a partial order and two values $x$ and $y$, we say that $z$ is a least upper bound of $x$ and $y$, if $x<z$, $y<z$, and there does not exists $z'$, such that $(z'<z) \wedge (x<z') \wedge (y<z')$. Let us use $x \sqcup y$ to denote the least upper bound of $x$ and $y$. A join semilattice is a partial order equipped with a least upper bound. According to the definition, it is obvious that the following properties hold: 
+Given a partial order and two values $x$ and $y$, we say that $z$ is a least upper bound of $x$ and $y$, if $x<z$, $y<z$, and there does not exists $z'$, such that $(z'<z) \wedge (x<z') \wedge (y<z')$. Let us use $x \sqcup y$ to denote the least upper bound of $x$ and $y$. A join semilattice is a partial order equipped with a least upper bound. According to the definition, it is obvious that the following properties hold:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $x \sqcup y = y \sqcup x$, 
+\item[-] $x \sqcup y = y \sqcup x$,
 
-\item[-] $x \sqcup x = x$, 
+\item[-] $x \sqcup x = x$,
 
-\item[-] $(x \sqcup y) \sqcup z = x \sqcup (y \sqcup z)$. 
-\end{itemize} 
+\item[-] $(x \sqcup y) \sqcup z = x \sqcup (y \sqcup z)$.
+\end{itemize}
 
-The intuition of state-based CRDT is that, the value is taken from a semilattice; the order of the semilattice is given in {\tt compare} method; $\alabelshort[\mathtt{merge}]{x,y}$ returns the least upper bound of semilattice. 
+The intuition of state-based CRDT is that, the value is taken from a semilattice; the order of the semilattice is given in {\tt compare} method; $\alabelshort[\mathtt{merge}]{x,y}$ returns the least upper bound of semilattice.
 
 
 \begin{minipage}[t]{1.0\linewidth}
@@ -2459,8 +2464,8 @@ captionpos=b,label={lst:outline of state-based CRDT}]
   compare(value1, value2): boolean b
     is value1 $<$ value2 in semilattice?
 
-  merge(value1, value2) 
-    returns the least upper bound of value1 and value2 
+  merge(value1, value2)
+    returns the least upper bound of value1 and value2
 \end{lstlisting}
 \end{minipage}
 
@@ -2473,48 +2478,49 @@ captionpos=b,label={lst:outline of state-based CRDT}]
 
 
 \subsection{Semantics of State-Based CRDT Implementations}
-\label{subsec:semantics of state-based CRDT implementations} 
+\label{subsec:semantics of state-based CRDT implementations}
 
-%Similarly as that of operation-based CRDT, 
+%Similarly as that of operation-based CRDT,
 Given a state-based CRDT object $\aobj$, its semantics is defined as a labeled transition system (LTS) $\llbracket \aobj \rrbracket_s = (\globalstates,\acts,\aglobalstate_0,\rightarrow)$, where $\globalstates$ is a set of global configurations, $\acts$ is the set of transition labels, $\aglobalstate_0$ is the initial configuration, and $\rightarrow\subseteq \globalstates \times \acts\times \globalstates$ is the transition relation.
 
-A global configuration $(\gstates, \avisord, \msgs, \vmsgs)$ is a ``snapshot'' of the system that records all the operations that have been executed. Here $\gstates$ and $\avisord$ is same as the of operation-based CRDT: $\gstates \in [\reps \rightarrow \localstates]$ and $\avisord\subseteq \powerset{\labels \times \labels}$. In a local configuration $(\alabelset, \astate)$, intuitively, $\alabelset$ contains all operations ``visible'' to current replica. Or we can say, $\alabel \in \alabelset$, if a replica state that is aware of $\alabel$ has already been merged in current replica state. $\msgs$ stores the messages in current distributed system. Each message of $\msgs$ is a tuple $(\astate,Ls)$, where $\astate \in \Delta$ and $Ls \subseteq \labels$. In a message $(\astate,Ls)$, $\astate$ is a replica state, and $Ls$ is the set of operation ``visible'' to the replica of $\astate$. $\vmsgs: \labels \rightarrow \Sigma$ associate to each operation label $\alabel \in \alabelset$ a replica state $\astate$, which is just the replica state after $\alabel$ is done in its replica. Note that, in state-based CRDT, it is possible that a replica can do several operations without sending a message. Therefore, we use $\vmsgs$ to additionally record the ``virtual message'' of each operation, and it will be used in proof.
+A global configuration $(\gstates, \avisord, \msgs, \vmsgs)$ is a ``snapshot'' of the system that records all the operations that have been executed. Here $\gstates$ and $\avisord$ is same as the of operation-based CRDT: $\gstates \in [\reps \rightarrow \localstates]$ and $\avisord\subseteq \powerset{\labels \times \labels}$. In a local configuration $(\alabelset, \astate)$, intuitively, $\alabelset$ contains all operations ``visible'' to current replica. Or we can say, $\alabel \in \alabelset$, if a replica state that is aware of $\alabel$ has already been merged in current replica state. $\msgs$ stores the messages in current distributed system. Each message of $\msgs$ is a local configuration $(Ls,\astate)$. %In a message $(Ls,\astate)$, $\astate$ is a replica state, and $Ls$ is the set of operation ``visible'' to the replica of $\astate$.
+The reason for store $Ls$ in a message is for prove. $\vmsgs: \labels \rightarrow \Sigma$ associate to each operation label $\alabel \in \alabelset$ a replica state $\astate$, which is just the replica state after $\alabel$ is done in its replica. Note that, in state-based CRDT, it is possible that a replica can do several operations without sending a message. Therefore, we use $\vmsgs$ to additionally record the ``virtual message'' of each operation, and it will be used in proof.
 
-The transition labels are operations. For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$. 
+The transition labels are operations. For some fixed initial replica state $\astate_0$, the initial global configuration is defined by $\aglobalstate_0 = (\gstates_0, \emptyset, \emptyset, \emptyset) \in \globalstates$, where $\gstates_0$ maps each replica $\arep$ into $(\emptyset, \astate_0)$.
 
-The transition rule of the transition relation is given as follows: 
+The transition rule of the transition relation is given as follows:
 
-The first transition rule OPERATION describes a replica $\arep$ in state $\astate$ executing an invocation of method $\amethod$ with argument $\argv$. We use a function $\atsource$ to represent the behavior of the method. %Recall that in state-based CRDT, each method works locally, and a replica uses {\tt merge} method to merge current replica state with replica state in message. 
+The first transition rule OPERATION describes a replica $\arep$ in state $\astate$ executing an invocation of method $\amethod$ with argument $\argv$. We use a function $\atsource$ to represent the behavior of the method. %Recall that in state-based CRDT, each method works locally, and a replica uses {\tt merge} method to merge current replica state with replica state in message.
 $\atsource(\astate,\amethod,\argv)$ stands for calling method $\amethod$ with argument $\argv$ on the replica state $\sigma$, and then results in a return value $\retv$, a new replica state $\astate'$, and possibly, a timestamp $\ats$. We assume that timestamps are consistent with the visibility relation
-$\avisord$. The local configuration $(\alabelset,\sigma)$ of $\arep$ is changed by modifying replica state into $\astate'$ and adding $\alabel$ to the set of labels $\alabelset$. The visibility relation $\avisord$ is changed to record the fact that all operations in $\alabelset$ is now visible to $\alabel$. We add $\{ (\alabel,\astate') \}$ into the set $\vmsgs$ of virtual messages. This transition is labeled by $\alabel$. 
+$\avisord$. The local configuration $(\alabelset,\sigma)$ of $\arep$ is changed by modifying replica state into $\astate'$ and adding $\alabel$ to the set of labels $\alabelset$. The visibility relation $\avisord$ is changed to record the fact that all operations in $\alabelset$ is now visible to $\alabel$. We add $\{ (\alabel,\astate') \}$ into the set $\vmsgs$ of virtual messages. This transition is labeled by $\alabel$.
 
 \[
   \inferrule[\text{\sc Operation}]
   {\gstates(\arep) = (\alabelset, \astate) \\ \atsource(\astate,\amethod,\argv) = (\retv,\astate',\ats) \\ \alabel = \alabelobjind{\argv}{\retv}{(i,\ats)} \\ \mathit{unique}(i) \\
   \ats\neq\bot\implies (\,\forall \alabel'\in\alabelset.\ \tsof(\alabel') < \ats\,) \\
   \forall \alabel'\in \labeldom{\avisord}.\ \tsof(\alabel') \neq \ats}
-  {(\gstates, \avisord, \msgs,\vmsgs) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord \cup (\alabelset \times \{\alabel\}), \msgs, \vmsgs \cup \{ (\alabel,\astate') \})} 
+  {(\gstates, \avisord, \msgs,\vmsgs) \xrightarrow{\alabel} (\gstates[\arep \leftarrow (\alabelset \cup \{\alabel\}, \astate')], \avisord \cup (\alabelset \times \{\alabel\}), \msgs, \vmsgs \cup \{ (\alabel,\astate') \})}
 \]
 
-The second rule GENERATE describes a replica $\arep$ sending a message. This message contains its replica state $\astate$ and the set $\alabelset$ of operations visible to current replica. Only the set $\msgs$ of messages is changed. 
+The second rule GENERATE describes a replica $\arep$ sending a message. This message contains its replica state $\astate$ and the set $\alabelset$ of operations visible to current replica. Only the set $\msgs$ of messages is changed.
 
 \[
   \inferrule[\text{\sc Generate}]
   {\gstates(\arep) = (\alabelset, \astate)}
-  {(\gstates, \avisord, \msgs, \vmsgs) \xrightarrow{} (\gstates, \avisord, \msgs \cup \{ (\astate,\alabelset) \}, \vmsgs )}
+  {(\gstates, \avisord, \msgs, \vmsgs) \xrightarrow{} (\gstates, \avisord, \msgs \cup \{ (\alabelset,\astate) \}, \vmsgs )}
 \]
 
-The third rule APPLY describes a replica $\arep$ with local configuration $(\alabelset, \astate_1)$ applying a message $(\astate_2,Ls)$. This transition results in modifying the state of $\arep$ to $\astate_3 = \alabelshort[{\tt merge}]{\astate_1,\astate_2}$ and adding $Ls$ to the set of operations of local configuration of replica $\arep$. 
+The third rule APPLY describes a replica $\arep$ with local configuration $(\alabelset, \astate_1)$ applying a message $(Ls,\astate_2)$. This transition results in modifying the state of $\arep$ to $\astate_3 = \alabelshort[{\tt merge}]{\astate_1,\astate_2}$ and adding $Ls$ to the set of operations of local configuration of replica $\arep$.
 
 \[
   \inferrule[\text{\sc Apply}]
-  {\gstates(\arep) = (\alabelset, \astate_1) \\ (\astate_2,Ls) \in \downstreams \\ \alabelshort[{\tt merge}]{\astate_1,\astate_2} = \astate_3} 
+  {\gstates(\arep) = (\alabelset, \astate_1) \\ (Ls,\astate_2) \in \downstreams \\ \alabelshort[{\tt merge}]{\astate_1,\astate_2} = \astate_3}
   {(\gstates, \avisord, \msgs, \vmsgs) \xrightarrow{} (\gstates[\arep \leftarrow (\alabelset \cup Ls, \astate_3)], \avisord, \msgs, \vmsgs)}
-\] 
+\]
 
 Note that, our transition rules preserve the fact that $\avisord$ is a strict partial order. We permit a replica to send several message without doing operations or receiving messages, and in such situation, it is dealt with in a way that only one message is sent, since a message can be received multiple times on a same replica.
 
-The difference between semantics of state-based CRDT and semantics of operation-based CRDT is as follows: A message can be received multiple times on a same replica, or can be lost, or can be received in any order. 
+The difference between semantics of state-based CRDT and semantics of operation-based CRDT is as follows: A message can be received multiple times on a same replica, or can be lost, or can be received in any order.
 
 
 
@@ -2522,95 +2528,81 @@ The difference between semantics of state-based CRDT and semantics of operation-
 
 
 \subsection{Proof Method for State-Based CRDT}
-\label{subsec:proof method for state-based CRDT} 
+\label{subsec:proof method for state-based CRDT}
 
-We use the same $\mathsf{Refinement}$ and $\mathsf{\CRDTLinshort{}}$, and propose a new $\mathsf{ReplicaStates}$ as follows: 
+We use the same $\mathsf{Refinement}$ and $\mathsf{\CRDTLinshort{}}$ as that of operation-based CRDT. As in Section \ref{sec:proofs}, we identify two general classes of CRDT implementations which differ in the way in which the linearization $\alinord$ is extended when executing operations at the origin replica. One class of objects, including PN-counter, LWW-register, multi-value register and 2P-set, admit execution-order linearizations; while the other class of objects, including LWW-element Set, admit timestamp-order linearizations.
+
+We need to prove that the domain of replica state is a semilattice which use a order given by {\tt compare} method, and $\alabelshort[\mathtt{merge}]{x,y}$ returns the least upper bound of semilattice.
+
+We propose a new $\mathsf{ReplicaStates}$ as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] $\mathsf{ReplicaStates}$: We require that, for each replica $\arep$ with local configuration $(\alabelset,\astate)$, the state $\sigma$ is obtained by merging the ``virtual message'' of operations in $\alabelset$ in the order defined by $\alinord$.
-\end{itemize} 
+\item[-] $\mathsf{ReplicaStates}$: We require that, for each replica $\arep$ with local configuration $(\alabelset,\astate)$, the replica state $\sigma$ is obtained by merging the ``virtual messages'' of operations in $\alabelset$ in the order defined by $\alinord$.
+\end{itemize}
 
-Note that, each ``virtual message'' of an operation is a replica state. 
+We prove $\mathsf{ReplicaStates}$ by induction on execution. It is obvious that $\mathsf{ReplicaStates}$ holds initially. The induction case is dealt with as follows: Given a replica with local configuration $(\alabelset_1,\astate_1)$, by induction assumption, the replica state $\astate_1$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_1$ in the order defined by $\alinord$. Then,
 
-As in Section \ref{sec:proofs}, we identify two general classes of CRDT implementations which differ in the way in which the linearization $\alinord$ is extended when executing operations at the origin replica. One class of objects, including PN-counter, LWW-register, multi-value register and 2P-set, admit execution-order linearizations; while the other class of objects, including LWW-element Set, admit timestamp-order linearizations. 
+\begin{itemize}
+\setlength{\itemsep}{0.5pt}
+\item[-] When such replica do a $\alabel$ operation and results in new replica state $\astate_2$: It is easy to see that $\alabel$ is after operations of $\alabelset_1$ in $\alinord$. It is obvious that the ``virtual message'' of $\alabel$ is $(\alabelset_1 \cup \{ \alabel \},\astate_2)$.
 
-We need to prove that the domain of replica state is a semilattice, the order of the semilattice is given in {\tt compare} method, and $\alabelshort[\mathtt{merge}]{x,y}$ returns the least upper bound of semilattice. Then, we can imply $\mathsf{ReplicaStates}$. 
+    We need to prove that $\alabelshort[{\tt merge}]{\astate_1,\astate_2} = \astate_2$.
+
+    Then, we can see that, the replica state $\astate_2$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_1 \cup \{ \alabel \}$ in the order defined by $\alinord$.
+
+\item[-] When a message $(\alabelset_2,\astate_2)$ is applied in this replica: By induction assumption, we can see that, the replica state $\astate_2$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_2$ in the order defined by $\alinord$. According to the properties of {\tt merge}, it is easy to see that, the replica state $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_1 \cup \alabelset_2$ in the order defined by $\alinord$.
+\end{itemize}
+
+We still need to prove $\mathsf{Refinement}$. With $\mathsf{ReplicaStates}$ and $\mathsf{Refinement}$, we can prove $\mathsf{\CRDTLinshort{}}$ similarly as that of \sectionautorefname \ref{subsec:time order of execution as linearization}.
+
+
+
+
 
 
 
 \subsection{PN-Counter Implementation and its Proof}
-\label{subsec:PN-counter implementation and its proof} 
+\label{subsec:PN-counter implementation and its proof}
 
-The state-based PN-counter implementation of \cite{ShapiroPBZ11} is given in Listing~\ref{lst:state-based emulation of state-based object}. 
-
-
-\begin{minipage}[t]{1.0\linewidth}
-\begin{lstlisting}[frame=top,caption={state-based emulation of state-based object},
-captionpos=b,label={lst:state-based emulation of state-based object}]
-  payload S ( the state-based payload )
-  initial initial payload of S
-
-  f(a)
-    atSource :
-      precondition : precondition of f(a)
-      let s = atSource of f(a) in state-based
-    downStream(s) :
-      S = merge(S,s)
-\end{lstlisting}
-\end{minipage}
-
-$\\$ $\\$
-
-\cite{ShapiroPBZ11} gives a state-based PN-counter implementation. As discussed above, we give its operation-based version in Listing~\ref{lst:operation-based PN-counter}. Here $\alabelshort[{\tt myRep}]{}$ is a function that returns current replica identifier, and $\alabelshort[{\tt reps}]{}$ is a function that returns the number of replicas in distributed system. This implementation assumes that the number of replicas are fixed. A payload $S$ contains a integer array $P$ and a integer array $N$. $P[\arep]$ represents the number of $\alabelshort[{\tt inc}]{}$ that happens on replica $\arep$ and their effector have been applied in current replica state, while $N[\arep]$ represents the number of $\alabelshort[{\tt dec}]{}$ that happens on replica $\arep$ and their effector have been applied in current replica state. Annotation1 is an annotation for effector of {\tt inc} or {\tt dec}.
-
+The state-based PN-counter implementation of \cite{ShapiroPBZ11} is given in Listing~\ref{lst:state-based PN-counter}. Since we already see its operation-based version, we skip the explanation of it.
 
 \begin{figure}[t]
-\begin{lstlisting}[frame=top,caption={Pseudo-code of operation-based PN-counter},
-captionpos=b,label={lst:operation-based PN-counter}]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of state-based PN-counter},
+captionpos=b,label={lst:state-based PN-counter}]
   payload ingeter[reps()] P, ingeter[reps()] N
   initial P = [@|$0,\ldots,0$|@], N = [@|$0,\ldots,0$|@]
   initial lin = @|$\epsilon$|@
 
   inc()
-    atSource :
-      let g = myRep()
-      @|$P$|@ = @|$P[ g: P[g] + 1]$|@
-      //@ lin = lin@|$\,\cdot\,$|@inc() 
+    let g = myRep()
+    @|$P$|@ = @|$P[ g: P[g] + 1]$|@
+    //@ lin = lin@|$\,\cdot\,$|@inc()
 
   dec()
-    atSource :
-      let g = myRep()
-      let @|$N$|@ = @|$N[ g: N[g] + 1]$|@
-      //@ lin = lin@|$\,\cdot\,$|@dec()
-      
+    let g = myRep()
+    let @|$N$|@ = @|$N[ g: N[g] + 1]$|@
+    //@ lin = lin@|$\,\cdot\,$|@dec()
+
   read() :
     let c  = @|$\Sigma_{\arep} P[\arep]$|@ - @|$\Sigma_{\arep} N[\arep]$|@
     //@ lin = lin@|$\,\cdot\,$|@(read@|$\Rightarrow$|@c)
-    return c 
-  
-      downStream(@|$(P',N')$|@) :
-      @|$\forall \arep$|@, @|$P[\arep]$|@ = @|$max( P[\arep],P'[\arep] )$|@
-      @|$\forall \arep$|@, @|$N[\arep]$|@ = @|$max( N[\arep],N'[\arep] )$|@
-      //@ Annotation1 : @|$\forall \arep, P'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt inc}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
-      @|$N'[\arep]$|@ = @|$\vert \{ \alabel = \alabelshort[{\tt dec}]{}, \alabel$|@ happens on replica @|$\arep,  (\alabel,\alabel') \in \avisord \vee \alabel = \alabel', where \ \alabel'$|@ is the operation that generates this @|$(P',N')$|@ effector @|$\} \vert$|@,
+    return c
+
+  compare(X, Y): boolean b
+    let b  = @|$ ( \forall 0 \leq \arep < reps(), X.P[\arep] \leq Y.P[\arep] )$|@ @|$\wedge$|@ @|$ ( \forall 0 \leq \arep < reps(), X.N[\arep] \leq Y.N[\arep] )$|@
+
+  merge(X, Y): payload Z
+    for each @|$0 \leq \arep < reps()$|@, @|$Z.P[\arep] = max( X.P[\arep], Y.P[\arep] )$|@
+    for each @|$0 \leq \arep < reps()$|@, @|$Z.N[\arep] = max( X.N[\arep], Y.N[\arep] )$|@
 \end{lstlisting}
 \end{figure}
 
-
-
-
-
-
-
-\subsection{Proof of Operation-Based PN-Counter}
-\label{subsec:proof of operation-based PN-counter}
-
-We say $P_1<P_2$, if for each replica $\arep'$, we have $P_1[\arep'] \leq P_2[\arep']$, and there exists replica $\arep''$, such that $P_1[\arep''] < P_2 [\arep'']$. We say $N_1<N_2$, if for each replica $\arep'$, we have $N_1[\arep'] \leq N_2[\arep']$, and there exists replica $\arep''$, such that $N_1[\arep''] < N_2 [\arep'']$. We say $(P_1,N_1) < (P_2,N_2)$, if $(P_1 < P_2 \wedge N_1 \leq N_2) \vee (P_1 \leq P_2 \wedge N_1 < N_2)$. The following lemma states that the operation-based counter is \crdtlinearizable{} w.r.t. $\specCounter$.
+The following lemma states that the state-based counter is \crdtlinearizable{} w.r.t. $\specCounter$.
 
 \begin{lemma}
-\label{lemma:operation-based PN-counter is correct}
-The operation-based PN-counter is \crdtlinearizable{} w.r.t $\specCounter$.
+\label{lemma:state-based PN-counter is correct}
+The state-based PN-counter is \crdtlinearizable{} w.r.t $\specCounter$.
 \end{lemma}
 
 \begin {proof}
