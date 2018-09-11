@@ -277,7 +277,7 @@ Let us propose Annotation2, which is an annotation of replica state and obviousl
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
 \item[-] Annotation2: Let $(\alabelset,(P,N))$ be the local configuration of a replica. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$,
-    $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$
+    $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$.
 \end{itemize}
 
 %\noindent {\bf Prove Annotation1 and Annotation2}:
@@ -288,13 +288,13 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.  
+\item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
     Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, the effector of $\alabel$ is $(P',N')$.
 
     It is easy to see that $P'=P[r:P[r]+1]$, $N'=N$, and $\alabelset' = \alabelset \cup \{ \alabel \}$. By Annotation2 of the local configuration $Lc$, we can see that Annotation1 for effector $(P',N')$ holds, and Annotation2 for the local configuration $Lc'$ holds.
 
-\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$. 
-    %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
+\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$.
+    %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
     By the causal delivery assumption, for each operation $\alabel''$, such that $\alabel''$ is visible to $\alabel$, we can see that, the effector of $\alabel''$ has already been applied in $S'$, and it is easy to see that the effector of $\alabel''$ has already been applied in $S$. It is easy to see that $\alabel'' \in \alabelset$. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of the local configuration $Lc$, we can see that, for each replica $\arep' \neq \arep_{\alabel}$, we have $P_{\alabel}[\arep'] \leq P[\arep']$ and $N_{\alabel}[\arep'] \leq N[\arep']$.
 
@@ -312,7 +312,7 @@ This completes the proof of Annotation1 and Annotation2.
 
 Let us propose $fact1$:
 
-$fact1$: Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_k$, $(P,N)$ is obtained from the initial replica state by applying effectors $(P''_1,N''_1),\ldots,(P''_n,N''_n)$, where for each $i$, $(P''_i,N''_i)$ is the effectors of $\alabel''_i$. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$.
+$fact1$: Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$, $(P,N)$ is obtained from the initial replica state by applying effectors $(P''_1,N''_1),\ldots,(P''_n,N''_n)$, where for each $i$, $(P''_i,N''_i)$ is the effectors of $\alabel''_i$. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$.
 
 
 %\noindent {\bf Prove $fact1$}:
@@ -325,9 +325,10 @@ Assume that $(P,N)$ is obtained from the initial replica state by applying effec
 
 Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we can see that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, for each replica $\arep' \neq \arep_{m+1}$, we have $P''_{m+1}[\arep'] \leq P[\arep']$ and $N''_{m+1}[\arep'] \leq N[\arep']$.
 
-Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]+1$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$. 
+Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]+1$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$.
 
-Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. Therefore, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
+Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. %Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. 
+Thus, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
 
 %\noindent {\bf Other parts}.
 
@@ -2161,12 +2162,12 @@ We prove Annotation1 and Annotation2 by induction on executions. Obvious they ho
 \setlength{\itemsep}{0.5pt}
 \item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: Same as that of Lemma \ref{lemma:operation-based PN-counter is correct}.
 
-\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. %Assume $\alabel$ happens on replica $\arep_{\alabel}$. 
-    Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.  
+\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. %Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. %Assume $\alabel$ happens on replica $\arep_{\alabel}$.
+    Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
     Given a replica $\arep$, let $V_1(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep, \alabel' \in \alabelset \}$, let $V_2(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep$, and $\alabel'$ is visible to $\alabel$ or $\alabel' = \alabel\}$.
 
-    It is easy to see that $\alabelset' = \alabelset \cup \alabel \cup \avisord^{-1}(\alabel)$. Since the visibility relation is transitive, and the visibility relation is a total order on operations happen on replica $\arep$, we can see that, $( V_1(\arep) \subseteq V_2(\arep) ) \vee ( V_2(\arep) \subseteq V_1(\arep) )$. It is easy to see that, $P'[\arep]$ = $\mathsf{max}\{ P[\arep], P_{\alabel}[\arep] \}$ = $\mathsf{max}\{ \vert V_1(\arep) \vert ,\vert V_2(\arep) \vert \}$. Thus, Annotation2 for the local configuration $Lc'$ holds.
+    It is easy to see that $\alabelset' = \alabelset \cup \alabel \cup \avisord^{-1}(\alabel)$. Since the visibility relation is transitive, and the visibility relation is a total order on operations happen on replica $\arep$, we can see that, $( V_1(\arep) \subseteq V_2(\arep) ) \vee ( V_2(\arep) \subseteq V_1(\arep) )$. It is easy to see that, $P'[\arep]$ = $\mathsf{max}\{ P[\arep], P_{\alabel}[\arep] \}$ = $\mathsf{max}\{ \vert V_1(\arep) \vert ,\vert V_2(\arep) \vert \}$. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of the local configuration $Lc$, we can see that, Annotation2 for the local configuration $Lc'$ holds.
 
 \item[-] The case of {\tt dec} can be similarly proved.
 \end{itemize}
@@ -2554,7 +2555,7 @@ We prove $\mathsf{ReplicaStates}$ by induction on execution. It is obvious that 
 \item[-] When a message $(\alabelset_2,\astate_2)$ is applied in this replica: By induction assumption, we can see that, the replica state $\astate_2$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_2$ in the order defined by $\alinord$. According to the properties of {\tt merge}, it is easy to see that, the replica state $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_1 \cup \alabelset_2$ in the order defined by $\alinord$.
 \end{itemize}
 
-We still need to prove $\mathsf{Refinement}$. With $\mathsf{ReplicaStates}$ and $\mathsf{Refinement}$, we can prove $\mathsf{\CRDTLinshort{}}$ similarly as that of \sectionautorefname \ref{subsec:time order of execution as linearization}.
+We still need to prove $\mathsf{Refinement}$. With $\mathsf{ReplicaStates}$ and $\mathsf{Refinement}$, we can prove $\mathsf{\CRDTLinshort{}}$ similarly as that of \sectionautorefname \ref{subsec:time order of execution as linearization} or \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}. 
 
 
 
@@ -2562,8 +2563,8 @@ We still need to prove $\mathsf{Refinement}$. With $\mathsf{ReplicaStates}$ and 
 
 
 
-\subsection{PN-Counter Implementation and its Proof}
-\label{subsec:PN-counter implementation and its proof}
+\subsection{State-Based PN-Counter Implementation and its Proof}
+\label{subsec:state-based PN-counter implementation and its proof}
 
 The state-based PN-counter implementation of \cite{ShapiroPBZ11} is given in Listing~\ref{lst:state-based PN-counter}. Since we already see its operation-based version, we skip the explanation of it.
 
@@ -2590,11 +2591,13 @@ captionpos=b,label={lst:state-based PN-counter}]
     return c
 
   compare(X, Y): boolean b
-    let b  = @|$ ( \forall 0 \leq \arep < reps(), X.P[\arep] \leq Y.P[\arep] )$|@ @|$\wedge$|@ @|$ ( \forall 0 \leq \arep < reps(), X.N[\arep] \leq Y.N[\arep] )$|@
+    let b  = @|$ ( \forall 0 \leq \arep < reps(), X.P[\arep] \leq Y.P[\arep] )$|@ @|$\wedge$|@ @|$ ( \forall 0 \leq \arep < reps(), X.N[\arep] \leq Y.N[\arep] )$|@ 
+    return b 
 
   merge(X, Y): payload Z
     for each @|$0 \leq \arep < reps()$|@, @|$Z.P[\arep] = max( X.P[\arep], Y.P[\arep] )$|@
-    for each @|$0 \leq \arep < reps()$|@, @|$Z.N[\arep] = max( X.N[\arep], Y.N[\arep] )$|@
+    for each @|$0 \leq \arep < reps()$|@, @|$Z.N[\arep] = max( X.N[\arep], Y.N[\arep] )$|@ 
+    return Z 
 \end{lstlisting}
 \end{figure}
 
@@ -2607,50 +2610,37 @@ The state-based PN-counter is \crdtlinearizable{} w.r.t $\specCounter$.
 
 \begin {proof}
 
-%Let us give two facts:
-
-%\begin{itemize}
-%\setlength{\itemsep}{0.5pt}
-%\item[-] $fact1$: Assume $(P_1,N_1)$ and $(P_2,N_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $(\alabel_1,\alabel_2) \in \avisord$. Then, $(P_1,N_1) < (P_2,N_2)$.
-%\item[-] $fact2$: Assume $(P_1,N_1)$ and $(P_2,N_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg ((P_1,N_1) < (P_2,N_2) \vee (P_2,N_2) < (P_1,N_1))$.
-%\end{itemize}
-
-
-%\noindent Proof of $fact1$: Assume $\alabel_1$ happens on replica $\arep$ and $\alabel_1 = \alabelshort[{\tt inc}]{}$. By the causal delivery assumption, we know that for each replica $\arep' \neq \arep$, $\alabel_2$ see more or equal number of {\tt inc} operations happens on replica $\arep'$ than that of $\alabel_1$, $\alabel_2$ see more or equal number of {\tt dec} operations happens on replica $\arep'$ than that of $\alabel_1$, $\alabel_2$ see more or equal number of {\tt dec} operations happens on replica $\arep$ than that of $\alabel_1$, and $\alabel_2$ see more number of {\tt inc} operations happens on replica $\arep$ than that of $\alabel_1$. By Annotation1, we know that $\forall \arep' \neq \arep$, $P_1[\arep'] \leq P_2[\arep'] \wedge N_1[\arep'] \leq N_2[\arep']$, $N_1[\arep] \leq N_2[\arep]$, and $P_1[\arep] < P_2[\arep]$. Therefore, $(P_1,N_1) < (P_2,N_2)$. The case when $\alabel_1 = \alabelshort[{\tt dec}]{}$ can be similarly proved.
-
-%\noindent Proof of $fact2$: Let us prove that $\neg ((P_1,N_1) < (P_2,N_2) \vee (P_2,N_2) < (P_1,N_1))$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $(P_1,N_1) < (P_2,N_2)$, $\alabel_1 = \alabelshort[{\tt inc}]{}$, and $\alabel_1$ happens on replica $\arep_1$. Since $(P_1,N_1) < (P_2,N_2)$, we know that for each replica $\arep'$, $P_1[\arep'] \leq P_2[\arep'] \wedge N_1[\arep'] \leq N_2[\arep']$. Especially, $P_1[\arep] \leq P_2[\arep]$. By the causal delivery assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$.  The case when $\alabel_1 = \alabelshort[{\tt dec}]{}$ can be similarly proved.
-
-%$\newline$
-
-%\noindent {\bf Propose Annotation2}:
-
-Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
+Let us propose Annotation1 for messages, Annotation2 for ``virtual messages'', and Annotation3 for local configurations.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] Annotation2: Let $(P,N)$ be the replica state of a replica. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and the effector of $\alabel$ has already been applied in current replica $\} \vert$,
-    $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and the effector of $\alabel$ has already been applied in current replica $\} \vert$
+\item[-] Annotation1: Given a message $(\alabelset,(P,N))$. For each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$.
+
+\item[-] Annotation2: Given a ``virtual message'' $(\alabel,(P,N))$. For each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep, (\alabel',\alabel) \in \avisord \vee \alabel' = \alabel \} \vert$, $N[\arep]$ =  $\vert \{ \alabel' \vert \alabel' = \alabelshort[{\tt dec}]{}, \alabel'$ happens on replica $\arep, (\alabel',\alabel) \in \avisord \vee \alabel' = \alabel \} \vert$.
+
+\item[-] Annotation3: Given a local configuration $(\alabelset,(P,N))$. For each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep, \alabel \in \alabelset \} \vert$.
 \end{itemize}
 
-%\noindent {\bf Prove Annotation1 and Annotation2}:
 
-Let us prove that the Annotation1 and Annotation2 are inductive invariant.
+Let us prove that the Annotation1, Annotation2 and Annotation3 are inductive invariant.
 
-We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do generator or effector of {\tt inc} and {\tt dec}:
+We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Assume they hold along the execution $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$ and there is a new transition $\aglobalstate \xrightarrow{} \aglobalstate'$. We need to prove that they still hold in $\aglobalstate'$. We only need to consider when a replica do {\tt inc} and {\tt dec} operation, or generate messages, or receive messages:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of a {\tt inc} operation $\alabel$ and then apply its effector: Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously, the effector of $\alabel$ is $(P',N')$.
+\item[-] For case when replica $\arep$ do a {\tt inc} operation $\alabel$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that a new ``virtual message'' $(\alabel,(P',N'))$ is generated. 
 
-    It is easy to see that $P'=P[r:P[r]+1]$ and $N'=N$. By Annotation2 of replica state $S$, we can see that Annotation1 for effector $(P',N')$ holds, and Annotation2 for replica state $S'$ holds.
+    It is easy to see that $P'=P[r:P[r]+1]$, $N'=N$, and $\alabelset' = \alabelset \cup \{ \alabel \}$. By Annotation3 of the local configuration $Lc$, we can see that Annotation3 for the local configuration $Lc'$ holds, and Annotation2 for the ``virtual message'' $(\alabel,(P',N'))$ holds. 
 
-\item[-] For case when replica $\arep$ apply effector $(P_{\alabel},N_{\alabel})$ of a {\tt inc} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S=(P,N)$ and $S'=(P',N')$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Assume $\alabel$ happens on replica $\arep_{\alabel}$.
+\item[-] For case when replica $\arep$ generated a message $msg$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $msg = (\alabelset,(P,N))$ and $Lc = Lc'$. 
 
-    By the causal delivery assumption, for each operation $\alabel''$, such that $\alabel''$ is visible to $\alabel$, we can see that, the effector of $\alabel''$ has already been applied in $S'$, and it is easy to see that the effector of $\alabel''$ has already been applied in $S$. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of $S$, we can see that, for each replica $\arep' \neq \arep_{\alabel}$, we have $P_{\alabel}[\arep'] \leq P[\arep']$ and $N_{\alabel}[\arep'] \leq N[\arep']$.
+    By Annotation3 of the local configuration $Lc$, we can see that Annotation3 for the local configuration $Lc'$ holds, and Annotation1 for the message $msg$ holds.
 
-    By the causal delivery assumption, for each operation $\alabel'$, such that $\alabel$ is visible to $\alabel'$, we can see that, the effector of $\alabel'$ has not been applied in $S'$ yet, and it is easy to see that the effector of $\alabel'$ has not been applied in $S$ yet. Especially, this holds for operations happen on replica $\arep_{\alabel}$. Also, note that, the effector of $\alabel$ has not been applied in $S$ yet. By Annotation1 of the effector $(P_{\alabel},N_{\alabel})$ and Annotation2 of $S$, we can see that, $P_{\alabel}[\arep_{\alabel}] = P[\arep_{\alabel}]+1$, $N_{\alabel}[\arep_{\alabel}] = N[\arep_{\alabel}]$.
+\item[-] For case when replica $\arep$ apply message $msg$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $msg = (\alabelset_1,(P_1,N_1))$. 
 
-    Therefore, we can see that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Thus, Annotation2 for replica state $S'$ holds.
+    Given a replica $\arep$, let $V_1(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep, \alabel' \in \alabelset \}$, let $V_2(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep, \alabel' \in \alabelset_1 \}$.
+
+    It is easy to see that $\alabelset' = \alabelset \cup \alabelset_1$. Since the visibility relation is transitive, and the visibility relation is a total order on operations happen on replica $\arep$, we can see that, $( V_1(\arep) \subseteq V_2(\arep) ) \vee ( V_2(\arep) \subseteq V_1(\arep) )$. It is easy to see that, $P'[\arep]$ = $\mathsf{max}\{ P[\arep], P_1[\arep] \}$ = $\mathsf{max}\{ \vert V_1(\arep) \vert ,\vert V_2(\arep) \vert \}$. By Annotation3 of the local configuration $Lc$ and Annotation1 of the message $msg$, we can see that, Annotation3 for the local configuration $Lc'$ holds. 
 
 \item[-] The case of {\tt dec} can be similarly proved.
 \end{itemize}
@@ -2662,7 +2652,7 @@ This completes the proof of Annotation1 and Annotation2.
 
 Let us propose $fact1$:
 
-$fact1$: Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_k$, $(P,N)$ is obtained from the initial replica state by applying effectors $(P''_1,N''_1),\ldots,(P''_n,N''_n)$, where for each $i$, $(P''_i,N''_i)$ is the effectors of $\alabel''_i$. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$.
+$fact1$: Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$, and for each $i$, the ``virtual message'' of $\alabel''_i$ is $(\alabel_i,(P''_i,N''_i))$. Assume that $(P,N)$ is obtained from the initial replica state by merging $(P''_1,N''_1),\ldots,(P''_n,N''_n)$. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$.
 
 
 %\noindent {\bf Prove $fact1$}:
@@ -2671,13 +2661,14 @@ We prove $fact1$ by induction on $\alinord$. Obviously $fact1$ holds initially.
 
 Assume that $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_m$, and assume that $\alabel''_{m+1} = \alabelshort[{\tt inc}]{}$, and $\alabel''_{m+1}$ happens on replica $\arep_{m+1}$. We need to prove that $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$.
 
-Assume that $(P,N)$ is obtained from the initial replica state by applying effectors $(P''_1,N''_1),\ldots,(P''_m,N''_m)$, and $(P',N')$ is obtained from $(P,N)$ by applying effectors $(P''_{m+1},N''_{m+1})$.
+Assume that $(P,N)$ is obtained from the initial replica state by merging $(P''_1,N''_1),\ldots,(P''_m,N''_m)$, and $(P',N')$ is obtained from $(P,N)$ by merging $(P''_{m+1},N''_{m+1})$.
 
 Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we can see that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, for each replica $\arep' \neq \arep_{m+1}$, we have $P''_{m+1}[\arep'] \leq P[\arep']$ and $N''_{m+1}[\arep'] \leq N[\arep']$.
 
-Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$.
+Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]+1$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$.
 
-Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. Therefore, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
+Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. %Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. 
+Thus, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
 
 %\noindent {\bf Other parts}.
 
@@ -2685,23 +2676,13 @@ Then, our proof of the lemma proceed as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We need to prove that $\mathsf{ReplicaStates}$ are inductive invariant.
+\item[-] We need to prove that $\mathsf{ReplicaStates}$ are inductive invariant. 
 
-Since every operation is appended to the linearization when it executes atSource it clearly follows, the linearization order is consistent with visibility order. Then, by the causal delivery assumption, the order in which effectors are applied at a given replica is also consistent with the visibility order. Let $\alinord_1$ be the projection of linearization order into labels of effectors applied in a replica $\arep$, and $\alinord_2$ be the order of labels of effectors applied in replica $\arep$. By Lemma \ref{lemma:given two sequence consistent with visibility order, one can be obtained from the other}, $\alinord_2$ can be obtained from $\alinord_1$ by several time of swapping adjacent pair of concurrent operations. It is obvious that applying effectors of concurrent operations commute. Therefore, we know that $\mathsf{ReplicaStates}$ is an inductive invariant.
+It is obvious that the order introduced by {\tt merge} is a partial order. Given $(P_1,N_1), (P_2,N_2)$, let $(P_3,N_3) = \alabelshort[{\tt merge}]{ (P_1,N_1), (P_2,N_2) }$. It is easy to see that $(P_1,N_1) \leq (P_3,N_3)$ and $(P_2,N_2) \leq (P_3,N_3)$. Let us prove that there does not exist $(P_4,N_4)$, such that $( (P_4,N_4)<(P_3,N_3) )$ $\wedge$ $((P_1,N_1) \leq (P_4,N_4))$ $\wedge$ $((P_2,N_2) \leq (P_4,N_4))$. We prove this by contradiction. Assume such $(P_4,N_4)$ exists. It is easy to see that there exists a replica $\arep$, such that $(P_4[\arep] < max ( P_1[\arep],P_2[\arep] )) \vee (N_4[\arep] < max ( N_1[\arep],N_2[\arep] ))$. This contradicts that $((P_1,N_1) \leq (P_4,N_4))$ $\wedge$ $((P_2,N_2) \leq (P_4,N_4))$. Therefore, we can see that {\tt merge} returns the least upper bound. 
 
+Given a replica $\arep$ with local configuration $(\alabelset,(P,N))$, when such replica do a {\tt inc} operation $\alabel$ and results a new local configuration $(\alabelset \cup \{ \alabel \},(P',N'))$: By Annotation3 of the local configuration $(\alabelset,(P,N))$ and Annotation3 of the local configuration $(\alabelset \cup \{ \alabel \},(P',N'))$, we can see that $P' = P[\arep: P[\arep]+1]$ and $N' = N$. Therefore, we can see that $ \alabelshort[{\tt merge}]{ (P,N), (P',N') } = (P',N')$. The case for {\tt dec} is similar.
 
-\item[-] Let us prove that $\mathsf{Refinement}$ holds. We consider a refinement mapping $\refmap$ defined as follows: $\refmap(P,N) = \Sigma_{\arep} P[\arep] - \Sigma_{\arep} N[\arep]$.
-
-    \begin{itemize}
-    \setlength{\itemsep}{0.5pt}
-    \item[-] For the effector $(P_{\alabel},N_{\alabel})$ produced by $\alabel = \alabelshort[{\tt inc}]{}$ and the $\alabelshort[{\tt inc}]{}$ operation of the specification $\specCounter$: Assume we obtain replica state $S'=(P',N')$ from $S=(P,N)$ by applying effector $(P_{\alabel},N_{\alabel})$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt inc}]{}} \abstate+1$, and $\refmap((P,N)) = \abstate$. We need to prove that $\refmap((P',N')) = \abstate+1$.
-
-        In the proof process of $fact1$, we also prove that $P' = P[\arep_{\alabel}: P[\arep_{\alabel}]+1]$ and $N' = N$. Therefore, $\refmap((P',N')) = \refmap((P,N))+1 = \abstate+1$.
-
-    \item[-] The case of {\tt dec} can be similarly proved.
-
-    \item[-] Applying the query {\tt read} on the replica state $(P,N)$ should result in the same return value as applying the same query in the context of the specification on the abstract state $\abstate = \refmap(S) = \Sigma_{\arep} P[\arep] - \Sigma_{\arep} N[\arep]$, which again holds trivially.
-    \end{itemize}
+\item[-] The proof of $\mathsf{Refinement}$ is same as that of Lemma \ref{lemma:operation-based PN-counter is correct}. 
 
 \item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
@@ -2713,15 +2694,61 @@ This completes the proof of this lemma. $\qed$
 
 
 
+\subsection{State-Based LWW-Register Implementation and its Proof}
+\label{subsec:state-based LWW-register implementation and its proof}
+
+The state-based LWW-register implementation of \cite{ShapiroPBZ11} is given in Listing~\ref{lst:state-based LWW-regiser}. Since we already see its operation-based version, we skip the explanation of it.
+
+\begin{figure}[t]
+\begin{lstlisting}[frame=top,caption={Pseudo-code of state-based LWW-register},
+captionpos=b,label={lst:state-based LWW-regiser}] 
+  payload X x, timestamp @|$\ats$|@
+  initial @|$x_0$|@, @|$\ats_0$|@
+  initial lin = @|$\epsilon$|@
+
+  write(a) :
+    let @|$\ats'$|@ = getTimestamp()
+    //@ lin = insert(lin, write(a), ts')
+    (x,@|$\ats$|@) = (a,@|$\ats'$|@)
+
+  read() :
+    //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@x)
+    return x 
+
+  compare(@|$(x_1,\ats_1)$|@, @|$(x_2,\ats_2)$|@): boolean b
+    let b  = @|$\ats_1 < \ats_2$|@ 
+    return b 
+
+  merge(@|$(x_1,\ats_1)$|@, @|$(x_2,\ats_2)$|@): @|$(x_3,\ats_3)$|@ 
+    if @|$\ats_1 \leq \ats_2$|@ 
+      then @|$(x_3,\ats_3)$|@ = @|$(x_2,\ats_2)$|@ 
+    else 
+      @|$(x_3,\ats_3)$|@ = @|$(x_1,\ats_1)$|@ 
+    return @|$(x_3,\ats_3)$|@ 
+\end{lstlisting}
+\end{figure}
 
 
 
+The following lemma states that the state-based LWW-register is \crdtlinearizable{} w.r.t. $\specReg$.  
 
+\begin{lemma}
+\label{lemma:state-based LWW-register is correct}
+The state-based LWW-register is \crdtlinearizable{} w.r.t $\specReg$.
+\end{lemma}
 
+\begin {proof} 
 
+We need to prove that $\mathsf{ReplicaStates}$ are inductive invariant.
 
+It is obvious that the order introduced by {\tt merge} is a partial order. Given $(x_1,\ats_1), (x_2,\ats_2)$, let $(x_3,\ats_3) = \alabelshort[{\tt merge}]{ (x_1,\ats_1), (x_2,\ats_2) }$. It is easy to see that $(x_1,\ats_1) \leq (x_3,\ats_3)$ and $(x_2,\ats_2) \leq (x_3,\ats_3)$. Let us prove that there does not exist $(x_4,\ats_4)$, such that $( (x_4,\ats_4)<(x_3,\ats_3) )$ $\wedge$ $((x_1,\ats_1) \leq (x_4,\ats_4))$ $\wedge$ $((x_2,\ats_2) \leq (x_4,\ats_4))$. We prove this by contradiction. Assume such $(x_4,\ats_4)$ exists. It is easy to see that $(\ats_4 < \ats_1) \vee (\ats_4 < \ats_2)$. This contradicts that $((x_1,\ats_1) \leq (x_4,\ats_4))$ $\wedge$ $((x_2,\ats_2) \leq (x_4,\ats_4))$. Therefore, we can see that {\tt merge} returns the least upper bound. 
 
+Given a replica $\arep$ with local configuration $(\alabelset,(x,\ats))$, when such replica do a $\alabelshort[{\tt write}]{a}$ operation $\alabel$ and results a new local configuration $(\alabelset \cup \{ \alabel \},(a,\ats_a))$: Since the timestamp order is consistent with the visibility order, we can see that $\ats < \ats_a$. Therefore, we can see that $ \alabelshort[{\tt merge}]{ (x,\ats), (a,\ats_a) } = (a,\ats_a)$. 
 
+The proof of $\mathsf{Refinement}$ is same as that of Lemma \ref{lemma:operation-based LWW-register is correct}. 
+
+We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
+\end {proof}
 
 
 
