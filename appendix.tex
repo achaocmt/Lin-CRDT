@@ -272,7 +272,7 @@ The operation-based PN-counter is \crdtlinearizable{} w.r.t $\specCounter$.
 
 %\noindent {\bf Propose Annotation2}:
 
-Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
+Let us propose Annotation2, which is an annotation of local configuration and obviously holds in the initial global configuration.
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
@@ -327,7 +327,7 @@ Since $\alinord$ is consistent with the visibility relation, for each operation 
 
 Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]+1$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$.
 
-Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. %Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. 
+Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. %Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$.
 Thus, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
 
 %\noindent {\bf Other parts}.
@@ -590,13 +590,13 @@ Based on $fact1$, we can see that, assume $(a_1,V_1)$ and $(a_2,V_2)$ is the eff
 %\noindent Proof of $fact2$: Let us prove that $\neg (V_1 < V_2 \vee V_2 < V_1)$ by contradiction. It is obvious that $\alabel_1$ and $\alabel_2$ happens on different replicas. Assume that $V_1 < V_2$, and assume that $\alabel_1$ happens on replica $\arep_1$. Since $V_1 < V_2$, we know that for each replica $\arep'$, $V_1[\arep'] \leq V_2[\arep']$. Especially, $V_1[\arep_1] \leq V_2[\arep_1]$. By the causal delivery assumption and Annotation1, this means $(\alabel_1,\alabel_2) \in \avisord$, contradicts the assumption that $\alabel_1$ and $\alabel_2$ are concurrent. Similarly, we can see that $\neg (V_2 < V_1)$. Therefore, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
 
 
-Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration.
+Let us propose Annotation2, which is an annotation of local configuration and obviously holds in the initial global configuration.
 
 %\begin{itemize}
 %\setlength{\itemsep}{0.5pt}
 %\item[-]
 
-\noindent Annotation2: Let $S$ be the replica state of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel, l$ generates the effector $(a,V), \alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations whose effectors have already been applied in current replica $\}$.
+\noindent Annotation2: Let $(\alabelset,(P,N))$ be the local configuration of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel, \alabel$ generates the effector $(a,V), \alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations in $\alabelset \}$.
 
 %\end{itemize}
 
@@ -607,9 +607,12 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do generator of a {\tt write} operation $\alabel$ and then apply its effector: let $(a,V')$ be the effector of $\alabel$, let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously $S' = \{ (a,V') \}$.
+\item[-] For case when replica $\arep$ do generator of a {\tt write} operation $\alabel$ and then apply its effector: let $(a,V')$ be the effector of $\alabel$. %, let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. 
+    Let $Lc = (\alabelset,S)$ and $Lc' = (\alabelset',S')$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Obviously $S' = \{ (a,V') \}$ and $\alabelset' = \alabelset \cup \{ \alabel \}$. 
 
-    Since $\alabel$ is greater than any operations whose effectors are in $S$ w.r.t the visibility relation, Annotation2 still holds for $S'$. %in $\aglobalstate'$.
+    Since $\alabel$ is greater than any operations of $\alabelset$ 
+    %whose effectors are in $S$ 
+    w.r.t the visibility relation, Annotation2 still holds for the local configuration $Lc'$. %in $\aglobalstate'$.
 
     %By Annotation1, given a operation $\alabel_1$ with effector $(b_1,V'_1)$: For each replica $\arep'$, $V'_1[\arep']$ is the number of {\tt write} operation $\alabel'_1$ that happens on replica $\arep'$, and $(\alabel'_1,\alabel_1) \in \avisord \vee \alabel'_1 = \alabel_1$. When $(b_1,V'_1) \in S$, by the causal delivery assumption, the effectors of every such $\alabel'_1$ have already been applied during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$.
 
@@ -617,15 +620,17 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
     Given operations $\alabel_1$ and $\alabel_2$, such that $(b_1,V_1)$ and $(b_2,V_2)$ is the effector of $\alabel_1$ and $\alabel_2$, respectively. Given replica $\arep_1$, let $S_{b1}$ (resp., $S_{b2}$) be the set of {\tt write} operations $\alabel'$ happen on replica $\arep_1$, and either $\alabel'$ is visible to $\alabel_1$, or $\alabel' = \alabel_1$ (resp., and either $\alabel'$ is visible to $\alabel_2$, or $\alabel' = \alabel_2$). By the causal delivery assumption, the visibility relation is transitive. By Annotation1 of $(b_1,V_1)$ and $(b_2,V_2)$, we can see that, $( S_{b1} \subseteq S_{b2} ) \vee ( S_{b2} \subseteq S_{b1} )$. %Since the visibility relation is transitive, by Annotation2 of $S$, for each operation $\alabel_3$, such that the effector of $\alabel_3$ has been applied in $S$, there exists operation $\alabel'_3$, such that $(\alabel_3,\alabel'_3) \in \avisord$, and the effector of $\alabel'_3$ has been applied in $S$.
 
-    Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. By Annotation2 of $S$ and Annotation1 of effectors of $S$,
+    Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. By Annotation2 of local configuration $Lc$ and Annotation1 of effectors of $S$,
     %Let $\mathcal{V} = \{ V \vert (\_,V) \in S \}$ be the set of vector clocks of $S$. It is easy to prove that,
-    we can see that, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of {\tt write} operations happen on replica $\arep'$ and whose effectors been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. Then, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds for the effector $(a,V')$. %in $\aglobalstate'$.
+    we can see that, for each replica $\arep' \neq \arep$, $max_{V \in \mathcal{V}} V[\arep']$ is the number of {\tt write} operations happen on replica $\arep'$ and is in $\alabelset$, %whose effectors been applied in replica $\arep$ during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$, 
+    and $max_{V \in \mathcal{V}} V[\arep]$ is the number of operations happen on replica $\arep$ and is in $\alabelset$. %during $\aglobalstate_0 \xrightarrow{}^* \aglobalstate$. 
+    Then, for each replica $\arep' \neq \arep$, $V'[\arep'] = max_{V \in \mathcal{V}} V[\arep']$, and $V'[\arep] = max_{V \in \mathcal{V}} V[\arep] +1$. Therefore, Annotation1 still holds for the effector $(a,V')$. %in $\aglobalstate'$.
 
-\item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
+\item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$ originated in a different replica: Let $Lc = (\alabelset,S)$ and $Lc' = (\alabelset',S')$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $\alabelset' = \alabelset \cup \{ \alabel \}$. %We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively.
 
-    Given $(b,V) \in S$, and assume operation $\alabel'$ generates $(b,V)$. By Annotation2 of $S$ and the causal delivery assumption, we can see that, $(\alabel,\alabel') \notin \avisord$. By $fact1$, we can see that, $\neg (V' < V)$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$.
+    Given $(b,V) \in S$, and assume operation $\alabel'$ generates $(b,V)$. By Annotation2 of the local configuration $Lc$ and the causal delivery assumption, we can see that, $(\alabel,\alabel') \notin \avisord$. By $fact1$, we can see that, $\neg (V' < V)$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$.
 
-    By the causal delivery assumption, for each operation $\alabel'$ such that $(\alabel,\alabel') \in \avisord$, the effector of $\alabel$ has not been applied in $S'$, and then, the effector of $\alabel$ has not been applied in $S$. Therefore, Annotation2 still holds in $S'$. %$\aglobalstate'$.
+    By the causal delivery assumption, for each operation $\alabel'$ such that $(\alabel,\alabel') \in \avisord$, the effector of $\alabel$ has not been applied in $S'$, and then, the effector of $\alabel$ has not been applied in $S$. Therefore, Annotation2 still holds in local configuration $Lc'$. %$\aglobalstate'$. 
 
     %By the causal delivery assumption, if $\alabel$ is visible to an operation $\alabel'$, then the effector of $\alabel'$ has not been applied in $\aglobalstate'$ yet. By Annotation2, $fact1$ and $fact2$, we know that, $\forall (b,V) \in S$, we have $\neg(V > V')$. Therefore, we have $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$. By $fact1$ and $fact2$, each element in $\{ (b,V) \vert (b,V) \in S \wedge V < V' \}$ is visible to $\alabel$, and they are not in $S'$. Therefore, Annotation2 still holds in $\aglobalstate'$.
 \end{itemize}
@@ -664,7 +669,7 @@ Let us prove that applying effectors of concurrent operations commute, and we on
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] $(V < V_1) \vee V < V_2$,
+    \item[-] $(V < V_1) \vee (V < V_2)$,
 
     \item[-] $(b,V) = (a_1,V_1)$, $V_1 < V_2$, or there exists $(c,V_c) \in S$, such that $V_1 < V_c$,
 
@@ -676,41 +681,41 @@ Let us prove that applying effectors of concurrent operations commute, and we on
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] For the effector $(a,V')$ produced by $\alabel = \alabelshort[{\tt write}]{a,V',S_1}$ and the $\alabelshort[{\tt write}]{a,V',S_1}$ operation of the specification $\specMVReg$:
+    \item[-] For the effector $(a,V_a)$ produced by $\alabel = \alabelshort[{\tt write}]{a,V_a,S_1}$ and the $\alabelshort[{\tt write}]{a,V_a,S_1}$ operation of the specification $\specMVReg$:
 
     %For $(a,V')$ of downstream and $\alabelshort[{\tt write}]{a,V',S_1}$ in sequential specification:
 
-    Assume we obtain replica state $S'$ from $S$ by applying effector $(a,V')$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a,V',S_1}} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
+    Assume we obtain replica state $S'$ from $S$ by applying effector $(a,V_a)$; while in sequential specification we have $\abstate \xrightarrow{\alabelshort[{\tt write}]{a,V_a,S_1}} \abstate'$, and $\refmap(S) = \abstate$, or we can say, $S = \abstate$. We need to prove that $S' = \abstate'$.
 
     Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$. Here additionally, we assume that $S$ is obtained from the initial replica state by applying effectors of $\alabel''_1,\ldots,\alabel''_m$, and we assume that $\alabel = \alabel''_{m+1}$.
 
-    Given $(b,V) \in S$ and assume that operation $\alabel'$ generates $(b,V)$. Since $\alinord$ is consistent with the visibility relation and $fact2$, we can see that, $(\alabel,\alabel') \notin \avisord$. By $fact1$, we can see that, $\neg (V' < V)$. Therefore, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
+    Given $(b,V_b) \in S$ and assume that operation $\alabel_b$ generates $(b,V_b)$. Since $\alinord$ is consistent with the visibility relation and $fact2$, we can see that, $(\alabel,\alabel_b) \notin \avisord$. By $fact1$, we can see that, $\neg (V_a < V_b)$. Therefore, we can see that $S' = S \setminus S_2 \cup \{ (a,V_a) \}$, where $S_2 = \{ (b,V_b) \vert (b,V_b) \in S \wedge V_b < V_a \}$.
 
     %By the causal delivery assumption, if $(\alabel,\alabel') \in \avisord$, then the effector of $\alabel'$ has not been applied yet in the replica of $S$. By Annotation2, $fact1$ and $fact2$, we can see that, $\forall (b,V) \in S$, $\neg(V > V')$. Therefore, we can see that $S' = S \setminus S_2 \cup \{ (a,V') \}$, where $S_2 = \{ (b,V) \vert (b,V) \in S \wedge V < V' \}$.
 
     %According to Annotation2, we can see that,
 
-    By $fact2$, $S_1 = \{ (b,V) \vert \exists \alabel', l'$ generates the effector $(b,V), \alabel'$ is maximal among {\tt write} operations visible to $l \}$. We can see that $\abstate' = \abstate \setminus S_1 \cup \{ (a,V') \}$.
+    Assume that from local configuration $Lc = (\alabelset,S_1)$, we do operation $\alabel$. By Annotation2 of the local configuration $Lc$, we can see that, $S_1 = \{ (b,V_b) \vert \exists \alabel', \alabel'$ generates the effector $(b,V_b), \alabel'$ is maximal among {\tt write} operations visible to $l \}$. We can see that $\abstate' = \abstate \setminus S_1 \cup \{ (a,V_a) \}$.
 
     Let us prove $S' = \abstate'$ by contradiction.
 
         \begin{itemize}
         \setlength{\itemsep}{0.5pt}
-        \item[-] If there exists item $(c,V'')$ in $\abstate'$ but not in $S'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_1$, and $(c,V'') \in S_2$.
+        \item[-] If there exists item $(c,V_c)$ in $\abstate'$ but not in $S'$: we can see that $(c,V_c) \in S$, $(c,V_c) \notin S_1$, and $(c,V_c) \in S_2$.
 
-        Let $\alabel_c$ be the operation that generates effector $(c,V'')$. Since $(c,V'') \in S_2$, by $fact1$, we can see that, $(\alabel_c,\alabel) \in \avisord$. Since $(c,V'') \notin S_1$, we know that there exists a {\tt write} operation $\alabel_1$, such that $(\alabel_c,\alabel_1)$, $(\alabel_1,\alabel) \in \avisord$. Assume the effector of $\alabel_1$ is $(a_1,V_1)$. By $fact1$, we can see that, $V'' < V_1$.
+        Let $\alabel_c$ be the operation that generates effector $(c,V_c)$. Since $(c,V_c) \in S_2$, by $fact1$, we can see that, $(\alabel_c,\alabel) \in \avisord$. Since $(c,V_c) \notin S_1$, we know that there exists a {\tt write} operation $\alabel_d$, such that $(\alabel_c,\alabel_d)$, $(\alabel_d,\alabel) \in \avisord$. Assume the effector of $\alabel_d$ is $(a_d,V_d)$. By $fact1$, we can see that, $V_c < V_d$.
 
-        Since $(\alabel_1,\alabel) \in \avisord$ and $\alinord$ is consistent with the visibility relation, we can see that, $\alabel_1 = \alabel''_i$ for some $i \leq m$. Since $(c,V'') \in S$, we can see that the effector of $\alabel_1$ has not been applied yet in $S$. This contradicts the assumption that, $S$ is obtained from the initial replica state by applying effectors of $\alabel''_1,\ldots,\alabel''_m$ and $\alabel_1 = \alabel''_i$ for some $i \leq m$.
+        Since $(\alabel_d,\alabel) \in \avisord$ and $\alinord$ is consistent with the visibility relation, we can see that, $\alabel_d = \alabel''_i$ for some $i \leq m$. Since $(c,V_c) \in S$ and $V_c < V_d$, we can see that the effector of $\alabel_d$ has not been applied yet in $S$. This contradicts the assumption that, $S$ is obtained from the initial replica state by applying effectors of $\alabel''_1,\ldots,\alabel''_m$ and $\alabel_d = \alabel''_i$ for some $i \leq m$.
 
 
         %and also the effector of $\alabel_1$ has not been applied yet in $S'$, while in $S'$, the effector of $\alabel$ has been applied. Since $(\alabel_1,\alabel) \in \avisord$, we can see that this violates the causal delivery assumption.
 
-        \item[-] If there exists item $(c,V'')$ in $S'$ but not in $\abstate'$: we can see that $(c,V'') \in S$, $(c,V'') \notin S_2$, and $(c,V'') \in S_1$.
+        \item[-] If there exists item $(c,V_c)$ in $S'$ but not in $\abstate'$: we can see that $(c,V_c) \in S$, $(c,V_c) \notin S_2$, and $(c,V_c) \in S_1$.
 
-        Let $\alabel_c$ be the operation that generates effector $(c,V'')$. Since $(c,V'') \notin S_2$, we know that $\neg(V'' < V')$. Since $(c,V'') \in S_1$, we know that $(\alabel_c,\alabel) \in \avisord$. This contradicts $fact1$.
+        Let $\alabel_c$ be the operation that generates effector $(c,V_c)$. Since $(c,V_c) \notin S_2$, we know that $\neg(V_c < V_a)$. Since $(c,V_c) \in S_1$, we know that $(\alabel_c,\alabel) \in \avisord$. This contradicts $fact1$.
         \end{itemize}
 
-    Therefore, we know that $S' = \abstate'$, and the case of the effector $(a,V')$ and the $\alabelshort[{\tt write}]{a,V',S_1}$ operation of the specification $\specMVReg$ holds.
+    Therefore, we know that $S' = \abstate'$, and the case of the effector $(a,V_a)$ and the $\alabelshort[{\tt write}]{a,V_a,S_1}$ operation of the specification $\specMVReg$ holds.
 
     \item[-] Whenever the query-update $\alabelshort[{\tt remove}]{a}$ executes atSource on a state $S$, the query $\alabellong[{\tt readIds}]{}{R}{}$ introduced by the query-update rewriting should be enabled in the specification state $\refmap(S)=\abstate=S$. This clearly holds because the the computation of $R$ in {\tt atSource} returns $S$, and the result of $\alabelshort[readIds]{}$ in the specification state $\abstate = S$ also returns $S$.
 
@@ -2227,7 +2232,7 @@ When there is no causal delivery assumption, the operation-based multi-value reg
 
 \begin {proof}
 
-The proof of this lemma is quite similar to that of Lemma \ref{lemma:multi-value register is correct}. The differences are: proof of $fact1$, definition of Annotation2, the proof of Annotation1 and Annotation2, and the proof of $\mathsf{ReplicaStates}$.
+The proof of this lemma is quite similar to that of Lemma \ref{lemma:multi-value register is correct}. The differences are: the proof of $fact1$, the proof of Annotation1 and Annotation2, and the proof of $\mathsf{ReplicaStates}$.
 
 We prove $fact1$ as follows: Assume $\alabel_2$ happens on replica $\arep$. Since $(\alabel_1,\alabel_2) \in \avisord$, there are two possibilities:
 
@@ -2243,9 +2248,9 @@ For both cases, according to the implementations, we can see that, $V_1 < V_2$.
 Similarly, based on $fact1$, we can see that, assume $(a_1,V_1)$ and $(a_2,V_2)$ is the effector for $\alabel_1$ and $\alabel_2$, respectively, and assume that $\alabel_1$ and $\alabel_2$ are concurrent. Then, $\neg (V_1 < V_2 \vee V_2 < V_1)$.
 
 
-Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration. Annotation2 of this Lemma is similar to that of Lemma \ref{lemma:multi-value register is correct}.
+%Let us propose Annotation2, which is an annotation of replica state and obviously holds in the initial global configuration. Annotation2 of this Lemma is similar to that of Lemma \ref{lemma:multi-value register is correct}.
 
-\noindent Annotation2: Let $S$ be the replica state of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel, l$ generates the effector $(a,V), \alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset$ of $S$ $\}$.
+%\noindent Annotation2: Let $S$ be the replica state of a replica. Then, $S$ =  $\{ (a,V) \vert \exists \alabel, l$ generates the effector $(a,V), \alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset$ of $S$ $\}$.
 
 
 Let us prove that the Annotation1 and Annotation2 are inductive invariant.
@@ -2256,19 +2261,21 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 \setlength{\itemsep}{0.5pt}
 \item[-] For case when replica $\arep$ do generator of a {\tt write} operation $\alabel$ and then apply its effector: Similar as that of the proof of Lemma \ref{lemma:multi-value register is correct}. Note that here the visibility relation is still transitive.
 
-\item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$ originated in a different replica: We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $\alabelset_S$ be the $\alabelset$ of $S$. Then, there are two possibilities:
+\item[-] For case when replica $\arep$ apply effector $(a,V')$ of a {\tt write} operation $\alabel$ originated in a different replica: Let $Lc = (\alabelset,S)$ and $Lc' = (\alabelset',S')$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $\alabelset' = \alabelset \cup \{ \alabel \} \cup \avisord^{-1}(\alabel)$. %We only need to prove Annotation2. Let $S$ and $S'$ be the replica state of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $\alabelset_S$ be the $\alabelset$ of $S$.
+    Then, there are two possibilities:
 
     \begin{itemize}
     \setlength{\itemsep}{0.5pt}
-    \item[-] If $\alabel \in \alabelset_S$: By Annotation2 of $S$, either $\alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset_S$, or there exists an operation $\alabel'$, such that $(\alabel,\alabel') \in \avisord$, and $\alabel'$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset_S$.
+    \item[-] If $\alabel \in \alabelset$: By Annotation2 of the local configuration $Lc$, either $\alabel$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset$, or there exists an operation $\alabel'$, such that $(\alabel,\alabel') \in \avisord$, and $\alabel'$ is maximal w.r.t $\avisord$ among {\tt write} operations of $\alabelset$.
 
-        In the first case, by Annotation2 of $S$, we can see that, the effector of $\alabel$ has already been applied in $S$. This contradicts the fact that an effector can not be applied more than once on a same replica. Therefore, the first case is impossible.
+        In the first case, by Annotation2 of the local configuration $Lc$, we can see that, the effector of $\alabel$ has already been applied in $S$. This contradicts the fact that an effector can not be applied more than once on a same replica. Therefore, the first case is impossible.
 
-        In the second case, assume that $(b,V_b)$ is the effector of $\alabel'$. By $fact1$, we can see that, $V' < V_b$. By the implementation, we can see that, $S = S'$. Therefore, Annotation2 still holds in $S'$.
+        In the second case, assume that $(b,V_b)$ is the effector of $\alabel'$. By $fact1$, we can see that, $V' < V_b$. By the implementation, we can see that, $S = S'$. Therefore, Annotation2 still holds in the local configuration $Lc'$. 
 
-    \item[-] If $\alabel \notin \alabelset_S$: Given $(b,V_b) \in S$, and assume that operation $\alabel'$ generates $(b,V_b)$. By Annotation2 of $S$, we can see that, $\alabel$ is not visible to $\alabel'$. By $fact1$, we can see that, $\neg (V' < V_b)$. By the implementation, we can see that, $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$.
+    \item[-] If $\alabel \notin \alabelset$: Given $(b,V_b) \in S$, and assume that operation $\alabel'$ generates $(b,V_b)$. Since the visibility relation is transitive, %By Annotation2 of $S$,
+        we can see that, $\alabel$ is not visible to $\alabel'$. By $fact1$, we can see that, $\neg (V' < V_b)$. By the implementation, we can see that, $S' = S \setminus \{ (b,V) \vert (b,V) \in S \wedge V < V' \} \cup \{ (a,V') \}$.
 
-        For each operation $\alabel'$ such that $(\alabel,\alabel') \in \avisord$. If $\alabel' \in \alabelset_S$, since the visibility relation is transitive, we can see that, $\alabel \in \alabelset_S$, which contradicts the assumption that, $\alabel \notin \alabelset_S$. Therefore, we can see that, $\alabel' \notin \alabelset_S$. Therefore, Annotation2 still holds in $S'$.
+        For each operation $\alabel'$ such that $(\alabel,\alabel') \in \avisord$. If $\alabel' \in \alabelset$, since the visibility relation is transitive, we can see that, $\alabel \in \alabelset$, which contradicts the assumption that $\alabel \notin \alabelset$. Therefore, we can see that $\alabel' \notin \alabelset$. Therefore, Annotation2 still holds in the local configuration $Lc'$. 
     \end{itemize}
 \end{itemize}
 
@@ -2555,7 +2562,7 @@ We prove $\mathsf{ReplicaStates}$ by induction on execution. It is obvious that 
 \item[-] When a message $(\alabelset_2,\astate_2)$ is applied in this replica: By induction assumption, we can see that, the replica state $\astate_2$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_2$ in the order defined by $\alinord$. According to the properties of {\tt merge}, it is easy to see that, the replica state $\alabelshort[{\tt merge}]{\astate_1,\astate_2}$ is obtained by merging the ``virtual messages'' of operations in $\alabelset_1 \cup \alabelset_2$ in the order defined by $\alinord$.
 \end{itemize}
 
-We still need to prove $\mathsf{Refinement}$. With $\mathsf{ReplicaStates}$ and $\mathsf{Refinement}$, we can prove $\mathsf{\CRDTLinshort{}}$ similarly as that of \sectionautorefname \ref{subsec:time order of execution as linearization} or \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}. 
+We still need to prove $\mathsf{Refinement}$. With $\mathsf{ReplicaStates}$ and $\mathsf{Refinement}$, we can prove $\mathsf{\CRDTLinshort{}}$ similarly as that of \sectionautorefname \ref{subsec:time order of execution as linearization} or \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}.
 
 
 
@@ -2591,13 +2598,13 @@ captionpos=b,label={lst:state-based PN-counter}]
     return c
 
   compare(X, Y): boolean b
-    let b  = @|$ ( \forall 0 \leq \arep < reps(), X.P[\arep] \leq Y.P[\arep] )$|@ @|$\wedge$|@ @|$ ( \forall 0 \leq \arep < reps(), X.N[\arep] \leq Y.N[\arep] )$|@ 
-    return b 
+    let b  = @|$ ( \forall 0 \leq \arep < reps(), X.P[\arep] \leq Y.P[\arep] )$|@ @|$\wedge$|@ @|$ ( \forall 0 \leq \arep < reps(), X.N[\arep] \leq Y.N[\arep] )$|@
+    return b
 
   merge(X, Y): payload Z
     for each @|$0 \leq \arep < reps()$|@, @|$Z.P[\arep] = max( X.P[\arep], Y.P[\arep] )$|@
-    for each @|$0 \leq \arep < reps()$|@, @|$Z.N[\arep] = max( X.N[\arep], Y.N[\arep] )$|@ 
-    return Z 
+    for each @|$0 \leq \arep < reps()$|@, @|$Z.N[\arep] = max( X.N[\arep], Y.N[\arep] )$|@
+    return Z
 \end{lstlisting}
 \end{figure}
 
@@ -2628,47 +2635,49 @@ We prove by induction on executions. Obvious they hold in $\aglobalstate_0$. Ass
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] For case when replica $\arep$ do a {\tt inc} operation $\alabel$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that a new ``virtual message'' $(\alabel,(P',N'))$ is generated. 
+\item[-] For case when replica $\arep$ do a {\tt inc} operation $\alabel$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that a new ``virtual message'' $(\alabel,(P',N'))$ is generated.
 
-    It is easy to see that $P'=P[r:P[r]+1]$, $N'=N$, and $\alabelset' = \alabelset \cup \{ \alabel \}$. By Annotation3 of the local configuration $Lc$, we can see that Annotation3 for the local configuration $Lc'$ holds, and Annotation2 for the ``virtual message'' $(\alabel,(P',N'))$ holds. 
+    It is easy to see that $P'=P[r:P[r]+1]$, $N'=N$, and $\alabelset' = \alabelset \cup \{ \alabel \}$. By Annotation3 of the local configuration $Lc$, we can see that Annotation3 for the local configuration $Lc'$ holds, and Annotation2 for the ``virtual message'' $(\alabel,(P',N'))$ holds.
 
-\item[-] For case when replica $\arep$ generated a message $msg$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $msg = (\alabelset,(P,N))$ and $Lc = Lc'$. 
+\item[-] For case when replica $\arep$ generated a message $msg$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. It is easy to see that $msg = (\alabelset,(P,N))$ and $Lc = Lc'$.
 
     By Annotation3 of the local configuration $Lc$, we can see that Annotation3 for the local configuration $Lc'$ holds, and Annotation1 for the message $msg$ holds.
 
-\item[-] For case when replica $\arep$ apply message $msg$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $msg = (\alabelset_1,(P_1,N_1))$. 
+\item[-] For case when replica $\arep$ apply message $msg$: Let $Lc = (\alabelset,(P,N))$ and $Lc' = (\alabelset',(P',N'))$ be the local configuration of replica $\arep$ of $\aglobalstate$ and $\aglobalstate'$, respectively. Let $msg = (\alabelset_1,(P_1,N_1))$.
 
     Given a replica $\arep$, let $V_1(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep, \alabel' \in \alabelset \}$, let $V_2(\arep)$ =  $\{ \alabel' \vert \alabel' = \alabelshort[{\tt inc}]{}, \alabel'$ happens on replica $\arep, \alabel' \in \alabelset_1 \}$.
 
-    It is easy to see that $\alabelset' = \alabelset \cup \alabelset_1$. Since the visibility relation is transitive, and the visibility relation is a total order on operations happen on replica $\arep$, we can see that, $( V_1(\arep) \subseteq V_2(\arep) ) \vee ( V_2(\arep) \subseteq V_1(\arep) )$. It is easy to see that, $P'[\arep]$ = $\mathsf{max}\{ P[\arep], P_1[\arep] \}$ = $\mathsf{max}\{ \vert V_1(\arep) \vert ,\vert V_2(\arep) \vert \}$. By Annotation3 of the local configuration $Lc$ and Annotation1 of the message $msg$, we can see that, Annotation3 for the local configuration $Lc'$ holds. 
+    It is easy to see that $\alabelset' = \alabelset \cup \alabelset_1$. Since the visibility relation is transitive, and the visibility relation is a total order on operations happen on replica $\arep$, we can see that, $( V_1(\arep) \subseteq V_2(\arep) ) \vee ( V_2(\arep) \subseteq V_1(\arep) )$. It is easy to see that, $P'[\arep]$ = $\mathsf{max}\{ P[\arep], P_1[\arep] \}$ = $\mathsf{max}\{ \vert V_1(\arep) \vert ,\vert V_2(\arep) \vert \}$. By Annotation3 of the local configuration $Lc$ and Annotation1 of the message $msg$, we can see that, Annotation3 for the local configuration $Lc'$ holds.
 
 \item[-] The case of {\tt dec} can be similarly proved.
 \end{itemize}
 
-This completes the proof of Annotation1 and Annotation2.
+This completes the proof of Annotation1, Annotation2 and Annotation3. 
 
 
 %\noindent {\bf Propose $fact1$}:
 
 Let us propose $fact1$:
 
-$fact1$: Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$, and for each $i$, the ``virtual message'' of $\alabel''_i$ is $(\alabel_i,(P''_i,N''_i))$. Assume that $(P,N)$ is obtained from the initial replica state by merging $(P''_1,N''_1),\ldots,(P''_n,N''_n)$. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$.
+$fact1$: Assume $\alinord = \alabel''_1 \cdot \ldots \cdot \alabel''_n$, and for each $i$, the ``virtual message'' of $\alabel''_i$ is $(\alabel_i,(P''_i,N''_i))$. Assume that $(P,N)$ is obtained from the initial replica state by merging $(P''_1,N''_1),\ldots,(P''_n,N''_n)$. Then, for each replica $\arep$, $P[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt inc}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$, $N[\arep]$ =  $\vert \{ \alabel \vert \alabel = \alabelshort[{\tt dec}]{}, \alabel$ happens on replica $\arep$, and $\alabel \in \{ \alabel''_1,\ldots,\alabel''_n \} \} \vert$. 
+
+The proof of $fact1$ is same as that of Lemma \ref{lemma:operation-based PN-counter is correct}. 
 
 
 %\noindent {\bf Prove $fact1$}:
 
-We prove $fact1$ by induction on $\alinord$. Obviously $fact1$ holds initially.
+%We prove $fact1$ by induction on $\alinord$. Obviously $fact1$ holds initially.
 
-Assume that $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_m$, and assume that $\alabel''_{m+1} = \alabelshort[{\tt inc}]{}$, and $\alabel''_{m+1}$ happens on replica $\arep_{m+1}$. We need to prove that $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$.
+%Assume that $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_m$, and assume that $\alabel''_{m+1} = \alabelshort[{\tt inc}]{}$, and $\alabel''_{m+1}$ happens on replica $\arep_{m+1}$. We need to prove that $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$.
 
-Assume that $(P,N)$ is obtained from the initial replica state by merging $(P''_1,N''_1),\ldots,(P''_m,N''_m)$, and $(P',N')$ is obtained from $(P,N)$ by merging $(P''_{m+1},N''_{m+1})$.
+%Assume that $(P,N)$ is obtained from the initial replica state by merging $(P''_1,N''_1),\ldots,(P''_m,N''_m)$, and $(P',N')$ is obtained from $(P,N)$ by merging $(P''_{m+1},N''_{m+1})$.
 
-Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we can see that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, for each replica $\arep' \neq \arep_{m+1}$, we have $P''_{m+1}[\arep'] \leq P[\arep']$ and $N''_{m+1}[\arep'] \leq N[\arep']$.
+%Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we can see that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, for each replica $\arep' \neq \arep_{m+1}$, we have $P''_{m+1}[\arep'] \leq P[\arep']$ and $N''_{m+1}[\arep'] \leq N[\arep']$.
 
-Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]+1$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$.
+%Obviously, $\alabel''_{m+1} \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Since $\alinord$ is consistent with the visibility relation, for each operation $\alabel_2$ such that $(\alabel''_{m+1},\alabel_2) \in \avisord$, $l_2$ is after $\alabel''_{m+1}$ in $\alinord$, and thus, $\alabel_2 \notin \{ \alabel''_1,\ldots,\alabel''_n \}$. Especially, this holds for operations happen on replica $\arep_{m+1}$. By Annotation1 of the effector $(P''_{m+1},N''_{m+1})$ and induction assumption, we can see that, $P''_{m+1}[\arep_{m+1}] = P[\arep_{m+}]+1$ and $N''_{m+1}[\arep_{m+1}] = N[\arep_{m+1}]$.
 
-Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. %Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$. 
-Thus, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
+%Therefore, we can see that, $P' = P[\arep_{m+1}: P[\arep_{m+1}]+1]$ and $N' = N$. %Recall that for each operation $\alabel_1$ such that $(\alabel_1,\alabel''_{m+1}) \in \avisord$, we have that $\alabel_1 \in \{ \alabel''_1,\dots,\alabel''_m \}$.
+%Thus, $fact1$ holds for $\alabel''_1 \cdot \ldots \cdot \alabel''_{m+1}$. This completes the proof of $fact1$.
 
 %\noindent {\bf Other parts}.
 
@@ -2676,13 +2685,13 @@ Then, our proof of the lemma proceed as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0.5pt}
-\item[-] We need to prove that $\mathsf{ReplicaStates}$ are inductive invariant. 
+\item[-] We need to prove that $\mathsf{ReplicaStates}$ are inductive invariant.
 
-It is obvious that the order introduced by {\tt merge} is a partial order. Given $(P_1,N_1), (P_2,N_2)$, let $(P_3,N_3) = \alabelshort[{\tt merge}]{ (P_1,N_1), (P_2,N_2) }$. It is easy to see that $(P_1,N_1) \leq (P_3,N_3)$ and $(P_2,N_2) \leq (P_3,N_3)$. Let us prove that there does not exist $(P_4,N_4)$, such that $( (P_4,N_4)<(P_3,N_3) )$ $\wedge$ $((P_1,N_1) \leq (P_4,N_4))$ $\wedge$ $((P_2,N_2) \leq (P_4,N_4))$. We prove this by contradiction. Assume such $(P_4,N_4)$ exists. It is easy to see that there exists a replica $\arep$, such that $(P_4[\arep] < max ( P_1[\arep],P_2[\arep] )) \vee (N_4[\arep] < max ( N_1[\arep],N_2[\arep] ))$. This contradicts that $((P_1,N_1) \leq (P_4,N_4))$ $\wedge$ $((P_2,N_2) \leq (P_4,N_4))$. Therefore, we can see that {\tt merge} returns the least upper bound. 
+It is obvious that the order introduced by {\tt merge} is a partial order. Given $(P_1,N_1), (P_2,N_2)$, let $(P_3,N_3) = \alabelshort[{\tt merge}]{ (P_1,N_1), (P_2,N_2) }$. It is easy to see that $(P_1,N_1) \leq (P_3,N_3)$ and $(P_2,N_2) \leq (P_3,N_3)$. Let us prove that there does not exist $(P_4,N_4)$, such that $( (P_4,N_4)<(P_3,N_3) )$ $\wedge$ $((P_1,N_1) \leq (P_4,N_4))$ $\wedge$ $((P_2,N_2) \leq (P_4,N_4))$. We prove this by contradiction. Assume such $(P_4,N_4)$ exists. It is easy to see that there exists a replica $\arep$, such that $(P_4[\arep] < max ( P_1[\arep],P_2[\arep] )) \vee (N_4[\arep] < max ( N_1[\arep],N_2[\arep] ))$. This contradicts that $((P_1,N_1) \leq (P_4,N_4))$ $\wedge$ $((P_2,N_2) \leq (P_4,N_4))$. Therefore, we can see that {\tt merge} returns the least upper bound.
 
 Given a replica $\arep$ with local configuration $(\alabelset,(P,N))$, when such replica do a {\tt inc} operation $\alabel$ and results a new local configuration $(\alabelset \cup \{ \alabel \},(P',N'))$: By Annotation3 of the local configuration $(\alabelset,(P,N))$ and Annotation3 of the local configuration $(\alabelset \cup \{ \alabel \},(P',N'))$, we can see that $P' = P[\arep: P[\arep]+1]$ and $N' = N$. Therefore, we can see that $ \alabelshort[{\tt merge}]{ (P,N), (P',N') } = (P',N')$. The case for {\tt dec} is similar.
 
-\item[-] The proof of $\mathsf{Refinement}$ is same as that of Lemma \ref{lemma:operation-based PN-counter is correct}. 
+\item[-] The proof of $\mathsf{Refinement}$ is same as that of Lemma \ref{lemma:operation-based PN-counter is correct}.
 
 \item[-] We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time order of execution as linearization}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant.
 \end{itemize}
@@ -2701,7 +2710,7 @@ The state-based LWW-register implementation of \cite{ShapiroPBZ11} is given in L
 
 \begin{figure}[t]
 \begin{lstlisting}[frame=top,caption={Pseudo-code of state-based LWW-register},
-captionpos=b,label={lst:state-based LWW-regiser}] 
+captionpos=b,label={lst:state-based LWW-regiser}]
   payload X x, timestamp @|$\ats$|@
   initial @|$x_0$|@, @|$\ats_0$|@
   initial lin = @|$\epsilon$|@
@@ -2713,39 +2722,39 @@ captionpos=b,label={lst:state-based LWW-regiser}]
 
   read() :
     //@ lin = lin@|$\,\cdot\,$|@(read()@|$\Rightarrow$|@x)
-    return x 
+    return x
 
   compare(@|$(x_1,\ats_1)$|@, @|$(x_2,\ats_2)$|@): boolean b
-    let b  = @|$\ats_1 < \ats_2$|@ 
-    return b 
+    let b  = @|$\ats_1 < \ats_2$|@
+    return b
 
-  merge(@|$(x_1,\ats_1)$|@, @|$(x_2,\ats_2)$|@): @|$(x_3,\ats_3)$|@ 
-    if @|$\ats_1 \leq \ats_2$|@ 
-      then @|$(x_3,\ats_3)$|@ = @|$(x_2,\ats_2)$|@ 
-    else 
-      @|$(x_3,\ats_3)$|@ = @|$(x_1,\ats_1)$|@ 
-    return @|$(x_3,\ats_3)$|@ 
+  merge(@|$(x_1,\ats_1)$|@, @|$(x_2,\ats_2)$|@): @|$(x_3,\ats_3)$|@
+    if @|$\ats_1 \leq \ats_2$|@
+      then @|$(x_3,\ats_3)$|@ = @|$(x_2,\ats_2)$|@
+    else
+      @|$(x_3,\ats_3)$|@ = @|$(x_1,\ats_1)$|@
+    return @|$(x_3,\ats_3)$|@
 \end{lstlisting}
 \end{figure}
 
 
 
-The following lemma states that the state-based LWW-register is \crdtlinearizable{} w.r.t. $\specReg$.  
+The following lemma states that the state-based LWW-register is \crdtlinearizable{} w.r.t. $\specReg$.
 
 \begin{lemma}
 \label{lemma:state-based LWW-register is correct}
 The state-based LWW-register is \crdtlinearizable{} w.r.t $\specReg$.
 \end{lemma}
 
-\begin {proof} 
+\begin {proof}
 
 We need to prove that $\mathsf{ReplicaStates}$ are inductive invariant.
 
-It is obvious that the order introduced by {\tt merge} is a partial order. Given $(x_1,\ats_1), (x_2,\ats_2)$, let $(x_3,\ats_3) = \alabelshort[{\tt merge}]{ (x_1,\ats_1), (x_2,\ats_2) }$. It is easy to see that $(x_1,\ats_1) \leq (x_3,\ats_3)$ and $(x_2,\ats_2) \leq (x_3,\ats_3)$. Let us prove that there does not exist $(x_4,\ats_4)$, such that $( (x_4,\ats_4)<(x_3,\ats_3) )$ $\wedge$ $((x_1,\ats_1) \leq (x_4,\ats_4))$ $\wedge$ $((x_2,\ats_2) \leq (x_4,\ats_4))$. We prove this by contradiction. Assume such $(x_4,\ats_4)$ exists. It is easy to see that $(\ats_4 < \ats_1) \vee (\ats_4 < \ats_2)$. This contradicts that $((x_1,\ats_1) \leq (x_4,\ats_4))$ $\wedge$ $((x_2,\ats_2) \leq (x_4,\ats_4))$. Therefore, we can see that {\tt merge} returns the least upper bound. 
+It is obvious that the order introduced by {\tt merge} is a partial order. Given $(x_1,\ats_1), (x_2,\ats_2)$, let $(x_3,\ats_3) = \alabelshort[{\tt merge}]{ (x_1,\ats_1), (x_2,\ats_2) }$. It is easy to see that $(x_1,\ats_1) \leq (x_3,\ats_3)$ and $(x_2,\ats_2) \leq (x_3,\ats_3)$. Let us prove that there does not exist $(x_4,\ats_4)$, such that $( (x_4,\ats_4)<(x_3,\ats_3) )$ $\wedge$ $((x_1,\ats_1) \leq (x_4,\ats_4))$ $\wedge$ $((x_2,\ats_2) \leq (x_4,\ats_4))$. We prove this by contradiction. Assume such $(x_4,\ats_4)$ exists. It is easy to see that $(\ats_4 < \ats_1) \vee (\ats_4 < \ats_2)$. This contradicts that $((x_1,\ats_1) \leq (x_4,\ats_4))$ $\wedge$ $((x_2,\ats_2) \leq (x_4,\ats_4))$. Therefore, we can see that {\tt merge} returns the least upper bound.
 
-Given a replica $\arep$ with local configuration $(\alabelset,(x,\ats))$, when such replica do a $\alabelshort[{\tt write}]{a}$ operation $\alabel$ and results a new local configuration $(\alabelset \cup \{ \alabel \},(a,\ats_a))$: Since the timestamp order is consistent with the visibility order, we can see that $\ats < \ats_a$. Therefore, we can see that $ \alabelshort[{\tt merge}]{ (x,\ats), (a,\ats_a) } = (a,\ats_a)$. 
+Given a replica $\arep$ with local configuration $(\alabelset,(x,\ats))$, when such replica do a $\alabelshort[{\tt write}]{a}$ operation $\alabel$ and results a new local configuration $(\alabelset \cup \{ \alabel \},(a,\ats_a))$: Since the timestamp order is consistent with the visibility order, we can see that $\ats < \ats_a$. Therefore, we can see that $ \alabelshort[{\tt merge}]{ (x,\ats), (a,\ats_a) } = (a,\ats_a)$.
 
-The proof of $\mathsf{Refinement}$ is same as that of Lemma \ref{lemma:operation-based LWW-register is correct}. 
+The proof of $\mathsf{Refinement}$ is same as that of Lemma \ref{lemma:operation-based LWW-register is correct}.
 
 We have already prove that $\mathsf{ReplicaStates}$ is an inductive invariant and $\mathsf{Refinement}$ holds. Then, similarly as in \sectionautorefname \ref{subsec:time-stamp order as linearizabtion}, we can prove that $\mathsf{\CRDTLinshort{}}$ is an inductive invariant. $\qed$
 \end {proof}
